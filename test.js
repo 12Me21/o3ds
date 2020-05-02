@@ -1,3 +1,5 @@
+alert("version 1");
+
 var me = new Myself();
 me.logIn(undefined, undefined, console.log);
 
