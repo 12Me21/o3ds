@@ -1,3 +1,20 @@
+// #########################
+//  REQUEST CALLBACK FORMAT
+// #########################
+// Generally, request callbacks will be passed 2 values:
+// status: String
+//  the status of the request (similar to http status codes)
+//  possible values:
+//  'ok' - request was successful (http 200)
+//  'auth' - request failed due to invalid auth token (http 400/401)
+//  'timeout' - request timed out (http 204/408)
+//  'error' - any other error
+// data: String, Object, or undefined
+//  the data returned by the response, if any
+//  if the text was JSON, it will be parsed, otherwise left as a string
+//  this may contain information about errors in the case of an 'error' status
+
+
 // outcomes:
 // - success (200)
 // - invalid auth (40x)
@@ -13,14 +30,14 @@
 //           data is the data, either an object or a string
 // data: data to send (optional)
 // auth: auth token (optional)
-var SERVER = "https://newdev.smilebasicsource.com/api/";
+sbs2Request.SERVER = "https://newdev.smilebasicsource.com/api/";
 function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
 		cancel[0] = function() {
 			x.abort();
 		}
-	x.open(method, SERVER+endpoint);
+	x.open(method, sbs2Request.SERVER + endpoint);
 	x.onload = function() {
 		var code = x.status;
 		var type = x.getResponseHeader('Content-Type');
@@ -35,12 +52,17 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 		}
 		if (code==200)
 			callback('ok', resp);
-		else if (code==408)
+		else if (code==408 || code==204)
+			// record says server uses 408, testing showed only 204
+			// basically this is treated as an error condition,
+			// except during long polling, where it's a normal occurance
 			callback('timeout', resp);
 		else if (code==400 || code==401)
 			callback('auth', resp);
-		else
-			callback('error', resp);
+		else {
+			console.log("REQ FAIL", code);
+			callback('error', resp, code);
+		}
 	}
 	x.onerror = function() {
 		callback('error');
@@ -55,6 +77,13 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 	}
 }
 
+function queryString(obj) {
+	var str = Object.keys(obj).map(function(key){
+		return encodeURIComponent(key)+"="+encodeURIComponent(obj[key]);
+	}).join("&");
+	return str ? "?"+str : "";
+}
+
 // requester thing
 function Myself() {
 }
@@ -64,10 +93,9 @@ function Myself() {
 Myself.prototype.logOut = function() {
 	// todo: it's possible for this to get called when not logged in
 	// like, when trying to log in with an incorrect password
+	this.auth = undefined;
 	localStorage.removeItem('auth');
 	console.log("auth error, logging out");
-	
-	
 }
 
 // make a request, passing auth automatically
@@ -119,7 +147,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 		// if auth is not valid, will trigger a logout, but not immediately
 		callback.call($, 'ok', cached);
 		$.testAuth(function(){});
-	} else {
+	} else if (username) {
 		$.authenticate(username, password, got);
 	}
 
@@ -132,45 +160,25 @@ Myself.prototype.logIn = function(username, password, callback) {
 	}
 }
 
-
-Myself.prototype.listen = function(id, firstid, lastid, callback, cancel) {
+Myself.prototype.listen = function(id, query, callback, cancel) {
 	var $=this;
-	var url = "Comment/listen/"+id;
-	if (firstid && lastid)
-		url+="?firstid="+firstid+"&lastid="+lastid;
-	else if (firstid)
-		url+="?firstid="+firstid;
-	else if (lastid)
-		url+="?lastid="+lastid;
+	var url = "Comment/listen/"+id+queryString(query);
 	$.request(url, "GET", function(s, resp) {
 		callback.call($, s, resp);
 	}, undefined, cancel);
 }
 
-function run(myself, id, lastid, callback, cancel) {
-	myself.listen(id, undefined, lastid, function(s, resp) {
-		if (s=='ok') {
-			if (resp) {
-				var newest = resp[resp.length-1];
-				if (newest) {
-					lastid = newest.id;
-				}
-			}
-			callback(resp);
-		}
-		if (s=='ok' || s=='timeout') {
-			var t = setTimeout(function() {
-				run(myself, id, lastid, callback, cancel);
-			}, 0);
-			cancel[0] = function() {
-				clearTimeout(t);
-			}
-		} else {
-			console.error("LONG POLLER FAILED");
-		}
-	});
+Myself.prototype.postComment = function(comment, callback) {
+	var $=this;
+	$.request("Comment", "POST", callback);
 }
 
+Myself.prototype.getComments = function(query, callback) {
+	var $=this;
+	$.request("Comment"+queryString(query), "GET", callback);
+}
 
-var me = new Myself();
-me.logIn("12​","sand1234",console.log);
+Myself.prototype.getComment = function(id, callback) {
+	var $=this;
+	$.request("Comment?ids="+id, "GET", callback);
+}
