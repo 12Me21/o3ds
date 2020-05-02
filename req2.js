@@ -22,6 +22,8 @@
 // data: data to send (optional)
 // auth: auth token (optional)
 sbs2Request.SERVER = "https://newdev.smilebasicsource.com/api/";
+if (!Function.prototype.bind)
+	sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
 function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
