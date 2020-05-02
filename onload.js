@@ -23,6 +23,6 @@ function run() {
 function page() {
 	var s = $textarea.value;
 	document.open();
-	document.write($textarea.value);
+	document.write(s);
 	document.close();
 }
