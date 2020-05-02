@@ -3,25 +3,16 @@
 // #########################
 // Generally, request callbacks will be passed 2 values:
 // status: String
-//  the status of the request (similar to http status codes)
+//  the result status of the request (similar to http status codes)
 //  possible values:
 //  'ok' - request was successful (http 200)
-//  'auth' - request failed due to invalid auth token (http 400/401)
+//  'auth' - request failed due to invalid auth token (http 401)
 //  'timeout' - request timed out (http 204/408)
 //  'error' - any other error
 // data: String, Object, or undefined
 //  the data returned by the response, if any
 //  if the text was JSON, it will be parsed, otherwise left as a string
-//  this may contain information about errors in the case of an 'error' status
-
-
-// outcomes:
-// - success (200)
-// - invalid auth (40x)
-// - timeout
-// - other failure
-
-// callback(status, response)
+//  this may contain information about errors in the case of a non-ok status
 
 // Make a request to the sbs2 api
 // endpoint: path
@@ -50,17 +41,18 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 		} else {
 			resp = x.responseText;
 		}
-		if (code==200)
+		if (code==200) {
 			callback('ok', resp);
-		else if (code==408 || code==204)
+		} else if (code==408 || code==204) {
 			// record says server uses 408, testing showed only 204
 			// basically this is treated as an error condition,
 			// except during long polling, where it's a normal occurance
 			callback('timeout', resp);
-		else if (code==400 || code==401)
+		} else if (code==401) {
+			console.log(x);
 			callback('auth', resp);
-		else {
-			console.log("REQ FAIL", code);
+		} else {
+			console.error("sbs2Request: request failed!", x);
 			callback('error', resp, code);
 		}
 	}
@@ -78,26 +70,37 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 }
 
 function queryString(obj) {
-	var str = Object.keys(obj).map(function(key){
-		return encodeURIComponent(key)+"="+encodeURIComponent(obj[key]);
-	}).join("&");
-	return str ? "?"+str : "";
+	if (!obj)
+		return "";
+	var items = [];
+	for (var key in obj) {
+		var val = obj[key];
+		console.log("VAL",val);
+		if (typeof val != 'undefined'){
+			var item = encodeURIComponent(key)+"=";
+			// array items are encoded as
+			// ids:[1,2,3] -> ids=1&ids=2&ids=3
+			
+			if (val instanceof Array) {
+				for(var i=0;i<val.length;i++){
+					items.push(item+encodeURIComponent(val[i]));
+				}
+			// otherwise, key=value
+			} else {
+				items.push(item+encodeURIComponent(val));
+			}
+		}
+	}
+	
+	if (items.length)
+		return "?"+items.join("&");
+	else
+		return "";
 }
 
 // requester thing
 function Myself() {
 }
-
-// Call to trigger a logout event (TODO)
-// called automatically whenever a request has status "auth" (400/401)
-Myself.prototype.logOut = function() {
-	// todo: it's possible for this to get called when not logged in
-	// like, when trying to log in with an incorrect password
-	this.auth = undefined;
-	localStorage.removeItem('auth');
-	console.log("auth error, logging out");
-}
-
 // make a request, passing auth automatically
 // can trigger .logOut() 
 Myself.prototype.request = function(url, method, callback, data, cancel) {
@@ -112,7 +115,19 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 	}, data, $.auth, cancel)
 }
 
-// internal log in function
+// ######
+//  User
+// ######
+
+// Call to trigger a logout event (TODO)
+// called automatically whenever a request has status "auth" (400/401)
+Myself.prototype.logOut = function() {
+	// todo: it's possible for this to get called when not logged in
+	// like, when trying to log in with an incorrect password
+	this.auth = undefined;
+	localStorage.removeItem('auth');
+	console.log("auth error, logging out");
+}
 Myself.prototype.authenticate = function (username, password, callback) {
 	var $=this;
 	$.request("User/authenticate", "POST", function(s, resp) {
@@ -121,16 +136,38 @@ Myself.prototype.authenticate = function (username, password, callback) {
 		callback.call($, s, resp);
 	}, {username:username, password:password});
 }
-
 Myself.prototype.testAuth = function(callback) {
 	var $=this;
 	$.request("User/me","GET",function(s, resp) {
 		callback.call($, s, resp);
 	});
 };
+Myself.prototype.getUsers = function(query, callback) {
+	var $=this;
+	$.request("User"+queryString(query), "GET", callback);
+}
+Myself.prototype.getUser = function(id, callback) {
+	var $=this;
+	$.request("User?ids="+id, "GET", function(s, resp) {
+		if (s=='ok')
+			resp=resp[0];
+		callback.call($, s, resp);
+	});
+}
+Myself.prototype.getMe = function(callback) {
+	var $=this;
+	$.request("User/me", "GET", callback);
+}
+Myself.prototype.putBasic = function(data, callback) {
+	var $=this;
+	$.request("User/basic", "PUT", callback, data);
+}
+Myself.prototype.postSensitive = function(data, callback) {
+	var $=this;
+	$.request("User/sensitive", "POST", callback, data);
+}
 
-// better log in function
-// uses cached auth when possible
+// simple log in function
 Myself.prototype.logIn = function(username, password, callback) {
 	var $=this;
 	var cached = localStorage.getItem('auth');
@@ -160,6 +197,33 @@ Myself.prototype.logIn = function(username, password, callback) {
 	}
 }
 
+// ##########
+//  Comments
+// ##########
+Myself.prototype.postComment = function(comment, callback) {
+	var $=this;
+	$.request("Comment", "POST", callback, comment);
+}
+Myself.prototype.putComment = function(comment, callback) {
+	var $=this;
+	$.request("Comment/"+comment.id, "PUT", callback, comment);
+}
+Myself.prototype.deleteComment = function(id, callback) {
+	var $=this;
+	$.request("Comment/"+id, "DELETE", callback);
+}
+Myself.prototype.getComments = function(query, callback) {
+	var $=this;
+	$.request("Comment"+queryString(query), "GET", callback);
+}
+Myself.prototype.getComment = function(id, callback) {
+	var $=this;
+	$.request("Comment?ids="+id, "GET", function(s, resp){
+		if (s=='ok')
+			resp = resp[0];
+		callback.call($, s, resp);
+	});
+}
 Myself.prototype.listen = function(id, query, callback, cancel) {
 	var $=this;
 	var url = "Comment/listen/"+id+queryString(query);
@@ -168,17 +232,8 @@ Myself.prototype.listen = function(id, query, callback, cancel) {
 	}, undefined, cancel);
 }
 
-Myself.prototype.postComment = function(comment, callback) {
+// 
+Myself.prototype.getActivity = function(query, callback) {
 	var $=this;
-	$.request("Comment", "POST", callback);
-}
-
-Myself.prototype.getComments = function(query, callback) {
-	var $=this;
-	$.request("Comment"+queryString(query), "GET", callback);
-}
-
-Myself.prototype.getComment = function(id, callback) {
-	var $=this;
-	$.request("Comment?ids="+id, "GET", callback);
+	$.request("Activity"+queryString(query), "GET", callback);
 }

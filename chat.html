@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="req2.js"></script>
+<script src="storage.js"></script>
+<script defer src="test.js"></script>
+<script src="longpoll.js"></script>
+<script src="12y.js"></script>
+<script src="display.js"></script>
+<script src="sbhighlight.js"></script>
+
+<style>
+	.messagepane img {
+	max-height: 10vh;
+	}
+	
+	body {
+	background-color: red;
+	font-family:sans-serif;
+}
+* {
+	margin: 0;
+}
+.stack {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+	padding: 0.5em;
+}
+.stack > * {
+	margin: 0.25em;
+}
+.loginpane {
+	
+}
+.roompane {
+	
+}
+.input {
+	display: flex;
+	flex-direction: row;
+	height: 3.5rem;
+}
+.input textarea {
+	resize: none;
+	/*max-height: 100%;*/
+	flex-grow: 1;
+	margin: 0;
+	display: inline-block;
+	margin-right: 0.5em;
+}
+.input button {
+	height: 100%;
+	display: inline-block;
+}
+.messagepane {
+	width: 100%;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 30vh;
+	scroll-behavior: smooth;
+	overflow-y: scroll;
+	background-color: #EEEEEE;
+	display: flex;
+	flex-direction: column;
+}
+.messagelist {
+	padding-bottom: 0.5rem;
+	padding-top: 0.5rem;
+}
+.spacer {
+	flex-grow: 1;
+}
+.messagelist > div {
+	white-space: pre-wrap;
+	word-break: break-all;
+	padding-left: 1rem;
+	padding-bottom: 0.1rem;
+	padding-top: 0.2rem;
+	font-size: 1em;
+}
+.userlistpane {
+	
+}
+.sender {
+	font-weight: bold;
+}
+.sender::after {
+	content: ": ";
+}
+.systemMessage {
+	color: #222233;
+	background-color: #DDEEDD;
+}
+[id="$currentroom"] {
+	margin-left: 1em;
+}
+[id="$myself"] {
+	font-weight: bold;
+	margin-right: 0.5em;
+}
+.errorMessage {
+	color: #800000;
+	background-color: #FFFFD0;
+	font-weight: bold;
+}
+</style>
+
+<body>
+	<div class="stack">
+		<div class="loginpane">
+			<div id="$logged_out">
+				Not logged in
+				<input id="$username" placeholder="username" name="username">
+				<input id="$password" type="password" name="password" placeholder="password">
+				<button id="$login">Log In</button>
+				<button id="$register">Register</button><br>
+			</div>
+			<div id="$logged_in">
+				Logged in as: <span id="$myself"></span><button id="$logout">Log Out</button>
+			</div>
+		</div>
+
+		<div class="messagepane">
+			<div class="spacer"></div>
+			<div class="messagelist" id="$output">
+			</div>
+		</div>
+		<div class="roompane">
+			<button id="$changeroom" onclick="room($room.value)">Join room</button><input id="$room" placeholder="discussion id" type="number"><span id="$currentroom"></span>
+		</div>
+		<div class="input">
+			<textarea id="$input"></textarea><button id="$send" onclick="sendMessage($input.value)">SEND</button>
+		</div>
+		<div class="userlistpane">
+			
+		</div>
+
+	</div>
+	<hr>
+</body>

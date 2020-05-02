@@ -1,10 +1,13 @@
+// depends on Myself
+
+
 // create a new long poller
 // myself: Myself
 // id: Number
 // callback: Function([Comment...])
 function LongPoller(myself, id, callback) {
 	this.myself = myself;
-	this.id = id;
+	this.id = +id;
 	this.callback = callback;
 	this.cancel = function(){};
 }
@@ -20,7 +23,7 @@ LongPoller.prototype.stop = function() {
 LongPoller.prototype.start = function() {
 	var $=this;
 	var cancel = [];
-	$.myself.listen($.id, undefined, $.lastid, function(s, resp) {
+	$.myself.listen($.id, {lastid: $.lastid}, function(s, resp) {
 		if (s=='ok') {
 			if (resp) {
 				var newest = resp[resp.length-1];
