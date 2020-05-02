@@ -97,16 +97,16 @@ Myself.prototype.setAuth = function(auth) {
 
 Myself.prototype.logIn = function(username, password, callback) {
 	var $ = this
-	/*if (window.localStorage.auth) {
+	if (window.localStorage.getItem('auth')) {
 		console.log("using cached auth");
-		$.auth = window.localStorage.auth;
+		$.auth = window.localStorage.getItem('auth');
 		callback.call($);
-	} else {*/
+	} else {
 		console.log("requesting auth");
 		request("User/authenticate", "POST", function(auth, code){
 			if (code == 200) {
 				console.log("got auth");
-				$.auth = window.localStorage.auth = auth;
+				$.auth = window.localStorage.setItem('auth', auth);
 				callback.call($);
 				callAll($.events.auth, [], this);
 			} else {
@@ -115,7 +115,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 				callback.call($, auth); //error
 			}
 		}, {username:username,password:password});
-	//}
+	}
 }
 
 // make a request with your auth code,
