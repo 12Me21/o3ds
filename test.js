@@ -31,6 +31,7 @@ function display(c) {
 		autoScroll($output.parentElement);
 	}
 }
+alert("$login is..." +$login);
 $send.onclick = function() {
 	if ($input.value) {
 		me.postComment({
@@ -54,7 +55,7 @@ $input.onkeypress = function(e) {
 	}
 }
 
-alert("$login is..." +$login);
+
 
 $login.onclick = function() {
 	alert("trying to log in");
