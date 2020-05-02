@@ -1,4 +1,4 @@
-var SERVER = "http://new.smilebasicsource.com/api/";
+var SERVER = "http://newdev.smilebasicsource.com/api/";
 /*if (location.protocol == "https:")
 	var SERVER = "https://new.smilebasicsource.com/api/";*/
 
