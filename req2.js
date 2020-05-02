@@ -127,7 +127,7 @@ Myself.prototype.logOut = function() {
 	// todo: it's possible for this to get called when not logged in
 	// like, when trying to log in with an incorrect password
 	this.auth = undefined;
-	localStorage.removeItem('auth');
+	//localStorage.removeItem('auth');
 	console.log("auth error, logging out");
 }
 Myself.prototype.authenticate = function (username, password, callback) {
@@ -172,7 +172,7 @@ Myself.prototype.postSensitive = function(data, callback) {
 // simple log in function
 Myself.prototype.logIn = function(username, password, callback) {
 	var $=this;
-	var cached = localStorage.getItem('auth');
+	var cached// = localStorage.getItem('auth');
 	if (cached) {
 		$.auth = cached;
 		/*$.testAuth(function(s, resp) {
@@ -192,7 +192,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 
 	function got(s, resp) {
 		if (s=='ok') {
-			localStorage.setItem('auth', resp);
+	//		localStorage.setItem('auth', resp);
 			callback.call($, s, resp);
 		} else
 			callback.call($, s, resp);	
