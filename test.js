@@ -55,7 +55,9 @@ $input.onkeypress = function(e) {
 }
 
 $login.onclick = function() {
+	alert("trying to log in");
 	me.logIn($username.value, $password.value, function(s, resp) {
+		alert("did log in? "+s+", "+resp);
 		if (s=='ok') {
 			$logged_out.style.display = "none";
 		}
