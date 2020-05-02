@@ -54,6 +54,8 @@ $input.onkeypress = function(e) {
 	}
 }
 
+alert("$login is..." +$login);
+
 $login.onclick = function() {
 	alert("trying to log in");
 	me.logIn($username.value, $password.value, function(s, resp) {
