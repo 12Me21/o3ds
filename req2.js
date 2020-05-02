@@ -21,7 +21,7 @@
 //           data is the data, either an object or a string
 // data: data to send (optional)
 // auth: auth token (optional)
-sbs2Request.SERVER = "https://newdev.smilebasicsource.com/api/";
+sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
 if (!Function.prototype.bind)
 	sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
 function sbs2Request(endpoint, method, callback, data, auth, cancel) {
