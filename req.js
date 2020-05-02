@@ -1,6 +1,6 @@
 var SERVER = "http://new.smilebasicsource.com/api/";
-if (location.protocol == "https:")
-	var SERVER = "https://new.smilebasicsource.com/api/";
+/*if (location.protocol == "https:")
+	var SERVER = "https://new.smilebasicsource.com/api/";*/
 
 if (!window.localStorage) {
 	window.localStorage = {
