@@ -53,3 +53,11 @@ $input.onkeypress = function(e) {
 		return;
 	}
 }
+
+$login.onclick = function() {
+	me.logIn($username.value, $password.value, function(s, resp) {
+		if (s=='ok') {
+			$logged_out.style.display = "none";
+		}
+	});
+}
