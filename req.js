@@ -1,6 +1,6 @@
 var SERVER = "http://newdev.smilebasicsource.com/api/";
-/*if (location.protocol == "https:")
-	var SERVER = "https://new.smilebasicsource.com/api/";*/
+if (location.protocol == "https:" && Function.prototype.bind)
+	var SERVER = "https://new.smilebasicsource.com/api/";
 
 if (!window.localStorage) {
 	window.localStorage = {
@@ -190,6 +190,17 @@ Myself.prototype.register = function(username, password, email, callback) {
 	});
 }
 
+Myself.prototype.listen = function(id, callback) {
+	var $=this;
+	$.request("Comment/listen/"+id, "GET", function(resp, code) {
+		if (code==200){
+			callback.call($, resp);
+		} else {
+			callback.call($, resp, code);
+		}
+	});
+}
+
 Myself.prototype.getContentz = function(ids, callback) {
 	var $=this;
 	myself.request("Content?ids="+ids.join(","), "GET", function(resp, code) {
@@ -220,3 +231,26 @@ function Content(obj, callback) {
 	this.createDate = new Date(obj.editDate);
 }
 
+function LongPoller(make) {
+	this._cancel = function(){};
+	this._make = make;
+}
+// 
+// - start connection
+// - end connection
+// - onMessage event
+// - onError event
+// - use external function to build requests
+
+LongPoller.prototype._poll = function() {
+	var x = this._make();
+	
+}
+
+LongPoller.prototype.start = function() {
+	
+}
+
+LongPoller.prototype.end = function() {
+	this.cancel();
+}
