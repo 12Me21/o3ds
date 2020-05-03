@@ -1,22 +1,23 @@
 window.onload = function() {
-alert("ok");
-console.log("v2");
-var me = new Myself();
-me.logIn(undefined, undefined, console.log);
+	alert("ok");
+	console.log("v2");
+	var me = new Myself();
+	me.logIn(undefined, undefined, console.log);
 
-var lp;
-function room(id) {
-	if (lp)
-		lp.stop();
-	console.log("ID",id);
-	lp = new LongPoller(me, id, function(ms) {
-		console.log(ms)
-		for (i=0;i<ms.length;i++){
-			display(ms[i])
-		}
-	});
-	lp.start();
-}
+	var lp;
+	function room(id) {
+		console.log("switching rooms?");
+		if (lp)
+			lp.stop();
+		console.log("ID "+id);
+		lp = new LongPoller(me, id, function(ms) {
+			console.log(ms)
+			for (i=0;i<ms.length;i++){
+				display(ms[i])
+			}
+		});
+		lp.start();
+	}
 
 function shouldScroll(element) {
 	return (element.scrollHeight - element.scrollTop - element.clientHeight <= element.clientHeight*.25);
