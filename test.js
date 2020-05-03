@@ -1,3 +1,4 @@
+window.onload = function() {
 alert("ok");
 console.log("v2");
 var me = new Myself();
@@ -66,4 +67,5 @@ $login.onclick = function() {
 			$logged_out.style.display = "none";
 		}
 	});
+}
 }
