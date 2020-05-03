@@ -4,6 +4,10 @@ window.onload = function() {
 	var me = new Myself();
 	me.logIn(undefined, undefined, console.log);
 
+	$changeroom.onclick = function() {
+		room($room.value);
+	}
+	
 	var lp;
 	function room(id) {
 		console.log("switching rooms?");
