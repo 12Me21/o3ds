@@ -1,4 +1,4 @@
-alert("v2");
+console.log("v2");
 var me = new Myself();
 me.logIn(undefined, undefined, console.log);
 
@@ -60,9 +60,7 @@ $input.onkeypress = function(e) {
 
 
 $login.onclick = function() {
-	alert("log in start");
 	me.logIn($username.value, $password.value, function(s, resp) {
-		alert("log in done");
 		if (s=='ok') {
 			$logged_out.style.display = "none";
 		}
