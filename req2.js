@@ -54,11 +54,12 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 			console.log(x);
 			callback('auth', resp);
 		} else {
-			console.error("sbs2Request: request failed!", x);
+			console.log("sbs2Request: request failed! "+code);
 			callback('error', resp, code);
 		}
 	}
 	x.onerror = function() {
+		console.log("xhr onerror");
 		callback('error');
 	}
 	if (auth)
