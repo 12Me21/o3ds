@@ -111,10 +111,14 @@
 </style>
 <script>
 	console.log = function(a) {
+	try {
 	var text = document.createTextNode(""+a);
 	var n = document.createElement("div");
 	n.appendChild(text);
 	$output.appendChild(n);
+	} catch(e) {
+	alert("error logging:"+e);
+	}
 	}
 </script>
 
