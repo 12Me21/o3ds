@@ -119,9 +119,11 @@
 	var n = document.createElement("div");
 	n.appendChild(text);
 	$output.appendChild(n);
+	$output.scrollTop = $output.scrollHeight - $output.clientHeight;
 	} catch(e) {
 	alert("error logging:"+e);
 	}
+
 	}
 </script>
 
