@@ -31,6 +31,7 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 			x.abort();
 		}
 	x.open(method, sbs2Request.SERVER + endpoint);
+	var start = Date.now();
 	x.onload = function() {
 		var code = x.status;
 		var type = x.getResponseHeader('Content-Type');
@@ -59,8 +60,13 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 		}
 	}
 	x.onerror = function() {
-		console.log("xhr onerror");
-		callback('error');
+		if (Date.now()-start > 15*1000)
+			console.log("detected 3DS timeout");
+			callback('timeout');
+		else {
+			console.log("xhr onerror");
+			callback('error');
+		}
 	}
 	if (auth)
 		x.setRequestHeader('Authorization', "Bearer "+auth);
