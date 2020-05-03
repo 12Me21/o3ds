@@ -59,7 +59,6 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 		}
 	}
 	x.onerror = function() {
-		alert("req error bad!");
 		callback('error');
 	}
 	if (auth)
@@ -172,10 +171,13 @@ Myself.prototype.postSensitive = function(data, callback) {
 
 // simple log in function
 Myself.prototype.logIn = function(username, password, callback) {
+	console.log("login called");
 	var $=this;
 	try {
-	var cached = localStorage.getItem('auth');
-	if (cached) {
+		var cached = localStorage.getItem('auth');
+		console.log("read localstorage");
+		if (cached) {
+			console.log("found cached auth");	
 		$.auth = cached;
 		/*$.testAuth(function(s, resp) {
 			if (s=='ok')
@@ -186,19 +188,22 @@ Myself.prototype.logIn = function(username, password, callback) {
 			});*/ // safer
 		// less safe version, assumes cached auth is valid if it exists
 		// if auth is not valid, will trigger a logout, but not immediately
-		callback.call($, 'ok', cached);
-		$.testAuth(function(){});
-	} else if (username) {
-		$.authenticate(username, password, got);
-	}
+			callback.call($, 'ok', cached);
+			console.log("testing cached auth...");
+			$.testAuth(function(){});
+		} else if (username) {
+			console.log("logging in");
+			$.authenticate(username, password, got);
+		}
 
-	function got(s, resp) {
-		if (s=='ok') {
-			localStorage.setItem('auth', resp);
-			callback.call($, s, resp);
-		} else
-			callback.call($, s, resp);	
-	}
+		function got(s, resp) {
+			console.log("logged in, maybe");
+			if (s=='ok') {
+				localStorage.setItem('auth', resp);
+				callback.call($, s, resp);
+			} else
+				callback.call($, s, resp);	
+		}
 	} catch(e) {
 		alert("log in func error "+e);
 	}

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="req2.js?2"></script>
+<script src="req2.js?3"></script>
 <script src="storage.js"></script>
 <script defer src="test.js?1"></script>
 <script src="longpoll.js"></script>
@@ -109,6 +109,15 @@
 	font-weight: bold;
 }
 </style>
+<script>
+	console.log = function(a) {
+	var text = document.createTextNode(""+a);
+	var n = document.createElement("div");
+	n.appendChild(text);
+	$output.appendChild(n);
+	}
+</script>
+
 
 <body>
 	<div class="stack">
