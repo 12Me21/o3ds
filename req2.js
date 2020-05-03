@@ -59,6 +59,7 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 		}
 	}
 	x.onerror = function() {
+		alert("req error bad!");
 		callback('error');
 	}
 	if (auth)
