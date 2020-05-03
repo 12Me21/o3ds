@@ -1,3 +1,4 @@
+alert("ok");
 console.log("v2");
 var me = new Myself();
 me.logIn(undefined, undefined, console.log);
