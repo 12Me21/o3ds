@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="req2.js?3"></script>
+<script src="req2.js?4"></script>
 <script src="storage.js"></script>
 <script src="test.js?8"></script>
 <script src="longpoll.js"></script>
@@ -112,8 +112,10 @@
 }
 </style>
 <script>
+	var ol= console.log;
 	alert("ok2");
 	console.log = function(a) {
+	ol(a);
 	try {
 	var text = document.createTextNode(""+a);
 	var n = document.createElement("div");

@@ -21,9 +21,9 @@
 //           data is the data, either an object or a string
 // data: data to send (optional)
 // auth: auth token (optional)
-sbs2Request.SERVER = "http://new.smilebasicsource.com/api/";
+sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
 if (!Function.prototype.bind)
-	sbs2Request.SERVER = "http://new.smilebasicsource.com/api/";
+	sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
 function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
@@ -178,16 +178,16 @@ Myself.prototype.logIn = function(username, password, callback) {
 		console.log("read localstorage");
 		if (cached) {
 			console.log("found cached auth");	
-		$.auth = cached;
-		/*$.testAuth(function(s, resp) {
-			if (s=='ok')
-				got('ok', cached);
-			else {
-				$.authenticate(username, password, got);
-			}
-			});*/ // safer
-		// less safe version, assumes cached auth is valid if it exists
-		// if auth is not valid, will trigger a logout, but not immediately
+			$.auth = cached;
+			/*$.testAuth(function(s, resp) {
+			  if (s=='ok')
+			  got('ok', cached);
+			  else {
+			  $.authenticate(username, password, got);
+			  }
+			  });*/ // safer
+			// less safe version, assumes cached auth is valid if it exists
+			// if auth is not valid, will trigger a logout, but not immediately
 			callback.call($, 'ok', cached);
 			console.log("testing cached auth...");
 			$.testAuth(function(){});
