@@ -60,10 +60,12 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 		}
 	}
 	x.onerror = function() {
-		if (Date.now()-start > 15*1000)
+		var time = Date.now()-start;
+		console.log("xhr onerror after ms:"+time);
+		if (time > 15*1000) {
 			console.log("detected 3DS timeout");
 			callback('timeout');
-		else {
+		} else {
 			console.log("xhr onerror");
 			callback('error');
 		}
