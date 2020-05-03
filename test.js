@@ -1,5 +1,4 @@
-alert("version 1");
-
+alert("v2");
 var me = new Myself();
 me.logIn(undefined, undefined, console.log);
 
@@ -33,7 +32,6 @@ function display(c) {
 		autoScroll($output.parentElement);
 	}
 }
-alert("$login is..." +$login);
 $send.onclick = function() {
 	if ($input.value) {
 		me.postComment({
@@ -43,10 +41,12 @@ $send.onclick = function() {
 				m: 'plaintext'
 			})
 		}, function(s, resp) {
-			if (s=="ok")
-				$input.value = "";
+	//		if (s=="ok")
+				
 		});
+		$input.value = "";
 	}
+	
 }
 
 $input.onkeypress = function(e) {
@@ -60,9 +60,9 @@ $input.onkeypress = function(e) {
 
 
 $login.onclick = function() {
-	alert("trying to log in");
+	alert("log in start");
 	me.logIn($username.value, $password.value, function(s, resp) {
-		alert("did log in? "+s+", "+resp);
+		alert("log in done");
 		if (s=='ok') {
 			$logged_out.style.display = "none";
 		}
