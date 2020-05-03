@@ -21,9 +21,9 @@
 //           data is the data, either an object or a string
 // data: data to send (optional)
 // auth: auth token (optional)
-sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
+sbs2Request.SERVER = "http://new.smilebasicsource.com/api/";
 if (!Function.prototype.bind)
-	sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
+	sbs2Request.SERVER = "http://new.smilebasicsource.com/api/";
 function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
@@ -127,7 +127,7 @@ Myself.prototype.logOut = function() {
 	// todo: it's possible for this to get called when not logged in
 	// like, when trying to log in with an incorrect password
 	this.auth = undefined;
-	//localStorage.removeItem('auth');
+	localStorage.removeItem('auth');
 	console.log("auth error, logging out");
 }
 Myself.prototype.authenticate = function (username, password, callback) {
@@ -172,7 +172,8 @@ Myself.prototype.postSensitive = function(data, callback) {
 // simple log in function
 Myself.prototype.logIn = function(username, password, callback) {
 	var $=this;
-	var cached// = localStorage.getItem('auth');
+	try {
+	var cached = localStorage.getItem('auth');
 	if (cached) {
 		$.auth = cached;
 		/*$.testAuth(function(s, resp) {
@@ -192,10 +193,13 @@ Myself.prototype.logIn = function(username, password, callback) {
 
 	function got(s, resp) {
 		if (s=='ok') {
-	//		localStorage.setItem('auth', resp);
+			localStorage.setItem('auth', resp);
 			callback.call($, s, resp);
 		} else
 			callback.call($, s, resp);	
+	}
+	} catch(e) {
+		alert("log in func error "+e);
 	}
 }
 
