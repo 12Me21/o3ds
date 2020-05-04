@@ -1,5 +1,5 @@
 window.onload = function() {
-	alert("ok");
+	//alert("ok");
 	console.log("v2");
 	var me = new Myself();
 	me.logIn(undefined, undefined, console.log);
@@ -15,7 +15,6 @@ window.onload = function() {
 			lp.stop();
 		console.log("ID "+id);
 		lp = new LongPoller(me, id, function(ms) {
-			console.log("MS")
 			for (var i=0;i<ms.length;i++){
 				display(ms[i])
 			}
@@ -32,9 +31,7 @@ window.onload = function() {
 	}
 	
 	function display(c) {
-		console.log("display");
 		var s = shouldScroll($output.parentElement);
-		console.log("b");
 		var node = renderComment(c);
 		$output.appendChild(node);
 		if (s) {

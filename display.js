@@ -9,7 +9,6 @@ function getUsername(id) {
 }
 
 function renderComment(comment){
-	console.log("displaying comment");
 	var c = comment.content;
 	var t, m;
 	try {
