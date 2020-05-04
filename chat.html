@@ -117,10 +117,8 @@
 	if (!console)
 	console = {};
 	if (location.hash) {
-	var ol= console.log;
 	alert("ok2");
 	console.log = function(a) {
-	//ol(a);
 	try {
 	var text = document.createTextNode(""+a);
 	var n = document.createElement("div");
@@ -134,7 +132,7 @@
 
 	}
 	}
-	if (!console.log) {
+	if (!Function.prototype.bind) {
 	console.log=function(){};
 	}
 </script>
