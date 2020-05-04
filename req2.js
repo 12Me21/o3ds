@@ -62,7 +62,7 @@ function sbs2Request(endpoint, method, callback, data, auth, cancel) {
 	x.onerror = function() {
 		var time = Date.now()-start;
 		console.log("xhr onerror after ms:"+time);
-		if (time > 15*1000) {
+		if (time > 18*1000) {
 			console.log("detected 3DS timeout");
 			callback('timeout');
 		} else {
@@ -86,7 +86,6 @@ function queryString(obj) {
 	var items = [];
 	for (var key in obj) {
 		var val = obj[key];
-		console.log("VAL",val);
 		if (typeof val != 'undefined'){
 			var item = encodeURIComponent(key)+"=";
 			// array items are encoded as
