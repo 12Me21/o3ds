@@ -114,6 +114,8 @@
 }
 </style>
 <script>
+	if (!console)
+	console = {};
 	if (location.hash) {
 	var ol= console.log;
 	alert("ok2");
@@ -131,6 +133,9 @@
 	}
 
 	}
+	}
+	if (!console.log) {
+	console.log=function(){};
 	}
 </script>
 
