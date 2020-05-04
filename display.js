@@ -1,10 +1,10 @@
 function getUsername(id) {
 	return {
-		[6]: "snail",
-		[9]: "yttria",
-		[10]: "12",
-		[12]: "answer",
-		[26]: "nicole"
+		"6": "snail",
+		"9": "yttria",
+		"10": "12",
+		"12": "answer",
+		"26": "nicole"
 	}[id] || "["+id+"]";
 }
 
