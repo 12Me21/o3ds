@@ -1,14 +1,36 @@
-function getUsername(id) {
-	return {
-		"6": "snail",
-		"9": "yttria",
-		"10": "12",
-		"12": "answer",
-		"26": "nicole"
-	}[id] || "["+id+"]";
+var SERVER = me.server; //ugh how to do this nicely
+
+function renderUserBlock(user, uid) {
+	var div = document.createElement('div');
+	div.className = 'message';
+	
+	var img = document.createElement('img');
+	if (user)
+		img.src = SERVER+"/File/raw/"+user.avatar; //todo: handle default avatar
+	img.className = 'messageAvatar';
+	div.appendChild(img);
+	
+	var contentBox = document.createElement('div');
+	contentBox.className = 'messageContents';
+	div.appendChild(contentBox);
+	
+	var name = document.createElement('span');
+	name.className = 'messageUsername';
+	if (user)
+		name.textContent = user.username+":";
+	else
+		name.textContent = "["+uid+"]"+":";
+	contentBox.appendChild(name);
+	
+	return [div, contentBox];
 }
 
-function renderComment(comment){
+function updateUserBlock(node, user) {
+	node.querySelector(".messageAvatar").src = SERVER+"/File/raw/"+user.avatar;
+	node.querySelector(".messageUsername").textContent = user.username;
+}
+
+function renderMessagePart(comment){
 	var c = comment.content;
 	var t, m;
 	try {
@@ -24,14 +46,11 @@ function renderComment(comment){
 	if (m == '12y') {
 		element = parse(t);
 	} else {
-		element = document.createElement("div");
+		element = document.createElement('div');
 		element.appendChild(document.createTextNode(t));
 	}
-	var name = document.createElement("div");
-	name.textContent = comment.username
-	name.className="sender";
-	element.insertBefore(name,element.firstChild);
-	document.title=comment.username+":"+t;
+	element.className = 'messagePart';
+	//document.title=comment.username+":"+t;
 	return element;
 }
 
@@ -93,39 +112,33 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 		this.animationId = null;
 	}
 }
-// todo: handle merging somehow
-// so, merging isn't so bad, really all we have to do is
-// messages are sort of grouped into blocks,
-// and so to this function we should pass, um
-// node, id, and block id (which is just user id)
-// the only other thing is...
-// this function needs to know how to create a block, as well as how to insert/remove/replace items in one.
-// perhaps pass functions to this one which handle that
-AutoScroller.prototype.insert = function(id, node) {
+AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
-	var next = null;
-	// this search can be optimized
-	for (var i in this.nodes) {
-		if (i == id) {
-			this.element.replaceChild(node, this.nodes[i]);
-			this.nodes[i] = node;
-			break;
-		}
-		if (i > id) {
-			next = this.nodes[i];
-			break;
-		}
+	// replace an existing message (we assume uid doesn't change)
+	if (this.nodes[id]) {
+		this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
+	// insert a new line to the last block
+	} else if (uid && this.lastUid == uid) {
+		this.lastUidBlock.appendChild(node);
+	// create a new block
+	} else {
+		var b = makeBlock();
+		b[1].appendChild(node);
+		this.element.appendChild(b[0]);
+		
+		this.lastUidBlock = b[1];
+		this.lastUid = uid;
 	}
-	if (i != id) {
-		this.element.insertBefore(node, next);
-		this.nodes[id] = node;
-	}
+	this.nodes[id] = node;
 	if (s)
 		this.autoScroll();
 }
 AutoScroller.prototype.remove = function(id) {
-	if (this.nodes[id]) {
-		this.element.removeChild(this.nodes[id]);
+	var node = this.nodes[id]
+	// todo: remove block when all messages are gone from it
+	// don't forget to update lastUidBlock etc. too
+	if (node) {
+		node.parentNode.removeChild(node);
 	}
 }
 // currently just clears no matter what

@@ -1,16 +1,44 @@
 <!DOCTYPE html>
 
 <meta charset="utf-8">
-<script src="req2.js?14"></script>
+<script src="req2.js?15"></script>
 <script src="storage.js"></script>
-<script src="test.js?18"></script>
+<script src="test.js?19"></script>
 <script src="longpoll.js?1"></script>
 <script src="12y.js?1"></script>
-<script src="display.js?12"></script>
+<script src="display.js?13"></script>
 <script src="sbhighlight.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+	.messageAvatar {
+	display: inline-block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border: 1px solid #777;
+	margin-right: 0.5rem;
+	}
+
+	.messageContents {
+	display: inline-block;
+	vertical-align: top;
+	}
+
+	.messageUsername {
+	display:block;
+	font-weight: bold;
+	}
+
+	.messagePart {
+	margin: .2em;
+	}
+
+	.message {
+	font-size: 0.9rem;
+	padding: 0.4rem 0.5rem;
+	white-space: pre-wrap;
+	}
+	
 	.messagepane img {
 	max-height: 10vh;
 	}
@@ -18,11 +46,13 @@
 	body {
 	background-color: red;
 	font-family:sans-serif;
-}
-* {
+	}
+	
+	* {
 	margin: 0;
-}
-.stack {
+	}
+	
+	.stack {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
@@ -32,21 +62,25 @@
 	bottom: 0;
 	background-color: white;
 	padding: 0.5em;
-}
-.stack > * {
+	}
+	
+	.stack > * {
 	margin: 0.25em;
-}
-.loginpane {
+	}
 	
-}
-.roompane {
+	.loginpane {
 	
-}
-.input {
+	}
+	
+	.roompane {
+	
+	}
+	
+	.input {
 	display: flex;
 	flex-direction: row;
 	height: 3.5rem;
-}
+	}
 .input textarea {
 	resize: none;
 	/*max-height: 100%;*/
@@ -78,14 +112,6 @@
 }
 .spacer {
 	flex-grow: 1;
-}
-.messagelist > div {
-	white-space: pre-wrap;
-	word-break: break-all;
-	padding-left: 1rem;
-	padding-bottom: 0.1rem;
-	padding-top: 0.2rem;
-	font-size: 1em;
 }
 .userlistpane {
 	

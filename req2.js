@@ -119,6 +119,7 @@ function Myself(dev) {
 		this.lsKey = "auth"
 	}
 	this.userCache = {};
+	this.userRequests = {};
 }
 // make a request, passing auth automatically
 // can trigger .logOut() 
@@ -177,13 +178,22 @@ Myself.prototype.getUser = function(id, callback) {
 	});
 }
 Myself.prototype.getUserCached = function(id, callback) {
-	callback.call($, 'ok', {username: "["+id+"]"}); //i'm too tired right now
-	return;
+	var $=this;
+	/*if (this.userCache[id]) {
+		callback.call($, 'ok', this.userCache[id]);
+	} else {
+		if (this.userRequests[id]) {
+
+			
+	}*/
+	
+	//callback.call($, 'ok', {username: "["+id+"]", uid:id, avatar:55}); //i'm too tired right now
+	//return;
 	// this works but it's not efficient
 	// 2 problems:
 	// 1: can make the same request multiple times
 	// 2: doesn't use batch requests
-	var $=this;
+	
 	if ($.userCache[id]) {
 		callback.call($, 'ok', $.userCache[id]);
 		return;

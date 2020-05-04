@@ -32,13 +32,16 @@ window.onload = function() {
 		if (c.deleted) {
 			messagePaneAutoScroller.remove(c.id);
 		} else {
-			me.getUserCached(c.createUserId, function(s, user) {
-				//console.log(user);
-				if (user)
-					c.username = user.username;
-				var node = renderComment(c);
-				messagePaneAutoScroller.insert(c.id, node);
+			var node = renderMessagePart(c);
+			messagePaneAutoScroller.insert(c.id, node, c.createUserId, function(){
+				var b = renderUserBlock(null, c.createUserId);
+				me.getUserCached(c.createUserId, function(s, user) {
+					if (s=="ok")
+						updateUserBlock(b[0], user);
+				});
+				return b;
 			});
+			
 		}
 	}
 	$send.onclick = function() {

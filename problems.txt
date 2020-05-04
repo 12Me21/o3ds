@@ -12,3 +12,5 @@ o3DS:
 - no CORS
 - no [expr]: key syntax in object literals
 - no requestAnimationFrame
+- no .remove
+- passing non-string to console.log throws error? (maybe)
