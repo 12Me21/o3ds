@@ -28,10 +28,10 @@ function renderComment(comment){
 		element.appendChild(document.createTextNode(t));
 	}
 	var name = document.createElement("div");
-	name.textContent = getUsername(comment.createUserId);
+	name.textContent = comment.username
 	name.className="sender";
 	element.insertBefore(name,element.firstChild);
-	document.title=getUsername(comment.createUserId)+":"+t;
+	document.title=comment.username+":"+t;
 	return element;
 }
 
@@ -104,6 +104,7 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 AutoScroller.prototype.insert = function(id, node) {
 	var s = this.shouldScroll();
 	var next = null;
+	// this search can be optimized
 	for (var i in this.nodes) {
 		if (i == id) {
 			this.element.replaceChild(node, this.nodes[i]);
@@ -121,4 +122,15 @@ AutoScroller.prototype.insert = function(id, node) {
 	}
 	if (s)
 		this.autoScroll();
+}
+AutoScroller.prototype.remove = function(id) {
+	if (this.nodes[id]) {
+		this.element.removeChild(this.nodes[id]);
+	}
+}
+// currently just clears no matter what
+// in the future you might, if this is properly connected to a LongPoller,
+// cache messages when switching rooms, or something
+AutoScroller.prototype.switchRoom = function(id) {
+	this.element.innerHTML = "";
 }

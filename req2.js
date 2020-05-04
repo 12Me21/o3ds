@@ -118,6 +118,7 @@ function Myself(dev) {
 		this.server = protocol+"//new.smilebasicsource.com/api";
 		this.lsKey = "auth"
 	}
+	this.userCache = {};
 }
 // make a request, passing auth automatically
 // can trigger .logOut() 
@@ -168,8 +169,30 @@ Myself.prototype.getUsers = function(query, callback) {
 Myself.prototype.getUser = function(id, callback) {
 	var $=this;
 	$.request("User?ids="+id, "GET", function(s, resp) {
-		if (s=='ok')
+		if (s=='ok') {
+			$.userCache[id] = resp[0]; //todo: add to getUsers
 			resp=resp[0];
+		}
+		callback.call($, s, resp || null);
+	});
+}
+Myself.prototype.getUserCached = function(id, callback) {
+	callback.call($, 'ok', {username: "["+id+"]"}); //i'm too tired right now
+	return;
+	// this works but it's not efficient
+	// 2 problems:
+	// 1: can make the same request multiple times
+	// 2: doesn't use batch requests
+	var $=this;
+	if ($.userCache[id]) {
+		callback.call($, 'ok', $.userCache[id]);
+		return;
+	}
+	$.request("User?ids="+id, "GET", function(s, resp) {
+		if (s=='ok') {
+			$.userCache[id] = resp[0];
+			resp=resp[0];
+		}
 		callback.call($, s, resp || null);
 	});
 }
@@ -212,7 +235,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 			console.log("logging in");
 			$.authenticate(username, password, got);
 		}
-
+		
 		function got(s, resp) {
 			console.log("logged in, maybe");
 			if (s=='ok') {

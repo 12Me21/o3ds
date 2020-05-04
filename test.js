@@ -28,8 +28,18 @@ window.onload = function() {
 	messagePaneAutoScroller = new AutoScroller($output);
 	
 	display = function(c) {
-		var node = renderComment(c);
-		messagePaneAutoScroller.insert(c.id, node);
+		console.log(c);
+		if (c.deleted) {
+			messagePaneAutoScroller.remove(c.id);
+		} else {
+			me.getUserCached(c.createUserId, function(s, user) {
+				//console.log(user);
+				if (user)
+					c.username = user.username;
+				var node = renderComment(c);
+				messagePaneAutoScroller.insert(c.id, node);
+			});
+		}
 	}
 	$send.onclick = function() {
 		if ($input.value) {
