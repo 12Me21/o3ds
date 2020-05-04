@@ -600,7 +600,7 @@ parse.defoptions = (function(){
 			return child.parent;
 		},
 		remove: function(child) {
-			child.remove();
+			child.parentNode.removeChild(child);
 		},
 
 		//========================
