@@ -20,8 +20,23 @@ LongPoller.prototype.stop = function() {
 
 // start the long poller
 // .callback(data) will be called each time data is recieved
-LongPoller.prototype.start = function() {
+// initial: Number - the number of old messages to request. if ommitted, requests entire history (slow! don't do this!)
+LongPoller.prototype.start = function(initial) {
 	var $=this;
+	if (initial) {
+		this.myself.getLastComments(this.id, initial, function(s, resp) {
+			if (s=='ok') {
+				var newest = resp[resp.length-1];
+				if (newest)
+					$.lastid = newest.id;
+				$.callback(resp);
+				$.start();
+			} else {
+				console.error("LONG POLLER FAILED INITIAL");
+			}
+		});
+		return;
+	}
 	var cancel = [];
 	$.myself.listen($.id, {lastid: $.lastid}, function(s, resp) {
 		if (s=='ok') {

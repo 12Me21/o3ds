@@ -53,6 +53,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('auth', resp);
 		} else {
 			console.log("sbs2Request: request failed! "+code);
+			console.log(x.responseText);
 			callback('error', resp, code);
 		}
 	}
@@ -249,6 +250,19 @@ Myself.prototype.getComment = function(id, callback) {
 	$.request("Comment?ids="+id, "GET", function(s, resp){
 		if (s=='ok')
 			resp = resp[0];
+		callback.call($, s, resp);
+	});
+}
+// returns the last `count` comments, lowest ID first
+Myself.prototype.getLastComments = function(parent, count, callback) {
+	var $=this;
+	this.getComments({
+		parentids: parent,
+		reverse: true,
+		limit: count
+	}, function(s, resp) {
+		if (s=='ok' && resp instanceof Array)
+			resp = resp.reverse();
 		callback.call($, s, resp);
 	});
 }

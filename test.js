@@ -22,17 +22,9 @@ window.onload = function() {
 				display(ms[i])
 			}
 		});
-		lp.start();
+		lp.start(30);
 	}
 	
-	function shouldScroll(element) {
-		return (element.scrollHeight - element.scrollTop - element.clientHeight <= element.clientHeight*.25);
-	}
-	
-	function autoScroll(element, force) {
-		element.scrollTop = element.scrollHeight - element.clientHeight;
-	}
-
 	messagePaneAutoScroller = new AutoScroller($output);
 	
 	display = function(c) {
