@@ -15,7 +15,7 @@ window.onload = function() {
 			lp.stop();
 		console.log("ID "+id);
 		lp = new LongPoller(me, id, function(ms) {
-			console.log(ms)
+			//console.log(ms)
 			for (i=0;i<ms.length;i++){
 				display(ms[i])
 			}

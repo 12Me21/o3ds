@@ -30,7 +30,7 @@ function renderComment(comment){
 	var name = document.createElement("div");
 	name.textContent = getUsername(comment.createUserId);
 	name.className="sender";
-	element.prepend(name);
+	element.insertBefore(name,element.firstChild);
 	document.title=getUsername(comment.createUserId)+":"+t;
 	return element;
 	

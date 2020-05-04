@@ -86,7 +86,6 @@ function queryString(obj) {
 	var items = [];
 	for (var key in obj) {
 		var val = obj[key];
-		console.log("VAL",val);
 		if (typeof val != 'undefined'){
 			var item = encodeURIComponent(key)+"=";
 			// array items are encoded as
