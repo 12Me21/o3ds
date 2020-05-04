@@ -9,6 +9,7 @@ function getUsername(id) {
 }
 
 function renderComment(comment){
+	console.log("displaying comment");
 	var c = comment.content;
 	var t, m;
 	try {
@@ -33,5 +34,4 @@ function renderComment(comment){
 	element.insertBefore(name,element.firstChild);
 	document.title=getUsername(comment.createUserId)+":"+t;
 	return element;
-	
 }
