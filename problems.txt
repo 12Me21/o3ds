@@ -1,0 +1,14 @@
+- no => functions
+- no class syntax
+
+o3DS:
+- no localStorage (use document.cookie)
+- no WebSocket
+- XHR .response does not exist (use responseText)
+- no trailing commas in function calls, literals, etc.
+- no function.bind
+- no element.dataset
+- xhr timeout is always 20 seconds, and no .ontimeout event
+- no CORS
+- no [expr]: key syntax in object literals
+- no requestAnimationFrame

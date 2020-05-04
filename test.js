@@ -1,7 +1,10 @@
+var me = new Myself(true);
+var messagePaneAutoScroller;
+var display;
+
 window.onload = function() {
 	//alert("ok");
 	console.log("v2");
-	var me = new Myself();
 	me.logIn(undefined, undefined, console.log);
 
 	$changeroom.onclick = function() {
@@ -29,14 +32,12 @@ window.onload = function() {
 	function autoScroll(element, force) {
 		element.scrollTop = element.scrollHeight - element.clientHeight;
 	}
+
+	messagePaneAutoScroller = new AutoScroller($output);
 	
-	function display(c) {
-		var s = shouldScroll($output.parentElement);
+	display = function(c) {
 		var node = renderComment(c);
-		$output.appendChild(node);
-		if (s) {
-			autoScroll($output.parentElement);
-		}
+		messagePaneAutoScroller.insert(c.id, node);
 	}
 	$send.onclick = function() {
 		if ($input.value) {

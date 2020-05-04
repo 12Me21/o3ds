@@ -21,16 +21,13 @@
 //           data is the data, either an object or a string
 // data: data to send (optional)
 // auth: auth token (optional)
-sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
-if (!Function.prototype.bind)
-	sbs2Request.SERVER = "http://newdev.smilebasicsource.com/api/";
-function sbs2Request(endpoint, method, callback, data, auth, cancel) {
+function sbs2Request(url, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
 		cancel[0] = function() {
 			x.abort();
 		}
-	x.open(method, sbs2Request.SERVER + endpoint);
+	x.open(method, url);
 	var start = Date.now();
 	x.onload = function() {
 		var code = x.status;
@@ -109,13 +106,23 @@ function queryString(obj) {
 }
 
 // requester thing
-function Myself() {
+function Myself(dev) {
+	var protocol = "https:";
+	if (window.location.protocol=="http:")
+		protocol = "http:";
+	if (dev) {
+		this.server = protocol+"//newdev.smilebasicsource.com/api";
+		this.lsKey = "devauth"
+	} else {
+		this.server = protocol+"//new.smilebasicsource.com/api";
+		this.lsKey = "auth"
+	}
 }
 // make a request, passing auth automatically
 // can trigger .logOut() 
 Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
-	sbs2Request(url, method, function(s, resp){
+	sbs2Request($.server+"/"+url, method, function(s, resp){
 		if (s=='auth') {
 			$.logOut();
 			callback.call($, s, resp);
@@ -134,8 +141,9 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 Myself.prototype.logOut = function() {
 	// todo: it's possible for this to get called when not logged in
 	// like, when trying to log in with an incorrect password
-	this.auth = undefined;
-	localStorage.removeItem('auth');
+	var $=this;
+	$.auth = undefined;
+	localStorage.removeItem($.lsKey);
 	console.log("auth error, logging out");
 }
 Myself.prototype.authenticate = function (username, password, callback) {
@@ -161,7 +169,7 @@ Myself.prototype.getUser = function(id, callback) {
 	$.request("User?ids="+id, "GET", function(s, resp) {
 		if (s=='ok')
 			resp=resp[0];
-		callback.call($, s, resp);
+		callback.call($, s, resp || null);
 	});
 }
 Myself.prototype.getMe = function(callback) {
@@ -182,7 +190,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 	console.log("login called");
 	var $=this;
 	try {
-		var cached = localStorage.getItem('auth');
+		var cached = localStorage.getItem($.lsKey);
 		console.log("read localstorage");
 		if (cached) {
 			console.log("found cached auth");	
@@ -207,7 +215,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 		function got(s, resp) {
 			console.log("logged in, maybe");
 			if (s=='ok') {
-				localStorage.setItem('auth', resp);
+				localStorage.setItem($.lsKey, resp);
 				callback.call($, s, resp);
 			} else
 				callback.call($, s, resp);	
