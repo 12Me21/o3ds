@@ -16,45 +16,47 @@ window.onload = function() {
 		console.log("ID "+id);
 		lp = new LongPoller(me, id, function(ms) {
 			console.log("MS")
-			for (i=0;i<ms.length;i++){
+			for (var i=0;i<ms.length;i++){
 				display(ms[i])
 			}
 		});
 		lp.start();
 	}
-
-function shouldScroll(element) {
-	return (element.scrollHeight - element.scrollTop - element.clientHeight <= element.clientHeight*.25);
-}
-
-function autoScroll(element, force) {
-	element.scrollTop = element.scrollHeight - element.clientHeight;
-}
-
-function display(c) {
-	var s = shouldScroll($output.parentElement);
-	var node = renderComment(c);
-	$output.appendChild(node);
-	if (s) {
-		autoScroll($output.parentElement);
-	}
-}
-$send.onclick = function() {
-	if ($input.value) {
-		me.postComment({
-			parentId: lp.id,
-			content: JSON.stringify({
-				t: $input.value,
-				m: 'plaintext'
-			})
-		}, function(s, resp) {
-	//		if (s=="ok")
-				
-		});
-		$input.value = "";
+	
+	function shouldScroll(element) {
+		return (element.scrollHeight - element.scrollTop - element.clientHeight <= element.clientHeight*.25);
 	}
 	
-}
+	function autoScroll(element, force) {
+		element.scrollTop = element.scrollHeight - element.clientHeight;
+	}
+	
+	function display(c) {
+		console.log("display");
+		var s = shouldScroll($output.parentElement);
+		console.log("b");
+		var node = renderComment(c);
+		$output.appendChild(node);
+		if (s) {
+			autoScroll($output.parentElement);
+		}
+	}
+	$send.onclick = function() {
+		if ($input.value) {
+			me.postComment({
+				parentId: lp.id,
+				content: JSON.stringify({
+					t: $input.value,
+					m: 'plaintext'
+				})
+			}, function(s, resp) {
+				//		if (s=="ok")
+				
+			});
+			$input.value = "";
+		}
+		
+	}
 
 $input.onkeypress = function(e) {
 	if (!e.shiftKey && e.keyCode == 13) {
