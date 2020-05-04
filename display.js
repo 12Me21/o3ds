@@ -1,3 +1,13 @@
+function getUsername(id) {
+	return {
+		[6]: "snail",
+		[9]: "yttria",
+		[10]: "12",
+		[12]: "answer",
+		[26]: "nicole",
+	}[id] || "["+id+"]";
+}
+
 function renderComment(comment){
 	var c = comment.content;
 	var t, m;
@@ -12,10 +22,16 @@ function renderComment(comment){
 		t = c;
 	}
 	if (m == '12y') {
-		return parse(t);
+		element = parse(t);
 	} else {
 		element = document.createElement("div");
 		element.appendChild(document.createTextNode(t));
-		return element;
 	}
+	var name = document.createElement("div");
+	name.textContent = getUsername(comment.createUserId);
+	name.className="sender";
+	element.insertBefore(name, element.firstChild);
+	document.title=getUsername(comment.createUserId)+":"+t;
+	return element;
+	
 }
