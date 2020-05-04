@@ -1,0 +1,47 @@
+.messagepane {
+	width: 100%;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 30vh;
+	overflow-y: scroll;
+	background-color: #EEEEEE;
+	display: flex;
+	flex-direction: column;
+	height: 300px;
+}
+
+.messagelist {
+	padding-bottom: 0.5rem;
+	padding-top: 0.5rem;
+}
+
+/* messages */
+.message {
+	font-size: 0.9rem;
+	padding: 0.4rem 0.5rem;
+	white-space: pre-wrap;
+}
+
+.messageAvatar {
+	display: inline-block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border: 1px solid #777;
+	margin-right: 0.5rem;
+}
+
+.messageUsername {
+	display:block;
+	font-weight: bold;
+}
+
+.messageContents {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.messagePart {
+	margin: .2em;
+}
+
+	

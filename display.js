@@ -3,6 +3,7 @@ var SERVER = me.server; //ugh how to do this nicely
 function renderUserBlock(user, uid) {
 	var div = document.createElement('div');
 	div.className = 'message';
+	div.setAttribute('data-uid', uid);
 	
 	var img = document.createElement('img');
 	if (user)
@@ -27,7 +28,7 @@ function renderUserBlock(user, uid) {
 
 function updateUserBlock(node, user) {
 	node.querySelector(".messageAvatar").src = SERVER+"/File/raw/"+user.avatar;
-	node.querySelector(".messageUsername").textContent = user.username;
+	node.querySelector(".messageUsername").textContent = user.username+":";
 }
 
 function renderMessagePart(comment){

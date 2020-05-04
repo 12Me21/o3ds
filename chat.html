@@ -1,44 +1,17 @@
 <!DOCTYPE html>
 
 <meta charset="utf-8">
+<link rel="stylesheet" href="style.css">
 <script src="req2.js?16"></script>
 <script src="storage.js"></script>
 <script src="test.js?20"></script>
 <script src="longpoll.js?1"></script>
 <script src="12y.js?1"></script>
-<script src="display.js?14"></script>
+<script src="display.js?15"></script>
 <script src="sbhighlight.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-	.messageAvatar {
-	display: inline-block;
-	width: 3.5rem;
-	height: 3.5rem;
-	border: 1px solid #777;
-	margin-right: 0.5rem;
-	}
-
-	.messageContents {
-	display: inline-block;
-	vertical-align: top;
-	}
-
-	.messageUsername {
-	display:block;
-	font-weight: bold;
-	}
-
-	.messagePart {
-	margin: .2em;
-	}
-
-	.message {
-	font-size: 0.9rem;
-	padding: 0.4rem 0.5rem;
-	white-space: pre-wrap;
-	}
-	
 	.messagepane img {
 	max-height: 10vh;
 	}
@@ -64,18 +37,6 @@
 	padding: 0.5em;
 	}
 	
-	.stack > * {
-	margin: 0.25em;
-	}
-	
-	.loginpane {
-	
-	}
-	
-	.roompane {
-	
-	}
-	
 	.input {
 	display: flex;
 	flex-direction: row;
@@ -92,23 +53,6 @@
 .input button {
 	height: 100%;
 	display: inline-block;
-}
-.messagepane {
-	width: 100%;
-	flex-grow: 1;
-	flex-shrink: 1;
-	flex-basis: 30vh;
-	/*scroll-behavior: smooth;*/
-	overflow-y: scroll;
-	background-color: #EEEEEE;
-	display: flex;
-	flex-direction: column;
-		height: 300px;
-
-}
-.messagelist {
-	padding-bottom: 0.5rem;
-	padding-top: 0.5rem;
 }
 .spacer {
 	flex-grow: 1;
