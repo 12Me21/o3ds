@@ -4,7 +4,7 @@ function getUsername(id) {
 		[9]: "yttria",
 		[10]: "12",
 		[12]: "answer",
-		[26]: "nicole",
+		[26]: "nicole"
 	}[id] || "["+id+"]";
 }
 
