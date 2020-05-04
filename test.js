@@ -10,6 +10,8 @@ window.onload = function() {
 	$changeroom.onclick = function() {
 		room($room.value);
 	}
+
+	messagePaneAutoScroller = new AutoScroller($output);
 	
 	var lp;
 	function room(id) {
@@ -17,6 +19,7 @@ window.onload = function() {
 		if (lp)
 			lp.stop();
 		console.log("ID "+id);
+		messagePaneAutoScroller.switchRoom(id);
 		lp = new LongPoller(me, id, function(ms) {
 			for (var i=0;i<ms.length;i++){
 				display(ms[i])
@@ -25,7 +28,7 @@ window.onload = function() {
 		lp.start(30);
 	}
 	
-	messagePaneAutoScroller = new AutoScroller($output);
+	
 	
 	display = function(c) {
 		console.log(c);

@@ -179,32 +179,26 @@ Myself.prototype.getUser = function(id, callback) {
 }
 Myself.prototype.getUserCached = function(id, callback) {
 	var $=this;
-	/*if (this.userCache[id]) {
+	if (this.userCache[id]) {
 		callback.call($, 'ok', this.userCache[id]);
 	} else {
 		if (this.userRequests[id]) {
-
-			
-	}*/
-	
-	//callback.call($, 'ok', {username: "["+id+"]", uid:id, avatar:55}); //i'm too tired right now
-	//return;
-	// this works but it's not efficient
-	// 2 problems:
-	// 1: can make the same request multiple times
-	// 2: doesn't use batch requests
-	
-	if ($.userCache[id]) {
-		callback.call($, 'ok', $.userCache[id]);
-		return;
-	}
-	$.request("User?ids="+id, "GET", function(s, resp) {
-		if (s=='ok') {
-			$.userCache[id] = resp[0];
-			resp=resp[0];
+			this.userRequests[id].push(callback);
+		} else {
+			$.userRequests[id] = [callback];
+			$.request("User?ids="+id, "GET", function(s, resp) {
+				if (s=='ok')
+					resp = resp[0];
+				$.userCache[id] = resp;
+				console.log($.userRequests[id]);
+				for (var i=0; i<$.userRequests[id].length; i++) {
+					
+					$.userRequests[id][i].call($, s, resp);
+				}
+				$.userRequests[id] = undefined;
+			});
 		}
-		callback.call($, s, resp || null);
-	});
+	}
 }
 Myself.prototype.getMe = function(callback) {
 	var $=this;

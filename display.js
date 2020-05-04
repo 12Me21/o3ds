@@ -146,4 +146,8 @@ AutoScroller.prototype.remove = function(id) {
 // cache messages when switching rooms, or something
 AutoScroller.prototype.switchRoom = function(id) {
 	this.element.innerHTML = "";
+	this.lastUid = undefined;
+	this.lastUidBlock = undefined;
+	this.nodes = {};
+	// probably needs more cleanup
 }
