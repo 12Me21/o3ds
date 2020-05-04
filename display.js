@@ -141,6 +141,7 @@ AutoScroller.prototype.remove = function(id) {
 	if (node) {
 		node.parentNode.removeChild(node);
 	}
+	this.nodes[id] = undefined;
 }
 // currently just clears no matter what
 // in the future you might, if this is properly connected to a LongPoller,

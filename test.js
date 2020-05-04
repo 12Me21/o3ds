@@ -31,7 +31,7 @@ window.onload = function() {
 	
 	
 	display = function(c) {
-		console.log(c);
+		//console.log(c);
 		if (c.deleted) {
 			messagePaneAutoScroller.remove(c.id);
 		} else {
