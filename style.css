@@ -22,22 +22,31 @@
 	white-space: pre-wrap;
 }
 
+.messageInner {
+	display: table-row;
+	width: 100%;
+}
+
 .messageAvatar {
-	display: inline-block;
+	display: table-cell;
 	width: 3.5rem;
 	height: 3.5rem;
 	border: 1px solid #777;
 	margin-right: 0.5rem;
 }
 
-.messageUsername {
-	display:block;
-	font-weight: bold;
+.messageTime {
+	float: right;
 }
 
 .messageContents {
-	display: inline-block;
 	vertical-align: top;
+	display: table-cell;
+}
+
+.messageUsername {
+	display:block;
+	font-weight: bold;
 }
 
 .messagePart {

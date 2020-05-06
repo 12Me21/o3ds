@@ -1,16 +1,18 @@
-var SERVER = me.server; //ugh how to do this nicely
-
 function renderUserBlock(user, uid) {
+	var outer = document.createElement('div');
+	outer.className = 'message';
+	outer.setAttribute('data-uid', uid);
+	
 	var div = document.createElement('div');
-	div.className = 'message';
-	div.setAttribute('data-uid', uid);
+	div.className = 'messageInner';
+	outer.appendChild(div);
 	
 	var img = document.createElement('img');
 	if (user)
-		img.src = SERVER+"/File/raw/"+user.avatar; //todo: handle default avatar
+		img.src = user.avatarURL; //todo: handle default avatar
 	img.className = 'messageAvatar';
 	div.appendChild(img);
-	
+
 	var contentBox = document.createElement('div');
 	contentBox.className = 'messageContents';
 	div.appendChild(contentBox);
@@ -22,13 +24,18 @@ function renderUserBlock(user, uid) {
 	else
 		name.textContent = "["+uid+"]"+":";
 	contentBox.appendChild(name);
+
+	var time = document.createElement('span');
+	time.textContent = "4:20 AM";
+	time.className = 'messageTime'
+	name.appendChild(time);
 	
-	return [div, contentBox];
+	return [outer, contentBox];
 }
 
 function updateUserBlock(node, user) {
-	node.querySelector(".messageAvatar").src = SERVER+"/File/raw/"+user.avatar;
-	node.querySelector(".messageUsername").textContent = user.username+":";
+	node.querySelector(".messageAvatar").src = user.avatarURL;
+	node.querySelector(".messageUsername").firstChild.textContent = user.username+":";
 }
 
 function renderMessagePart(comment){
@@ -60,6 +67,7 @@ function AutoScroller(element) {
 	this.element = element;
 	this.smoothScroll = true;
 	this.nodes = {};
+	this.blocks = {};
 	var $=this;
 	function onresize() {
 		//todo: make this only happen when the element was previously scrolled to bottom
