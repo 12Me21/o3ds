@@ -1,4 +1,12 @@
-function renderUserBlock(user, uid) {
+function timeString(date) {
+	console.log(date);
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	twelve = hours % 12 || 12;
+	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+}
+
+function renderUserBlock(user, uid, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
 	
@@ -17,10 +25,10 @@ function renderUserBlock(user, uid) {
 	div.appendChild(name);
 	
 	var time = document.createElement('span');
-	time.textContent = "4:20 AM";
+	time.textContent = timeString(date);
 	time.className = 'messageTime'
 	div.appendChild(time);
-
+	
 	var contentBox = document.createElement('div');
 	contentBox.className = 'messageContents';
 	div.appendChild(contentBox);
