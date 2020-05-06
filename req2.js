@@ -22,6 +22,7 @@
 // data: data to send (optional)
 // auth: auth token (optional)
 function sbs2Request(url, method, callback, data, auth, cancel) {
+	console.info("Making request",url);
 	var x = new XMLHttpRequest();
 	if (cancel)
 		cancel[0] = function() {
@@ -149,11 +150,17 @@ Myself.prototype.logOut = function() {
 	localStorage.removeItem($.lsKey);
 	console.log("auth error, logging out");
 }
-Myself.prototype.authenticate = function (username, password, callback) {
+Myself.prototype.setAuth = function(auth) {
+	this.auth = auth;
+	var x = JSON.parse(atob(auth.split(".")[1]));
+	this.uid = x.uid;
+}
+Myself.prototype.authenticate = function(username, password, callback) {
 	var $=this;
 	$.request("User/authenticate", "POST", function(s, resp) {
-		if (s=='ok')
-			$.auth = resp;
+		if (s=='ok') {
+			$.setAuth(resp);
+		}
 		callback.call($, s, resp);
 	}, {username:username, password:password});
 }
@@ -165,16 +172,37 @@ Myself.prototype.testAuth = function(callback) {
 };
 Myself.prototype.getUsers = function(query, callback) {
 	var $=this;
-	$.request("User"+queryString(query), "GET", callback);
+	$.request("User"+queryString(query), "GET", function(s, resp) {
+		$.gotUsers(s, resp);
+		callback.call($, s, resp);
+	});
 }
+
+Myself.prototype.gotUsers = function(s, resp) {
+	var $=this;
+	if (s=='ok') {
+		resp.forEach(function(user) {
+			user = new User(user, $.server);
+			var uid=user.id
+			$.userCache[uid] = user;
+			if ($.userRequests[uid]) {
+				$.userRequests[uid].forEach(function(func) {
+					func.call($, s, user);
+				});
+				$.userRequests[uid] = undefined;
+			}
+		});
+	}
+	return resp;
+}
+
 Myself.prototype.getUser = function(id, callback) {
 	var $=this;
 	$.request("User?ids="+id, "GET", function(s, resp) {
-		if (s=='ok') {
-			$.userCache[id] = resp[0]; //todo: add to getUsers
-			resp=resp[0];
-		}
-		callback.call($, s, resp || null);
+		$.gotUsers(s, resp);
+		if (s=='ok')
+			resp = new User(resp[0], $.server);
+		callback.call($, s, resp);
 	});
 }
 Myself.prototype.getUserCached = function(id, callback) {
@@ -187,22 +215,39 @@ Myself.prototype.getUserCached = function(id, callback) {
 		} else {
 			$.userRequests[id] = [callback];
 			$.request("User?ids="+id, "GET", function(s, resp) {
-				if (s=='ok')
-					resp = resp[0];
-				$.userCache[id] = resp;
-				console.log($.userRequests[id]);
-				for (var i=0; i<$.userRequests[id].length; i++) {
-					
-					$.userRequests[id][i].call($, s, resp);
-				}
-				$.userRequests[id] = undefined;
+				$.gotUsers(s, resp);
 			});
 		}
 	}
 }
+Myself.prototype.preloadUsers = function(uids) {
+	var $=this;
+	var filtered = [];
+	uids.forEach(function(uid) {
+		if (!$.userCache[uid] && filtered.indexOf(uid) == -1) {
+			filtered.push(uid);
+			$.userRequests[uid] = []; //this is kind of a hack
+			// the entire user cache system could really use
+			// a rewrite
+			// I wonder if
+			// making a general system would be worth it
+			// is there anything else
+			// that works like this
+			// it's possible, but I can't think of any
+			// examples,
+			// 
+		}
+	});
+	if (filtered.length) {
+		$.getUsers({ids: filtered}, function(){});
+	}
+}
 Myself.prototype.getMe = function(callback) {
 	var $=this;
-	$.request("User/me", "GET", callback);
+	$.request("User/me", "GET", function(s, resp) {
+		resp = $.gotUser(s, resp);
+		callback.call($, s, resp);
+	});
 }
 Myself.prototype.putBasic = function(data, callback) {
 	var $=this;
@@ -221,8 +266,8 @@ Myself.prototype.logIn = function(username, password, callback) {
 		var cached = localStorage.getItem($.lsKey);
 		console.log("read localstorage");
 		if (cached) {
-			console.log("found cached auth");	
-			$.auth = cached;
+			console.log("found cached auth");
+			$.setAuth(cached);
 			/*$.testAuth(function(s, resp) {
 			  if (s=='ok')
 			  got('ok', cached);
@@ -305,4 +350,16 @@ Myself.prototype.listen = function(id, query, callback, cancel) {
 Myself.prototype.getActivity = function(query, callback) {
 	var $=this;
 	$.request("Activity"+queryString(query), "GET", callback);
+}
+
+function User(data, url) {
+	if (data) {
+		for (var key in data) {
+			this[key] = data[key];
+		}
+		if (this.avatar && url) {
+			this.avatarURL = url+"/File/raw/"+this.avatar;
+		}
+	}
+
 }

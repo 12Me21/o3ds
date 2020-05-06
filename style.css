@@ -4,15 +4,16 @@
 	flex-shrink: 1;
 	flex-basis: 30vh;
 	overflow-y: scroll;
-	background-color: #EEEEEE;
+	/*background-color: #EEEEEE;*/
 	display: flex;
 	flex-direction: column;
 	height: 300px;
+	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 }
 
 .messagelist {
-	padding-bottom: 0.5rem;
-	padding-top: 0.5rem;
+	padding-bottom: 1rem;
 }
 
 /* messages */
@@ -20,37 +21,50 @@
 	font-size: 0.9rem;
 	padding: 0.4rem 0.5rem;
 	white-space: pre-wrap;
+	border-left-width: 0.5em;
+	border-left-style: solid;
+	border-left-color: rgb(255,153,153);
+	clear: both;
+	overflow: auto;
 }
 
-.messageInner {
-	display: table-row;
-	width: 100%;
-}
-
-.messageAvatar {
-	display: table-cell;
-	width: 3.5rem;
-	height: 3.5rem;
-	border: 1px solid #777;
-	margin-right: 0.5rem;
+.ownMessage {
+	background-color: rgba(255,153,153, 0.2);
 }
 
 .messageTime {
 	float: right;
+	font-weight: normal;
+	padding-right: .5em;
+	color: #666;
 }
 
-.messageContents {
-	vertical-align: top;
-	display: table-cell;
+.messageAvatar {
+	display: inline-block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border: 1px solid #777;
+	margin-right: 0.5rem;
+	float: left;
 }
 
 .messageUsername {
-	display:block;
+	display: inline-block;
 	font-weight: bold;
+}
+
+.messageContents {
+	display: block;
+	vertical-align: top;
+	overflow: auto;
 }
 
 .messagePart {
 	margin: .2em;
 }
 
-	
+/* markup styling */
+
+.messagePart img {
+	max-height: 10vh;
+}

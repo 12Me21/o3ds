@@ -20,7 +20,12 @@ window.onload = function() {
 			lp.stop();
 		console.log("ID "+id);
 		messagePaneAutoScroller.switchRoom(id);
-		lp = new LongPoller(me, id, function(ms) {
+		lp = new LongPoller(me, id, function(ms, first) {
+			if (first) {
+				me.preloadUsers(ms.map(function(comment) {
+					return comment.createUserId;
+				}));
+			}
 			for (var i=0;i<ms.length;i++){
 				display(ms[i])
 			}
@@ -38,6 +43,8 @@ window.onload = function() {
 			var node = renderMessagePart(c);
 			messagePaneAutoScroller.insert(c.id, node, c.createUserId, function(){
 				var b = renderUserBlock(null, c.createUserId);
+				if (c.createUserId == me.uid)
+					b[0].className += " ownMessage";
 				me.getUserCached(c.createUserId, function(s, user) {
 					if (s=="ok")
 						updateUserBlock(b[0], user);

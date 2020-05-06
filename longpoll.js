@@ -29,7 +29,7 @@ LongPoller.prototype.start = function(initial) {
 				var newest = resp[resp.length-1];
 				if (newest)
 					$.lastid = newest.id;
-				$.callback(resp);
+				$.callback.call($, resp, true);
 				$.start();
 			} else {
 				console.error("LONG POLLER FAILED INITIAL");
@@ -46,7 +46,7 @@ LongPoller.prototype.start = function(initial) {
 					$.lastid = newest.id;
 				}
 			}
-			$.callback(resp);
+			$.callback.call($,resp);
 		}
 		if (s=='ok' || s=='timeout') {
 			var t = setTimeout(function() {

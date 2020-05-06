@@ -1,21 +1,12 @@
 function renderUserBlock(user, uid) {
-	var outer = document.createElement('div');
-	outer.className = 'message';
-	outer.setAttribute('data-uid', uid);
-	
 	var div = document.createElement('div');
-	div.className = 'messageInner';
-	outer.appendChild(div);
+	div.className = 'message';
 	
 	var img = document.createElement('img');
 	if (user)
 		img.src = user.avatarURL; //todo: handle default avatar
 	img.className = 'messageAvatar';
 	div.appendChild(img);
-
-	var contentBox = document.createElement('div');
-	contentBox.className = 'messageContents';
-	div.appendChild(contentBox);
 	
 	var name = document.createElement('span');
 	name.className = 'messageUsername';
@@ -23,14 +14,18 @@ function renderUserBlock(user, uid) {
 		name.textContent = user.username+":";
 	else
 		name.textContent = "["+uid+"]"+":";
-	contentBox.appendChild(name);
-
+	div.appendChild(name);
+	
 	var time = document.createElement('span');
 	time.textContent = "4:20 AM";
 	time.className = 'messageTime'
-	name.appendChild(time);
+	div.appendChild(time);
+
+	var contentBox = document.createElement('div');
+	contentBox.className = 'messageContents';
+	div.appendChild(contentBox);
 	
-	return [outer, contentBox];
+	return [div, contentBox];
 }
 
 function updateUserBlock(node, user) {
