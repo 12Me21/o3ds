@@ -53,6 +53,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			console.log(x);
 			callback('auth', resp);
 		} else {
+			alert("Request failed! "+code);
 			console.log("sbs2Request: request failed! "+code);
 			console.log(x.responseText);
 			callback('error', resp, code);
@@ -65,6 +66,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			console.log("detected 3DS timeout");
 			callback('timeout');
 		} else {
+			alert("Request failed!");
 			console.log("xhr onerror");
 			callback('error');
 		}

@@ -42,7 +42,6 @@ window.onload = function() {
 		} else {
 			var node = renderMessagePart(c);
 			messagePaneAutoScroller.insert(c.id, node, c.createUserId, function(){
-				console.log(new Date(c.createDate));
 				var b = renderUserBlock(null, c.createUserId, new Date(c.createDate));
 				if (c.createUserId == me.uid)
 					b[0].className += " ownMessage";
