@@ -17,8 +17,7 @@ window.onload = function() {
 	
 	
 	function room(id) {
-		console.log("switching rooms?");
-		console.log("ID "+id);
+		console.log("Switching to room id:"+id);
 		
 		if (lp)
 			lp.stop();
@@ -100,13 +99,16 @@ $input.onkeypress = function(e) {
 	}
 }
 
+	$login.onclick = function() {
+		me.logOut();
+		me.logIn($username.value, $password.value, function(s, resp) {
+			/*if (s=='ok') {
+				$logged_out.style.display = "none";
+			}*/
+		});
+	}
 
-
-$login.onclick = function() {
-	me.logIn($username.value, $password.value, function(s, resp) {
-		if (s=='ok') {
-			$logged_out.style.display = "none";
-		}
-	});
-}
+	$logout.onclick = function() {
+		me.logOut();
+	}
 }

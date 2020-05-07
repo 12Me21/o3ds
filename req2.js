@@ -53,7 +53,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			console.log(x);
 			callback('auth', resp);
 		} else {
-			alert("Request failed! "+code);
+			alert("Request failed! "+code+" "+url);
 			console.log("sbs2Request: request failed! "+code);
 			console.log(x.responseText);
 			callback('error', resp, code);
@@ -66,7 +66,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			console.log("detected 3DS timeout");
 			callback('timeout');
 		} else {
-			alert("Request failed!");
+			alert("Request failed! "+url);
 			console.log("xhr onerror");
 			callback('error');
 		}
@@ -360,7 +360,6 @@ Myself.prototype.getLastComments = function(parent, count, callback) {
 		reverse: true,
 		limit: count
 	}, function(s, resp) {
-		console.log("Got last comments", resp.slice());
 		if (s=='ok' && resp instanceof Array)
 			resp.reverse();
 		callback.call($, s, resp);
