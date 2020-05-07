@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 
 <meta charset="utf-8">
-<link rel="stylesheet" href="style.css?2">
-<script src="req2.js?18"></script>
+<link rel="stylesheet" href="style.css?3">
+<script src="req2.js?19"></script>
 <script src="storage.js"></script>
-<script src="test.js?23"></script>
-<script src="longpoll.js?2"></script>
+<script src="test.js?24"></script>
+<script src="longpoll.js?3"></script>
 <script src="12y.js?1"></script>
-<script src="display.js?18"></script>
+<script src="display.js?19"></script>
 <script src="sbhighlight.js"></script>
+<script src="event.js?1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -32,28 +33,8 @@
 	background-color: white;
 	}
 	
-	.input {
-	display: flex;
-	flex-direction: row;
-	height: 3.5rem;
-	}
-.input textarea {
-	resize: none;
-	/*max-height: 100%;*/
-	flex-grow: 1;
-	margin: 0;
-	display: inline-block;
-	margin-right: 0.5em;
-}
-.input button {
-	height: 100%;
-	display: inline-block;
-}
 .spacer {
 	flex-grow: 1;
-}
-.userlistpane {
-	
 }
 .sender {
 	font-weight: bold;
@@ -64,13 +45,6 @@
 .systemMessage {
 	color: #222233;
 	background-color: #DDEEDD;
-}
-[id="$currentroom"] {
-	margin-left: 1em;
-}
-[id="$myself"] {
-	font-weight: bold;
-	margin-right: 0.5em;
 }
 .errorMessage {
 	color: #800000;
@@ -113,24 +87,29 @@
 				<button id="$login">Log In</button>
 			</div>
 		</div>
+		<button onclick="updateUserList()">update user list</button>
+		<div class="userList" id="$userList">
 
+		</div>
+		
 		<div class="messagepane">
 			<div class="spacer"></div>
 			<div class="messagelist" id="$output">
 			</div>
 		</div>
+		
 		<div class="roompane">
-			<button id="$changeroom">Join room</button><input id="$room" placeholder="discussion id" type="number"><span id="$currentroom"></span>
+			<button id="$changeroom">Join room</button>
+			<input id="$room" placeholder="discussion id" type="number">
+			<span id="$currentroom"></span>
 		</div>
+		
 		<div class="input">
-			<textarea id="$input"></textarea><button id="$send" onclick="sendMessage($input.value)">SEND</button>
+			<textarea id="$input"></textarea>
+			<button id="$send" onclick="sendMessage($input.value)">SEND</button>
 		</div>
-		<div class="userlistpane">
-			
-		</div>
-
+		
 	</div>
-	<hr>
 </body>
 
 <!-- anything is possible -->

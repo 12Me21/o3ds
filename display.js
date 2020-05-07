@@ -1,9 +1,16 @@
 function timeString(date) {
-	console.log(date);
 	var hours = date.getHours();
 	var minutes = date.getMinutes();
 	twelve = hours % 12 || 12;
 	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+}
+
+function renderUserListAvatar(user) {
+	var img = document.createElement('img');
+	img.src = user.avatarURL;
+	img.title = user.username;
+	img.className = "userListAvatar";
+	return img;
 }
 
 function renderUserBlock(user, uid, date) {
@@ -12,7 +19,7 @@ function renderUserBlock(user, uid, date) {
 	
 	var img = document.createElement('img');
 	if (user)
-		img.src = user.avatarURL; //todo: handle default avatar
+		img.src = user.avatarURL;
 	img.className = 'messageAvatar';
 	div.appendChild(img);
 	

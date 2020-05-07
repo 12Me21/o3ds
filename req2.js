@@ -71,6 +71,8 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('error');
 		}
 	}
+	x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
+	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
 	if (auth)
 		x.setRequestHeader('Authorization', "Bearer "+auth);
 	if (data) {
@@ -207,8 +209,16 @@ Myself.prototype.getUser = function(id, callback) {
 		callback.call($, s, resp);
 	});
 }
+
+// get user from cache
+// if callback is passed, it will be called as soon as the user info is
+// available (possibly right away), and a request made if it hasn't already
+// otherwise, the function returns the cached user info (if it exists)
+// DEPRECATED
 Myself.prototype.getUserCached = function(id, callback) {
 	var $=this;
+	if (!callback)
+		return this.userCache[id];
 	if (this.userCache[id]) {
 		callback.call($, 'ok', this.userCache[id]);
 	} else {
@@ -222,11 +232,25 @@ Myself.prototype.getUserCached = function(id, callback) {
 		}
 	}
 }
+Myself.prototype.whenUser = function(id, callback) {
+	if (this.userCache[id]) {
+		callback.call(this, 'ok', this.userCache[id]);
+	} else if (this.userRequests[id]) {
+		this.userRequests[id].push(callback);
+	} else {
+		// oops... you didn't request the user yet
+	}
+}
+// takes a list of user ids
+// if any of these users are not currently cached,
+// this will request their data
+// use Myself.whenUser() to run a callback when the data for a user
+// has been gotten (or immediately if it's already cached)
 Myself.prototype.preloadUsers = function(uids) {
 	var $=this;
 	var filtered = [];
 	uids.forEach(function(uid) {
-		if (!$.userCache[uid] && filtered.indexOf(uid) == -1) {
+		if (!$.userCache[uid] && !$.userRequests[uid] && filtered.indexOf(uid) == -1) {
 			filtered.push(uid);
 			$.userRequests[uid] = []; //this is kind of a hack
 			// the entire user cache system could really use
@@ -267,6 +291,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 	try {
 		var cached = localStorage.getItem($.lsKey);
 		console.log("read localstorage");
+
 		if (cached) {
 			console.log("found cached auth");
 			$.setAuth(cached);
@@ -335,8 +360,9 @@ Myself.prototype.getLastComments = function(parent, count, callback) {
 		reverse: true,
 		limit: count
 	}, function(s, resp) {
+		console.log("Got last comments", resp.slice());
 		if (s=='ok' && resp instanceof Array)
-			resp = resp.reverse();
+			resp.reverse();
 		callback.call($, s, resp);
 	});
 }
@@ -346,6 +372,21 @@ Myself.prototype.listen = function(id, query, callback, cancel) {
 	$.request(url, "GET", function(s, resp) {
 		callback.call($, s, resp);
 	}, undefined, cancel);
+}
+Myself.prototype.listenListeners = function(id, query, callback, cancel) {
+	var $=this;
+	var url = "Comment/listen/"+id+"/listeners"+queryString(query);
+	$.request(url, "GET", function(s, resp) {
+		callback.call($, s, resp);
+	}, undefined, cancel);
+}
+
+Myself.prototype.getListeners = function(id, query, callback) {
+	var $=this;
+	var url = "Comment/listen/"+id+"/listeners"+queryString(query);
+	$.request(url, "GET", function(s, resp) {
+		callback.call($, s, resp);
+	});
 }
 
 // 
@@ -361,6 +402,8 @@ function User(data, url) {
 		}
 		if (this.avatar && url) {
 			this.avatarURL = url+"/File/raw/"+this.avatar;
+		} else  {
+			this.avatarURL = "./avatar.png"
 		}
 	}
 

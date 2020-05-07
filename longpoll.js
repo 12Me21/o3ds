@@ -61,3 +61,57 @@ LongPoller.prototype.start = function(initial) {
 	}, cancel);
 	$.cancel = cancel[0];
 }
+
+
+// create a new long poller
+// myself: Myself
+// id: Number
+// callback: Function([Comment...])
+function ListLongPoller(myself, id, callback) {
+	this.myself = myself;
+	this.id = +id;
+	this.callback = callback;
+	this.cancel = function(){};
+}
+
+// stop long poller
+// can be resumed later
+ListLongPoller.prototype.stop = function() {
+	this.cancel();
+}
+
+ListLongPoller.prototype.start = function(initial) {
+	var $=this;
+	if (initial) {
+		this.myself.getListeners(this.id, undefined, function(s, resp) {
+			if (s=='ok') {
+				var users = resp.map(function(li){return li.userId});
+				$.lastListeners = users;
+				$.callback.call($, users, true);
+				$.start();
+			} else {
+				console.error("LONG POLLER FAILED INITIAL");
+			}
+		});
+		return;
+	}
+	var cancel = [];
+	$.myself.listenListeners($.id, {lastListeners: $.lastListeners}, function(s, resp) {
+		if (s=='ok') {
+			var users = resp.map(function(li){return li.userId});
+			$.lastListeners = users;
+			$.callback.call($, users);
+		}
+		if (s=='ok' || s=='timeout') {
+			var t = setTimeout(function() {
+				$.start();
+			}, 0);
+			$.cancel = function() {
+				clearTimeout(t);
+			}
+		} else {
+			console.error("LONG POLLER FAILED");
+		}
+	}, cancel);
+	$.cancel = cancel[0];
+}

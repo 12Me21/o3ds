@@ -1,3 +1,20 @@
+/***************
+ ** User list **
+ ***************/
+
+.userList, .userListAvatar {
+	width: 2.3rem;
+	height: 2.3rem;
+}
+
+.userList {
+	width: 100%;
+}
+
+/******************
+ ** message area **
+ ******************/
+
 .messagepane {
 	width: 100%;
 	flex-grow: 1;
@@ -67,4 +84,29 @@
 
 .messagePart img {
 	max-height: 10vh;
+}
+
+/*************
+ **  Input  **
+ *************/
+
+.input {
+	display: flex;
+	flex-direction: row;
+	height: 3.25rem;
+}
+
+.input textarea {
+	resize: none;
+	flex-grow: 1;
+	margin: 0;
+	border: 2px solid #00C8B4;
+	border-radius: 2px;
+	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
+}
+
+.input button {
+	height: 100%;
+	margin: 0;
+	width: 3.25rem;
 }

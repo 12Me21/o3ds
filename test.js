@@ -1,11 +1,20 @@
 var me = new Myself(true);
 var messagePaneAutoScroller;
 var display;
+var lp;
+var lp2;
+
+function updateUserList() {
+	me.getListeners(lp.id, undefined, function(s, resp) {
+		if (s == 'ok') {
+		}
+	})
+}
 
 window.onload = function() {
 	//alert("ok");
 	console.log("v2");
-	me.logIn(undefined, undefined, console.log);
+	me.logIn(undefined, undefined, function(){});
 
 	$changeroom.onclick = function() {
 		room($room.value);
@@ -13,27 +22,41 @@ window.onload = function() {
 
 	messagePaneAutoScroller = new AutoScroller($output);
 	
-	var lp;
+	
 	function room(id) {
 		console.log("switching rooms?");
+		console.log("ID "+id);
+		
 		if (lp)
 			lp.stop();
-		console.log("ID "+id);
+		if (lp2)
+			lp2.stop();
+
 		messagePaneAutoScroller.switchRoom(id);
 		lp = new LongPoller(me, id, function(ms, first) {
 			if (first) {
-				me.preloadUsers(ms.map(function(comment) {
-					return comment.createUserId;
-				}));
+				lp2 = new ListLongPoller(me, id, function(users, first) {
+					me.preloadUsers(users);
+					$userList.innerHTML = "";
+					users.forEach(function(id) {
+						me.whenUser(id, function(s, user) {
+							if (s=="ok")
+								$userList.appendChild(renderUserListAvatar(user));
+						});
+					});
+				});
+				lp2.start(true);
 			}
+			var users = ms.map(function(comment) {
+				return comment.createUserId;
+			})
+			me.preloadUsers(users);
 			for (var i=0;i<ms.length;i++){
-				display(ms[i])
+				display(ms[i]);
 			}
 		});
 		lp.start(30);
 	}
-	
-	
 	
 	display = function(c) {
 		//console.log(c);
@@ -42,13 +65,18 @@ window.onload = function() {
 		} else {
 			var node = renderMessagePart(c);
 			messagePaneAutoScroller.insert(c.id, node, c.createUserId, function(){
-				var b = renderUserBlock(null, c.createUserId, new Date(c.createDate));
+				var user = me.userCache[c.createUserId];
+				var b = renderUserBlock(user, c.createUserId, new Date(c.createDate));
 				if (c.createUserId == me.uid)
 					b[0].className += " ownMessage";
-				me.getUserCached(c.createUserId, function(s, user) {
-					if (s=="ok")
-						updateUserBlock(b[0], user);
-				});
+				// if user was not in the cache, update the message block
+				// later
+				if (!user) {
+					me.whenUser(c.createUserId, function(s, user) {
+						if (s=="ok")
+							updateUserBlock(b[0], user);
+					});
+				}
 				return b;
 			});
 			
