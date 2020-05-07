@@ -4,13 +4,6 @@ var display;
 var lp;
 var lp2;
 
-function updateUserList() {
-	me.getListeners(lp.id, undefined, function(s, resp) {
-		if (s == 'ok') {
-		}
-	})
-}
-
 window.onload = function() {
 	//alert("ok");
 	console.log("v2");
