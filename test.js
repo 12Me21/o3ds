@@ -7,7 +7,10 @@ var lp2;
 window.onload = function() {
 	//alert("ok");
 	console.log("v2");
-	me.logIn(undefined, undefined, function(){});
+	me.logIn(undefined, undefined, function(s){
+		if (s=='ok')
+			$loginstatus.textContent = "Logged in";
+	});
 
 	$changeroom.onclick = function() {
 		room($room.value);
@@ -101,7 +104,10 @@ $input.onkeypress = function(e) {
 
 	$login.onclick = function() {
 		me.logOut();
+		$loginstatus.textContent = "Not logged in";
 		me.logIn($username.value, $password.value, function(s, resp) {
+			if (s=='ok')
+				$loginstatus.textContent = "Logged in";
 			/*if (s=='ok') {
 				$logged_out.style.display = "none";
 			}*/
@@ -110,5 +116,6 @@ $input.onkeypress = function(e) {
 
 	$logout.onclick = function() {
 		me.logOut();
+		$loginstatus.textContent = "Not logged in";
 	}
 }

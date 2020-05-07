@@ -306,7 +306,11 @@ Myself.prototype.logIn = function(username, password, callback) {
 			// if auth is not valid, will trigger a logout, but not immediately
 			callback.call($, 'ok', cached);
 			console.log("testing cached auth...");
-			$.testAuth(function(){});
+			$.testAuth(function(s, resp) {
+				if (s == 'ok') {
+					callback.call($, s, cached);
+				}
+			});
 		} else if (username) {
 			console.log("logging in");
 			$.authenticate(username, password, got);
