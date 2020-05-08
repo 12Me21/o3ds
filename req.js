@@ -254,3 +254,8 @@ LongPoller.prototype.start = function() {
 LongPoller.prototype.end = function() {
 	this.cancel();
 }
+
+// make user cache system like terminal chat
+function User() {
+	
+}

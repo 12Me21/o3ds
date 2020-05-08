@@ -61,9 +61,7 @@ function renderCategorySelector(parent, makeSelector) {
 		var node = event.target;
 		var value = node.value;
 		var show = path.slice();
-		if (value == "..") {
-			show.pop();
-		} else if (value != ".") {
+		if (value != ".") {
 			show.push(+value);
 		}
 		$nav.setAttribute('data-path', ","+show.join(",")+",");
@@ -74,11 +72,6 @@ function renderCategorySelector(parent, makeSelector) {
 		var option = document.createElement('option');
 		option.textContent = ".";
 		option.value = "."
-		node.appendChild(option);
-		
-		option = document.createElement('option');
-		option.textContent = "..";
-		option.value = ".."
 		node.appendChild(option);
 	}
 	
