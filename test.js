@@ -18,9 +18,10 @@ window.onload = function() {
 		}
 		$loginPane.setAttribute('data-loggedin','true');
 		if (checked) {
-			$navcss.innerHTML = ""
+			$nav.innerHTML = "";
+			$navcss.innerHTML = "";
 			function makeSelector(path, id) {
-				$navcss.innerHTML += '.roompane:not([data-path^=",'+path.join(",")+',"]) > select[data-id="'+id+'"] {display: none;}';
+				$navcss.innerHTML += '.nav:not([data-path*=",'+id+',"]) > select[data-id="'+id+'"] {display: none;}';
 			}
 			
 			me.getCategories(function(root, all){
