@@ -17,8 +17,26 @@ window.onload = function() {
 			$myName.textContent = "...";
 		}
 		$loginPane.setAttribute('data-loggedin','true');
+		if (checked) {
+			$navcss.innerHTML = ""
+			function makeSelector(path, id) {
+				$navcss.innerHTML += '.roompane:not([data-path^=",'+path.join(",")+',"]) > select[data-id="'+id+'"] {display: none;}';
+			}
+			
+			me.getCategories(function(root, all){
+				console.log(all);
+				var selectors = all.map(function(cat) {
+					return renderCategorySelector(cat, makeSelector);
+				});
+				var sel = renderCategorySelector(root, function(){});
+				$nav.appendChild(sel);
+				selectors.forEach(function(sel) {
+					$nav.appendChild(sel);
+				});
+			});
+		}
 	});
-
+	
 	me.on('logout', function() {
 		$loginPane.removeAttribute('data-loggedin');
 		if (lp)

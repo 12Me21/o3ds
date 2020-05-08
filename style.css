@@ -12,10 +12,6 @@
 	border-bottom: 1px solid gray;
 }
 
-.loginPane > * {
-	float: right;
-}
-
 .loginPane * {
 	box-sizing: border-box;
 	height: 2.3rem;
@@ -25,6 +21,11 @@
 	display: inline-block;
 	height: 2.3rem;
 	vertical-align: top;
+}
+
+.loginPane input, .loginPane button {
+	height: 1.5rem;
+	margin-right: 0.5rem;
 }
 
 .myName {

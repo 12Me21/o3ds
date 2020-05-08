@@ -56,6 +56,8 @@
 	font-weight: bold;
 }
 </style>
+<style id="$navcss"></style>
+
 <script>
 	if (!console)
 	console = {};
@@ -86,16 +88,14 @@
 		
 		<div class="loginPane" id="$loginPane">
 			<div class="loggedIn">
-				<button id="$logout">Log Out</button><div id="$myName" class="myName"></div><img id="$myAvatar">
+				<img id="$myAvatar"><div id="$myName" class="myName"></div><button id="$logout">Log Out</button>
 			</div>
 			<form class="loggedOut">
-				<input id="$username" placeholder="username" name="username">
-				<input id="$password" type="password" name="password" placeholder="password">
-				<button id="$login" onclick="event.preventDefault()">Log In</button>
+				<input id="$username" placeholder="username" name="username"><input id="$password" type="password" name="password" placeholder="password"><button id="$login" onclick="event.preventDefault()">Log In</button>
 			</form>
 		</div>
 
-		<div class="roompane">
+		<div class="roompane" id="$nav">
 			<button id="$changeroom">Join room</button><!--
 			--><input id="$room" placeholder="discussion id" type="number">
 			<span id="$currentroom"></span>

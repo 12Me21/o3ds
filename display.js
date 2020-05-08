@@ -43,6 +43,56 @@ function renderUserBlock(user, uid, date) {
 	return [div, contentBox];
 }
 
+function renderCategorySelector(parent, makeSelector) {
+	var node = document.createElement('select');
+
+	var path = [];
+	var cat = parent;
+	while (cat) {
+		console.log("CAT",cat);
+		path.unshift(cat.id);
+		cat=cat.parent;
+	}
+
+	makeSelector(path, parent.id);
+	
+	node.onchange = function(event) {
+		console.log("node for ",parent);
+		var node = event.target;
+		var value = node.value;
+		var show = path.slice();
+		if (value == "..") {
+			show.pop();
+		} else if (value != ".") {
+			show.push(+value);
+		}
+		$nav.setAttribute('data-path', ","+show.join(",")+",");
+	}
+	
+	if (parent.parentId != undefined) {
+		node.setAttribute('data-id', parent.id);
+		var option = document.createElement('option');
+		option.textContent = ".";
+		option.value = "."
+		node.appendChild(option);
+		
+		option = document.createElement('option');
+		option.textContent = "..";
+		option.value = ".."
+		node.appendChild(option);
+	}
+	
+	parent.childs.forEach(function(cat) {
+		option = document.createElement('option');
+		option.value = cat.id;
+		option.textContent = cat.name;
+		node.appendChild(option);
+	});
+
+	node.onchange({target:node});
+	return node;
+}
+
 function updateUserBlock(node, user) {
 	node.querySelector(".messageAvatar").src = user.avatarURL;
 	node.querySelector(".messageUsername").firstChild.textContent = user.username+":";

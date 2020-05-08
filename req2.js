@@ -348,6 +348,37 @@ Myself.prototype.getActivity = function(query, callback) {
 	$.request("Activity"+queryString(query), "GET", callback);
 }
 
+Myself.prototype.getCategories = function(callback) {
+	var $=this;
+	$.request("Category", "GET", function(s, resp){
+		if (s=='ok') {
+			callback.call($, buildCategoryTree(resp), resp);
+		}
+	});
+}
+
+function buildCategoryTree(categories) {
+	var root = {childs: []};
+	var orphans = [];
+	var map = {
+		'0': root
+	};
+	categories.forEach(function(cat) {
+		cat.childs = [];
+		map[cat.id] = cat;
+	});
+	categories.forEach(function(cat) {
+		var parent = map[cat.parentId];
+		if (parent) {
+			cat.parent = parent;
+			parent.childs.push(cat);
+		} else {
+			orphans.push(cat);
+		}
+	});
+	return root;
+}
+
 function User(data, url) {
 	if (data) {
 		for (var key in data) {
