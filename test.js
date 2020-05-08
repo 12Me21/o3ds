@@ -18,6 +18,7 @@ window.onload = function() {
 		}
 		$loginPane.setAttribute('data-loggedin','true');
 		if (checked) {
+			/*
 			try {
 				$nav.innerHTML = "";
 				$navcss.innerHTML = "";
@@ -37,7 +38,7 @@ window.onload = function() {
 				});
 			} catch(e) {
 				alert("CAT: "+e);
-			}
+			}*/
 		}
 	});
 	

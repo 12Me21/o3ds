@@ -143,6 +143,8 @@
 
 .input > * {
 	vertical-align: top;
+	box-sizing: border-box;
+	height: 100%;
 }
 
 .input > textarea {
@@ -155,7 +157,7 @@
 }
 
 .input > button {
-	height: 100%;
+	float: right;
 	margin: 0;
 	width: 3.25rem;
 	max-width: 3.25rem; /* firefox linuks bugggg */
