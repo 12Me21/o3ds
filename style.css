@@ -141,7 +141,11 @@
 	overflow-x: hidden; /* just in case? */
 }
 
-.input textarea {
+.input > * {
+	vertical-align: top;
+}
+
+.input > textarea {
 	resize: none;
 	flex-grow: 1;
 	margin: 0;
@@ -150,7 +154,7 @@
 	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
 }
 
-.input button {
+.input > button {
 	height: 100%;
 	margin: 0;
 	width: 3.25rem;
