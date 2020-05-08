@@ -9,20 +9,14 @@ window.onload = function() {
 	console.log("v2");
 
 	me.on('login', function(checked) {
-		try {
-			alert("logging in"+checked);
-			if (checked) {
-				$myName.textContent = this.me.username;
-				$myAvatar.src = this.me.avatarURL;
-			} else {
-				$myName.textContent = "...";
-			}
-			$loginPane.setAttribute('data-loggedin','true');
-			alert($loginPane.getAttribute('data-loggedin'));
-		} catch(e) {
-			alert("ERR L: "+e);
+		if (checked) {
+			$myName.textContent = this.me.username;
+			$myAvatar.src = this.me.avatarURL;
+		} else {
+			$myName.textContent = "...";
 		}
-
+		$loginPane.className = "loginPane logged_in";
+		
 		if (checked) {
 			/*
 			try {
@@ -49,12 +43,11 @@ window.onload = function() {
 	});
 	
 	me.on('logout', function() {
-		$loginPane.removeAttribute('data-loggedin');
+		$loginPane.className = "loginPane";
 		if (lp)
 			lp.stop();
 		if (lp2)
 			lp2.stop();
-		alert("logging out");
 		//$loginstatus.textContent = "Logged out";
 	});
 	

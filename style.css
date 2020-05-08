@@ -34,10 +34,10 @@
 	font-weight: bold;
 }
 
-.loginPane[data-loggedin] > .loggedOut {
+.loginPane.logged_in > .loggedOut {
 	display: none;
 }
-.loginPane:not([data-loggedin]) > .loggedIn {
+.loginPane:not(.logged_in) > .loggedIn {
 	display: none;
 }
 
