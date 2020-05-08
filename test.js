@@ -10,16 +10,18 @@ window.onload = function() {
 
 	me.on('login', function(checked) {
 		try {
-		if (checked) {
-			$myName.textContent = this.me.username;
-			$myAvatar.src = this.me.avatarURL;
-		} else {
-			$myName.textContent = "...";
-		}
+			alert("logging in"+checked);
+			if (checked) {
+				$myName.textContent = this.me.username;
+				$myAvatar.src = this.me.avatarURL;
+			} else {
+				$myName.textContent = "...";
+			}
+			$loginPane.setAttribute('data-loggedin','true');
 		} catch(e) {
 			alert("ERR L: "+e);
 		}
-		$loginPane.setAttribute('data-loggedin','true');
+
 		if (checked) {
 			/*
 			try {
