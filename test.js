@@ -9,12 +9,15 @@ window.onload = function() {
 	console.log("v2");
 
 	me.on('login', function(checked) {
-		console.log(this, checked);
+		try {
 		if (checked) {
 			$myName.textContent = this.me.username;
 			$myAvatar.src = this.me.avatarURL;
 		} else {
 			$myName.textContent = "...";
+		}
+		} catch(e) {
+			alert("ERR L: "+e);
 		}
 		$loginPane.setAttribute('data-loggedin','true');
 		if (checked) {
