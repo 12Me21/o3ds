@@ -18,23 +18,26 @@ window.onload = function() {
 		}
 		$loginPane.setAttribute('data-loggedin','true');
 		if (checked) {
-			$nav.innerHTML = "";
-			$navcss.innerHTML = "";
-			function makeSelector(path, id) {
-				$navcss.innerHTML += '.nav:not([data-path*=",'+id+',"]) > select[data-id="'+id+'"] {display: none;}';
-			}
-			
-			me.getCategories(function(root, all){
-				console.log(all);
-				var selectors = all.map(function(cat) {
-					return renderCategorySelector(cat, makeSelector);
-				});
-				var sel = renderCategorySelector(root, function(){});
-				$nav.appendChild(sel);
-				selectors.forEach(function(sel) {
+			try {
+				$nav.innerHTML = "";
+				$navcss.innerHTML = "";
+				function makeSelector(path, id) {
+					$navcss.innerHTML += '.nav:not([data-path*=",'+id+',"]) > select[data-id="'+id+'"] {display: none;}';
+				}
+				
+				me.getCategories(function(root, all){
+					var selectors = all.map(function(cat) {
+						return renderCategorySelector(cat, makeSelector);
+					});
+					var sel = renderCategorySelector(root, function(){});
 					$nav.appendChild(sel);
+					selectors.forEach(function(sel) {
+						$nav.appendChild(sel);
+					});
 				});
-			});
+			} catch(e) {
+				alert("CAT: "+e);
+			}
 		}
 	});
 	

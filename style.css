@@ -2,7 +2,7 @@
  ** Login Pane **
  ****************/
 
-.loginPane, .loginPane img {
+.loginPane img {
 	width: 2.3rem;
 	height: 2.3rem;
 }
@@ -10,11 +10,11 @@
 .loginPane {
 	width: 100%;
 	border-bottom: 1px solid gray;
+	min-height: 2.3rem;
 }
 
 .loginPane * {
 	box-sizing: border-box;
-	height: 2.3rem;
 }
 
 .loggedIn > * {
@@ -25,17 +25,13 @@
 
 .loginPane input, .loginPane button {
 	height: 1.5rem;
-	margin-right: 0.5rem;
+	max-width: 33%;
 }
 
 .myName {
 	line-height: 2.3rem;
 	padding: 0 0.5rem;
 	font-weight: bold;
-}
-
-.loggedIn {
-	height: 2.3rem;
 }
 
 .loginPane[data-loggedin] > .loggedOut {
