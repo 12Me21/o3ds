@@ -18,6 +18,7 @@ window.onload = function() {
 				$myName.textContent = "...";
 			}
 			$loginPane.setAttribute('data-loggedin','true');
+			alert($loginPane.getAttribute('data-loggedin'));
 		} catch(e) {
 			alert("ERR L: "+e);
 		}
@@ -53,6 +54,7 @@ window.onload = function() {
 			lp.stop();
 		if (lp2)
 			lp2.stop();
+		alert("logging out");
 		//$loginstatus.textContent = "Logged out";
 	});
 	
