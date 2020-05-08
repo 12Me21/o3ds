@@ -4,20 +4,20 @@
 // based on nodejs EventEmitter
 
 function EventEmitter() {
-	this._events = {};
+	this.events = {};
 }
 
 EventEmitter.prototype.on = function(name, func) {
-	if (this._events[name]) {
-		return this._events[name].push(func)-1;
+	if (this.events[name]) {
+		return this.events[name].push(func)-1;
 	} else {
-		this._events[name] = [func];
+		this.events[name] = [func];
 		return 0;
 	}
 }
 
 EventEmitter.prototype.removeListener = function(name, item) {
-	var events = this._events[name]
+	var events = this.events[name]
 	if (!events)
 		return false;
 	// this takes either an index (returned by .on) or a function reference
@@ -34,12 +34,13 @@ EventEmitter.prototype.removeListener = function(name, item) {
 }
 
 EventEmitter.prototype.emit = function(name) {
-	var events = this._events[name];
+	var $=this;
+	var events = $.events[name];
 	var args = Array.prototype.slice.call(arguments, 1);
 	if (events) {
 		events.forEach(function(event) {
 			if (event) {
-				event.apply(this, args);
+				event.apply($, args);
 			}
 		});
 	}

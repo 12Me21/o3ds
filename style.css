@@ -1,5 +1,47 @@
-body {
-	
+/****************
+ ** Login Pane **
+ ****************/
+
+.loginPane, .loginPane img {
+	width: 2.3rem;
+	height: 2.3rem;
+}
+
+.loginPane {
+	width: 100%;
+	border-bottom: 1px solid gray;
+}
+
+.loginPane > * {
+	float: right;
+}
+
+.loginPane * {
+	box-sizing: border-box;
+	height: 2.3rem;
+}
+
+.loggedIn > * {
+	display: inline-block;
+	height: 2.3rem;
+	vertical-align: top;
+}
+
+.myName {
+	line-height: 2.3rem;
+	padding: 0 0.5rem;
+	font-weight: bold;
+}
+
+.loggedIn {
+	height: 2.3rem;
+}
+
+.loginPane[data-loggedin] > .loggedOut {
+	display: none;
+}
+.loginPane:not([data-loggedin]) > .loggedIn {
+	display: none;
 }
 
 /***************
@@ -13,6 +55,7 @@ body {
 
 .userList {
 	width: 100%;
+	border-top: 1px solid gray;
 }
 
 /******************

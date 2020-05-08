@@ -113,6 +113,7 @@ function queryString(obj) {
 
 // requester thing
 function Myself(dev) {
+	EventEmitter.call(this);
 	var protocol = "https:";
 	if (window.location.protocol=="http:")
 		protocol = "http:";
@@ -126,13 +127,21 @@ function Myself(dev) {
 	this.userCache = {};
 	this.userRequests = {};
 }
+Myself.prototype = Object.create(EventEmitter.prototype);
+Object.defineProperty(Myself.prototype, 'constructor', {
+	value: Myself,
+	enumerable: false,
+	writable: true
+});
+
 // make a request, passing auth automatically
 // can trigger .logOut() 
 Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
 	sbs2Request($.server+"/"+url, method, function(s, resp){
 		if (s=='auth') {
-			$.logOut();
+			if ($.auth)
+				$.logOut();
 			callback.call($, s, resp);
 		} else {
 			callback.call($, s, resp);
@@ -153,6 +162,7 @@ Myself.prototype.logOut = function() {
 	$.auth = undefined;
 	localStorage.removeItem($.lsKey);
 	console.log("auth error, logging out");
+	$.emit('logout');
 }
 Myself.prototype.setAuth = function(auth) {
 	this.auth = auth;
@@ -162,17 +172,11 @@ Myself.prototype.setAuth = function(auth) {
 Myself.prototype.authenticate = function(username, password, callback) {
 	var $=this;
 	$.request("User/authenticate", "POST", function(s, resp) {
-		if (s=='ok') {
-			$.setAuth(resp);
-		}
 		callback.call($, s, resp);
 	}, {username:username, password:password});
 }
 Myself.prototype.testAuth = function(callback) {
-	var $=this;
-	$.request("User/me","GET",function(s, resp) {
-		callback.call($, s, resp);
-	});
+	this.getMe(callback);
 };
 Myself.prototype.getUsers = function(query, callback) {
 	var $=this;
@@ -187,7 +191,9 @@ Myself.prototype.gotUsers = function(s, resp) {
 	if (s=='ok') {
 		resp.forEach(function(user) {
 			user = new User(user, $.server);
-			var uid=user.id
+			var uid = user.id
+			if (uid == $.uid)
+				$.me = user;
 			$.userCache[uid] = user;
 			if ($.userRequests[uid]) {
 				$.userRequests[uid].forEach(function(func) {
@@ -200,38 +206,8 @@ Myself.prototype.gotUsers = function(s, resp) {
 	return resp;
 }
 
-Myself.prototype.getUser = function(id, callback) {
-	var $=this;
-	$.request("User?ids="+id, "GET", function(s, resp) {
-		$.gotUsers(s, resp);
-		if (s=='ok')
-			resp = new User(resp[0], $.server);
-		callback.call($, s, resp);
-	});
-}
-
-// get user from cache
-// if callback is passed, it will be called as soon as the user info is
-// available (possibly right away), and a request made if it hasn't already
-// otherwise, the function returns the cached user info (if it exists)
-// DEPRECATED
-Myself.prototype.getUserCached = function(id, callback) {
-	var $=this;
-	if (!callback)
-		return this.userCache[id];
-	if (this.userCache[id]) {
-		callback.call($, 'ok', this.userCache[id]);
-	} else {
-		if (this.userRequests[id]) {
-			this.userRequests[id].push(callback);
-		} else {
-			$.userRequests[id] = [callback];
-			$.request("User?ids="+id, "GET", function(s, resp) {
-				$.gotUsers(s, resp);
-			});
-		}
-	}
-}
+// call a function when user info is available
+// runs immediately if user info is cached already
 Myself.prototype.whenUser = function(id, callback) {
 	if (this.userCache[id]) {
 		callback.call(this, 'ok', this.userCache[id]);
@@ -241,37 +217,30 @@ Myself.prototype.whenUser = function(id, callback) {
 		// oops... you didn't request the user yet
 	}
 }
+
 // takes a list of user ids
 // if any of these users are not currently cached,
 // this will request their data
-// use Myself.whenUser() to run a callback when the data for a user
-// has been gotten (or immediately if it's already cached)
 Myself.prototype.preloadUsers = function(uids) {
 	var $=this;
 	var filtered = [];
 	uids.forEach(function(uid) {
+		// if user is not in cache
+		// and user request has not been made
 		if (!$.userCache[uid] && !$.userRequests[uid] && filtered.indexOf(uid) == -1) {
 			filtered.push(uid);
-			$.userRequests[uid] = []; //this is kind of a hack
-			// the entire user cache system could really use
-			// a rewrite
-			// I wonder if
-			// making a general system would be worth it
-			// is there anything else
-			// that works like this
-			// it's possible, but I can't think of any
-			// examples,
-			// 
+			$.userRequests[uid] = [];
 		}
 	});
 	if (filtered.length) {
 		$.getUsers({ids: filtered}, function(){});
 	}
 }
+
 Myself.prototype.getMe = function(callback) {
 	var $=this;
 	$.request("User/me", "GET", function(s, resp) {
-		resp = $.gotUser(s, resp);
+		resp = $.gotUsers(s, [resp]);
 		callback.call($, s, resp);
 	});
 }
@@ -286,46 +255,27 @@ Myself.prototype.postSensitive = function(data, callback) {
 
 // simple log in function
 Myself.prototype.logIn = function(username, password, callback) {
-	console.log("login called");
 	var $=this;
-	try {
-		var cached = localStorage.getItem($.lsKey);
-		console.log("read localstorage");
-
-		if (cached) {
-			console.log("found cached auth");
-			$.setAuth(cached);
-			/*$.testAuth(function(s, resp) {
-			  if (s=='ok')
-			  got('ok', cached);
-			  else {
-			  $.authenticate(username, password, got);
-			  }
-			  });*/ // safer
-			// less safe version, assumes cached auth is valid if it exists
-			// if auth is not valid, will trigger a logout, but not immediately
-			callback.call($, 'ok', cached);
-			console.log("testing cached auth...");
-			$.testAuth(function(s, resp) {
-				if (s == 'ok') {
-					callback.call($, s, cached);
-				}
-			});
-		} else if (username) {
-			console.log("logging in");
-			$.authenticate(username, password, got);
-		}
-		
-		function got(s, resp) {
-			console.log("logged in, maybe");
+	var cached = localStorage.getItem($.lsKey);
+	
+	if (cached) {
+		got(cached);
+	} else if (username) {
+		$.authenticate(username, password, function(s, resp) {
 			if (s=='ok') {
 				localStorage.setItem($.lsKey, resp);
-				callback.call($, s, resp);
-			} else
-				callback.call($, s, resp);	
-		}
-	} catch(e) {
-		alert("log in func error "+e);
+				got(resp);
+			}
+		});
+	}
+
+	function got(auth) {
+		$.setAuth(auth);
+		$.emit('login', false);
+		$.getMe(function(){
+			$.emit('login', true);
+		})
+		callback.call($, 'ok', auth);
 	}
 }
 

@@ -7,17 +7,34 @@ var lp2;
 window.onload = function() {
 	//alert("ok");
 	console.log("v2");
-	me.logIn(undefined, undefined, function(s){
-		if (s=='ok')
-			$loginstatus.textContent = "Logged in";
+
+	me.on('login', function(checked) {
+		console.log(this, checked);
+		if (checked) {
+			$myName.textContent = this.me.username;
+			$myAvatar.src = this.me.avatarURL;
+		} else {
+			$myName.textContent = "...";
+		}
+		$loginPane.setAttribute('data-loggedin','true');
 	});
 
+	me.on('logout', function() {
+		$loginPane.removeAttribute('data-loggedin');
+		if (lp)
+			lp.stop();
+		if (lp2)
+			lp2.stop();
+		//$loginstatus.textContent = "Logged out";
+	});
+	
+	me.logIn(undefined, undefined, function(){});
+	
 	$changeroom.onclick = function() {
 		room($room.value);
 	}
-
-	messagePaneAutoScroller = new AutoScroller($output);
 	
+	messagePaneAutoScroller = new AutoScroller($output);
 	
 	function room(id) {
 		console.log("Switching to room id:"+id);
@@ -77,6 +94,7 @@ window.onload = function() {
 			
 		}
 	}
+	
 	$send.onclick = function() {
 		if ($input.value) {
 			me.postComment({
@@ -93,29 +111,23 @@ window.onload = function() {
 		}
 		
 	}
-
-$input.onkeypress = function(e) {
-	if (!e.shiftKey && e.keyCode == 13) {
-		e.preventDefault();
-		$send.onclick();
-		return;
+	
+	$input.onkeypress = function(e) {
+		if (!e.shiftKey && e.keyCode == 13) {
+			e.preventDefault();
+			$send.onclick();
+			return;
+		}
 	}
-}
-
+	
 	$login.onclick = function() {
+		event.preventDefault();
 		me.logOut();
-		$loginstatus.textContent = "Not logged in";
 		me.logIn($username.value, $password.value, function(s, resp) {
-			if (s=='ok')
-				$loginstatus.textContent = "Logged in";
-			/*if (s=='ok') {
-				$logged_out.style.display = "none";
-			}*/
 		});
 	}
-
+	
 	$logout.onclick = function() {
 		me.logOut();
-		$loginstatus.textContent = "Not logged in";
 	}
 }

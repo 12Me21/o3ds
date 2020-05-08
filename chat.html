@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 
 <meta charset="utf-8">
-<link rel="stylesheet" href="style.css?4">
-<script src="req2.js?21"></script>
+<link rel="stylesheet" href="style.css?5">
+<script src="event.js?2"></script>
 <script src="storage.js"></script>
-<script src="test.js?27"></script>
+
+<script src="req2.js?22"></script>
 <script src="longpoll.js?3"></script>
+
 <script src="12y.js?1"></script>
-<script src="display.js?19"></script>
 <script src="sbhighlight.js"></script>
-<script src="event.js?1"></script>
+<script src="display.js?19"></script>
+
+<script src="test.js?28"></script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -79,29 +83,31 @@
 
 <body>
 	<div class="stack">
-		<div class="loginpane">
-			<div id="$logged_out">
+		
+		<div class="loginPane" id="$loginPane">
+			<div class="loggedIn">
+				<button id="$logout">Log Out</button><div id="$myName" class="myName"></div><img id="$myAvatar">
+			</div>
+			<form class="loggedOut">
 				<input id="$username" placeholder="username" name="username">
 				<input id="$password" type="password" name="password" placeholder="password">
-				<button id="$login">Log In</button>
-				<button id="$logout">Log Out</button>
-				<span id="$loginstatus">not logged in?</span>
-			</div>
+				<button id="$login" onclick="event.preventDefault()">Log In</button>
+			</form>
 		</div>
-		<div class="userList" id="$userList">
 
+		<div class="roompane">
+			<button id="$changeroom">Join room</button><!--
+			--><input id="$room" placeholder="discussion id" type="number">
+			<span id="$currentroom"></span>
+		</div>
+		
+		<div class="userList" id="$userList">
 		</div>
 		
 		<div class="messagepane">
 			<div class="spacer"></div>
 			<div class="messagelist" id="$output">
 			</div>
-		</div>
-		
-		<div class="roompane">
-			<button id="$changeroom">Join room</button>
-			<input id="$room" placeholder="discussion id" type="number">
-			<span id="$currentroom"></span>
 		</div>
 		
 		<div class="input">
