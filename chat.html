@@ -1,61 +1,22 @@
 <!DOCTYPE html>
-
 <meta charset="utf-8">
-<link rel="stylesheet" href="style.css?10">
+
+<link rel="stylesheet" href="style.css?11">
+
 <script src="event.js?2"></script>
 <script src="storage.js"></script>
 
-<script src="req2.js?23"></script>
-<script src="longpoll.js?3"></script>
+<script src="req2.js?24"></script>
+<script src="longpoll.js?4"></script>
 
 <script src="12y.js?1"></script>
 <script src="sbhighlight.js"></script>
 <script src="display.js?20"></script>
 
-<script src="test.js?36"></script>
+<script src="main.js?0"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-	body {
-	background-color: red;
-	font-family:sans-serif;
-	}
-	
-	* {
-	margin: 0;
-	}
-	
-	.stack {
-	display: flex;
-	flex-direction: column;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: white;
-	}
-	
-.spacer {
-	flex-grow: 1;
-}
-.sender {
-	font-weight: bold;
-}
-.sender::after {
-	content: ": ";
-}
-.systemMessage {
-	color: #222233;
-	background-color: #DDEEDD;
-}
-.errorMessage {
-	color: #800000;
-	background-color: #FFFFD0;
-	font-weight: bold;
-}
-</style>
 <style id="$navcss"></style>
 
 <script>
@@ -82,10 +43,8 @@
 	}
 </script>
 
-
 <body>
 	<div class="stack">
-		
 		<div class="loginPane" id="$loginPane">
 			<div class="loggedIn">
 				<img id="$myAvatar"><div id="$myName" class="myName"></div><button id="$logout">Log Out</button>
@@ -96,8 +55,7 @@
 		</div>
 
 		<div class="roompane">
-			<button id="$changeroom">Join room</button><!--
-			--><input id="$room" placeholder="discussion id" type="number">
+			<button id="$changeroom">Join room</button><input id="$room" placeholder="discussion id" type="number">
 			<span id="$currentroom"></span>
 			<div id="$nav" class="nav"></div>
 		</div>
@@ -113,7 +71,7 @@
 		
 		<div class="input">
 			<textarea id="$input"></textarea>
-			<button id="$send" onclick="sendMessage($input.value)">SEND</button>
+			<button id="$send">SEND</button>
 		</div>
 		
 	</div>

@@ -1,3 +1,27 @@
+body {
+	background-color: red;
+	font-family: sans-serif;
+}
+	
+* {
+	margin: 0;
+}
+
+/********************
+ ** Main container **
+ ********************/
+
+.stack {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+}
+
 /****************
  ** Login Pane **
  ****************/
@@ -71,6 +95,10 @@
 	height: 300px;
 	border-top: 1px solid gray;
 	border-bottom: 1px solid gray;
+}
+
+.spacer {
+	flex-grow: 1;
 }
 
 .messagelist {

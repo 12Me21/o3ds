@@ -68,7 +68,7 @@ window.onload = function() {
 			lp2.stop();
 
 		messagePaneAutoScroller.switchRoom(id);
-		lp = new LongPoller(me, id, function(ms, first) {
+		lp = new CommentLongPoller(me, id, 30, function(ms, first) {
 			if (first) {
 				lp2 = new ListLongPoller(me, id, function(users, first) {
 					me.preloadUsers(users);
@@ -80,7 +80,7 @@ window.onload = function() {
 						});
 					});
 				});
-				lp2.start(true);
+				lp2.start();
 			}
 			var users = ms.map(function(comment) {
 				return comment.createUserId;
@@ -90,7 +90,7 @@ window.onload = function() {
 				display(ms[i]);
 			}
 		});
-		lp.start(30);
+		lp.start();
 	}
 	
 	display = function(c) {
@@ -119,7 +119,7 @@ window.onload = function() {
 	}
 	
 	$send.onclick = function() {
-		if ($input.value) {
+		if ($input.value && lp.running) {
 			me.postComment({
 				parentId: lp.id,
 				content: JSON.stringify({
@@ -132,7 +132,6 @@ window.onload = function() {
 			});
 			$input.value = "";
 		}
-		
 	}
 	
 	$input.onkeypress = function(e) {

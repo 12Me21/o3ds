@@ -368,6 +368,8 @@ function buildCategoryTree(categories) {
 		map[cat.id] = cat;
 	});
 	categories.forEach(function(cat) {
+		if (cat.parentId < 0)
+			cat.parentId = 0;
 		var parent = map[cat.parentId];
 		if (parent) {
 			cat.parent = parent;
