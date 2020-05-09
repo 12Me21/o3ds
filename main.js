@@ -69,19 +69,6 @@ window.onload = function() {
 
 		messagePaneAutoScroller.switchRoom(id);
 		lp = new CommentLongPoller(me, id, 30, function(ms, first) {
-			if (first) {
-				lp2 = new ListLongPoller(me, id, function(users, first) {
-					me.preloadUsers(users);
-					$userList.innerHTML = "";
-					users.forEach(function(id) {
-						me.whenUser(id, function(s, user) {
-							if (s=="ok")
-								$userList.appendChild(renderUserListAvatar(user));
-						});
-					});
-				});
-				lp2.start();
-			}
 			var users = ms.map(function(comment) {
 				return comment.createUserId;
 			})
@@ -91,6 +78,18 @@ window.onload = function() {
 			}
 		});
 		lp.start();
+		
+		lp2 = new ListLongPoller(me, id, function(users, first) {
+			me.preloadUsers(users);
+			$userList.innerHTML = "";
+			users.forEach(function(id) {
+				me.whenUser(id, function(s, user) {
+					if (s=="ok")
+						$userList.appendChild(renderUserListAvatar(user));
+				});
+			});
+		});
+		lp2.start();
 	}
 	
 	display = function(c) {
@@ -132,7 +131,7 @@ window.onload = function() {
 			});
 			$input.value = "";
 		}
-	}
+	};
 	
 	$input.onkeypress = function(e) {
 		if (!e.shiftKey && e.keyCode == 13) {
@@ -140,16 +139,15 @@ window.onload = function() {
 			$send.onclick();
 			return;
 		}
-	}
-	
-	$login.onclick = function() {
+	};
+
+	$form.$login.onclick = function() {
 		event.preventDefault();
 		me.logOut();
-		me.logIn($username.value, $password.value, function(s, resp) {
-		});
-	}
+		me.logIn($form.$username.value, $form.$password.value, function(s, resp) {});
+	};
 	
 	$logout.onclick = function() {
 		me.logOut();
-	}
+	};
 }

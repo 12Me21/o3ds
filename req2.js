@@ -387,7 +387,7 @@ function User(data, url) {
 			this[key] = data[key];
 		}
 		if (this.avatar && url) {
-			this.avatarURL = url+"/File/raw/"+this.avatar;
+			this.avatarURL = url+"/File/raw/"+this.avatar+"?size=128&square=true";
 		} else  {
 			this.avatarURL = "./avatar.png"
 		}

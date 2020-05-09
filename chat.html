@@ -6,14 +6,14 @@
 <script src="event.js?2"></script>
 <script src="storage.js"></script>
 
-<script src="req2.js?24"></script>
+<script src="req2.js?26"></script>
 <script src="longpoll.js?4"></script>
 
 <script src="12y.js?1"></script>
 <script src="sbhighlight.js"></script>
 <script src="display.js?20"></script>
 
-<script src="main.js?0"></script>
+<script src="main.js?2"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -49,8 +49,10 @@
 			<div class="loggedIn">
 				<img id="$myAvatar"><div id="$myName" class="myName"></div><button id="$logout">Log Out</button>
 			</div>
-			<form class="loggedOut">
-				<input id="$username" placeholder="username" name="username"><input id="$password" type="password" name="password" placeholder="password"><button id="$login" onclick="event.preventDefault()">Log In</button>
+			<form class="loggedOut" id="$form">
+				<input id="$username" placeholder="username" name="username">
+				<input id="$password" type="password" name="password" placeholder="password">
+				<button id="$login" onclick="event.preventDefault()">Log In</button>
 			</form>
 		</div>
 
