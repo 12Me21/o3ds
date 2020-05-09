@@ -171,8 +171,6 @@ body {
 
 .input > * {
 	vertical-align: top;
-	box-sizing: border-box;
-	height: 100%;
 }
 
 .input > textarea {
@@ -190,4 +188,5 @@ body {
 	width: 3.25rem;
 	max-width: 3.25rem; /* firefox linuks bugggg */
 	padding: 0;
+	height: 100%;
 }
