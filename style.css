@@ -174,7 +174,6 @@ body {
 }
 
 .input > textarea {
-	font-size: 2em;
 	resize: none;
 	flex-grow: 1;
 	margin: 0;
@@ -190,4 +189,9 @@ body {
 	max-width: 3.25rem; /* firefox linuks bugggg */
 	padding: 0;
 	height: 100%;
+}
+
+/* this is to prevent zooming in when inputs are focused on iphone */
+textarea, input {
+	font-size: 1.5em;
 }
