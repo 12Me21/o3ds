@@ -174,7 +174,7 @@ body {
 }
 
 .input > textarea {
-	font-size: 3em;
+	font-size: 2em;
 	resize: none;
 	flex-grow: 1;
 	margin: 0;
