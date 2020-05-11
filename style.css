@@ -193,5 +193,5 @@ body {
 
 /* this is to prevent zooming in when inputs are focused on iphone */
 textarea, input {
-	font-size: 1.5em;
+	font-size: 1em;
 }
