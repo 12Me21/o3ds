@@ -9,8 +9,12 @@ o3DS:
 - no function.bind
 - no element.dataset
 - xhr timeout is always 20 seconds, and no .ontimeout event
-- no CORS
+- no CORS (?)
 - no [expr]: key syntax in object literals
 - no requestAnimationFrame
 - no .remove
 - passing non-string to console.log throws error? (maybe)
+- new Date(string) and Date.parse(string) don't seem to work?
+
+- no box-sizing: border-box
+- no flex (?)

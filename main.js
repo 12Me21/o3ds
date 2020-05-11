@@ -68,7 +68,7 @@ window.onload = function() {
 			lp2.stop();
 
 		messagePaneAutoScroller.switchRoom(id);
-		lp = new CommentLongPoller(me, id, 30, function(ms, first) {
+		lp = new CommentLongPoller(me, id, 30, function(first, ms) {
 			var users = ms.map(function(comment) {
 				return comment.createUserId;
 			})
@@ -79,7 +79,7 @@ window.onload = function() {
 		});
 		lp.start();
 		
-		lp2 = new ListLongPoller(me, id, function(users, first) {
+		lp2 = new ListLongPoller(me, id, function(first, users) {
 			me.preloadUsers(users);
 			$userList.innerHTML = "";
 			users.forEach(function(id) {

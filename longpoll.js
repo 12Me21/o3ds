@@ -8,7 +8,7 @@ function makeLongPoller(cls) {
 		$.initRequest.call($, function(s, resp) {
 			if (s=='ok') {
 				$.running = true;
-				$.callback($.initCallback(resp), true);
+				$.callback(true, $.initCallback(resp));
 				$.loop();
 			} else {
 				console.error("LONG POLLER FAILED INITIAL");
@@ -20,7 +20,7 @@ function makeLongPoller(cls) {
 		var cancel = [];
 		$.loopRequest.call($, function(s, resp) {
 			if (s=='ok') {
-				$.callback($.loopCallback(resp), false);
+				$.callback(false, $.loopCallback(resp));
 			}
 			if (s=='ok' || s=='timeout') {
 				$.running = true;
