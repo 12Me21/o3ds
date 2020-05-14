@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <meta charset="utf-8">
 
 <link rel="stylesheet" href="style.css?16">
@@ -13,6 +14,7 @@
 <script src="sbhighlight.js"></script>
 <script src="display.js?20"></script>
 
+<script src="command.js"></script>
 <script src="main.js?3"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,7 +46,7 @@
 </script>
 
 <body>
-	<div class="stack">
+	<div class="stack mode-chat" id="$stack">
 		<div class="loginPane" id="$loginPane">
 			<div class="loggedIn">
 				<img id="$myAvatar"><div id="$myName" class="myName"></div><button id="$logout">Log Out</button>
@@ -55,24 +57,41 @@
 				<button id="$login" onclick="event.preventDefault()">Log In</button>
 			</form>
 		</div>
-
-		<div class="roompane">
+		
+		<div class="navPane">
 			<button id="$changeroom">Join room</button><input id="$room" placeholder="discussion id" type="number">
 			<span id="$currentroom"></span>
 			<div id="$nav" class="nav"></div>
 		</div>
-		
-		<div class="userList" id="$userList">
+
+		<div class="infoPane editorOnly">
+			<b>Editing Page</b> <button>Submit</button><br>
+			<input placeholder="Title" required=""><br>
+			<input placeholder="Keywords (optional)"><br>
+			<!--<input checked="true" type="checkbox" id="allowComments"><label for="allowComments">Allow public comments</label>-->
 		</div>
 		
-		<div class="messagepane">
-			<div class="spacer"></div>
-			<div class="messagelist" id="$output">
+		<div class="contentPane" id="$contentPane">
+			<div class="editor editorOnly" id="$editor">
+				<textarea>
+					
+				</textarea>
+			</div>
+			<div class="contents" id="$contents">
 			</div>
 		</div>
 		
-		<div class="input">
-			<textarea id="$input"></textarea>
+		<div class="userlistPane" id="$userList">
+		</div>
+		
+		<div class="commentPane" id="$commentPane">
+			<div class="spacer"></div>
+			<div class="messageList" id="$messageList">
+			</div>
+		</div>
+		
+		<div class="inputPane" id="$inputPane">
+			<textarea accesskey="z" id="$input"></textarea>
 			<button id="$send">SEND</button>
 		</div>
 		

@@ -367,6 +367,14 @@ function parse(code, options) {
 	
 	// ######################
 
+	// block dangerous url protocols
+	function sanitizeUrl(url) {
+		// this might need to be improved
+		if (/^ *javascript:/i.test(url)) //most browsers don't allow leading spaces but I think IE does.
+			return "";
+		return url;
+	}
+
 	function readBracketedLink(embed) {
 		if (c != "[") {
 			return false;
@@ -406,7 +414,7 @@ function parse(code, options) {
 		else
 			while (isUrlChar(c))
 				scan();
-		return code.substring(start, i);
+		return sanitizeUrl(code.substring(start, i));
 	}
 	
 	// ew regex

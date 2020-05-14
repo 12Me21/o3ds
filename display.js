@@ -1,8 +1,32 @@
 function timeString(date) {
 	var hours = date.getHours();
 	var minutes = date.getMinutes();
-	twelve = hours % 12 || 12;
+	var twelve = hours % 12 || 12;
 	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+}
+
+function addClass(element, name) {
+	if ((" "+element.className+" ").indexOf(" "+name+" ") < 0)
+		element.className += " "+name;
+}
+
+function removeClass(element, name) {
+	var cn = element.className
+	var i = (" "+cn+" ").indexOf(" "+name+" ");
+	if (i >= 0) {
+		var next = cn.indexOf(" ", i);
+		if (next < 0)
+			element.className = cn.substr(0, i-1);
+		else
+			element.className = cn.substr(0, i-1) + cn.substr(next);
+	}
+}
+
+function renderSystemMessage(text) {
+	var node = document.createElement('div');
+	node.className = 'message systemMessage';
+	node.textContent = text;
+	return node;
 }
 
 function renderUserListAvatar(user) {
@@ -216,4 +240,23 @@ AutoScroller.prototype.switchRoom = function(id) {
 	this.lastUidBlock = undefined;
 	this.nodes = {};
 	// probably needs more cleanup
+}
+
+AutoScroller.prototype.embed = function(node) {
+	var s = this.shouldScroll();
+	this.element.appendChild(node);
+	this.lastUid = null;
+	this.lastUidBlock = null;
+	if (s)
+		this.autoScroll();
+}
+
+function Stack(stack) {
+	this.stack = stack;
+	this.editorPane = stack.querySelector(".editorPane");
+	this.contentPane = stack.querySelector(".contentPane");
+	this.userlistPane = stack.querySelector(".userlistPane");
+	this.commentPane = stack.querySelector(".commentPane");
+	this.messageList = this.commentPane.querySelector(".messageList");
+	this.inputPane = stack.querySelector(".inputPane");
 }

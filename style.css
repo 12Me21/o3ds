@@ -7,6 +7,12 @@ body {
 	margin: 0;
 }
 
+textarea {
+	border-radius: 2px;
+	border: 2px solid #00C8B4;
+	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
+}
+
 /********************
  ** Main container **
  ********************/
@@ -22,6 +28,14 @@ body {
 	background-color: white;
 }
 
+.stack > *, .editor {
+	border-bottom: 1px solid gray;
+}
+
+.stack:last-child {
+	border-bottom: none;
+}
+
 /****************
  ** Login Pane **
  ****************/
@@ -33,8 +47,9 @@ body {
 
 .loginPane {
 	width: 100%;
-	border-bottom: 1px solid gray;
 	min-height: 2.3rem;
+	background-color: #333;
+	color: white;
 }
 
 .loginPane * {
@@ -65,25 +80,70 @@ body {
 	display: none;
 }
 
+/*********************
+ ** Navigation Pane **
+ *********************/
+
+.navPane {
+	background-color: #CCC;
+}
+
+/********************
+ ** Page info form **
+ ********************/
+
+.infoPane {
+	
+}
+
+/******************
+ ** Content Pane **
+ ******************/
+
+.contentPane {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+/* editor */
+
+.editor {
+	
+}
+
+.editor > textarea {
+	resize: vertical;
+	width: 100%;
+	height: 40vh; /* default */
+	box-sizing: border-box;
+}
+
+/* content */
+
+.contents {
+	flex-grow: 1;
+}
+
 /***************
  ** User list **
  ***************/
 
-.userList, .userListAvatar {
+.userlistPane, .userlistPane > * {
 	width: 2.3rem;
 	height: 2.3rem;
 }
 
-.userList {
+.userlistPane {
 	width: 100%;
-	border-top: 1px solid gray;
+	background-color: #CCC;
 }
 
 /******************
- ** message area **
+ ** comment area **
  ******************/
 
-.messagepane {
+.commentPane {
 	width: 100%;
 	flex-grow: 1;
 	flex-shrink: 1;
@@ -93,15 +153,13 @@ body {
 	display: flex;
 	flex-direction: column;
 	height: 300px;
-	border-top: 1px solid gray;
-	border-bottom: 1px solid gray;
 }
 
 .spacer {
 	flex-grow: 1;
 }
 
-.messagelist {
+.messageList {
 	padding-bottom: 1rem;
 }
 
@@ -115,6 +173,13 @@ body {
 	border-left-color: rgb(255,153,153);
 	clear: both;
 	overflow: auto;
+}
+
+.systemMessage {
+	background-color: rgba(187,187,187, 0.2);
+	font-weight: bold;
+	color: #666;
+	border-left: 0.5em solid rgb(187,187,187);
 }
 
 .ownMessage {
@@ -162,27 +227,23 @@ body {
  **  Input  **
  *************/
 
-.input {
+.inputPane {
 	display: flex;
 	flex-direction: row;
 	height: 3.25rem;
 	overflow-x: hidden; /* just in case? */
 }
 
-.input > * {
+.inputPane > * {
 	vertical-align: top;
 }
 
-.input > textarea {
+.inputPane > textarea {
 	resize: none;
 	flex-grow: 1;
-	margin: 0;
-	border: 2px solid #00C8B4;
-	border-radius: 2px;
-	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
 }
 
-.input > button {
+.inputPane > button {
 	float: right;
 	margin: 0;
 	width: 3.25rem;
@@ -194,4 +255,27 @@ body {
 /* this is to prevent zooming in when inputs are focused on iphone */
 textarea, input {
 	font-size: 1em;
+}
+
+/* *************** */
+/* modes */
+
+.stack.mode-page .editorOnly {
+	display: none;
+}
+
+.stack.mode-editor .commentPane,
+.stack.mode-editor .userlistPane,
+.stack.mode-editor .inputPane {
+	display: none;
+}
+
+.stack.mode-chat .editorOnly {
+	display: none;
+}
+
+.stack.mode-category .commentPane,
+.stack.mode-category .editorOnly,
+.stack.mode-category .inputPane {
+	display: none;
 }

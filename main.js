@@ -3,6 +3,7 @@ var messagePaneAutoScroller;
 var display;
 var lp;
 var lp2;
+var debugMessage;
 
 window.onload = function() {
 	//alert("ok");
@@ -48,8 +49,8 @@ window.onload = function() {
 			lp.stop();
 		if (lp2)
 			lp2.stop();
-		//$loginstatus.textContent = "Logged out";
 	});
+
 	
 	me.logIn(undefined, undefined, function(){});
 	
@@ -57,9 +58,14 @@ window.onload = function() {
 		room($room.value);
 	}
 	
-	messagePaneAutoScroller = new AutoScroller($output);
-	
+	messagePaneAutoScroller = new AutoScroller($messageList);
+
+	debugMessage = function(text) {
+		messagePaneAutoScroller.embed(renderSystemMessage(String(text)));
+	}
+		
 	function room(id) {
+		load_page(id);
 		console.log("Switching to room id:"+id);
 		
 		if (lp)
@@ -83,6 +89,8 @@ window.onload = function() {
 			me.preloadUsers(users);
 			$userList.innerHTML = "";
 			users.forEach(function(id) {
+				//oops this won't preserve order
+				//change to separate create+update like messages
 				me.whenUser(id, function(s, user) {
 					if (s=="ok")
 						$userList.appendChild(renderUserListAvatar(user));
@@ -118,18 +126,27 @@ window.onload = function() {
 	}
 	
 	$send.onclick = function() {
-		if ($input.value && lp.running) {
-			me.postComment({
-				parentId: lp.id,
-				content: JSON.stringify({
-					t: $input.value,
-					m: 'plaintext'
-				})
-			}, function(s, resp) {
-				//		if (s=="ok")
-				
-			});
-			$input.value = "";
+		var text = $input.value;
+		if (text) {
+			var m = onSubmitMessage(text);
+			if (typeof m != 'undefined') {
+				if (m == true) {
+					var content = {t: text, m: 'plaintext'};
+				} else {
+					content = m;
+				}
+				if (lp && lp.running) {
+					me.postComment({
+						parentId: lp.id,
+						content: JSON.stringify(content)
+					}, function(s, resp) {
+						//		if (s=="ok")
+					});
+					$input.value = "";
+				}
+			} else {
+				$input.value = "";
+			}
 		}
 	};
 	
@@ -150,4 +167,34 @@ window.onload = function() {
 	$logout.onclick = function() {
 		me.logOut();
 	};
+}
+
+function load_page(id) {
+	me.getContentz({ids:id},function(s,resp){
+		console.log(resp);
+		if (resp[0]) {
+			$contents.innerHTML = "";
+			$contents.appendChild(parse(resp[0].content));
+		}
+	});
+}
+
+function reset_page() {
+	
+}
+
+function mode_category(stack) {
+	stack.className = "stack mode-category";
+}
+
+function mode_chat(stack) {
+	stack.className = "stack mode-chat";
+}
+
+function mode_page(stack) {
+	stack.className = "stack mode-page";
+}
+
+function mode_editor(stack) {
+	stack.className = "stack mode-editor";
 }

@@ -56,6 +56,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			alert("Request failed! "+code+" "+url);
 			console.log("sbs2Request: request failed! "+code);
 			console.log(x.responseText);
+			console.log(x);
 			callback('error', resp, code);
 		}
 	}
@@ -112,27 +113,38 @@ function queryString(obj) {
 }
 
 // requester thing
-function Myself(dev) {
+function Myself(isDev) {
 	EventEmitter.call(this);
-	var protocol = "https:";
-	if (window.location.protocol=="http:")
-		protocol = "http:";
-	if (dev) {
-		this.server = protocol+"//newdev.smilebasicsource.com/api";
-		this.lsKey = "devauth"
-	} else {
-		this.server = protocol+"//new.smilebasicsource.com/api";
-		this.lsKey = "auth"
-	}
+	
 	this.userCache = {};
 	this.userRequests = {};
+	this.switchServer(isDev);
 }
+
 Myself.prototype = Object.create(EventEmitter.prototype);
 Object.defineProperty(Myself.prototype, 'constructor', {
 	value: Myself,
 	enumerable: false,
 	writable: true
 });
+
+Myself.prototype.switchServer = function(isDev) {
+	this.logOut(true);
+	this.userCache = {};
+	this.userRequests = {}; //todo: cancel these
+	//and also cancel other requests
+	
+	var protocol = "https:";
+	if (window.location.protocol=="http:")
+		protocol = "http:";
+	if (isDev) {
+		this.server = protocol+"//newdev.smilebasicsource.com/api";
+		this.lsKey = "devauth"
+	} else {
+		this.server = protocol+"//new.smilebasicsource.com/api";
+		this.lsKey = "auth"
+	}
+}
 
 // make a request, passing auth automatically
 // can trigger .logOut() 
@@ -153,16 +165,20 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 //  User
 // ######
 
-// Call to trigger a logout event (TODO)
 // called automatically whenever a request has status "auth" (400/401)
-Myself.prototype.logOut = function() {
+// 
+Myself.prototype.logOut = function(soft) {
 	// todo: it's possible for this to get called when not logged in
 	// like, when trying to log in with an incorrect password
 	var $=this;
-	$.auth = undefined;
-	localStorage.removeItem($.lsKey);
-	console.log("auth error, logging out");
-	$.emit('logout');
+	if ($.auth) {
+		$.auth = undefined;
+		if (!soft) {
+			localStorage.removeItem($.lsKey);
+			console.log("auth error, logging out");
+		}
+		$.emit('logout');
+	}
 }
 Myself.prototype.setAuth = function(auth) {
 	this.auth = auth;
@@ -305,6 +321,10 @@ Myself.prototype.getComment = function(id, callback) {
 			resp = resp[0];
 		callback.call($, s, resp);
 	});
+}
+Myself.prototype.getContentz = function(query, callback) {
+	var $=this;
+	$.request("Content"+queryString(query), "GET", callback);
 }
 // returns the last `count` comments, lowest ID first
 Myself.prototype.getLastComments = function(parent, count, callback) {
