@@ -153,45 +153,51 @@ function parse(code, options) {
 				// ] end link if inside one
 			} else if (c == "]" && stack.top().inBrackets){ //this might break if it assumes .top() exists. needs more testing
 				scan();
-				endBlock();
-				//================
-				// https?:// link
+				if (stack.top().big) {
+					if (c == "]") {
+						scan();
+						endBlock();
+					} else {
+						addText("]");
+					}
+				} else {
+					endBlock();
+				}
+			//================
+			// https?:// link
 			} else if (c == "h" || c == "!") { //lol this is silly
 				var embed = false;
 				if (c == "!") {
 					embed = true;
 					scan();
 				}
-				var start = i;
-				if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
+				if (embed && c == "[") {
 					scan();
-					while (isUrlChar(c)) {
-						scan();
-					}
-					var url = code.substring(start, i);
-					if (embed) {
-						var type = urlType(url);
-						startBlock(type, {}, url);
-					} else {
-						startBlock('link', {}, url);
-					}
-					if (c == "[") {
-						scan();
-						stack.top().inBrackets = true;
-					} else {
-						addText(url);
-						endBlock();
-					}
+					readBracketedLink(embed) || addText("[");
+					// handled
 				} else {
-					if (embed){
-						addText("!");
+					var start = i;
+					if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
+						var url = readUrl();
+						startBlock(embed ? urlType(url) : 'link', {}, url);
+						if (c == "[") {
+							scan();
+							stack.top().inBrackets = true;
+						} else {
+							addText(url);
+							endBlock();
+						}
 					} else {
-						scan();
-						addText("h");
+						if (embed){
+							addText("!");
+						} else {
+							scan();
+							addText("h");
+						}
 					}
 				}
-				//============
-				// |... table
+			//============
+			// |... table
 			} else if (c == "|") {
 				var top = stack.top();
 				// continuation
@@ -218,14 +224,19 @@ function parse(code, options) {
 							row.header = false;
 						}
 						startBlock('cell', {row:row}, row.header);
+						while (c == " ")
+							scan();
 						//--------------------------
 						// | next cell or table end
 					} else {
 						row.cells++;
+						textBuffer = textBuffer.replace(/ *$/,""); //strip trailing spaces (TODO: allow \<space>)
 						// end of table
 						// table ends when number of cells in current row = number of cells in first row
 						// single-row tables are not easily possible ..
+						// TODO: fix single row tables
 						if (table.columns != null && row.cells > table.columns) {
+							
 							endBlock(); //end cell
 							if (top_is('row')) //always
 								endBlock();
@@ -234,6 +245,8 @@ function parse(code, options) {
 						} else { // next cell
 							endBlock();
 							startBlock('cell', {row:row}, row.header);
+							while (c == " ")
+								scan();
 						}
 					}
 					// start of new table (must be at beginning of line)
@@ -255,6 +268,8 @@ function parse(code, options) {
 					startBlock('cell', {
 						row: row
 					}, row.header);
+					while (c == " ")
+						scan();
 				} else {
 					scan();
 					addText("|");
@@ -317,9 +332,15 @@ function parse(code, options) {
 						addText("``");
 					}
 				}
-				//
-				//=============
-				// normal char
+			//
+			//=============
+			// [[url link
+			} else if (c == "[") {
+				scan();
+				readBracketedLink() || addText("[");
+			//
+			//=============
+			// normal char
 			} else {
 				addText(c);
 				scan();
@@ -345,6 +366,48 @@ function parse(code, options) {
 	}
 	
 	// ######################
+
+	function readBracketedLink(embed) {
+		if (c != "[") {
+			return false;
+		} else {
+			scan();
+			// read url:
+			var start = i;
+			var part2 = false;
+			var url = readUrl(true);
+			if (c == "]") {
+				scan();
+				if (c == "]") {
+					scan();
+				} else if (c == "[") {
+					scan();
+					part2 = true;
+				}
+			}
+			startBlock(embed ? urlType(url) : 'link', {big: true}, url);
+			if (part2)
+				stack.top().inBrackets = true;
+			else {
+				addText(url);
+				endBlock();
+			}
+			return true;
+		}
+	}
+
+	// read a url
+	// if `allow` is true, url is only ended by end of file or ]] or ][ (TODO)
+	function readUrl(allow) {
+		var start = i;
+		if (allow)
+			while (c && c!="]" && c!="[")
+				scan();
+		else
+			while (isUrlChar(c))
+				scan();
+		return code.substring(start, i);
+	}
 	
 	// ew regex
 	function isUrlChar(c) {
@@ -612,7 +675,7 @@ parse.defoptions = (function(){
 		line: creator('hr'),
 		// code block
 		code: function (code, language) {
-			var node = create('code');
+			var node = create('pre');
 			node.setAttribute('data-lang', language);
 			node.innerHTML = highlightSB(code, language);
 			return node;
@@ -621,7 +684,6 @@ parse.defoptions = (function(){
 		icode: function (code) {
 			var node = create('code');
 			node.textContent = code;
-			node.setAttribute('data-inline', "true");
 			return node;
 		},
 		audio: function (url) {
