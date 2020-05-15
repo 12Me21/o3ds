@@ -719,7 +719,7 @@ parse.defoptions = (function(){
 		underline: creator('u'),
 		strikethrough: creator('s'),
 		heading: function (level) { // input: 1, 2, or 3
-			return create('h' + level);//['h1','h2','h3'][level-1] || 'h3');
+			return create('h' + (level+1));
 		},
 		quote: function (user) {
 			var node = create('blockquote');

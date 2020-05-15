@@ -174,6 +174,9 @@ function load_page(id) {
 		console.log(resp);
 		if (resp[0]) {
 			$contents.innerHTML = "";
+			var heading = document.createElement('h1');
+			heading.textContent = resp[0].name;
+			$contents.appendChild(heading);
 			$contents.appendChild(parse(resp[0].content));
 		}
 	});
