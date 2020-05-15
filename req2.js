@@ -161,6 +161,32 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 	}, data, $.auth, cancel)
 }
 
+// request all info needed to render a page
+// calls `callback` and passes:
+// - the page object
+// - a map of uid -> user objects
+// - a list of comments
+Myself.prototype.getPage = function(id, callback) {
+	this.request("Read/chain"+queryString({
+		requests: [
+			"content-"+JSON.stringify({ids:[id]}),
+			"comment-"+JSON.stringify({parentIds:[id], limit:50}),
+			"user.0createUserId.0editUserId.1createUserId.1editUserId",
+		]
+	}), "GET", function(s, resp) {
+		if (s == 'ok') {
+			var content = resp.content;
+			if (content[0]) {
+				var usermap = {};
+				resp.user.forEach(function(user) {
+					usermap[user.id] = user;
+				});
+				callback(content[0], usermap, resp.comment);
+			}
+		}
+	});
+}
+
 // ######
 //  User
 // ######

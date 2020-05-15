@@ -32,6 +32,10 @@ textarea {
 	border-bottom: 1px solid gray;
 }
 
+.stack > * {
+	flex-shrink: 0;
+}
+
 .stack:last-child {
 	border-bottom: none;
 }
@@ -101,15 +105,18 @@ textarea {
  ******************/
 
 .contentPane {
-	flex-grow: 1;
+	/*flex-grow: 1;*/
 	display: flex;
 	flex-direction: column;
+	height: 50vh;
+	resize: vertical;
+	overflow: auto;
+	flex-shrink: 1;
 }
 
 /* editor */
 
 .editor {
-	
 }
 
 .editor > textarea {
@@ -124,6 +131,11 @@ textarea {
 .contents {
 	flex-grow: 1;
 	padding: 1em;
+	overflow-y: scroll;
+}
+
+.contents > * {
+	margin-bottom: 1em;
 }
 
 /***************
@@ -147,13 +159,10 @@ textarea {
 .commentPane {
 	width: 100%;
 	flex-grow: 1;
-	flex-shrink: 1;
-	flex-basis: 30vh;
+	flex-basis: 0;
 	overflow-y: scroll;
-	/*background-color: #EEEEEE;*/
 	display: flex;
 	flex-direction: column;
-	height: 300px;
 }
 
 .spacer {
@@ -232,7 +241,7 @@ textarea {
 	display: flex;
 	flex-direction: row;
 	height: 3.25rem;
-	overflow-x: hidden; /* just in case? */
+	/*overflow-x: hidden; /* just in case? */
 }
 
 .inputPane > * {
@@ -260,9 +269,11 @@ textarea, input {
 
 /* *************** */
 /* modes */
-
 .stack.mode-page .editorOnly {
 	display: none;
+}
+.stack.mode-page .commentPane {
+	height: 0;
 }
 
 .stack.mode-editor .commentPane,
@@ -271,8 +282,16 @@ textarea, input {
 	display: none;
 }
 
+.stack.mode-editor .contentPane {
+	resize: none;
+	flex-grow: 1;
+}
+
 .stack.mode-chat .editorOnly {
 	display: none;
+}
+.stack.mode-chat .contentPane {
+	height: 2em;
 }
 
 .stack.mode-category .commentPane,
@@ -280,3 +299,26 @@ textarea, input {
 .stack.mode-category .inputPane {
 	display: none;
 }
+
+/************
+ ** Markup **
+ ************/
+
+.markup-root table, .markup-root td, .markup-root th {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+.markup-root td, .markup-root th {
+	padding: 
+}
+
+/* ideas:
+- hide comments on page by default
+- (but leave userlist?) and show notifs?
+- put textbox at top of comment scroller
+- just have a show/hide comments button, for pages? 
+- or put comments at the bottom of the page - content - scroller - section
+
+- buttons in chat/comments to load next page of older messages
+ */

@@ -170,15 +170,11 @@ window.onload = function() {
 }
 
 function load_page(id) {
-	me.getContentz({ids:id},function(s,resp){
-		console.log(resp);
-		if (resp[0]) {
-			$contents.innerHTML = "";
-			var heading = document.createElement('h1');
-			heading.textContent = resp[0].name;
-			$contents.appendChild(heading);
-			$contents.appendChild(parse(resp[0].content));
-		}
+	mode_page($stack);
+	me.getPage(id, function(page, users, comments) {
+		$pageTitle.textContent = page.name;
+		$contents.innerHTML = "";
+		$contents.appendChild(parse(page.content));
 	});
 }
 
