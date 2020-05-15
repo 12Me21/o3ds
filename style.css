@@ -5,6 +5,7 @@ body {
 	
 * {
 	margin: 0;
+	vertical-align: top; /* things near page bottom randomly break without this */
 }
 
 textarea {
@@ -29,15 +30,11 @@ textarea {
 }
 
 .stack > *, .editor {
-	border-bottom: 1px solid gray;
+	border-top: 1px solid gray;
 }
 
 .stack > * {
 	flex-shrink: 0;
-}
-
-.stack:last-child {
-	border-bottom: none;
 }
 
 /****************
@@ -92,6 +89,10 @@ textarea {
 	background-color: #CCC;
 }
 
+.pageTitle {
+	margin-left: 0.2em;
+}
+
 /********************
  ** Page info form **
  ********************/
@@ -105,12 +106,9 @@ textarea {
  ******************/
 
 .contentPane {
-	/*flex-grow: 1;*/
+	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
-	height: 50vh;
-	resize: vertical;
-	overflow: auto;
 	flex-shrink: 1;
 }
 
@@ -142,14 +140,13 @@ textarea {
  ** User list **
  ***************/
 
-.userlistPane, .userlistPane > * {
-	width: 2.3rem;
-	height: 2.3rem;
+.userlistPane {
+	background-color: #CCC;
 }
 
-.userlistPane {
-	width: 100%;
-	background-color: #CCC;
+.userlistPane > * {
+	height: 2.3rem;
+	display: inline-block
 }
 
 /******************
@@ -269,6 +266,12 @@ textarea, input {
 
 /* *************** */
 /* modes */
+
+.stack:not(.mode-chat) .inputPane,
+.stack:not(.mode-chat) .commentPane {
+	display: none;
+}
+
 .stack.mode-page .editorOnly {
 	display: none;
 }

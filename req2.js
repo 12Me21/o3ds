@@ -167,6 +167,7 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 // - a map of uid -> user objects
 // - a list of comments
 Myself.prototype.getPage = function(id, callback) {
+	var $=this;
 	this.request("Read/chain"+queryString({
 		requests: [
 			"content-"+JSON.stringify({ids:[id]}),
@@ -175,6 +176,7 @@ Myself.prototype.getPage = function(id, callback) {
 		]
 	}), "GET", function(s, resp) {
 		if (s == 'ok') {
+			$.gotUsers(s, resp.user);
 			var content = resp.content;
 			if (content[0]) {
 				var usermap = {};

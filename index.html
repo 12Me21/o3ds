@@ -1,7 +1,44 @@
+<!DOCTYPE html>
 <meta charset="utf-8">
-<script src="req.js"></script>
-<script defer src="onload.js"></script>
-<input id="$id" value="204"></input><button onclick="showPost()">GET</button><br>
-<textarea id="$textarea"></textarea><br>
-<button onclick="run()">RUN</button>
-<button onclick="page()">PAGE</button>
+<link rel="stylesheet" href="style2.css">
+
+<main class="editorMode">
+	<div class="headerPane">
+		<div class="loggedIn"><img class="myAvatar"><span class="myName">test</span><button>Log Out</button></div><form class="loggedOut"><input id="$username" placeholder="username" name="username"><input id="$password" type="password" name="password" placeholder="password"><button id="$login" onclick="event.preventDefault()">Log In</button></form></div>
+	<div class="navPane">
+	</div>
+	<div class="titlePane">
+	</div>
+	
+	<div class="pagePane pageMode scroller">
+		<div class="pageContents" id="$pageContents"></div>
+		<div class="spacer"></div>
+		<div class="pageUserlist userlist"></div>
+		<div class="pageTextarea">
+			<textarea></textarea>
+		</div>
+		<div class="pageComments"></div>
+	</div>
+	
+	<div class="userlistPane userlist chatMode"></div>
+	<div class="messagePane chatMode scroller">
+		<div class="chatPageContents" id="$chatPageContents"></div>
+		<div class="spacer"></div>
+	</div>
+	<div class="inputPane chatMode">
+		<textarea></textarea>
+		<button>Send</button>
+	</div>
+
+	<div class="infoPane editorMode">
+		<button>Submit</button><br>
+		<input placeholder="Title" required><br>
+		<input placeholder="Keywords (space separated, optional)">
+	</div>
+	<div class="editorPane editorMode">
+		<div class="editorTextarea">
+			<textarea></textarea>
+		</div>
+		<div class="editorPreview"></div>
+	</div>
+</main>

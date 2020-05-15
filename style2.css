@@ -1,0 +1,131 @@
+body {
+	background-color: red;
+	font-family: sans-serif;
+}
+	
+* {
+	margin: 0;
+	box-sizing: border-box;
+	vertical-align: top;
+}
+
+textarea {
+	border-radius: 2px;
+	border: 2px solid #00C8B4;
+	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+}
+
+main > *, .editorPreview, .pagePane > * {
+	border-top: 1px solid gray;
+}
+main:first-child, .pagePane:first-child, .spacer {
+	border-top: none;
+}
+
+.pagePane, .messagePane, .editorPane {
+	flex-grow: 1;
+}
+
+main:not(.pageMode) > .pageMode,
+main:not(.chatMode) > .chatMode,
+main:not(.editorMode) > .editorMode,
+main:not(.navMode) > .navMode {
+	display: none;
+}
+
+/************
+ ** Editor **
+ ************/
+
+.editorPane {
+	display: flex;
+	flex-direction: column;
+}
+
+.editorPreview {
+	flex-grow: 1;
+}
+
+.editorTextarea > textarea {
+	resize: vertical;
+	width: 100%;
+	height: 40vh;
+	box-sizing: border-box;
+}
+
+.userlist {
+	background-color: #EEE;
+	box-sizing: content-box;
+	height: 2.3rem;
+}
+.userlist > * {
+	height: 100%;
+}
+
+.scroller {
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+}
+.spacer {
+	flex-grow: 1;
+}
+
+/**********/
+.headerPane {
+	height: 2.3rem;
+	box-sizing: content-box;
+	background-color: #333;
+}
+
+.headerPane > *, .headerPane > * > * {
+	display: inline-block;
+	height: 100%;
+}
+
+/**********/
+.navPane {
+	height: 2.3rem;
+	box-sizing: content-box;
+	background-color: #999;
+}
+
+/**********/
+.titlePane {
+	height: 2.3rem;
+	box-sizing: content-box;
+	background-color: #999;
+}
+
+/**********/
+
+.inputPane {
+	height: 3.25rem;
+	box-sizing: content-box;
+	display: flex;
+	flex-direction: row;
+}
+
+.inputPane > * {
+	height: 100%;
+}
+
+.inputPane > textarea {
+	flex-grow: 1;
+	resize: none;
+}
+
+.inputPane > button {
+	width: 3.25rem;
+}

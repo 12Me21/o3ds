@@ -178,6 +178,11 @@ function load_page(id) {
 	});
 }
 
+var lp2;
+function startListenerListener(id) {
+	
+}
+
 function reset_page() {
 	
 }
