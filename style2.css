@@ -91,17 +91,18 @@ main:not(.navMode) > .navMode {
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	background-color: #333;
+	overflow: auto;
 }
 
 .headerRight {
-	/*float: right;*/
+	float: right;
 }
 
-.headerPane > *,  {
+.headerPane > *  {
 	display: inline-block;
 }
 
-.headerPane > * > * {
+.headerPane .item {
 	display: inline-block;
 	height: 2.3rem;
 }
