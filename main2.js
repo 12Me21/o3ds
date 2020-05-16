@@ -55,7 +55,7 @@
 // ugh idk
 // 
 
-var me = new Myself();
+var me = new Myself(true);
 me.logIn(undefined, undefined, function(){});
 
 window.onload = function() {
