@@ -77,8 +77,12 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 	if (auth)
 		x.setRequestHeader('Authorization', "Bearer "+auth);
 	if (data) {
-		x.setRequestHeader('Content-Type',"application/json;charset=UTF-8");
-		x.send(JSON.stringify(data));
+		if (data.constructor == Object) { //plain object
+			x.setRequestHeader('Content-Type',"application/json;charset=UTF-8");
+			x.send(JSON.stringify(data));
+		} else { //file, blob, whatever
+			x.send(data);
+		}
 	} else {
 		x.send();
 	}
@@ -168,6 +172,7 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 // - a list of comments
 Myself.prototype.getPage = function(id, callback) {
 	var $=this;
+	id = +id;
 	this.request("Read/chain"+queryString({
 		requests: [
 			"content-"+JSON.stringify({ids:[id]}),
@@ -312,7 +317,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 			}
 		});
 	}
-
+	
 	function got(auth) {
 		$.setAuth(auth);
 		$.emit('login', false);

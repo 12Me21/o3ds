@@ -6,6 +6,7 @@ body {
 * {
 	margin: 0;
 	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	vertical-align: top;
 }
 
@@ -89,6 +90,10 @@ main:not(.navMode) > .navMode {
 	background-color: #333;
 }
 
+.headerRight {
+	float: right;
+}
+
 .headerPane > *, .headerPane > * > * {
 	display: inline-block;
 	height: 100%;
@@ -128,4 +133,11 @@ main:not(.navMode) > .navMode {
 
 .inputPane > button {
 	width: 3.25rem;
+}
+
+.myName {
+	color: white;
+	line-height: 2.3rem;
+	font-weight: bold;
+	margin: 0 0.5rem;
 }

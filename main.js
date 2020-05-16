@@ -170,7 +170,7 @@ window.onload = function() {
 }
 
 function load_page(id) {
-	mode_page($stack);
+	//mode_page($stack);
 	me.getPage(id, function(page, users, comments) {
 		$pageTitle.textContent = page.name;
 		$contents.innerHTML = "";

@@ -59,7 +59,44 @@ var me = new Myself();
 me.logIn(undefined, undefined, function(){});
 
 window.onload = function() {
-	
-	
-	
+	if (me.auth) {
+		me.whenUser(me.id, function() {
+			onLogin(me);
+		});
+	}
+	me.on('login', function() {
+		onLogin(me);
+	});
+	me.on('logout', function() {
+		onLogout(me);
+	});
+	$loggedOut.$login.onclick = function() {
+		event.preventDefault();
+		me.logOut();
+		me.logIn($loggedOut.$username.value, $loggedOut.$password.value, function(){});
+	}
+	$logout.onclick = function() {
+		event.preventDefault();
+		me.logOut();
+	}
+	/*$fileinput.onchange = function() {
+		var file = this.files[0];
+		if (file) {
+			me.request("File", "POST", console.log, this.files[0]);
+		}
+	}*/
+}
+
+function onLogin(me) {
+	$myAvatar.src = me.me.avatarURL;
+	$myName.textContent = me.me.username;
+	$loggedOut.style.display = 'none';
+	$loggedIn.style.display = '';
+}
+
+function onLogout() {
+	$myAvatar.src = "";
+	$myName.textContent = "";
+	$loggedIn.style.display = 'none';
+	$loggedOut.style.display = "";
 }
