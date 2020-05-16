@@ -94,7 +94,7 @@ main:not(.navMode) > .navMode {
 }
 
 .headerRight {
-	float: right;
+	/*float: right;*/
 }
 
 .headerPane > *,  {
