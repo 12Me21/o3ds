@@ -60,11 +60,11 @@ me.logIn(undefined, undefined, function(){});
 
 window.onload = function() {
 	if (me.auth) {
-		me.whenUser(me.id, function() {
-			onLogin(me);
-		});
+		onLogin(me);
+	} else {
+		onLogout();
 	}
-	me.on('login', function() {
+	me.on('login', function(gotUser) {
 		onLogin(me);
 	});
 	me.on('logout', function() {
@@ -84,12 +84,24 @@ window.onload = function() {
 		if (file) {
 			me.request("File", "POST", console.log, this.files[0]);
 		}
-	}*/
+		}*/
+
+	$gotoPage.onclick = function() {
+		me.getPage($pageNumber.value, function(page, users, comments){
+			$pageContents.innerHTML = "";
+			$titlePane.textContent = page.name;
+			$pageContents.appendChild(parse(page.content));
+			console.log(page, users, comments);
+		});
+	}
 }
 
+// this gets called too much sometimes
 function onLogin(me) {
-	$myAvatar.src = me.me.avatarURL;
-	$myName.textContent = me.me.username;
+	me.whenUser(me.uid, function() {
+		$myAvatar.src = me.me.avatarURL;
+		$myName.textContent = me.me.username;
+	});
 	$loggedOut.style.display = 'none';
 	$loggedIn.style.display = '';
 }

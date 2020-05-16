@@ -216,7 +216,7 @@ Myself.prototype.logOut = function(soft) {
 Myself.prototype.setAuth = function(auth) {
 	this.auth = auth;
 	var x = JSON.parse(atob(auth.split(".")[1]));
-	this.uid = x.uid;
+	this.uid = +x.uid;
 }
 Myself.prototype.authenticate = function(username, password, callback) {
 	var $=this;

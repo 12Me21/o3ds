@@ -27,11 +27,8 @@ main {
 	background-color: white;
 }
 
-main > *, .editorPreview, .pagePane > * {
+main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer) {
 	border-top: 1px solid gray;
-}
-main:first-child, .pagePane:first-child, .spacer {
-	border-top: none;
 }
 
 .pagePane, .messagePane, .editorPane {
@@ -65,13 +62,18 @@ main:not(.navMode) > .navMode {
 	box-sizing: border-box;
 }
 
+.pageContents {
+	padding: 0.5rem;
+}
+
 .userlist {
 	background-color: #EEE;
 	box-sizing: content-box;
-	height: 2.3rem;
+	-webkit-box-sizing: content-box; /* make class 4 this */
+	min-height: 2.3rem;
 }
 .userlist > * {
-	height: 100%;
+	height: 2.3rem;
 }
 
 .scroller {
@@ -85,8 +87,9 @@ main:not(.navMode) > .navMode {
 
 /**********/
 .headerPane {
-	height: 2.3rem;
+	min-height: 2.3rem;
 	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
 	background-color: #333;
 }
 
@@ -94,15 +97,20 @@ main:not(.navMode) > .navMode {
 	float: right;
 }
 
-.headerPane > *, .headerPane > * > * {
+.headerPane > *,  {
 	display: inline-block;
-	height: 100%;
+}
+
+.headerPane > * > * {
+	display: inline-block;
+	height: 2.3rem;
 }
 
 /**********/
 .navPane {
 	height: 2.3rem;
 	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
 	background-color: #999;
 }
 
@@ -110,7 +118,11 @@ main:not(.navMode) > .navMode {
 .titlePane {
 	height: 2.3rem;
 	box-sizing: content-box;
-	background-color: #999;
+	background-color: #BBB;
+	line-height: 2.3rem;
+	font-weight: bold;
+	padding: 0 0.5rem;
+	font-size: 1.6rem;
 }
 
 /**********/
