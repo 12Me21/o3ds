@@ -2,44 +2,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="style2.css?3">
-<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style2.css?4">
+<link rel="stylesheet" href="markup.css?2">
+<link rel="icon" href="favicon.svg?1">
 
-<script src="event.js?2"></script>
+<script src="event.js?3"></script>
 <script src="storage.js"></script>
 
-<script src="req2.js?27"></script>
+<script src="myself.js?2"></script>
 <script src="longpoll.js?5"></script>
 
-<script src="12y.js?1"></script>
+<script src="12y.js?2"></script>
 <script src="sbhighlight.js"></script>
 
-<script src="main2.js?3"></script>
+<script src="render.js?2"></script>
+<script src="main2.js?4"></script>
 
-<main class="pageMode">
+<main class="pageMode" id="$main">
 	<div class="headerPane">
 		<img src="logo.png" class="item"></img>
 		<div class="loggedIn headerRight" id="$loggedIn" style="display: none;"><button id="$logout" class="item">Log Out</button><span class="myName" id="$myName" class="item"></span><img class="myAvatar item" id="$myAvatar"></div><form class="loggedOut headerRight" id="$loggedOut" style="display: none;"><input id="$username" placeholder="username" name="username" class="item"><input id="$password" type="password" name="password" placeholder="password" class="item"><button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form></div>
 	<div class="navPane">
-		<input type="number" id="$pageNumber">
-		<button id="$gotoPage">Load Page</button>
 		<!--<input type="file" id="$fileinput"></input>-->
 	</div>
 	<div class="titlePane" id="$titlePane">
+		<span class="editorMode item editingLabel">Editing: <input class="item" id="$titleInput" placeholder="Page Title" required></span><h1 class="pageTitle textItem" id="$pageTitle"></h1>
+		<div class="pageCreate" id="$pageAuthorBox" style="display: none;">
+			<span>
+				<span class="textItem">Author:</span><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"><span class="pageAuthorDate textItem" id="$pageAuthorDate"></span>
+			</span><span id="$pageEdited" class="pageEdited">
+				<span class="textItem">Edited:</span><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
+			</span>
+		</div>
+	</div>
+
+	<div class="categoryPane paneGrow categoryMode scroller" id="$categoryPane">
+		<div id="$categoryDescription" class="categoryDescription pre pageContents"></div>
+		<div id="$categoryPages"></div>
 	</div>
 	
-	<div class="pagePane pageMode scroller">
-		<div class="pageContents" id="$pageContents"></div>
+	<div class="pagePane pageMode scroller paneGrow">
+		<div class="pageContents pre" id="$pageContents"></div>
 		<div class="spacer"></div>
-		<div class="pageUserlist userlist"></div>
+		<div class="pageUserlist userlist" title="Users viewing this page"></div>
 		<div class="pageTextarea">
-			<textarea></textarea>
+			<textarea id="$pageTextarea"></textarea>
 		</div>
 		<div class="pageComments"></div>
 	</div>
 	
 	<div class="userlistPane userlist chatMode"></div>
-	<div class="messagePane chatMode scroller">
+	<div class="messagePane chatMode scroller paneGrow">
 		<div class="chatPageContents" id="$chatPageContents"></div>
 		<div class="spacer"></div>
 	</div>
@@ -49,14 +62,19 @@
 	</div>
 
 	<div class="infoPane editorMode">
-		<button>Submit</button><br>
-		<input placeholder="Title" required><br>
-		<input placeholder="Keywords (space separated, optional)">
+		<button id="$submitEdit">Submit</button><br>
+		<input placeholder="Keywords (space separated, optional)"><br>
+		<label for="$markupSelect">Markup language:</label>
+		<select id="$markupSelect">
+			<option value="plaintext">plain text</option>
+			<option value="12y">12-y documentation markup format</option>
+			<option value="bbcode">bbcode</option>
+		</select>
 	</div>
-	<div class="editorPane editorMode">
+	<div class="editorPane editorMode paneGrow">
 		<div class="editorTextarea">
-			<textarea></textarea>
+			<textarea id="$editorTextarea"></textarea>
 		</div>
-		<div class="editorPreview"></div>
+		<div class="editorPreview" id="$editorPreview"></div>
 	</div>
 </main>

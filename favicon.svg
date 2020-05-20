@@ -6,11 +6,11 @@
   <defs>
 	 <path id="s" d="M0 0 v-.5 l-1 -.5 h-1 l-1 1 v1 l1 1 h1 v1 h-1 l-1 -0 v.5 l1 .5 h1 l1 -1 v-1 l-1 -1 h-1 v-1 h1 z" /> <!-- S -->
 	 <g id="sbs"> <!-- SBS -->
-		<use xlink:href="#s" x="5" y="6" />
+		<use href="#s" x="5" y="6" />
 		<path d="M6 5 v5 h2 l1 -1 v-1 l-1 -0.5 l1 -0.5 v-1 l-1 -1 z m1 1 h1 v1 h-1 z m0 2 h1 v1 h-1 z" /> <!-- B -->
-		<use xlink:href="#s" x="13" y="6" />
+		<use href="#s" x="13" y="6" />
 	 </g>
   </defs>
-  <use xlink:href="#sbs" stroke-width="2" stroke="black" stroke-linejoin="round" /> <!-- TEXT BORDER -->
-  <use xlink:href="#sbs" fill="white" /> <!-- TEXT -->
+  <use href="#sbs" stroke-width="2" stroke="black" stroke-linejoin="round" /> <!-- TEXT BORDER -->
+  <use href="#sbs" fill="white" /> <!-- TEXT -->
 </svg>

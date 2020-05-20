@@ -7,7 +7,12 @@ body {
 	margin: 0;
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
+	overflow-wrap: break-word;
 	vertical-align: top;
+}
+
+.pre {
+	white-space: pre-wrap;
 }
 
 textarea {
@@ -31,15 +36,32 @@ main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(
 	border-top: 1px solid gray;
 }
 
-.pagePane, .messagePane, .editorPane {
-	flex-grow: 1;
+main > * {
+	flex-shrink: 0;
 }
 
-main:not(.pageMode) > .pageMode,
-main:not(.chatMode) > .chatMode,
-main:not(.editorMode) > .editorMode,
-main:not(.navMode) > .navMode {
+.paneGrow {
+	flex-grow: 1;
+	flex-shrink: 1;
+	min-height: 0;
+	overflow-y: scroll;
+}
+
+main:not(.pageMode) .pageMode,
+main:not(.chatMode) .chatMode,
+main:not(.editorMode) .editorMode,
+main:not(.categoryMode) .categoryMode,
+main:not(.navMode) .navMode {
 	display: none;
+}
+
+.editingLabel {
+	padding-left: 0.3rem;
+	font-weight: bold;
+}
+
+.pagePane {
+	flex-shrink: 1;
 }
 
 /************
@@ -53,6 +75,11 @@ main:not(.navMode) > .navMode {
 
 .editorPreview {
 	flex-grow: 1;
+	flex-shrink: 1;
+}
+
+.pageTextarea > textarea {
+	max-width: 100%;
 }
 
 .editorTextarea > textarea {
@@ -62,7 +89,7 @@ main:not(.navMode) > .navMode {
 	box-sizing: border-box;
 }
 
-.pageContents {
+.pageContents, .editorPreview {
 	padding: 0.5rem;
 }
 
@@ -100,35 +127,88 @@ main:not(.navMode) > .navMode {
 
 .headerPane > *  {
 	display: inline-block;
+	max-width: 100%;
+
 }
 
 .headerPane .item {
+	max-width: 100%;
 	display: inline-block;
 	height: 2.3rem;
 }
 
 /**********/
 .navPane {
-	height: 2.3rem;
+	min-height: 2.3rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	background-color: #999;
 }
 
+.navPane .item {
+	max-width: 100%;
+}
+
 /**********/
 .titlePane {
-	height: 2.3rem;
+	min-height: 2.3rem;
 	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
 	background-color: #BBB;
-	line-height: 2.3rem;
+}
+
+.pageTitle {
 	font-weight: bold;
 	padding: 0 0.5rem;
 	font-size: 1.6rem;
 }
 
+.pageAuthorAvatar {
+	width: 2.3rem;
+}
+
+.pageAuthorDate {
+	padding-left: 0.5rem;
+}
+
+.pageAuthorName {
+	font-weight: bold;
+	padding: 0 0.5rem;
+}
+
+.pageEdited {
+	border-left: 1px solid gray;
+}
+
+.pageCreate {
+	float: right;
+}
+
+.pageCreate > * {
+	display: inline-block;
+	padding: 0 0.5rem;
+}
+
+.titlePane .item {
+	height: 2.3rem;
+	display: inline-block;
+	line-height: 2.3rem;
+}
+
+.titlePane .textItem {
+	min-height: 2.3rem;
+	display: inline-block;
+	line-height: 2.3rem;
+}
+
+.pageCreate {
+	background-color: rgba(0,0,0,0.1);
+}
+
 /**********/
 
 .inputPane {
+	overflow-wrap: break-word;
 	height: 3.25rem;
 	box-sizing: content-box;
 	display: flex;
@@ -138,6 +218,7 @@ main:not(.navMode) > .navMode {
 .inputPane > * {
 	height: 100%;
 }
+
 
 .inputPane > textarea {
 	flex-grow: 1;
@@ -153,4 +234,38 @@ main:not(.navMode) > .navMode {
 	line-height: 2.3rem;
 	font-weight: bold;
 	margin: 0 0.5rem;
+}
+
+.categoryPage {
+	font-weight: bold;
+	background-color: #EEE;
+	display: block;
+}
+
+.categoryPage, .categoryDescription {
+	border-bottom: 1px solid gray;
+}
+
+.rightAlign {
+	float: right;
+}
+
+.categoryPage {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+}
+
+.categoryPageTitle {
+	margin: 0 0.5rem;
+}
+
+.categoryPage .item {
+	height: 2.3rem;
+	line-height: 2.3rem;
+	display: inline-block;
+}
+
+.titlePane {
+	overflow: auto;
 }

@@ -41,13 +41,11 @@ function parse(code, options) {
 		scan();
 		
 		while (c) {
-			if (c == "\n") {
-				scan();
+			if (eatChar("\n")) {
 				endLine();
 				//==========
 				// \ escape
-			} else if (c == "\\") {
-				scan();
+			} else if (eatChar("\\")) {
 				if (c == "\n")
 					addLineBreak();
 				else
@@ -55,124 +53,100 @@ function parse(code, options) {
 				scan();
 				//===============
 				// { group start (why did I call these "groups"?)
-			} else if (c == "{") {
-				scan();
+			} else if (eatChar("{")) {
 				startBlock(null, {});
 				lineStart();
-				//=============
-				// } group end
-			} else if (c == "}") {
-				scan();
+			//=============
+			// } group end
+			} else if (eatChar("}")) {
 				if (stackContains(null)) {
 					closeAll(false);
 				} else {
 					addText("}");
 				}
-				//========
-				// * bold
+			//================
+			// * heading/bold
 			} else if (c == "*") {
-				var wasStartOf = startOfLine;
-				scan();
-				if (wasStartOf && (c==" " || c=="*") && !stackContains('heading')) {
-					var headingLevel = 1;
-					while (c == "*") {
+				if (startOfLine && (code[i+1] == "*" || code[i+1] == " ")) {
+					var headingLevel = 0;
+					while (eatChar("*"))
 						headingLevel++;
-						scan();
-					}
-					if (c == " " && headingLevel <= 3) {
-						scan();
+					if (headingLevel > 3)
+						headingLevel = 3;
+					
+					if (eatChar(" "))
 						startBlock('heading', {}, headingLevel);
-					} else { //invalid heading level
+					else
 						addText('*'.repeat(headingLevel));
-					}
 				} else {
-					doMarkup('bold', options.bold, "*");
+					doMarkup('bold', options.bold);
 				}
 			} else if (c == "/") {
-				scan();
-				doMarkup('italic', options.italic, "/");
+				doMarkup('italic', options.italic);
 			} else if (c == "_") {
-				scan();
-				doMarkup('underline', options.underline, "_");
+				doMarkup('underline', options.underline);
 			} else if (c == "~") {
-				scan();
-				doMarkup('strikethrough', options.strikethrough, "~");
-				//============
-				// >... quote
-			} else if (c == ">" && startOfLine) {
+				doMarkup('strikethrough', options.strikethrough);
+			//============
+			// >... quote
+			} else if (startOfLine && eatChar(">")) {
 				// todo: maybe >text should be a quote without author... 
 				// need to add a way to add information to quotes:
 				// - user ID
 				// - post ID
-				scan();
 				start = i;
-				while (c == " ")
-					scan();
+				while (eatChar(" "))
+					;
 				while (c && !char_in(c, " \n{:"))
 					scan();
 				var name = code.substring(start, i).trim();
-				if (c == ":")
-					scan();
-				while (c == " ")
-					scan();
+				eatChar(":");
+				while (eatChar(" "))
+					;
 				startBlock('quote', {}, name);
 				//==============
 				// -... list/hr
-			} else if (c == "-" && startOfLine) {
-				scan();
+			} else if (startOfLine && eatChar("-")) {
 				//----------
 				// --... hr
-				if (c == "-") {
-					scan();
+				if (eatChar("-")) {
 					var count = 2;
-					while (c == "-") {
+					while (eatChar("-"))
 						count++;
-						scan();
-					}
 					//-------------
 					// ---<EOL> hr
 					if (c == "\n" || !c) { //this is kind of bad
 						addBlock(options.line());
-						//----------
-						// ---... normal text
+					//----------
+					// ---... normal text
 					} else {
 						addText("-".repeat(count));
 					}
-					//------------
-					// - ... list
-				} else if (c == " ") {
-					scan();
+				//------------
+				// - ... list
+				} else if (eatChar(" ")) {
 					startBlock('list', {level:leadingSpaces});
 					startBlock('item', {level:leadingSpaces});
 				//---------------
 				// - normal char
-				} else {
+				} else
 					addText("-");
-				}
-				//==========================
-				// ] end link if inside one
+			//==========================
+			// ] end link if inside one
 			} else if (c == "]" && stack.top().inBrackets){ //this might break if it assumes .top() exists. needs more testing
 				scan();
 				if (stack.top().big) {
-					if (c == "]") {
-						scan();
+					if (eatChar("]"))
 						endBlock();
-					} else {
+					else
 						addText("]");
-					}
-				} else {
+				} else
 					endBlock();
-				}
 			//================
 			// https?:// link
 			} else if (c == "h" || c == "!") { //lol this is silly
-				var embed = false;
-				if (c == "!") {
-					embed = true;
-					scan();
-				}
-				if (embed && c == "[") {
-					scan();
+				var embed = eatChar("!");
+				if (embed && eatChar("[")) {
 					readBracketedLink(embed) || addText("[");
 					// handled
 				} else {
@@ -180,17 +154,16 @@ function parse(code, options) {
 					if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
 						var url = readUrl();
 						startBlock(embed ? urlType(url) : 'link', {}, url);
-						if (c == "[") {
-							scan();
+						if (eatChar("["))
 							stack.top().inBrackets = true;
-						} else {
+						else {
 							addText(url);
 							endBlock();
 						}
 					} else {
-						if (embed){
+						if (embed)
 							addText("!");
-						} else {
+						else {
 							scan();
 							addText("h");
 						}
@@ -205,27 +178,20 @@ function parse(code, options) {
 					var row = top.row;
 					var table = top.row.table;
 					scan();
-					if (c=="\n")
-						scan();
+					eatChar("\n");
 					//--------------
 					// | | next row
-					if (c == "|") {
-						scan();
+					if (eatChar("|")) {
 						if (table.columns == null)
 							table.columns = row.cells;
 						endBlock();
 						if (top_is('row')) //always
 							endBlock();
 						var row = startBlock('row', {table:table, cells:0});
-						if (c == "*") {
-							scan();
-							row.header = true;
-						} else {
-							row.header = false;
-						}
+						row.header = eatChar("*");
 						startBlock('cell', {row:row}, row.header);
-						while (c == " ")
-							scan();
+						while (eatChar(" "))
+							;
 						//--------------------------
 						// | next cell or table end
 					} else {
@@ -236,7 +202,6 @@ function parse(code, options) {
 						// single-row tables are not easily possible ..
 						// TODO: fix single row tables
 						if (table.columns != null && row.cells > table.columns) {
-							
 							endBlock(); //end cell
 							if (top_is('row')) //always
 								endBlock();
@@ -259,60 +224,31 @@ function parse(code, options) {
 						table: table,
 						cells: 0
 					});
-					if (c == "*") {
-						scan();
-						row.header = true;
-					} else {
-						row.header = false;
-					}
+					row.header = eatChar("*");
 					startBlock('cell', {
 						row: row
 					}, row.header);
-					while (c == " ")
-						scan();
+					while (eatChar(" "))
+						;
 				} else {
 					scan();
 					addText("|");
 				}
 				//===========
 				// `... code
-			} else if (c == "`") {
-				scan();
+			} else if (eatChar("`")) {
 				//---------------
-				// ` inline code
-				if (c != "`") {
-					start = i;
-					var codeText = ""
-					while (c) {
-						if (c=="`") {
-							if (code[i+1] == "`") {
-								if (i == start+1 && codeText[0] == " ") {
-									codeText = codeText.substr(1);
-								}
-								scan();
-							} else
-								break;
-						}
-						codeText += c;
-						scan();
-					}
-					addBlock(options.icode(codeText));
-					scan();
-					//-------
-					// ``...
-				} else {
-					scan();
+				// ``...
+				if (eatChar("`")) {
 					//----------------
 					// ``` code block
-					if (c == "`") {
-						scan();
+					if (eatChar("`")) {
 						// read lang name
 						start = i;
 						while (c && c!="\n" && c!="`")
 							scan();
 						var language = code.substring(start, i).trim().toLowerCase();
-						if (c == "\n")
-							scan();
+						eatChar("\n");
 						start = i;
 						i = code.indexOf("```", i);
 						addBlock(options.code(
@@ -326,17 +262,35 @@ function parse(code, options) {
 							i = code.length;
 							scan();
 						}
-						//------------
-						// `` invalid
+					//------------
+					// `` invalid
 					} else {
 						addText("``");
 					}
+				// --------------
+				// ` inline code
+				} else {
+					start = i;
+					var codeText = ""
+					while (c) {
+						if (c=="`") {
+							if (code[i+1] == "`") {
+								if (i == start+1 && codeText[0] == " ")
+									codeText = codeText.substr(1);
+								scan();
+							} else
+								break;
+						}
+						codeText += c;
+						scan();
+					}
+					addBlock(options.icode(codeText));
+					scan();
 				}
 			//
 			//=============
 			// [[url link
-			} else if (c == "[") {
-				scan();
+			} else if (eatChar("[")) {
 				readBracketedLink() || addText("[");
 			//
 			//=============
@@ -366,7 +320,14 @@ function parse(code, options) {
 	}
 	
 	// ######################
-
+	
+	function eatChar(chr) {
+		if (c == chr) {
+			scan();
+			return true;
+		}
+	}
+	
 	// block dangerous url protocols
 	function sanitizeUrl(url) {
 		// this might need to be improved
@@ -384,14 +345,11 @@ function parse(code, options) {
 			var start = i;
 			var part2 = false;
 			var url = readUrl(true);
-			if (c == "]") {
-				scan();
-				if (c == "]") {
-					scan();
-				} else if (c == "[") {
-					scan();
+			if (eatChar("]")) {
+				if (eatChar("]"))
+					;
+				else if (eatChar("["))
 					part2 = true;
-				}
 			}
 			startBlock(embed ? urlType(url) : 'link', {big: true}, url);
 			if (part2)
@@ -450,10 +408,8 @@ function parse(code, options) {
 				if (top.type == 'item')
 					endBlock();
 				var indent = 0;
-				while (c == " ") {
+				while (eatChar(" "))
 					indent++;
-					scan();
-				}
 				// OPTION 1:
 				// no next item; end list
 				if (c != "-") {
@@ -463,8 +419,8 @@ function parse(code, options) {
 					addText(" ".repeat(indent));
 				} else {
 					scan();
-					while (c == " ")
-						scan();
+					while (eatChar(" "))
+						;
 					// OPTION 2:
 					// next item has same indent level; add item to list
 					if (indent == top.level) {
@@ -497,14 +453,6 @@ function parse(code, options) {
 						startBlock('item', {level: indent});
 					}
 					break; //really?
-					// yes really.
-					// yes, I know you're thinking "what if there's a list inside a quote on one line?"
-					// except both of those things are only allowed to start at the start of a line, so the only way
-					// that would be possible is if
-					// you did > 12Me21: {-list etc.
-					// except then, the {} stops the quote from ending
-					// so it's fiiiine
-					
 				}
 			} else {
 				if (!eat)
@@ -514,7 +462,7 @@ function parse(code, options) {
 		}
 	}
 
-	// audio, video, image, youtube
+	// audio, video, image, youtube (todo)
 	function urlType(url) {
 		if (/(\.mp3(?!\w)|\.ogg(?!\w)|\.wav(?!\w)|#audio$)/.test(url))
 			return "audio";
@@ -524,7 +472,9 @@ function parse(code, options) {
 	}
 	
 	// common code for all text styling tags (bold etc.)
-	function doMarkup(type, create, symbol) {
+	function doMarkup(type, create) {
+		var symbol = c;
+		scan();
 		if (canStartMarkup(type)) {
 			startBlock(type, {});
 		} else if (canEndMarkup(type)) {
@@ -587,9 +537,9 @@ function parse(code, options) {
 	
 	function startBlock(type, data, arg) {
 		if (displayBlock[type]) {
-			if (lastLineBreak) {
+			/*if (lastLineBreak) {
 				options.remove(lastLineBreak);
-			}
+			}*/
 			skipNextLineBreak = true;
 		}
 		data.type = type;
@@ -719,7 +669,7 @@ parse.defoptions = (function(){
 		underline: creator('u'),
 		strikethrough: creator('s'),
 		heading: function (level) { // input: 1, 2, or 3
-			return create('h' + (level+1));
+			return create('h' + (level+1));//['h1','h2','h3'][level-1] || 'h3');
 		},
 		quote: function (user) {
 			var node = create('blockquote');
@@ -729,6 +679,10 @@ parse.defoptions = (function(){
 		list: creator('ul'),
 		item: creator('li'), // (list item)
 		link: function (url) {
+			var protocol = url.match(/^([-\w]+:)([^]*)$/);
+			if (protocol && protocol[1] == "sbs:") {
+				url = "#"+protocol[2];
+			}
 			var node = create('a');
 			node.setAttribute('href', url);
 			return node;
