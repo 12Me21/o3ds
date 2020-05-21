@@ -1,3 +1,5 @@
+var scriptLoaded = Date.now();
+
 // to load a page:
 // - request info for a page (page, comments, associated users)
 // -- start long poller for comments
@@ -64,7 +66,14 @@ debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
 }
 
-window.onload = function() {
+if (document.readyState == 'loading')
+	document.addEventListener('DOMContentLoaded', ready);
+else {
+	ready();
+}
+
+function ready() {
+	console.log("Load time:", Date.now() - scriptLoaded);
 	if (me.auth)
 		onLogin(me);
 	else
