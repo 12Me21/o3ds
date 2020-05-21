@@ -1,24 +1,41 @@
+* {
+	margin: 0;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	overflow-wrap: break-word;
+	vertical-align: top;
+}
+
 body {
 	background-color: red;
 	font-family: sans-serif;
 }
-	
-* {
-	margin: 0;
-	vertical-align: top; /* things near page bottom randomly break without this */
+
+/* all elements with user content, where whitespace should be preserved */
+.pre {
+	white-space: pre-wrap;
 }
 
 textarea {
 	border-radius: 2px;
 	border: 2px solid #00C8B4;
 	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
+	max-width: 100%;
 }
 
-/********************
- ** Main container **
- ********************/
+.scroller {
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+}
+.spacer {
+	flex-grow: 1;
+}
 
-.stack {
+/****************************
+ ** Main Container Element **
+ ****************************/
+main {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
@@ -29,148 +46,189 @@ textarea {
 	background-color: white;
 }
 
-.stack > *, .editor {
+main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
 	border-top: 1px solid gray;
 }
 
-.stack > * {
+/* most elements will be fixed-height, and should never shrink */
+main > * {
 	flex-shrink: 0;
 }
 
-/****************
- ** Login Pane **
- ****************/
-
-.loginPane img {
-	width: 2.3rem;
-	height: 2.3rem;
+/* each view has one pane which takes up the remaining screen height */
+.paneGrow {
+	flex-grow: 1;
+	flex-shrink: 1;
+	min-height: 0;
+	overflow-y: scroll;
 }
 
-.loginPane {
-	width: 100%;
+/* visibility control */
+main:not(.pageMode) .pageMode,
+main:not(.chatMode) .chatMode,
+main:not(.editorMode) .editorMode,
+main:not(.categoryMode) .categoryMode,
+main:not(.navMode) .navMode {
+	display: none;
+}
+
+/*************
+ ** Top Bar **
+ *************/
+.headerPane {
 	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
 	background-color: #333;
-	color: white;
+	overflow: auto;
 }
 
-.loginPane * {
-	box-sizing: border-box;
+.headerRight {
+	float: right;
 }
 
-.loggedIn > * {
+.headerPane > *  {
+	display: inline-block;
+	max-width: 100%;
+}
+
+.headerPane .item {
+	max-width: 100%;
 	display: inline-block;
 	height: 2.3rem;
-	vertical-align: top;
-}
-
-.loginPane input, .loginPane button {
-	height: 1.5rem;
-	max-width: 33%;
 }
 
 .myName {
+	color: white;
 	line-height: 2.3rem;
-	padding: 0 0.5rem;
+	font-weight: bold;
+	margin: 0 0.5rem;
+}
+
+/**************
+ ** Nav Pane **
+ **************/
+.navPane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #999;
+}
+
+.navPane .item {
+	max-width: 100%;
+}
+
+/****************
+ ** Title Pane **
+ ****************/
+.titlePane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #BBB;
+	overflow: auto;
+}
+
+.titlePane .item {
+	height: 2.3rem;
+	display: inline-block;
+	line-height: 2.3rem;
+}
+/* .item's are things like the site logo, user avatar, etc.*/
+/* .textItem is similar, but is allowd to wrap */
+.titlePane .textItem {
+	min-height: 2.3rem;
+	display: inline-block;
+	line-height: 2.3rem;
+}
+
+.editingLabel {
+	padding-left: 0.3rem;
 	font-weight: bold;
 }
-
-.loginPane.logged_in > .loggedOut {
-	display: none;
-}
-.loginPane:not(.logged_in) > .loggedIn {
-	display: none;
-}
-
-/*********************
- ** Navigation Pane **
- *********************/
-
-.navPane {
-	background-color: #CCC;
-}
-
 .pageTitle {
-	margin-left: 0.2em;
+	font-weight: bold;
+	padding: 0 0.5rem;
+	font-size: 1.6rem;
 }
 
-/********************
- ** Page info form **
- ********************/
-
-.infoPane {
-	
+/* Box showing the page author/editor */
+.pageCreate {
+	float: right;
+}
+.pageCreate > * {
+	display: inline-block;
+	padding: 0 0.5rem;
+}
+.pageCreate {
+	background-color: rgba(0,0,0,0.1);
+}
+.pageAuthorAvatar {
+	width: 2.3rem;
+}
+.pageAuthorDate {
+	padding-left: 0.5rem;
+}
+.pageAuthorName {
+	font-weight: bold;
+	padding: 0 0.5rem;
+}
+.pageEdited {
+	border-left: 1px solid gray;
 }
 
-/******************
- ** Content Pane **
- ******************/
-
-.contentPane {
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	flex-shrink: 1;
+/*******************
+ ** Category Pane **
+ *******************/
+.categoryPage {
+	font-weight: bold;
+	background-color: #EEE;
+	display: block;
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
 }
-
-/* editor */
-
-.editor {
+.categoryPage, .categoryDescription {
+	border-bottom: 1px solid gray;
 }
-
-.editor > textarea {
-	resize: vertical;
-	width: 100%;
-	height: 40vh; /* default */
-	box-sizing: border-box;
+.categoryPageTitle {
+	margin: 0 0.5rem;
 }
-
-/* content */
-
-.contents {
-	flex-grow: 1;
-	padding: 1em;
-	overflow-y: scroll;
+.categoryPage .item {
+	height: 2.3rem;
+	line-height: 2.3rem;
+	display: inline-block;
 }
-
-.contents > * {
-	margin-bottom: 1em;
+.categoryPages {
+	margin-top: 0.5rem;
 }
 
 /***************
- ** User list **
+ ** Page Pane **
  ***************/
-
-.userlistPane {
-	background-color: #CCC;
+.pageContents, .editorPreview {
+	padding: 0.5rem;
 }
 
-.userlistPane > * {
+/*******************
+ ** Chat Userlist **
+ *******************/
+.userlist {
+	background-color: #EEE;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box; /* make class 4 this */
+	min-height: 2.3rem;
+}
+.userlist > * {
 	height: 2.3rem;
-	display: inline-block
 }
 
-/******************
- ** comment area **
- ******************/
-
-.commentPane {
-	width: 100%;
-	flex-grow: 1;
-	flex-basis: 0;
-	overflow-y: scroll;
-	display: flex;
-	flex-direction: column;
-}
-
-.spacer {
-	flex-grow: 1;
-}
-
-.messageList {
-	padding-bottom: 1rem;
-}
-
-/* messages */
+/***********************
+ ** Chat Message Pane **
+ ***********************/
+/* ... */
+/** Chat Messages **/
 .message {
 	font-size: 0.9rem;
 	padding: 0.4rem 0.5rem;
@@ -181,25 +239,21 @@ textarea {
 	clear: both;
 	overflow: auto;
 }
-
 .systemMessage {
 	background-color: rgba(187,187,187, 0.2);
 	font-weight: bold;
 	color: #666;
 	border-left: 0.5em solid rgb(187,187,187);
 }
-
 .ownMessage {
 	background-color: rgba(255,153,153, 0.2);
 }
-
 .messageTime {
 	float: right;
 	font-weight: normal;
 	padding-right: .5em;
 	color: #666;
 }
-
 .messageAvatar {
 	display: inline-block;
 	width: 3.5rem;
@@ -208,120 +262,65 @@ textarea {
 	margin-right: 0.5rem;
 	float: left;
 }
-
 .messageUsername {
 	display: inline-block;
 	font-weight: bold;
 }
-
 .messageContents {
 	display: block;
 	vertical-align: top;
 	overflow: auto;
 }
-
 .messagePart {
 	margin: .2rem;
 }
-
-/* markup styling */
-
 .messagePart img {
+	max-width: 100%;
 	max-height: 10vh;
+	border: 1px solid silver;
 }
-
-/*************
- **  Input  **
- *************/
-
+/****************
+ ** Chat Input **
+ ****************/
 .inputPane {
+	overflow-wrap: break-word;
+	height: 3.25rem;
+	box-sizing: content-box;
 	display: flex;
 	flex-direction: row;
-	height: 3.25rem;
-	/*overflow-x: hidden; /* just in case? */
 }
-
 .inputPane > * {
-	vertical-align: top;
+	height: 100%;
 }
-
 .inputPane > textarea {
-	resize: none;
 	flex-grow: 1;
+	resize: none;
 }
 
 .inputPane > button {
-	float: right;
-	margin: 0;
 	width: 3.25rem;
-	max-width: 3.25rem; /* firefox linuks bugggg */
-	padding: 0;
-	height: 100%;
 }
 
-/* this is to prevent zooming in when inputs are focused on iphone */
-textarea, input {
-	font-size: 1em;
+/**********************
+ ** Editor Info Pane **
+ **********************/
+
+/*****************
+ ** Editor Pane **
+ *****************/
+.editorPane {
+	display: flex;
+	flex-direction: column;
 }
 
-/* *************** */
-/* modes */
-
-.stack:not(.mode-chat) .inputPane,
-.stack:not(.mode-chat) .commentPane {
-	display: none;
-}
-
-.stack.mode-page .editorOnly {
-	display: none;
-}
-.stack.mode-page .commentPane {
-	height: 0;
-}
-
-.stack.mode-editor .commentPane,
-.stack.mode-editor .userlistPane,
-.stack.mode-editor .inputPane {
-	display: none;
-}
-
-.stack.mode-editor .contentPane {
-	resize: none;
+.editorPreview {
 	flex-grow: 1;
+	flex-shrink: 1;
 }
 
-.stack.mode-chat .editorOnly {
-	display: none;
+.editorTextarea > textarea {
+	resize: vertical;
+	width: 100%;
+	height: 40vh;
+	box-sizing: border-box;
 }
-.stack.mode-chat .contentPane {
-	height: 2em;
-}
-
-.stack.mode-category .commentPane,
-.stack.mode-category .editorOnly,
-.stack.mode-category .inputPane {
-	display: none;
-}
-
-/************
- ** Markup **
- ************/
-
-.markup-root table, .markup-root td, .markup-root th {
-	border: 1px solid black;
-	border-collapse: collapse;
-}
-
-.markup-root td, .markup-root th {
-	padding: 
-}
-
-/* ideas:
-- hide comments on page by default
-- (but leave userlist?) and show notifs?
-- put textbox at top of comment scroller
-- just have a show/hide comments button, for pages? 
-- or put comments at the bottom of the page - content - scroller - section
-
-- buttons in chat/comments to load next page of older messages
- */

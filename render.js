@@ -212,7 +212,7 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 			if ($.expectedTop == $.element.parentNode.scrollTop) {
 				$.autoScrollAnimation();
 			} else {
-				console.log("scroll cancelled");
+				//console.log("scroll cancelled");
 			}
 		});
 	} else {
