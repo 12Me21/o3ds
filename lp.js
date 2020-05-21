@@ -117,6 +117,7 @@ DiscussionLongPoller.prototype.loop = function() {
 			}]
 		} else {
 			$.running = false;
+			alert("LONG POLLER FAILED");
 			console.error("LONG POLLER FAILED");
 		}
 	}, $.cancel);

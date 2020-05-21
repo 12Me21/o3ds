@@ -27,6 +27,7 @@ textarea {
 	display: flex;
 	flex-direction: column;
 	overflow-y: scroll;
+	min-height: 300px;
 }
 .spacer {
 	flex-grow: 1;
@@ -295,6 +296,7 @@ main:not(.navMode) .navMode {
 .inputPane > textarea {
 	flex-grow: 1;
 	resize: none;
+	min-width: 0;
 }
 
 .inputPane > button {
