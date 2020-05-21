@@ -292,8 +292,7 @@ function generateChatView(id) {
 			updateUserlist(listeners[id], userMap);
 		if (page) {
 			scroller.autoScroll(true);
-		} else
-			scroller.autoScroll(false);
+		}
 	}
 	lp.addRoom(id);
 }
