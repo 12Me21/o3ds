@@ -97,8 +97,10 @@ window.onload = function() {
 	$submitEdit.onclick = submitEdit;
 	
 	$chatSend.onclick = function() {
-		me.postComment(lp.idList[0], $chatTextarea.value, "plainText", function(){});
-		$chatTextarea.value = "";
+		if ($chatTextarea.value) {
+			me.postComment(lp.idList[0], $chatTextarea.value, "plainText", function(){});
+			$chatTextarea.value = "";
+		}
 	}
 
 	$chatTextarea.onkeypress = function(e) {
