@@ -57,6 +57,12 @@
 
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
+var scroller;
+var lp = new DiscussionLongPoller(me, null);
+
+debugMessage = function(text) {
+	scroller.embed(renderSystemMessage(String(text)));
+}
 
 window.onload = function() {
 	if (me.auth) {
@@ -95,6 +101,20 @@ window.onload = function() {
 	}
 
 	$submitEdit.onclick = submitEdit;
+	
+	$chatSend.onclick = function() {
+		me.postComment(lp.idList[0], $chatTextarea.value, "plainText", console.log);
+		$chatTextarea.value = "";
+	}
+
+	$chatTextarea.onkeypress = function(e) {
+		if (!e.shiftKey && e.keyCode == 13) {
+			e.preventDefault();
+			$chatSend.onclick();
+		}
+	};
+	
+	scroller = new AutoScroller($messageList);
 
 	var query = location.hash.substr(1);
 	if (query) {
@@ -108,7 +128,6 @@ window.onhashchange = function() {
 		navigateTo(query);
 	}
 }
-
 
 var editingPage;
 function generateEditorView(id) {
@@ -184,6 +203,7 @@ function updateEditorPreview() {
 }
 
 function navigateTo(path) {
+	lp.reset();
 	path = path.split("/");
 	var type = path[0];
 	var id = +(path[1]);
@@ -196,9 +216,9 @@ function navigateTo(path) {
 	} else if (type == "category") {
 		generateCategoryView(id);
 	} else if (type == "user") {
-		
+		generateUserView(id);
 	} else if (type == "chat") {
-		
+		generateChatView(id);
 	}
 }
 
@@ -226,22 +246,98 @@ function generatePageView(id) {
 	});
 }
 
+function generateUserView(id) {
+	loadStart();
+	me.getUser(id, function(user) {
+		$main.className = 'pageMode';
+		if (user) {
+			$pageTitle.textContent = user.username;
+		} else {
+			$pageTitle.textContent = "User Not Found";
+		}
+		loadEnd();
+	});
+}
+
+function updateUserlist(listeners, userMap) {
+	$chatUserlist.innerHTML = "";
+	listeners && listeners.forEach(function(l) {
+		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
+	})
+}
+
+function generateChatView(id) {
+	loadStart();
+	lp.callback = function(comments, listeners, userMap, page) {
+		if (page && page.id == id) {
+			$messageList.innerHTML = ""
+			$main.className = "chatMode";
+			scroller.switchRoom(id);
+			show($pageAuthorBox);
+			$pageTitle.textContent = page.name;
+			renderEditor(userMap[page.createUserId], page.createDate, $pageAuthorAvatar, $pageAuthorName, $pageAuthorDate);
+			visible($pageEdited, page.editDate);
+			if (page.editDate) {
+				renderEditor(userMap[page.editUserId], page.editDate, $pageEditorAvatar, $pageEditorName, $pageEditorDate, page.editUserId == page.createUserId);
+			}
+			renderPageContents(page, $chatPageContents);
+			loadEnd();
+		} else if (page == false) { //1st request, page doesn't exist
+			$messageList.innerHTML = ""
+			$pageTitle.textContent = "Page not found";
+			hide($pageAuthorBox);
+			$chatPageContents.innerHTML = "";
+			loadEnd();
+			// TODO: page list passed to callback needs to be PER-ID!!
+		}
+		if (comments) {
+			comments.forEach(function(comment) {
+				if (comment.parentId == id)
+					displayMessage(comment, userMap[comment.createUserId]);
+			});
+		}
+		console.log(listeners);
+		if (listeners)
+			updateUserlist(listeners[id], userMap);
+		scroller.autoScroll();
+	}
+	lp.addRoom(id);
+}
+
+function displayMessage(c, user) {
+	if (c.deleted) {
+		scroller.remove(c.id);
+	} else {
+		var node = renderMessagePart(c);
+		scroller.insert(c.id, node, c.createUserId, function() {
+			var b = renderUserBlock(user, c.createUserId, new Date(c.createDate));
+			if (c.createUserId == me.uid)
+				b[0].className += " ownMessage";
+			return b;
+		});
+	}
+}
+
 function generateCategoryView(id) {
 	loadStart();
-	me.getCategoryContent(id, 50, 0, 'editDate', false, function(category, contentz, users) {
+	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
 		hide($pageAuthorBox);
-		$categoryPages.innerHTML = "";
 		$main.className = 'categoryMode';
+		
+		$categoryPages.innerHTML = "";
+		$categoryCategories.innerHTML = "";
+		$categoryDescription.textContent = "";
 		if (category) {
 			$pageTitle.textContent = category.name;
 			$categoryDescription.textContent = category.description;
-			$categoryPages.innerHTML = "";
+			childs.forEach(function(cat) {
+				$categoryCategories.appendChild(renderCategory(cat, users));
+			});
 			contentz.forEach(function(content) {
 				$categoryPages.appendChild(renderCategoryPage(content, users));
 			});
 		} else {
 			$pageTitle.textContent = "Category not found";
-			$categoryDescription.textContent = "";
 		}
 		loadEnd();
 	});
@@ -263,4 +359,3 @@ function onLogout() {
 	hide($loggedIn);
 	show($loggedOut);
 }
-

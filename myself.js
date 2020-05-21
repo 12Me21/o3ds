@@ -148,11 +148,13 @@ Myself.prototype.readSimple = function(url, type, callback) {
 			obj[type] = resp;
 			$.handle(e, obj);
 			$.cb(callback, e, resp);
+		} else {
+			$.cb(callback, e, resp);
 		}
 	});
 }
 
-Myself.prototype.read = function(requests, filters, callback) {
+Myself.prototype.read = function(url, requests, filters, callback, cancel) {
 	var $=this;
 	var query = {};
 	query.requests = requests.map(function(req) {
@@ -166,11 +168,39 @@ Myself.prototype.read = function(requests, filters, callback) {
 	for (var filter in filters)
 		query[filter] = filters[filter];
 	
-	$.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
+	$.request(url+queryString(query), 'GET', function(e, resp) {
 		$.handle(e, resp);
 		$.cb(callback, e, resp);
-	});
+	}, undefined, cancel);
 };
+
+Myself.prototype.listen = function(requests, filters, callback, cancel) {
+	var $=this;
+	var query = {};
+	
+	requests.forEach(function(req) {
+		var type = Object.keys(req)[0];
+		query[type]=JSON.stringify(req[type]);
+	});
+	for (var filter in filters)
+		query[filter] = filters[filter];
+	
+	$.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
+		$.handle(e, resp.chain);
+		$.cb(callback, e, resp);
+	}, undefined, cancel);
+};
+
+Myself.prototype.getUser = function(id, callback) {
+	var $=this;
+	$.readSimple("User"+queryString(id), 'user', function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp[0]);
+		} else {
+			$.cb(callback, null);
+		}
+	});
+}
 
 Myself.prototype.handle = function(e, resp) {
 	var $=this;
@@ -178,10 +208,8 @@ Myself.prototype.handle = function(e, resp) {
 		return;
 	// form user id map and generate user avatar urls
 	var userMap = {};
-	console.log("HANDLE", resp);
 	resp.user && resp.user.forEach(function(user) {
-		console.log("HANDLE2");
-		if (user.avatar) {
+		if (user.avatar && user.avatar != 125) {
 			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=128&square=true"
 		} else {
 			user.avatarURL = "./avatar.png";
@@ -266,7 +294,7 @@ Myself.prototype.loadCachedAuth = function(callback) {
 Myself.prototype.getPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	$.read("Read/chain", [
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 50}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
@@ -279,6 +307,26 @@ Myself.prototype.getPage = function(id, callback) {
 				$.cb(callback, page, resp.userMap, resp.comment);
 			else
 				$.cb(callback, null, {}, []);
+		}
+	});
+}
+
+Myself.prototype.getDiscussion = function(id, callback) {
+	var $=this;
+	id = +id;
+	$.read("Read/chain",[
+		{content: {ids: [id]}},
+		{comment: {parentIds: [id], limit: 30, reverse: true}},
+		"user.0createUserId.0editUserId.1createUserId.1editUserId",
+	], {
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (!e) {
+			var page = resp.content[0];
+			if (page)
+				$.cb(callback, page, resp.comment.reverse(), resp.userMap);
+			else
+				$.cb(callback, null, [], {});
 		}
 	});
 }
@@ -297,7 +345,7 @@ Myself.prototype.whenUser = function(id, callback) {
 
 Myself.prototype.getCategories = function(callback) {
 	var $=this;
-	$.read([
+	$.read("Read/chain",[
 		'category'
 	], {
 		category: "id,name,description,parentId"
@@ -309,8 +357,13 @@ Myself.prototype.getCategories = function(callback) {
 	});
 }
 
+var rootCategory = {
+	name: "[root]",
+	id: 0,
+}
+
 // get the pages in a category
-Myself.prototype.getCategoryContent = function(id, count, start, sort, reverse, callback) {
+Myself.prototype.getCategory = function(id, count, start, sort, reverse, callback) {
 	id=+id;
 	var $=this;
 	var search = {
@@ -323,9 +376,14 @@ Myself.prototype.getCategoryContent = function(id, count, start, sort, reverse, 
 		search.sort = sort;
 	if (reverse)
 		search.reverse = reverse;
-	$.read([
+	if (id)
+		var childCategorysFilter = {parentIds: [id]};
+	else
+		childCategorysFilter = {};
+	$.read("Read/chain",[
 		{content: search},
 		{category: {ids: [id]}},
+		{category: childCategorysFilter},
 		"user.0createUserId"
 	], {
 		content: "id,name,parentId,createUserId,editDate",
@@ -333,11 +391,20 @@ Myself.prototype.getCategoryContent = function(id, count, start, sort, reverse, 
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
-			var category = resp.category[0];
-			if (category)
-				$.cb(callback, category, resp.content, resp.userMap);
+			var category;
+			var childs = [];
+			resp.category.forEach(function(cat) {
+				if (cat.parentId == id)
+					childs.push(cat);
+				if (cat.id == id)
+					category = cat;
+			});
+			if (id==0) {
+				$.cb(callback, rootCategory, childs, resp.content, resp.userMap);
+			} else if (category)
+				$.cb(callback, category, childs, resp.content, resp.userMap);
 			else
-				$.cb(callback, null, [], {});
+				$.cb(callback, null, childs, resp.content, resp.userMap);
 		}
 	});
 }
@@ -345,7 +412,7 @@ Myself.prototype.getCategoryContent = function(id, count, start, sort, reverse, 
 Myself.prototype.getPageForEditing = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	$.read("Read/chain",[
 		{content: {ids: [id]}},
 		"user.0createUserId.0editUserId",
 	], {
@@ -361,12 +428,41 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 	});
 }
 
+Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback, cancel) {
+	var $=this;
+	$.listen([
+		{comment: {
+			parentIds: ids,
+			lastId: lastId,
+			chain: ["user.0createUserId"]
+		}},
+		{listener: {
+			parentIdsLast: listeners,
+			chain: ["user.0listeners"]
+		}}
+	], {
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (e)
+			$.cb(callback, e, resp);
+		else
+			$.cb(callback, e, resp.comments, resp.listeners, resp.chain.userMap);
+	}, cancel);
+}
+
 Myself.prototype.postPage = function(page, callback) {
 	if (page.id) {
 		this.request("Content/"+page.id, 'PUT', callback, page);
 	} else {
 		this.request("Content", 'POST', callback, page);
 	}
+}
+
+Myself.prototype.postComment = function(id, message, markup, callback) {
+	this.request("Comment", 'POST', callback, {
+		parentId: id,
+		content: JSON.stringify({t: message, m: markup})
+	});
 }
 
 function buildCategoryTree(categories) {

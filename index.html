@@ -2,21 +2,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="style2.css?4">
+<link rel="stylesheet" href="style2.css?5">
 <link rel="stylesheet" href="markup.css?2">
 <link rel="icon" href="favicon.svg?1">
 
 <script src="event.js?3"></script>
 <script src="storage.js"></script>
 
-<script src="myself.js?2"></script>
-<script src="longpoll.js?5"></script>
+<script src="lp.js?1"></script>
+<script src="myself.js?3"></script>
 
 <script src="12y.js?2"></script>
 <script src="sbhighlight.js"></script>
 
-<script src="render.js?2"></script>
-<script src="main2.js?4"></script>
+<script src="render.js?3"></script>
+<script src="main2.js?5"></script>
 
 <main class="pageMode" id="$main">
 	<div class="headerPane">
@@ -38,7 +38,8 @@
 
 	<div class="categoryPane paneGrow categoryMode scroller" id="$categoryPane">
 		<div id="$categoryDescription" class="categoryDescription pre pageContents"></div>
-		<div id="$categoryPages"></div>
+		<div id="$categoryCategories"></div>
+		<div id="$categoryPages" class="categoryPages"></div>
 	</div>
 	
 	<div class="pagePane pageMode scroller paneGrow">
@@ -51,14 +52,15 @@
 		<div class="pageComments"></div>
 	</div>
 	
-	<div class="userlistPane userlist chatMode"></div>
+	<div class="userlistPane userlist chatMode" id="$chatUserlist"></div>
 	<div class="messagePane chatMode scroller paneGrow">
 		<div class="chatPageContents" id="$chatPageContents"></div>
 		<div class="spacer"></div>
+		<div id="$messageList"></div>
 	</div>
 	<div class="inputPane chatMode">
-		<textarea></textarea>
-		<button>Send</button>
+		<textarea id="$chatTextarea"></textarea>
+		<button id="$chatSend">Send</button>
 	</div>
 
 	<div class="infoPane editorMode">

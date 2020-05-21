@@ -32,7 +32,7 @@ main {
 	background-color: white;
 }
 
-main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer) {
+main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
 	border-top: 1px solid gray;
 }
 
@@ -53,6 +53,10 @@ main:not(.editorMode) .editorMode,
 main:not(.categoryMode) .categoryMode,
 main:not(.navMode) .navMode {
 	display: none;
+}
+
+.categoryPages {
+	margin-top: 0.5rem;
 }
 
 .editingLabel {
@@ -268,4 +272,65 @@ main:not(.navMode) .navMode {
 
 .titlePane {
 	overflow: auto;
+}
+
+
+/* messages */
+.message {
+	font-size: 0.9rem;
+	padding: 0.4rem 0.5rem;
+	white-space: pre-wrap;
+	border-left-width: 0.5em;
+	border-left-style: solid;
+	border-left-color: rgb(255,153,153);
+	clear: both;
+	overflow: auto;
+}
+
+.systemMessage {
+	background-color: rgba(187,187,187, 0.2);
+	font-weight: bold;
+	color: #666;
+	border-left: 0.5em solid rgb(187,187,187);
+}
+
+.ownMessage {
+	background-color: rgba(255,153,153, 0.2);
+}
+
+.messageTime {
+	float: right;
+	font-weight: normal;
+	padding-right: .5em;
+	color: #666;
+}
+
+.messageAvatar {
+	display: inline-block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border: 1px solid #777;
+	margin-right: 0.5rem;
+	float: left;
+}
+
+.messageUsername {
+	display: inline-block;
+	font-weight: bold;
+}
+
+.messageContents {
+	display: block;
+	vertical-align: top;
+	overflow: auto;
+}
+
+.messagePart {
+	margin: .2rem;
+}
+
+.messagePart img {
+	max-width: 100%;
+	max-height: 10vh;
+	border: 1px solid silver;
 }
