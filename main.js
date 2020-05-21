@@ -97,7 +97,7 @@ window.onload = function() {
 	$submitEdit.onclick = submitEdit;
 	
 	$chatSend.onclick = function() {
-		me.postComment(lp.idList[0], $chatTextarea.value, "plainText", console.log);
+		me.postComment(lp.idList[0], $chatTextarea.value, "plainText", function(){});
 		$chatTextarea.value = "";
 	}
 
@@ -109,10 +109,13 @@ window.onload = function() {
 	};
 	
 	scroller = new AutoScroller($messageList);
-
+	
+	console.log = debugMessage;
+	
 	var query = location.hash.substr(1);
 	if (query)
 		navigateTo(query);
+	
 }
 
 window.onhashchange = function() {

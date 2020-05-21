@@ -175,7 +175,6 @@ function AutoScroller(element) {
 // do autoscroll
 AutoScroller.prototype.autoScroll = function(instant) {
 	var parent = this.element.parentNode;
-	console.log('doing autoscroll');
 	if (!window.requestAnimationFrame || !this.smoothScroll || instant) {
 		parent.scrollTop = parent.scrollHeight - parent.clientHeight;
 	} else {
