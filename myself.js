@@ -35,7 +35,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('error', resp, code);
 		}
 	}
-		x.onerror = function() {
+	x.onerror = function() {
 		var time = Date.now()-start;
 		console.log("xhr onerror after ms:"+time);
 		if (time > 18*1000) {
@@ -186,7 +186,8 @@ Myself.prototype.listen = function(requests, filters, callback, cancel) {
 		query[filter] = filters[filter];
 	
 	$.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
-		$.handle(e, resp.chain);
+		if (!e)
+			$.handle(e, resp.chain);
 		$.cb(callback, e, resp);
 	}, undefined, cancel);
 };
