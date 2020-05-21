@@ -73,7 +73,7 @@ else {
 }
 
 function ready() {
-	console.log("Load time:", Date.now() - scriptLoaded);
+	var loadTime = Date.now() - scriptLoaded;
 	if (me.auth)
 		onLogin(me);
 	else
@@ -122,6 +122,9 @@ function ready() {
 	scroller = new AutoScroller($messageList);
 	
 	console.log = debugMessage;
+	window.setTimeout(function() {
+		console.log("Extra load time: "+loadTime);
+	}, 1000);
 	
 	var query = location.hash.substr(1);
 	if (query)
