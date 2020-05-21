@@ -28,6 +28,7 @@ textarea {
 	flex-direction: column;
 	overflow-y: scroll;
 	min-height: 300px;
+	height: 300px;
 }
 .spacer {
 	flex-grow: 1;
