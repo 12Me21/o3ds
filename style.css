@@ -21,6 +21,7 @@ textarea {
 	border: 2px solid #00C8B4;
 	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
 	max-width: 100%;
+	font-size: 1em; /* prevent zoom in on iphone */
 }
 
 .scroller {
@@ -48,10 +49,10 @@ main {
 	top: 0;
 	left: 0;
 	right: 0;
-	/*bottom: 0;*/
-	min-height: 100vh;
+	bottom: 0;
 	background-color: white;
 }
+
 
 main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
 	border-top: 1px solid gray;
@@ -66,7 +67,7 @@ main > * {
 .paneGrow {
 	flex-grow: 1;
 	flex-shrink: 1;
-	min-height: 0;
+	min-height: 100px;
 	/*overflow-y: scroll;*/
 }
 

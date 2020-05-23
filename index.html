@@ -5,7 +5,7 @@
 <link rel="shortcut icon" href="favicon.svg?a">
 <link rel="image_src" href="favicon.svg?a">
 
-<link rel="stylesheet" href="style.css?b">
+<link rel="stylesheet" href="style.css?c">
 <link rel="stylesheet" href="markup.css?a">
 
 <script src="event.js?a"></script>
@@ -91,4 +91,8 @@
 <!--- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
 item/textitem are good -- improve them!
+there is an issue: max-width: 100%; is not a sustainable solution
+consider switching to display: inline; and then using padding on the container? or something.
+this allows the float: right elements to be mixed in with the text which is nice, 
+though honestly INLINE might be too limiting. but either way, we need a better solution than max-width: 100%;
 -->
