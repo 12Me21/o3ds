@@ -4,15 +4,15 @@ function renderCategoryPage(page, users) {
 	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage";
 	var title = document.createElement('span');
-	title.className = "categoryPageTitle item";
+	title.className = "categoryPageTitle textItem";
 	title.textContent = page.name;
 	div.appendChild(title);
 	var right = document.createElement('a');
 	right.href = "#user/"+user.id;
-	right.className = "rightAlign";
+	right.className = "rightAlign textItem pageCreate";
 	var name = document.createElement('span');
 	name.textContent = user.username;
-	name.className = "item pageAuthorName";
+	name.className = "textItem pageAuthorName";
 	right.appendChild(name);
 	var img = document.createElement('img');
 	img.className = "item";

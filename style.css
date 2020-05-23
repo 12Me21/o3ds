@@ -106,6 +106,10 @@ main:not(.homeMode) .homeMode {
 	height: 2.3rem;
 }
 
+.headerPane .textItem {
+	max-width: 100%;
+}
+
 .myName {
 	color: white;
 	line-height: 2.3rem;
@@ -142,6 +146,7 @@ main:not(.homeMode) .homeMode {
 	height: 2.3rem;
 	display: inline-block;
 	line-height: 2.3rem;
+	max-width: 100%;
 }
 /* .item's are things like the site logo, user avatar, etc.*/
 /* .textItem is similar, but is allowd to wrap */
@@ -149,6 +154,7 @@ main:not(.homeMode) .homeMode {
 	min-height: 2.3rem;
 	display: inline-block;
 	line-height: 2.3rem;
+	max-width: 100%;
 }
 
 .editingLabel {
@@ -171,7 +177,7 @@ main:not(.homeMode) .homeMode {
 .pageCreate {
 	float: right;
 }
-.pageCreate > * {
+.titlePane .pageCreate > * { /*hack because i reused pagecreate xd */
 	display: inline-block;
 	padding: 0 0.5rem;
 }
@@ -202,17 +208,26 @@ main:not(.homeMode) .homeMode {
 	min-height: 2.3rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
+	overflow: auto; /* find other places that we need to use this */
+	clear: both;
 }
 .categoryPage, .categoryDescription {
 	border-bottom: 1px solid gray;
 }
 .categoryPageTitle {
-	margin: 0 0.5rem;
+	padding: 0 0.5rem;
+}
+.categoryPage .textItem {
+	min-height: 2.3rem;
+	display: inline-block;
+	line-height: 2.3rem;
+	max-width: 100%;
 }
 .categoryPage .item {
 	height: 2.3rem;
 	line-height: 2.3rem;
 	display: inline-block;
+	max-width: 100%;
 }
 .categoryPages {
 	margin-top: 0.5rem;
