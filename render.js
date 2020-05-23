@@ -1,7 +1,7 @@
 function renderCategoryPage(page, users) {
 	var user = users[page.createUserId];
 	var div = document.createElement('a');
-	div.href = "#page/"+page.id;
+	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle item";
@@ -75,7 +75,7 @@ function renderUserBlock(user, uid, date) {
 
 function renderCategory(cat, users) {
 	var div = document.createElement('a');
-	div.href = "#category/"+cat.id;
+	div.href = "#categories/"+cat.id;
 	div.className = "pre categoryPage";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle item";
@@ -100,13 +100,14 @@ function reasonableDateString(date) {
 	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
 }
 
-function renderEditor(user, time, avatarE, nameE, dateE, hideUser) {
+function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
 	visible(avatarE, !hideUser);
 	visible(nameE, !hideUser);
 	if (!hideUser) {
 		avatarE.src = user.avatarURL;
 		nameE.textContent = user.username;
 	}
+	link.href = "#user/"+user.id;
 	dateE.textContent = reasonableDateString(time);
 }
 
@@ -121,7 +122,7 @@ function renderPageContents(page, element) {
 	}
 }
 
-function renderMessagePart(comment){
+function renderMessagePart(comment, sizedOnload){
 	var c = comment.content;
 	var t, m;
 	try {
@@ -136,6 +137,10 @@ function renderMessagePart(comment){
 	}
 	if (m == '12y') {
 		element = parse(t);
+		var x = element.getElementsByTagName('img');
+		for (var i=0;i<x.length;i++) {
+			x[i].onload = sizedOnload;
+		}
 	} else {
 		element = document.createElement('div');
 		element.appendChild(document.createTextNode(t));

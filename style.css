@@ -34,6 +34,10 @@ textarea {
 	flex-grow: 1;
 }
 
+.rightAlign {
+	float: right;
+}
+
 /****************************
  ** Main Container Element **
  ****************************/
@@ -44,7 +48,8 @@ main {
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 0;
+	/*bottom: 0;*/
+	min-height: 100vh;
 	background-color: white;
 }
 
@@ -62,7 +67,7 @@ main > * {
 	flex-grow: 1;
 	flex-shrink: 1;
 	min-height: 0;
-	overflow-y: scroll;
+	/*overflow-y: scroll;*/
 }
 
 /* visibility control */
@@ -70,7 +75,8 @@ main:not(.pageMode) .pageMode,
 main:not(.chatMode) .chatMode,
 main:not(.editorMode) .editorMode,
 main:not(.categoryMode) .categoryMode,
-main:not(.navMode) .navMode {
+main:not(.navMode) .navMode,
+main:not(.homeMode) .homeMode {
 	display: none;
 }
 
@@ -155,6 +161,12 @@ main:not(.navMode) .navMode {
 	font-size: 1.6rem;
 }
 
+.errorMode .titlePane {
+	background-color: pink;
+	color: maroon;
+	font-family: monospace;
+}
+
 /* Box showing the page author/editor */
 .pageCreate {
 	float: right;
@@ -230,6 +242,10 @@ main:not(.navMode) .navMode {
  ** Chat Message Pane **
  ***********************/
 /* ... */
+.messageList {
+	padding-bottom: 0.7rem;
+}
+
 /** Chat Messages **/
 .message {
 	font-size: 0.9rem;
@@ -319,6 +335,9 @@ main:not(.navMode) .navMode {
 .editorPreview {
 	flex-grow: 1;
 	flex-shrink: 1;
+	overflow-y: scroll;
+	flex-basis: 0;
+	min-height: 10rem;
 }
 
 .editorTextarea > textarea {

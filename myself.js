@@ -466,6 +466,26 @@ Myself.prototype.postComment = function(id, message, markup, callback) {
 	});
 }
 
+Myself.prototype.getUserPage = function(id, callback) {
+	var $=this;
+	id = +id;
+	$.read("Read/chain",[
+		{user: {ids: [id]}},
+		{content: {parentIds: [id], type: '@user.page', limit: 1}},
+		"comment.1id$parentIds",
+		"user.1createUserId.1editUserId.2createUserId.2editUserId",
+	], {
+	}, function(e, resp) {
+		if (!e) {
+			var user = resp.userMap[id];
+			if (user) {
+				$.cb(callback, user, resp.content[0], resp.comment, resp.userMap);
+			} else
+				$.cb(callback, null, {});
+		}
+	});
+}
+
 function buildCategoryTree(categories) {
 	var root = {childs: []};
 	var orphans = [];

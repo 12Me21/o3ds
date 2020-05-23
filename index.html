@@ -2,26 +2,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="icon" href="favicon.svg?1">
+<link rel="shortcut icon" href="favicon.svg?a">
+<link rel="image_src" href="favicon.svg?a">
 
-<link rel="stylesheet" href="style.css?3">
-<link rel="stylesheet" href="markup.css?2">
+<link rel="stylesheet" href="style.css?a">
+<link rel="stylesheet" href="markup.css?a">
 
-<script src="event.js?3"></script>
-<script src="storage.js"></script>
+<script src="event.js?a"></script>
+<script src="storage.js?a"></script>
 
-<script src="myself.js?4"></script>
-<script src="lp.js?2"></script>
+<script src="myself.js?a"></script>
+<script src="lp.js?a"></script>
 
-<script src="sbhighlight.js"></script>
-<script src="12y.js?2"></script>
+<script src="sbhighlight.js?a"></script>
+<script src="12y.js?a"></script>
 
-<script src="render.js?5"></script>
-<script src="main.js?6"></script>
+<script src="render.js?a"></script>
+<script src="main.js?a"></script>
 
 <main class="pageMode" id="$main">
 	<div class="headerPane">
-		<img src="logo.png" class="item"></img>
+		<a href="#"><img src="logo.png" class="item"></img></a>
 		<div class="loggedIn headerRight" id="$loggedIn" style="display: none;"><button id="$logout" class="item">Log Out</button><span class="myName" id="$myName" class="item"></span><img class="myAvatar item" id="$myAvatar"></div><form class="loggedOut headerRight" id="$loggedOut" style="display: none;"><input id="$username" placeholder="username" name="username" class="item"><input id="$password" type="password" name="password" placeholder="password" class="item"><button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form></div>
 	<div class="navPane">
 		<!--<input type="file" id="$fileinput"></input>-->
@@ -30,9 +31,11 @@
 		<span class="editorMode item editingLabel">Editing: <input class="item" id="$titleInput" placeholder="Page Title" required></span><h1 class="pageTitle textItem" id="$pageTitle"></h1>
 		<div class="pageCreate" id="$pageAuthorBox" style="display: none;">
 			<span>
-				<span class="textItem">Author:</span><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"><span class="pageAuthorDate textItem" id="$pageAuthorDate"></span>
+				<span class="textItem">Author:</span><a id="$authorLink"><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"></a><span class="pageAuthorDate textItem" id="$pageAuthorDate">
+				</span><!-- *standing in the middle of a mess of html*
+"gosh, I guess I have to clean all this up, then" -->
 			</span><span id="$pageEdited" class="pageEdited">
-				<span class="textItem">Edited:</span><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
+				<span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
 			</span>
 		</div>
 	</div>
@@ -57,7 +60,7 @@
 	<div class="messagePane chatMode scroller paneGrow">
 		<div class="chatPageContents" id="$chatPageContents"></div>
 		<div class="spacer"></div>
-		<div id="$messageList"></div>
+		<div id="$messageList" class="messageList"></div>
 	</div>
 	<div class="inputPane chatMode">
 		<textarea id="$chatTextarea"></textarea>
@@ -79,5 +82,8 @@
 			<textarea id="$editorTextarea"></textarea>
 		</div>
 		<div class="editorPreview" id="$editorPreview"></div>
+	</div>
+	<div class="homeMode homePane paneGrow">
+		hey
 	</div>
 </main>
