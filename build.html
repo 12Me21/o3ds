@@ -1,0 +1,3161 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="shortcut icon" href="favicon.svg?a">
+<link rel="image_src" href="favicon.svg?a">
+
+<!--START-->
+<style>
+* {
+	margin: 0;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	overflow-wrap: break-word;
+	vertical-align: top;
+}
+
+body {
+	background-color: red;
+	font-family: sans-serif;
+}
+
+/* all elements with user content, where whitespace should be preserved */
+.pre {
+	white-space: pre-wrap;
+}
+
+.navPane {
+	line-height: 2.3rem;
+}
+
+.navPane a {
+	padding: 0rem 0.2rem;
+}
+
+textarea {
+	border-radius: 2px;
+	border: 2px solid #00C8B4;
+	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
+	max-width: 100%;
+	font-size: 1em; /* prevent zoom in on iphone */
+}
+
+.scroller {
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+	min-height: 300px;
+	height: 300px;
+}
+.spacer {
+	flex-grow: 1;
+}
+
+.rightAlign {
+	float: right;
+}
+
+.textItem {
+	max-width: 100;
+	display: inline-block;
+}
+.item {
+	display: inline-block;
+	max-width: 100%;
+}
+
+/****************************
+ ** Main Container Element **
+ ****************************/
+main {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+}
+
+main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
+	border-top: 1px solid gray;
+}
+
+/* most elements will be fixed-height, and should never shrink */
+main > * {
+	flex-shrink: 0;
+}
+
+/* each view has one pane which takes up the remaining screen height */
+.paneGrow {
+	flex-grow: 1;
+	flex-shrink: 1;
+	min-height: 100px;
+	/*overflow-y: scroll;*/
+}
+
+/* visibility control */
+main:not(.pageMode) .pageMode,
+main:not(.chatMode) .chatMode,
+main:not(.editorMode) .editorMode,
+main:not(.categoryMode) .categoryMode,
+main:not(.navMode) .navMode,
+main:not(.homeMode) .homeMode {
+	display: none;
+}
+
+/*************
+ ** Top Bar **
+ *************/
+.headerPane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #333;
+	overflow: auto;
+}
+
+.headerRight {
+	float: right;
+}
+
+.headerPane > *  {
+	display: inline-block;
+	max-width: 100%;
+}
+
+.headerPane .item {
+	height: 2.3rem;
+}
+
+.myName {
+	color: white;
+	line-height: 2.3rem;
+	font-weight: bold;
+	margin: 0 0.5rem;
+}
+
+/**************
+ ** Nav Pane **
+ **************/
+.navPane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #999;
+}
+
+/****************
+ ** Title Pane **
+ ****************/
+.titlePane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #BBB;
+	overflow: auto;
+}
+
+.titlePane .item {
+	height: 2.3rem;
+	line-height: 2.3rem;
+}
+/* .item's are things like the site logo, user avatar, etc.*/
+/* .textItem is similar, but is allowd to wrap */
+.titlePane .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+
+.editingLabel {
+	padding-left: 0.3rem;
+	font-weight: bold;
+}
+.pageTitle {
+	font-weight: bold;
+	padding: 0 0.5rem;
+	font-size: 1.6rem;
+}
+
+.errorMode .titlePane {
+	background-color: pink;
+	color: maroon;
+	font-family: monospace;
+}
+
+/* Box showing the page author/editor */
+.pageCreate {
+	float: right;
+}
+.titlePane .pageCreate > * { /*hack because i reused pagecreate xd */
+	display: inline-block;
+	padding: 0 0.5rem;
+}
+.pageCreate {
+	background-color: rgba(0,0,0,0.1);
+}
+.pageAuthorAvatar {
+	width: 2.3rem;
+}
+.pageAuthorDate {
+	padding-left: 0.5rem;
+}
+.pageAuthorName {
+	font-weight: bold;
+	padding: 0 0.5rem;
+}
+.pageEdited {
+	border-left: 1px solid gray;
+}
+
+/*******************
+ ** Category Pane **
+ *******************/
+.categoryPage {
+	font-weight: bold;
+	background-color: #EEE;
+	display: block;
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	overflow: auto; /* find other places that we need to use this */
+	clear: both;
+}
+.categoryPage, .categoryDescription {
+	border-bottom: 1px solid gray;
+}
+.categoryPageTitle {
+	padding: 0 0.5rem;
+}
+.categoryPage .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+.categoryPage .item {
+	height: 2.3rem;
+	line-height: 2.3rem;
+}
+.categoryPages {
+	margin-top: 0.5rem;
+}
+
+/***************
+ ** Page Pane **
+ ***************/
+.pageContents, .editorPreview {
+	padding: 0.5rem;
+}
+
+/*******************
+ ** Chat Userlist **
+ *******************/
+.userlist {
+	background-color: #EEE;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box; /* make class 4 this */
+	min-height: 2.3rem;
+}
+.userlist > * {
+	height: 2.3rem;
+}
+
+/***********************
+ ** Chat Message Pane **
+ ***********************/
+/* ... */
+.messageList {
+	padding-bottom: 0.7rem;
+}
+
+/** Chat Messages **/
+.message {
+	font-size: 0.9rem;
+	padding: 0.4rem 0.5rem;
+	white-space: pre-wrap;
+	border-left-width: 0.5em;
+	border-left-style: solid;
+	border-left-color: rgb(255,153,153);
+	clear: both;
+	overflow: auto;
+}
+.systemMessage {
+	background-color: rgba(187,187,187, 0.2);
+	font-weight: bold;
+	color: #666;
+	border-left: 0.5em solid rgb(187,187,187);
+}
+.ownMessage {
+	background-color: rgba(255,153,153, 0.2);
+}
+.messageTime {
+	float: right;
+	font-weight: normal;
+	padding-right: .5em;
+	color: #666;
+}
+.messageAvatar {
+	display: inline-block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border: 1px solid #777;
+	margin-right: 0.5rem;
+	float: left;
+}
+.messageUsername {
+	display: inline-block;
+	font-weight: bold;
+}
+.messageContents {
+	display: block;
+	vertical-align: top;
+	overflow: auto;
+}
+.messagePart {
+	margin: .2rem;
+}
+.messagePart img {
+	max-width: 100%;
+	max-height: 10vh;
+	border: 1px solid silver;
+}
+/****************
+ ** Chat Input **
+ ****************/
+.inputPane {
+	overflow-wrap: break-word;
+	height: 3.25rem;
+	box-sizing: content-box;
+	display: flex;
+	flex-direction: row;
+}
+.inputPane > * {
+	height: 100%;
+}
+.inputPane > textarea {
+	flex-grow: 1;
+	resize: none;
+	min-width: 0;
+}
+
+.inputPane > button {
+	width: 3.25rem;
+}
+
+/**********************
+ ** Editor Info Pane **
+ **********************/
+
+/*****************
+ ** Editor Pane **
+ *****************/
+.editorPane {
+	display: flex;
+	flex-direction: column;
+}
+
+.editorPreview {
+	flex-grow: 1;
+	flex-shrink: 1;
+	overflow-y: scroll;
+	flex-basis: 0;
+	min-height: 10rem;
+}
+
+.editorTextarea > textarea {
+	resize: vertical;
+	width: 100%;
+	height: 40vh;
+	box-sizing: border-box;
+}
+.markup-root table, .markup-root td, .markup-root th {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+.markup-root td, .markup-root th {
+	padding: 0.2rem 0.3rem;
+}
+
+.markup-root table {
+	margin: 0.25rem 0;
+}
+
+.markup-root * {
+	vertical-align: baseline;
+}
+
+.markup-root h2, .markup-root h3 {
+	border-bottom: 1px solid #eaecef;
+	margin-bottom: 0.2rem;
+}
+
+.markup-root h2 {
+	margin-top: 0.5rem;
+}
+
+.markup-root h3 {
+	margin-top: 0.3rem;
+}
+
+.markup-root pre {
+	font-family: consolas, monospace;
+	color: white;
+	background-color: black;
+}
+
+.markup-root code {
+	font-family: consolas, monospace;
+	background-color: rgba(0,0,0,0.1);
+	padding: 0 0.2rem;
+}
+
+.markup-root pre, .markup-root table {
+	box-shadow: 2px 2px 2px #888888;
+}
+
+.markup-root pre {
+	border: 1px solid black;
+	padding: 0.5rem;
+	margin: 0.25rem 0;
+}
+
+.markup-root {
+	padding-top: 0.3rem;
+	padding-bottom: 0.5rem;
+}
+</style>
+<script>
+/******************
+ ** EVENT SYSTEM **
+ ******************/
+// based on nodejs EventEmitter
+
+function EventEmitter() {
+	this.events = {};
+}
+
+EventEmitter.prototype.on = function(name, func) {
+	if (this.events[name]) {
+		return this.events[name].push(func)-1;
+	} else {
+		this.events[name] = [func];
+		return 0;
+	}
+}
+
+EventEmitter.prototype.removeListener = function(name, item) {
+	var events = this.events[name]
+	if (!events)
+		return false;
+	// this takes either an index (returned by .on) or a function reference
+	if (item instanceof Function) {
+		item = events.indexOf(item);
+		if (item==-1)
+			return false;
+	}
+	if (events[item]) {
+		events[item] = undefined;
+		return true;
+	}
+	return false;
+}
+
+EventEmitter.prototype.emit = function(name) {
+	var $=this;
+	var events = $.events[name];
+	var args = Array.prototype.slice.call(arguments, 1);
+	if (events) {
+		events.forEach(function(event) {
+			if (event) {
+				event.apply($, args);
+			}
+		});
+	}
+}
+// Source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Local_storage
+
+if (!window.localStorage) {
+	window.localStorage = {
+		getItem: function (sKey) {
+			if (!sKey || !this.hasOwnProperty(sKey)) { return null; }
+			return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
+		},
+		key: function (nKeyId) {
+			return unescape(document.cookie.replace(/\s*\=(?:.(?!;))*$/, "").split(/\s*\=(?:[^;](?!;))*[^;]?;\s*/)[nKeyId]);
+		},
+		setItem: function (sKey, sValue) {
+			if(!sKey) { return; }
+			document.cookie = escape(sKey) + "=" + escape(sValue) + "; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/";
+			this.length = document.cookie.match(/\=/g).length;
+		},
+		length: 0,
+		removeItem: function (sKey) {
+			if (!sKey || !this.hasOwnProperty(sKey)) { return; }
+			document.cookie = escape(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+			this.length--;
+		},
+		hasOwnProperty: function (sKey) {
+			return (new RegExp("(?:^|;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+		}
+	};
+	window.localStorage.length = (document.cookie.match(/\=/g) || window.localStorage).length;
+}
+function sbs2Request(url, method, callback, data, auth, cancel) {
+	var x = new XMLHttpRequest();
+	if (cancel)
+		cancel[0] = function() {x.abort();};
+	x.open(method, url);
+
+	var start = Date.now();
+	x.onload = function() {
+		var code = x.status;
+		var type = x.getResponseHeader('Content-Type');
+		if (/^application\/json(?!=\w)/.test(type)) {
+			try {
+				var resp = JSON.parse(x.responseText);
+			} catch(e) {
+				resp = null;
+			}
+		} else {
+			resp = x.responseText;
+		}
+		if (code==200) {
+			callback(null, resp);
+		} else if (code==408 || code==204) {
+			// record says server uses 408, testing showed only 204
+			// basically this is treated as an error condition,
+			// except during long polling, where it's a normal occurance
+			callback('timeout', resp);
+		} else if (code==401) {
+			console.log(x);
+			callback('auth', resp);
+		} else {
+			alert("Request failed! "+code+" "+url);
+			console.log("sbs2Request: request failed! "+code);
+			console.log(x.responseText);
+			console.log(x);
+			callback('error', resp, code);
+		}
+	}
+	x.onerror = function() {
+		var time = Date.now()-start;
+		console.log("xhr onerror after ms:"+time);
+		if (time > 18*1000) {
+			console.log("detected 3DS timeout");
+			callback('timeout');
+		} else {
+			alert("Request failed! "+url);
+			console.log("xhr onerror");
+			callback('error');
+		}
+	}
+	x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
+	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
+	if (auth)
+		x.setRequestHeader('Authorization', "Bearer "+auth);
+	
+	if (data) {
+		if (typeof data == 'string') { //todo: allow formdata, file, blob, etc.
+			x.send(data);
+		} else { //plain object
+			x.setRequestHeader('Content-Type',"application/json;charset=UTF-8");
+			x.send(JSON.stringify(data));
+		}
+	} else {
+		x.send();
+	}
+}
+
+function queryString(obj) {
+	if (!obj)
+		return "";
+	var items = [];
+	for (var key in obj) {
+		var val = obj[key];
+		if (typeof val != 'undefined'){
+			var item = encodeURIComponent(key)+"=";
+			// array items are encoded as
+			// ids:[1,2,3] -> ids=1&ids=2&ids=3
+			
+			if (val instanceof Array) {
+				for(var i=0;i<val.length;i++){
+					items.push(item+encodeURIComponent(val[i]));
+				}
+			// otherwise, key=value
+			} else {
+				items.push(item+encodeURIComponent(val));
+			}
+		}
+	}
+	
+	if (items.length)
+		return "?"+items.join("&");
+	else
+		return "";
+}
+
+function Myself(isDev) {
+	EventEmitter.call(this);
+	this.userCache={};
+	this.userRequests={};
+	this.selectServer(isDev);
+}
+Myself.prototype = Object.create(EventEmitter.prototype);
+Object.defineProperty(Myself.prototype, 'constructor', {
+	value: Myself,
+	enumerable: false,
+	writable: true
+});
+
+function https() {
+	if (window.location.protocol=="http:")
+		return "http:";
+	return "https:";
+}
+
+// Select/switch which server to use (dev or normal)
+// this should clear internal cache etc.
+// todo: maybe allow switching signed in accounts
+Myself.prototype.selectServer = function(isDev) {
+	this.logOut(true);
+	if (isDev) {
+		this.server = https() + "//newdev.smilebasicsource.com/api";
+		this.lsKey = "devauth"
+	} else {
+		this.server = https() + "//new.smilebasicsource.com/api";
+		this.lsKey = "auth"
+	}
+}
+
+Myself.prototype.request = function(url, method, callback, data, cancel) {
+	var $=this;
+	sbs2Request($.server+"/"+url, method, function(e, resp) {
+		if (e=='auth') {
+			$.logOut();
+		}
+		$.cb(callback, e, resp);
+	}, data, $.auth, cancel);
+}
+
+// Most requests will be done through the chain endpoint with Myself.read
+// However, if you want to use another endpoint (or if the request can't be chained (ex: /user/me)
+// you can use this function, as long as
+// the response is always an array of objects of the specified type
+Myself.prototype.readSimple = function(url, type, callback) {
+	var $=this;
+	$.request(url, 'GET', function(e, resp) {
+		if (!e) {
+			var obj = {};
+			resp instanceof Array || (resp = [resp]);
+			obj[type] = resp;
+			$.handle(e, obj);
+			$.cb(callback, e, resp);
+		} else {
+			$.cb(callback, e, resp);
+		}
+	});
+}
+
+Myself.prototype.read = function(requests, filters, callback, cancel) {
+	var $=this;
+	var query = {};
+	query.requests = requests.map(function(req) {
+		if (typeof req == 'string') {
+			return req;
+		} else {
+			var type = Object.keys(req)[0];
+			return type+"-"+JSON.stringify(req[type]);
+		}
+	});
+	for (var filter in filters)
+		query[filter] = filters[filter];
+	var needCategorys = !$.categoryTree;
+	if (needCategorys) {
+		query.requests.push('category');
+	}
+	
+	$.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
+		if (needCategorys) {
+			$.categoryTree = buildCategoryTree(resp.category);
+		}
+		$.handle(e, resp);
+		$.cb(callback, e, resp);
+	}, undefined, cancel);
+};
+
+Myself.prototype.listen = function(requests, filters, callback, cancel) {
+	var $=this;
+	var query = {};
+	
+	requests.forEach(function(req) {
+		var type = Object.keys(req)[0];
+		query[type]=JSON.stringify(req[type]);
+	});
+	for (var filter in filters)
+		query[filter] = filters[filter];
+	
+	$.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
+		if (!e)
+			$.handle(e, resp.chain);
+		$.cb(callback, e, resp);
+	}, undefined, cancel);
+};
+
+Myself.prototype.getUser = function(id, callback) {
+	var $=this;
+	$.readSimple("User"+queryString(id), 'user', function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp[0]);
+		} else {
+			$.cb(callback, null);
+		}
+	});
+}
+
+Myself.prototype.handle = function(e, resp) {
+	var $=this;
+	if (e)
+		return;
+	// form user id map and generate user avatar urls
+	var userMap = {};
+	resp.user && resp.user.forEach(function(user) {
+		if (user.avatar && user.avatar != 125) {
+			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=128&square=true"
+		} else {
+			user.avatarURL = "./avatar.png";
+		}
+		var uid = user.id;
+		if (uid) {
+			if (uid == $.uid)
+				$.me = user;
+			userMap[uid] = user;
+			$.userCache[uid] = user;
+			
+			if ($.userRequests[uid]) {
+				$.userRequests[uid].forEach(function(func) {
+					$.cb(func, user);
+				});
+				$.userRequests[uid] = undefined;
+			}
+		}
+	});
+	resp.userMap = userMap;
+	// parse dates
+	// (TODO)
+}
+
+////////////////////
+
+Myself.prototype.logOut = function(soft) {
+	if (this.auth) {
+		this.auth = 'undefined'
+		if (!soft) {
+			localStorage.removeItem(this.lsKey);
+		}
+		this.emit('logout');
+	}
+}
+
+// handle auth token once recieved
+// also calculates your own UID (thank you random â¥)
+Myself.prototype.setAuth = function(auth) {
+	this.auth = auth;
+	var x = JSON.parse(atob(auth.split(".")[1]));
+	this.uid = +x.uid;
+	this.emit('login');
+}
+
+// run callback function
+// this.cb(func, args...) is the same as
+// if (func) func.call(this, args...)
+Myself.prototype.cb = function(func) {
+	if (func)
+		func.apply(this, Array.prototype.slice.call(arguments, 1));
+}
+
+// request auth token from username+password
+Myself.prototype.logIn = function(username, password, callback) {
+	var $=this;
+	$.request("User/authenticate", 'POST', function(e, resp) {
+		if (!e) {
+			$.setAuth(resp);
+			localStorage.setItem($.lsKey, resp);
+		}
+		$.cb(callback, e, resp);
+	}, {username: username, password: password});
+}
+
+// try to log in with cached auth token
+// if cached token is found,
+//  the function returns true and tests the token by requesting api/User/me
+//  and `callback` will be called once this test is finished
+// if there's no cached token, it returns false and DOES NOT CALL `callback`
+Myself.prototype.loadCachedAuth = function(callback) {
+	var $=this;
+	var cached = localStorage.getItem($.lsKey);
+	if (cached) {
+		$.setAuth(cached);
+		$.readSimple("User/me", 'user', callback); //this is used to test the auth
+		return true;
+	}
+	return false;
+}
+
+Myself.prototype.getPage = function(id, callback) {
+	var $=this;
+	id = +id;
+	$.read([
+		{content: {ids: [id]}},
+		{comment: {parentIds: [id], limit: 50}},
+		"user.0createUserId.0editUserId.1createUserId.1editUserId",
+	], {
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (!e) {
+			var page = resp.content[0];
+			if (page)
+				$.cb(callback, page, resp.userMap, resp.comment);
+			else
+				$.cb(callback, null, {}, []);
+		}
+	});
+}
+
+Myself.prototype.getDiscussion = function(id, callback) {
+	var $=this;
+	id = +id;
+	$.read([
+		{content: {ids: [id]}},
+		{comment: {parentIds: [id], limit: 30, reverse: true}},
+		"user.0createUserId.0editUserId.1createUserId.1editUserId",
+	], {
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (!e) {
+			var page = resp.content[0];
+			if (page)
+				$.cb(callback, page, resp.comment.reverse(), resp.userMap);
+			else
+				$.cb(callback, null, [], {});
+		}
+	});
+}
+
+// This runs a callback when a user object is available
+// it doesn't do any requests itself, so you need to do that separately before or after
+Myself.prototype.whenUser = function(id, callback) {
+	if (this.userCache[id]) {
+		this.cb(callback, this.userCache[id]);
+	} else if (this.userRequests[id]) {
+		this.userRequests[id].push(callback);
+	} else {
+		this.userRequests[id] = [callback];
+	}
+}
+
+Myself.prototype.getCategories = function(callback) {
+	var $=this;
+	$.read([
+		'category'
+	], {
+		category: "id,name,description,parentId"
+	}, function(e, resp) {
+		if (!e) {
+			var tree = buildCategoryTree(resp.category);
+			$.cb(callback, tree);
+		}
+	});
+}
+
+var rootCategory = {
+	name: "[root]",
+	id: 0,
+}
+
+// get the pages in a category
+Myself.prototype.getCategory = function(id, count, start, sort, reverse, callback) {
+	id=+id;
+	var $=this;
+	var search = {
+		parentIds: [id],
+		limit: +count,
+	}
+	if (start)
+		search.skip = +start;
+	if (sort)
+		search.sort = sort;
+	if (reverse)
+		search.reverse = reverse;
+	if (id)
+		var childCategorysFilter = {parentIds: [id]};
+	else
+		childCategorysFilter = {};
+	$.read([
+		{content: search},
+		{category: {ids: [id]}},
+		{category: childCategorysFilter},
+		"user.0createUserId"
+	], {
+		content: "id,name,parentId,createUserId,editDate",
+		category: "id,name,description,parentId",
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (!e) {
+			var category;
+			var childs = [];
+			resp.category.forEach(function(cat) {
+				if (cat.parentId == id)
+					childs.push(cat);
+				if (cat.id == id)
+					category = cat;
+			});
+			if (id==0) {
+				$.cb(callback, rootCategory, childs, resp.content, resp.userMap);
+			} else if (category)
+				$.cb(callback, category, childs, resp.content, resp.userMap);
+			else
+				$.cb(callback, null, childs, resp.content, resp.userMap);
+		}
+	});
+}
+
+Myself.prototype.getPageForEditing = function(id, callback) {
+	var $=this;
+	id = +id;
+	$.read([
+		{content: {ids: [id]}},
+		"user.0createUserId.0editUserId",
+	], {
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (!e) {
+			var page = resp.content[0];
+			if (page)
+				$.cb(callback, page, resp.userMap);
+			else
+				$.cb(callback, null, {});
+		}
+	});
+}
+
+Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback, cancel) {
+	var $=this;
+	$.listen([
+		{comment: {
+			parentIds: ids,
+			lastId: lastId,
+			chain: ["user.0createUserId"]
+		}},
+		{listener: {
+			parentIdsLast: listeners,
+			chain: ["user.0listeners"]
+		}}
+	], {
+		user: "id,username,avatar"
+	}, function(e, resp) {
+		if (e)
+			$.cb(callback, e, resp);
+		else
+			$.cb(callback, e, resp.comments, resp.listeners, resp.chain.userMap);
+	}, cancel);
+}
+
+Myself.prototype.postPage = function(page, callback) {
+	if (page.id) {
+		this.request("Content/"+page.id, 'PUT', callback, page);
+	} else {
+		this.request("Content", 'POST', callback, page);
+	}
+}
+
+Myself.prototype.postComment = function(id, message, markup, callback) {
+	this.request("Comment", 'POST', callback, {
+		parentId: id,
+		content: JSON.stringify({t: message, m: markup})
+	});
+}
+
+Myself.prototype.getUserPage = function(id, callback) {
+	var $=this;
+	id = +id;
+	$.read([
+		{user: {ids: [id]}},
+		{content: {parentIds: [id], type: '@user.page', limit: 1}},
+		"comment.1id$parentIds",
+		"user.1createUserId.1editUserId.2createUserId.2editUserId",
+	], {
+	}, function(e, resp) {
+		if (!e) {
+			var user = resp.userMap[id];
+			if (user) {
+				$.cb(callback, user, resp.content[0], resp.comment, resp.userMap);
+			} else
+				$.cb(callback, null, {});
+		}
+	});
+}
+
+function buildCategoryTree(categories) {
+	console.info("making category tree!");
+	var root = {childs: [], id: 0, name: "[root]"};
+	var orphans = [];
+	var map = {
+		'0': root
+	};
+	root.map = map;
+	categories.forEach(function(cat) {
+		cat.childs = [];
+		map[cat.id] = cat;
+	});
+	categories.forEach(function(cat) {
+		//cat = Object.assign({}, cat); //copy
+		if (cat.parentId < 0)
+			cat.parentId = 0;
+		var parent = map[cat.parentId];
+		if (parent) {
+			cat.parent = parent;
+			parent.childs.push(cat);
+		} else {
+			orphans.push(cat);
+		}
+	});
+	return root;
+}
+function DiscussionLongPoller(myself, callback) {
+	this.myself = myself;
+	
+	this.firstId = 0; // minimum id for all rooms
+	this.lastId = 0; // max comment id for all rooms
+
+	this.idList = []; // list of discussion ids
+	
+	this.firstIds = {}; //first id per room
+	this.lastIds = {}; //last id per room
+	this.listeners = {}; //userlist per room
+	
+	this.cancel = [function(){}];
+	this.callback = callback;
+}
+
+// ok so what this needs to do is
+// 1: get info for the new room (room page contents, listeners, comments)
+// 2: cancel the current longpoll
+// 3: start a new longpoll with the updated info
+DiscussionLongPoller.prototype.addRoom = function(id) {
+	if (this.lastIds[id])
+		return;
+	var $=this;
+	// todo: this doesn't get the listners
+	// what we can do is maybe,
+	// make 2 requests (one for listeners, the other for page contents)
+	// and then when they BOTH finish, reload the long poller
+	$.myself.getDiscussion(id, function(page, comments, userMap) {
+		if (page) {
+			$.callback.call($, comments, null, userMap, page);
+			$.cancel[0]();
+			$.listeners[id] = [0];
+			if (comments.length) {
+				$.firstIds[id] = comments[0].id;
+				$.lastIds[id] = comments[comments.length-1].id;
+			}
+			$.updateIdRange();
+			$.idList.push(id);
+			$.running = true;
+			$.loop();
+		} else {
+			$.callback.call($, null, null, null, false);
+		}
+	})
+}
+
+DiscussionLongPoller.prototype.updateIdRange = function() {
+	this.firstId = Infinity;
+	this.lastId = -Infinity;
+	for (id in this.lastIds) {
+		if (this.firstIds[id] < this.firstId)
+			this.firstId = this.firstIds[id];
+		if (this.lastIds[id] > this.lastId)
+			this.lastId = this.lastIds[id];
+	}
+}
+
+DiscussionLongPoller.prototype.reset = function() {
+	this.stop();
+	this.firstId = 0;
+	this.lastId = 0;
+
+	this.idList = [];
+	
+	this.firstIds = {};
+	this.lastIds = {};
+	this.listeners = {};
+	
+	this.cancel = [function(){}];
+}
+
+DiscussionLongPoller.prototype.removeRoom = function(id) {
+	if (this.lastIds[id]) {
+		// stop long poller
+		this.cancel[0]();
+		// remove info for current room
+		delete this.listeners[id];
+		delete this.firstIds[id];
+		delete this.lastIds[id];
+		var i = this.idList.indexOf(id);
+		if (i >= 0)
+			this.idList.splice(i, 1);
+		// update first and last ids
+		this.updateIdRange();
+		// start long poller again
+		this.loop();
+	}
+}
+
+DiscussionLongPoller.prototype.stop = function() {
+	this.running = false;
+	this.cancel[0]();
+}
+
+DiscussionLongPoller.prototype.loop = function() {
+	var $=this;
+	$.myself.listenChat($.idList, $.firstId, $.lastId, $.listeners, function(e, comments, listeners, userMap){
+		if (!e) {
+			comments = comments || [];
+			comments.forEach(function(comment) {
+				if (comment.id > $.lastIds[comment.parentId]) {
+					$.lastIds[comment.parentId] = comment.id;
+				}
+			});
+			$.updateIdRange();
+			$.listeners = listeners || {};
+			$.callback.call($, comments, listeners, userMap, null);
+		}
+		if (!e || e=='timeout') {
+			$.running = true;
+			var t = setTimeout(function() {
+				$.loop();
+			}, 0);
+			$.cancel = [function() {
+				clearTimeout(t);
+			}]
+		} else {
+			$.running = false;
+			alert("LONG POLLER FAILED");
+			console.error("LONG POLLER FAILED");
+		}
+	}, $.cancel);
+}
+var highlight_smilebasic = (function(){
+	//keywords that don't have an expression after them
+	var keywords=[
+		"BREAK","COMMON","CONTINUE","ELSE","END","ENDIF","REM","REPEAT","THEN","WEND",
+	];
+	var keywords_sb3=[
+		"STOP"	
+	];
+	var keywords_sb4=[
+		"OTHERWISE","ENDCASE","LOOP","ENDLOOP"
+	];
+	//keywords w/ expression after them (or other special thing)
+	var argKeywords=[
+		"CALL","DATA","DEC","DIM","ELSEIF","EXEC","FOR","GOSUB","GOTO","IF","INC","INPUT","LINPUT","NEXT","ON","OUT","PRINT","READ","RESTORE","RETURN","SWAP","UNTIL","USE","VAR","WHILE",
+	];
+	var argKeywords_sb4=[
+		"CASE","WHEN","DEFOUT","TPRINT","CONST","ENUM",
+	];
+	var builtinFunctions=[
+		"ABS","ACCEL","ACLS","ACOS","ARYOP","ASC","ASIN","ATAN","ATTR","BACKCOLOR","BEEP","BGMCHK","BGMCLEAR","BGMCONT","BGMPAUSE","BGMPLAY","BGMSET","BGMSETD","BGMSTOP","BGMVAR","BGMVOL","BIN$","BIQUAD","BQPARAM","BREPEAT","BUTTON","CEIL","CHKCALL","CHKCHR","CHKFILE","CHKLABEL","CHKMML","CHKVAR","CHR$","CLASSIFY","CLIPBOARD","CLS","COLOR","CONTROLLER","COPY","COS","COSH","DEG","DELETE","DIALOG","DTREAD","EFCSET","EFCWET","EXP","FADE","FADECHK","FFT","FFTWFN","FILES","FILL","FLOOR","FORMAT$","GBOX","GCIRCLE","GCLIP","GCLS","GCOLOR","GCOPY","GFILL","GLINE","GLOAD","GPAINT","GPSET","GPUTCHR","GSAVE","GTRI","GYROA","GYROSYNC","GYROV","HEX$","IFFT","INKEY$","INSTR","KEY","LEFT$","LEN","LOAD","LOCATE","LOG","MAX","MID$","MIN","OPTION","PCMCONT","PCMSTOP","PCMSTREAM","PCMVOL","POP","POW","PRGDEL","PRGEDIT","PRGGET$","PRGINS","PRGNAME$","PRGSET","PRGSIZE","PROJECT","PUSH","RAD","RANDOMIZE","RENAME","RGB","RIGHT$","RINGCOPY","RND","RNDF","ROUND","RSORT","SAVE","SCROLL","SGN","SHIFT","SIN","SINH","SNDSTOP","SORT","SPANIM","SPCHK","SPCHR","SPCLR","SPCOL","SPCOLOR","SPCOLVEC","SPDEF","SPFUNC","SPHIDE","SPHITINFO","SPHITRC","SPHITSP","SPHOME","SPLINK","SPOFS","SPPAGE","SPROT","SPSCALE","SPSET","SPSHOW","SPSTART","SPSTOP","SPUNLINK","SPUSED","SPVAR","SQR","STICK","STR$","SUBST$","TALK","TALKCHK","TALKSTOP","TAN","TANH","TMREAD","TOUCH","UNSHIFT","VAL","VSYNC","WAIT","WAVSET","WAVSETA","XSCREEN",
+		//BIG+SB4
+		"VIBRATE",
+	];
+	var builtinFunctions_sb3=[
+		"BACKTRACE","BGANIM","BGCHK","BGCLIP","BGCLR","BGCOLOR","BGCOORD","BGCOPY","BGFILL","BGFUNC","BGGET","BGHIDE","BGHOME","BGLOAD","BGOFS","BGPAGE","BGPUT","BGROT","BGSAVE","BGSCALE","BGSCREEN","BGSHOW","BGSTART","BGSTOP","BGVAR","BGMPRG","BGMPRGA","DISPLAY","DLCOPEN","EFCOFF","EFCON","FONTDEF","GOFS","GPAGE","GPRIO","GSPOIT","MICDATA","MICSAVE","MICSTART","MICSTOP","MPEND","MPGET","MPNAME$","MPRECV","MPSEND","MPSET","MPSTART","MPSTAT","STICKEX","RGBREAD","SPCLIP","VISIBLE","WIDTH","XOFF","XON",
+		//BIG
+		"GPUTCHR16",
+	];
+	var builtinFunctions_sb4=[
+		"PCMPOS","TYPEOF","ARRAY#","ARRAY%","ARRAY$","RESIZE","INSERT","REMOVE","INSPECT","DEFARGC","DEFARG","DEFOUTC","INT","FLOAT","LAST","FONTINFO","PERFBEGIN","PERFEND","SYSPARAM","METAEDIT","METALOAD","METASAVE","XCTRLSTYLE","MOUSE","MBUTTON","IRSTART","IRSTOP","IRSTATE","IRREAD","IRSPRITE","KEYBOARD","TCPIANO","TCHOUSE","TCROBOT","TCFISHING","TCBIKE","TCVISOR","LOADG","LOADV","SAVEG","SAVEV","ANIMDEF","TSCREEN","TPAGE","TCOLOR","TLAYER","TPUT","TFILL","THOME","TOFS","TROT","TSCALE","TSHOW","THIDE","TBLEND","TANIM","TSTOP","TSTART","TCHK","TVAR","TCOPY","TSAVE","TLOAD","TARRAY","TUPDATE","TFUNC","GTARGET","RGBF","HSV","GPGET","GARRAY","GUPDATE","GSAMPLE","SPLAYER","STOP","LAYER","LMATRIX","LFILTER","LCLIP","BEEPPIT","BEEPPAN","BEEPVOL","BEEPSTOP","BGMPITCH","BGMWET","EFCEN","SNDMSBAL","SNDMVOL","PRGSEEK","XSUBSCREEN","ENVSTAT","ENVTYPE","ENVLOAD","ENVSAVE","ENVINPUT$","ENVFOCUS","ENVPROJECT","ENVLOCATE","PUSHKEY","HELPGET","HELPINFO","UISTATE","UIMASK","UIPUSHCMPL","DATE$","TIME$","RESULT","CALLIDX","FREEMEM","MILLISEC","MAINCNT",
+	];
+	//SB3 only
+	var systemVariables=["CALLIDX","CSRX","CSRY","CSRZ","DATE$","ERRLINE","ERRNUM","ERRPRG","EXTFEATURE","FREEMEM","HARDWARE","MAINCNT","MICPOS","MICSIZE","MILLISEC","MPCOUNT","MPHOST","MPLOCAL","PCMPOS","PRGSLOT","RESULT","SYSBEEP","TABSTEP","VERSION"];
+	
+	function isAlpha(c){
+		return c>='A'&&c<='Z'||c>='a'&&c<='z';
+	}
+	
+	function isDigit(c){
+		return c>='0'&&c<='9';
+	}
+	
+	//token types:
+	//"linebreak"  - line break
+	//"function"   - function call
+	//"operator"   - operators, including word operators
+	//"name"       - function name (after DEF keyword)
+	//"equals"     - = assignment operator
+	//"expr"       - ; or , or ( or [
+	//"noexpr"     - : or ) or ]
+	//"whitespace" - space or tab
+	//"variable"   - variable
+	//"number"     - number literal (including TRUE/FALSE)
+	//"def"        - DEF keyword
+	//"string"     - strings (including label strings)
+	//"word"       - unknown word (resolved to "function", "operator", "name", "variable", "def", "argkeyword", or "keyword")
+	//"label"      - unknown label/labelstring (resolved to "label" or "string"), or label (not label string)
+	//"argkeyword" - keyword with expression after it
+	//"keyword"    - keyword that doesn't have an expression after it
+	
+	function isInExpr(type){
+		return type=="argkeyword"||type=="function"||type=="operator"||type=="name"||type=="equals"||type=="expr";
+	}
+	
+	return function(code, callback, sb4){
+		var i=-1,c;
+		function next(){
+			i++;
+			c=code.charAt(i);
+		}
+
+		function jump(pos){
+			i=pos-1;
+			next();
+		}
+		
+		var prev=0;
+		var prevType="start";
+		
+		//=================//
+		// Process a token //
+		//=================//
+		function push(type, cssType){
+			var word=code.substring(prev,i);
+			prev=i;
+			//Check words
+			if(type=="word"){
+				var upper=word.toUpperCase();
+				//True/False
+				if(sb4!=true && (upper=="TRUE"||upper=="FALSE")){
+					type="number";
+					cssType="true-false number";
+				//operators
+				}else if(upper=="DIV"||upper=="MOD"||upper=="AND"||upper=="OR"||upper=="XOR"||upper=="NOT"){
+					type="operator";
+					cssType="word-operator operator";
+				//DEF
+				}else if(upper=="DEF"){
+					type="def";
+					cssType="def keyword";
+				//T? TPRINT
+				}else if(sb4!=false && (upper=="T" && c=='?')){
+					word+=c;
+					next();
+					prev=i;
+					type="keyword";
+					cssType="keyword";
+				//keywords without an expression after them
+				}else if(keywords.indexOf(upper)>=0 || sb4==false && keywords_sb3.indexOf(upper)>=0 || sb4!=false && keywords_sb4.indexOf(upper)>=0){
+					type="keyword";
+					cssType="keyword";
+				//keywords w/ and expression after
+				}else if(argKeywords.indexOf(upper)>=0 || sb4!=false && argKeywords_sb4.indexOf(upper)>=0){
+					type="argkeyword";
+					cssType="keyword";
+				//User-defined function name
+				}else if(prevType=="def"){
+					type="name";
+					cssType="name";
+				//Variable, function, TO/STEP, etc.
+				}else{
+					var fPos=i;
+					while(c==' ' || c=='\t')
+						next();
+					var isFunc=false;
+					if(isInExpr(prevType)){
+						if(c=="(")
+							isFunc=true;
+					}else{
+						isFunc=true;
+						if(c=="["){
+							isFunc=false;
+						}else if(c=="="){
+							next();
+							if(c!="=")
+								isFunc=false;
+						}
+					}
+					if(isFunc){
+						type="function";
+						if(builtinFunctions.indexOf(upper)!=-1 || sb4!=true && builtinFunctions_sb3.indexOf(upper)!=-1 || sb4!=false && builtinFunctions_sb4.indexOf(upper)!=-1)
+							cssType="statement function";
+						else if(upper=="TO" || upper=="STEP")
+							cssType="to-step keyword";
+						else
+							cssType="statement";
+					}else{
+						type="variable"
+						if(sb4!=true && systemVariables.indexOf(upper)!=-1)
+							cssType="variable function";
+						else
+							cssType="variable";
+					}
+					jump(fPos);
+				}
+			//Check labels
+			}else if(type=="label"){
+				if(isInExpr(prevType)){
+					type="string";
+					cssType="label-string string";
+				}else{
+					cssType="label";
+				}
+			//Use type as csstype if not specified
+			}else{
+				if(cssType==undefined)
+					cssType=type;
+			}
+			//pass to callback function
+			callback(word,cssType);
+			//store previous non-whitespace token type
+			if(type!="whitespace")
+				prevType=type;
+		}
+		
+		next();
+		
+		//loop until the end of the string
+		while(c){
+			//
+			//keywords, functions, variables
+			//
+			if(isAlpha(c)||c=='_'){
+				next();
+				//read name
+				while(isAlpha(c)||isDigit(c)||c=='_')
+					next();
+				//read type suffix
+				if(c=='#'||c=='%'||c=='$')
+					next();
+				//push word type
+				push("word");
+			//
+			//numbers
+			//
+			}else if(isDigit(c)||c=='.'){
+				//if digit was found, read all of them
+				while(isDigit(c))
+					next();
+				//if there's a decimal point
+				if(c=='.'){
+					next();
+					//read digits after
+					if(isDigit(c)){
+						next();
+						while(isDigit(c))
+							next();
+					}else{
+						//if GOTO is available: GOTO @skip_e
+						if(c=='#')
+							next();
+						push("number");
+						continue;
+					}
+				}
+				//E notation
+				if(c=='E'||c=='e'){
+					var ePos=i;
+					next();
+					//check for + or -
+					if(c=='+'||c=='-')
+						next();
+					//read digits
+					if(isDigit(c)){
+						next();
+						while(isDigit(c))
+							next();
+					//no digits (invalid)
+					}else{
+						jump(ePos);
+						push();
+						continue;
+					}
+				}
+				//(if GOTO is available: @skip_e)
+				//read float suffix
+				if(c=='#')
+					next();
+				push("number");
+			//
+			//strings
+			//
+			}else switch(c){
+			case '"':
+				next();
+				//read characters until another quote, line ending, or end of input
+				while(c && c!='"' && c!='\n' && c!='\r')
+					next();
+				//read closing quote
+				if(c=='"')
+					next();
+				push("string");
+			//
+			//comments
+			//
+			break;case '\'':
+				next();
+				//read characters until line ending or end of input
+				while(c && c!='\n' && c!='\r')
+					next();
+				push("comment");
+			//
+			//logical AND, hexadecimal, binary
+			//
+			break;case '&':
+				next();
+				switch(c){
+				//logical and
+				case '&':
+					next();
+					push("operator");
+				//hexadecimal
+				break;case 'H':case 'h':
+					var hPos=i;
+					next();
+					//read hexadecimal digits
+					if(isDigit(c)||c>='A'&&c<='F'||c>='a'&&c<='f'|| (c=='_'&&sb4!=false)){
+						next();
+						while(isDigit(c)||c>='A'&&c<='F'||c>='a'&&c<='f'|| (c=='_'&&sb4!=false))
+							next();
+						push("number");
+					}else{
+						jump(hPos);
+						push();
+					}
+				//binary
+				break;case 'B':case 'b':
+					var bPos=i;
+					next();
+					//read hexadecimal digits
+					if(c=='0'||c=='1'|| (c=='_'&&sb4!=false)){
+						next();
+						while(c=='0'||c=='1'|| (c=='_'&&sb4!=false))
+							next();
+						push("number");
+					}else{
+						jump(bPos);
+						push();
+					}
+				//invalid &
+				break;default:
+					push();
+				}
+			//
+			//labels
+			//
+			break;case '@':
+				next();
+				//read name
+				while(isDigit(c)||isAlpha(c)||c=='_')
+					next();
+				//ok
+				push("label");
+			//
+			//constants
+			//
+			break;case '#':
+				next();
+				//read name
+				if(isDigit(c)||isAlpha(c)||c=='_'){
+					next();
+					while(isDigit(c)||isAlpha(c)||c=='_')
+						next();
+					//read type suffix
+					if(c=='#'||c=='%'||c=='$')
+						next();
+					push("number","constant number");
+				}else{
+					//read type suffix
+					if(c=='#'||c=='%'||c=='$'){
+						next();
+						push("number","constant number");
+					}else{
+						push();
+					}
+				}
+			//
+			//logical or
+			//
+			break;case '|':
+				next();
+				//logical or
+				if(c=='|'){
+					next();
+					push("operator");
+				//invalid
+				}else{
+					push();
+				}
+			//
+			//less than, less than or equal, left shift
+			//
+			break;case '<':
+				next();
+				if(c=='='||c=='<') //<= <<
+					next();
+				push("operator");
+			//
+			//greater than, greater than or equal, right shift
+			//
+			break;case '>':
+				next();
+				if(c=='='||c=='>') //>= >>
+					next();
+				push("operator");
+			//
+			//equal, equal more
+			//
+			break;case '=':
+				next();
+				//==
+				if(c=='='){
+					next();
+					push("operator");
+				}else{
+					push("equals");
+				}
+			//
+			//logical not, not equal
+			//
+			break;case '!':
+				next();
+				if(c=='=') // !=
+					next();
+				push("operator");
+			//
+			//add, subtract, multiply, divide
+			//
+			break;case '+':case '-':case '*':case '/':
+				next();
+				push("operator");
+			//
+			// Line continuation (SB4)
+			//
+			break;case '\\':
+				next();
+				if (sb4==false) {
+					push(undefined,false);
+				} else {
+					while (c && c!='\n' && c!='\r')
+						next();
+					next();
+					push("whitespace")
+				}
+			
+			//
+			//other
+			//
+			
+			break;case ';':case ',':case '[':case '(':
+				next();
+				push("expr",false);
+			break;case '\n':
+				next();
+				push("linebreak",false);
+			break;case ":":case ")":case "]":
+				next();
+				push("noexpr",false);
+			break;case " ":case "\t":
+				next();
+				push("whitespace",false);
+			break;case '?':
+				next();
+				push("argkeyword","question keyword");
+			break;default:
+				next();
+				push(undefined,false);
+			}
+		}
+		push("eof");
+	}
+})();
+
+function highlightSB(text, lang) {
+	function escapeHTML(text) {
+		return text.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+	}
+	
+	if (lang)
+		lang = lang.toLowerCase();
+	
+	var html="";
+	
+	if (!lang || lang == "sb3" || lang == "sb4" || lang == "sb") {
+		if (lang == "sb4")
+			lang = true;
+		else if (lang == "sb3")
+			lang = false;
+		else
+			lang = undefined;
+		
+		var prevType=false;
+		//this is called for each highlightable token
+		function callback(word, type) {
+			if (word) {
+				//only make a new span if the CSS class has changed
+				if (type!=prevType) {
+					//close previous span
+					if (prevType)
+						html += "</span>";
+					//open new span
+					if (type)
+						html += "<span class=\""+type+"\">";
+				}
+				html += escapeHTML(word);
+				prevType = type;
+			}
+		}
+		
+		highlight_smilebasic(text, callback, lang);
+		//close last span
+		if (prevType)
+			html += "</span>";
+	} else {
+		html = escapeHTML(text);
+	}
+	
+	return html;
+}
+function parse(code, options) {
+	options = options || parse.defoptions;
+	if (!options)
+		return;
+	
+	var output = options.root();
+	var curr = output;
+	var lastLineBreak = null;
+	var displayBlock = {
+		code: true,
+		audio: true,
+		video: true,
+		heading: true,
+		quote: true,
+		list: true,
+		item: true,
+		table: true,
+		image: true
+	};
+	var skipNextLineBreak;
+	
+	try {
+		// this is a list of all nodes that we are currently inside
+		// as well as {}-block pseudo-nodes
+		var stack = [{node:curr, type:'root'}];
+		stack.top = function() {
+			return stack[stack.length-1];
+		};
+		var textBuffer = "";
+		var inside = {};
+		var startOfLine = true;
+		var leadingSpaces = 0;
+		var lastWasBlock;
+		// todo:
+		// so, the way to prevent extra linebreaks (without just ignoring them all) is
+		// to ignore linebreaks around blocks. (before and after, as well as inside, ignore 1 leading/trailing linebreak)
+		// idea:
+		
+		var i = -1;
+		var c;
+		scan();
+		
+		while (c) {
+			if (eatChar("\n")) {
+				endLine();
+				//==========
+				// \ escape
+			} else if (eatChar("\\")) {
+				if (c == "\n")
+					addLineBreak();
+				else
+					addText(c);
+				scan();
+				//===============
+				// { group start (why did I call these "groups"?)
+			} else if (eatChar("{")) {
+				startBlock(null, {});
+				lineStart();
+			//=============
+			// } group end
+			} else if (eatChar("}")) {
+				if (stackContains(null)) {
+					closeAll(false);
+				} else {
+					addText("}");
+				}
+			//================
+			// * heading/bold
+			} else if (c == "*") {
+				if (startOfLine && (code[i+1] == "*" || code[i+1] == " ")) {
+					var headingLevel = 0;
+					while (eatChar("*"))
+						headingLevel++;
+					if (headingLevel > 3)
+						headingLevel = 3;
+					
+					if (eatChar(" "))
+						startBlock('heading', {}, headingLevel);
+					else
+						addText('*'.repeat(headingLevel));
+				} else {
+					doMarkup('bold', options.bold);
+				}
+			} else if (c == "/") {
+				doMarkup('italic', options.italic);
+			} else if (c == "_") {
+				doMarkup('underline', options.underline);
+			} else if (c == "~") {
+				doMarkup('strikethrough', options.strikethrough);
+			//============
+			// >... quote
+			} else if (startOfLine && eatChar(">")) {
+				// todo: maybe >text should be a quote without author... 
+				// need to add a way to add information to quotes:
+				// - user ID
+				// - post ID
+				start = i;
+				while (eatChar(" "))
+					;
+				while (c && !char_in(c, " \n{:"))
+					scan();
+				var name = code.substring(start, i).trim();
+				eatChar(":");
+				while (eatChar(" "))
+					;
+				startBlock('quote', {}, name);
+				//==============
+				// -... list/hr
+			} else if (startOfLine && eatChar("-")) {
+				//----------
+				// --... hr
+				if (eatChar("-")) {
+					var count = 2;
+					while (eatChar("-"))
+						count++;
+					//-------------
+					// ---<EOL> hr
+					if (c == "\n" || !c) { //this is kind of bad
+						addBlock(options.line());
+					//----------
+					// ---... normal text
+					} else {
+						addText("-".repeat(count));
+					}
+				//------------
+				// - ... list
+				} else if (eatChar(" ")) {
+					startBlock('list', {level:leadingSpaces});
+					startBlock('item', {level:leadingSpaces});
+				//---------------
+				// - normal char
+				} else
+					addText("-");
+			//==========================
+			// ] end link if inside one
+			} else if (c == "]" && stack.top().inBrackets){ //this might break if it assumes .top() exists. needs more testing
+				scan();
+				if (stack.top().big) {
+					if (eatChar("]"))
+						endBlock();
+					else
+						addText("]");
+				} else
+					endBlock();
+			//================
+			// https?:// link
+			} else if (c == "h" || c == "!") { //lol this is silly
+				var embed = eatChar("!");
+				if (embed && eatChar("[")) {
+					readBracketedLink(embed) || addText("[");
+					// handled
+				} else {
+					var start = i;
+					if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
+						var url = readUrl();
+						startBlock(embed ? urlType(url) : 'link', {}, url);
+						if (eatChar("["))
+							stack.top().inBrackets = true;
+						else {
+							addText(url);
+							endBlock();
+						}
+					} else {
+						if (embed)
+							addText("!");
+						else {
+							scan();
+							addText("h");
+						}
+					}
+				}
+			//============
+			// |... table
+			} else if (c == "|") {
+				var top = stack.top();
+				// continuation
+				if (top.type == 'cell') {
+					var row = top.row;
+					var table = top.row.table;
+					scan();
+					eatChar("\n");
+					//--------------
+					// | | next row
+					if (eatChar("|")) {
+						if (table.columns == null)
+							table.columns = row.cells;
+						endBlock();
+						if (top_is('row')) //always
+							endBlock();
+						var row = startBlock('row', {table:table, cells:0});
+						row.header = eatChar("*");
+						startBlock('cell', {row:row}, row.header);
+						while (eatChar(" "))
+							;
+						//--------------------------
+						// | next cell or table end
+					} else {
+						row.cells++;
+						textBuffer = textBuffer.replace(/ *$/,""); //strip trailing spaces (TODO: allow \<space>)
+						// end of table
+						// table ends when number of cells in current row = number of cells in first row
+						// single-row tables are not easily possible ..
+						// TODO: fix single row tables
+						if (table.columns != null && row.cells > table.columns) {
+							endBlock(); //end cell
+							if (top_is('row')) //always
+								endBlock();
+							if (top_is('table')) //always
+								endBlock();
+						} else { // next cell
+							endBlock();
+							startBlock('cell', {row:row}, row.header);
+							while (c == " ")
+								scan();
+						}
+					}
+					// start of new table (must be at beginning of line)
+				} else if (startOfLine) {
+					scan();
+					table = startBlock('table', {
+						columns: null
+					});
+					row = startBlock('row', {
+						table: table,
+						cells: 0
+					});
+					row.header = eatChar("*");
+					startBlock('cell', {
+						row: row
+					}, row.header);
+					while (eatChar(" "))
+						;
+				} else {
+					scan();
+					addText("|");
+				}
+				//===========
+				// `... code
+			} else if (eatChar("`")) {
+				//---------------
+				// ``...
+				if (eatChar("`")) {
+					//----------------
+					// ``` code block
+					if (eatChar("`")) {
+						// read lang name
+						start = i;
+						while (c && c!="\n" && c!="`")
+							scan();
+						var language = code.substring(start, i).trim().toLowerCase();
+						eatChar("\n");
+						start = i;
+						i = code.indexOf("```", i);
+						addBlock(options.code(
+							code.substring(start, i!=-1 ? i : code.length),
+							language
+						));
+						if (i != -1) {
+							i += 2;
+							scan();
+						} else {
+							i = code.length;
+							scan();
+						}
+					//------------
+					// `` invalid
+					} else {
+						addText("``");
+					}
+				// --------------
+				// ` inline code
+				} else {
+					start = i;
+					var codeText = ""
+					while (c) {
+						if (c=="`") {
+							if (code[i+1] == "`") {
+								if (i == start+1 && codeText[0] == " ")
+									codeText = codeText.substr(1);
+								scan();
+							} else
+								break;
+						}
+						codeText += c;
+						scan();
+					}
+					addBlock(options.icode(codeText));
+					scan();
+				}
+			//
+			//=============
+			// [[url link
+			} else if (eatChar("[")) {
+				readBracketedLink() || addText("[");
+			//
+			//=============
+			// normal char
+			} else {
+				addText(c);
+				scan();
+			}
+		}
+		flushText();
+		closeAll(true);
+		return output;
+	} catch (e) {
+		try {
+			flushText();
+			closeAll(true);
+			console.log(e);
+			addBlock(options.error());
+
+			addText(code.substr(i));
+			flushText();
+
+			return output;
+		} catch (e) {
+			alert("Fatal parse error at: "+i);
+		}
+	}
+	
+	// ######################
+	
+	function eatChar(chr) {
+		if (c == chr) {
+			scan();
+			return true;
+		}
+	}
+	
+	// block dangerous url protocols
+	function sanitizeUrl(url) {
+		// this might need to be improved
+		if (/^ *javascript:/i.test(url)) //most browsers don't allow leading spaces but I think IE does.
+			return "";
+		return url;
+	}
+
+	function readBracketedLink(embed) {
+		if (c != "[") {
+			return false;
+		} else {
+			scan();
+			// read url:
+			var start = i;
+			var part2 = false;
+			var url = readUrl(true);
+			if (eatChar("]")) {
+				if (eatChar("]"))
+					;
+				else if (eatChar("["))
+					part2 = true;
+			}
+			startBlock(embed ? urlType(url) : 'link', {big: true}, url);
+			if (part2)
+				stack.top().inBrackets = true;
+			else {
+				addText(url);
+				endBlock();
+			}
+			return true;
+		}
+	}
+
+	// read a url
+	// if `allow` is true, url is only ended by end of file or ]] or ][ (TODO)
+	function readUrl(allow) {
+		var start = i;
+		if (allow)
+			while (c && c!="]" && c!="[")
+				scan();
+		else
+			while (isUrlChar(c))
+				scan();
+		return sanitizeUrl(code.substring(start, i));
+	}
+	
+	// ew regex
+	function isUrlChar(c) {
+		return c && (/[-\w\$\.+!*'(),;/\?:@=&#%]/).test(c);
+	}
+	
+	// closeAll(true) - called at end of document
+	// closeAll(false) - called at end of {} block
+	function closeAll(force) {
+		while(stack.length) {
+			var top = stack.top();
+			if (top.type == 'root') {
+				break;
+			}
+			if (!force && top.type == null) {
+				endBlock();
+				break;
+			}
+			endBlock();
+		}
+	}
+	
+	function endLine() {
+		var eat = false;
+		while (1) {
+			var top = stack.top();
+			if (top.type == 'heading' || top.type == 'quote') {
+				endBlock();
+				eat = true;
+			} else if (top.type == 'item') {
+				eat = true;
+				if (top.type == 'item')
+					endBlock();
+				var indent = 0;
+				while (eatChar(" "))
+					indent++;
+				// OPTION 1:
+				// no next item; end list
+				if (c != "-") {
+					while (top_is('list')) {//should ALWAYS happen at least once
+						endBlock();
+					}
+					addText(" ".repeat(indent));
+				} else {
+					scan();
+					while (eatChar(" "))
+						;
+					// OPTION 2:
+					// next item has same indent level; add item to list
+					if (indent == top.level) {
+						startBlock('item', {level: indent});
+						// OPTION 3:
+						// next item has larger indent; start nested list	
+					} else if (indent > top.level) {
+						startBlock('list', {level: indent});
+						startBlock('item', {level: indent}); // then made the first item of the new list
+						// OPTION 4:
+						// next item has less indent; try to exist 1 or more layers of nested lists
+						// if this fails, fall back to just creating a new item in the current list
+					} else {
+						// TODO: currently this will just fail completely 
+						while(1) {
+							top = stack.top();
+							if (top && top.type == 'list') {
+								if (top.level <= indent) {
+									break;
+								} else {
+									endBlock();
+								}
+							} else {
+								// no suitable list was found :(
+								// so just create a new one
+								startBlock('list', {level: indent});
+								break;
+							}
+						}
+						startBlock('item', {level: indent});
+					}
+					break; //really?
+				}
+			} else {
+				if (!eat)
+					addLineBreak();
+				break;
+			}
+		}
+	}
+
+	// audio, video, image, youtube (todo)
+	function urlType(url) {
+		if (/(\.mp3(?!\w)|\.ogg(?!\w)|\.wav(?!\w)|#audio$)/.test(url))
+			return "audio";
+		if (/(\.mp4(?!\w)|#video$)/.test(url))
+			return "video";
+		return "image";
+	}
+	
+	// common code for all text styling tags (bold etc.)
+	function doMarkup(type, create) {
+		var symbol = c;
+		scan();
+		if (canStartMarkup(type)) {
+			startBlock(type, {});
+		} else if (canEndMarkup(type)) {
+			endBlock();
+		} else {
+			addText(symbol);
+		}
+	}
+	// todo: maybe have support for non-ASCII punctuation/whitespace?
+	function canStartMarkup(type) {
+		return (
+			(!code[i-2] || char_in(code[i-2], " \t\n({'\"")) && //prev char is one of these (or start of text)
+			!char_in(c, " \t\n,'\"") && //next char is not one of these
+			!stackContains(type)
+		);
+	}
+	function canEndMarkup(type) {
+		return (
+			top_is(type) && //there is an item to close
+			!char_in(code[i-2], " \t\n,'\"") && //prev char is not one of these
+			(!c || char_in(c, " \t\n-.,:!?')}\"")) //next char is one of these (or end of text)
+		);
+	}
+	function char_in(chr, list) {
+		return chr && list.indexOf(chr) != -1;
+	}
+
+	function lineStart() {
+		startOfLine = true;
+		leadingSpaces = 0;
+	}
+	
+	function scan() {
+		if (c == "\n" || !c)
+			lineStart();
+		else if (c != " ")
+			startOfLine = false;
+		else if (startOfLine)
+			leadingSpaces++;
+		i++;
+		c = code.charAt(i);
+	}
+
+	// um like
+	// don't use 'null' as a type name probably
+	// In THis House
+	// We use ==         ,
+	function stackContains(type) {
+		for (var i=0; i<stack.length; i++) {
+			if (stack[i].type == type) {
+				return true;
+			}
+		}
+		return false;
+	}
+	function top_is(type) {
+		var top = stack.top();
+		return top && top.type == type;
+	}
+	
+	function startBlock(type, data, arg) {
+		if (displayBlock[type]) {
+			/*if (lastLineBreak) {
+				options.remove(lastLineBreak);
+			}*/
+			skipNextLineBreak = true;
+		}
+		data.type = type;
+		if (type) {
+			data.node = options[type](arg);
+			flushText();
+			options.append(curr, data.node);
+			curr = data.node;
+		}
+		stack.push(data);
+		return data;
+	}
+	// add simple block with no children
+	function addBlock(node) {
+		flushText();
+		options.append(curr, node);
+	}
+	function addText(text) {
+		if (text) {
+			textBuffer += text;
+			lastLineBreak = null;
+			if (skipNextLineBreak) {
+				skipNextLineBreak = false;
+			}
+		}
+	}
+	function flushText() {
+		if (textBuffer) {
+			options.append(curr, options.text(textBuffer));
+			textBuffer = ""
+		}
+	}
+	function addLineBreak() {
+		if (skipNextLineBreak) {
+			skipNextLineBreak = false;
+		} else {
+			flushText();
+			lastLineBreak = options.lineBreak();
+			addBlock(lastLineBreak);
+		}
+	}
+	function endBlock() {
+		flushText();
+		var node = stack.pop();
+		if (displayBlock[node.type]) {
+			skipNextLineBreak = true;
+		}
+		var i=stack.length-1;
+		// this skips {} fake nodes
+		// it will always find at least the root <div> element I hope
+		while (!stack[i].node){
+			i--;
+		}
+		curr = stack[i].node;
+	}
+}
+
+parse.defoptions = (function(){
+	if (!document)
+		return;
+	
+	var create = function(x) {
+		return document.createElement(x);
+	}
+	var createText = function(x) {
+		return document.createTextNode(x);
+	}
+	var creator = function (tag) {
+		return function() {
+			return create(tag);
+		}
+	};
+
+	return {
+		append: function (parent, child) {
+			parent.appendChild(child);
+		},
+		parent: function (child) { // unused currently
+			return child.parent;
+		},
+		remove: function(child) {
+			child.parentNode.removeChild(child);
+		},
+
+		//========================
+		// nodes without children:
+		text: function (text) {
+			return createText(text);
+		},
+		lineBreak: creator('br'),
+		line: creator('hr'),
+		// code block
+		code: function (code, language) {
+			var node = create('pre');
+			node.setAttribute('data-lang', language);
+			node.innerHTML = highlightSB(code, language);
+			return node;
+		},
+		// inline code
+		icode: function (code) {
+			var node = create('code');
+			node.textContent = code;
+			return node;
+		},
+		audio: function (url) {
+			var node = create('audio');
+			node.setAttribute('controls', "");
+			node.setAttribute('src', url);
+			return node;
+		},
+		video: function (url) {
+			var node = create('video');
+			node.setAttribute('controls', "");
+			node.setAttribute('src', url);
+			return node;
+		},
+
+		//=====================
+		// nodes with children
+		root: function () {
+			var node = create('div');
+			node.className = "markup-root";
+			return node;
+		},
+		bold: creator('b'),
+		italic: creator('i'),
+		underline: creator('u'),
+		strikethrough: creator('s'),
+		heading: function (level) { // input: 1, 2, or 3
+			return create('h' + (level+1));//['h1','h2','h3'][level-1] || 'h3');
+		},
+		quote: function (user) {
+			var node = create('blockquote');
+			node.setAttribute('cite', user);
+			return node;
+		},
+		list: creator('ul'),
+		item: creator('li'), // (list item)
+		link: function (url) {
+			var protocol = url.match(/^([-\w]+:)([^]*)$/);
+			if (protocol && protocol[1] == "sbs:") {
+				url = "#"+protocol[2];
+			}
+			var node = create('a');
+			node.setAttribute('href', url);
+			return node;
+		},
+		table: creator('table'),
+		row: creator('tr'),
+		cell: function (header) {
+			return header ?
+				create('th') :
+				create('td');
+		},
+		image: function (url) {
+			var node = create('img');
+			node.setAttribute('src', url);
+			node.setAttribute('tab-index', "-1");
+			return node;
+		},
+		error: function() {
+			var node = create('div');
+			node.className = "parse-error";
+			node.textContent = "Error";
+			return node;
+		}
+	};
+})();
+function renderCategoryPage(page, users) {
+	var user = users[page.createUserId];
+	var div = document.createElement('a');
+	div.href = "#pages/"+page.id;
+	div.className = "pre categoryPage";
+	var title = document.createElement('span');
+	title.className = "categoryPageTitle textItem";
+	title.textContent = "\uD83D\uDCC4 " + page.name;
+	div.appendChild(title);
+	var right = document.createElement('a');
+	right.href = "#user/"+user.id;
+	right.className = "rightAlign textItem pageCreate";
+	var name = document.createElement('span');
+	name.textContent = user.username;
+	name.className = "textItem pageAuthorName";
+	right.appendChild(name);
+	var img = document.createElement('img');
+	img.className = "item";
+	img.src = user.avatarURL;
+	right.appendChild(img);
+	div.appendChild(right);
+	return div;
+}
+
+function insertFirst(node, child) {
+	if (node.firstChild)
+		node.insertBefore(child, node.firstChild);
+	else
+		node.appendChild(child);
+}
+
+function renderPath(tree, node, element) {
+	while (node) {
+		var link = document.createElement('a');
+		link.href = "#categories/"+node.id;
+		link.textContent = node.name;
+		var slash = document.createElement('span');
+		slash.textContent = "/";
+		slash.className = "pathSeparator";
+		insertFirst(element, slash);
+		insertFirst(element, link);
+		node = node.parent;
+	}
+}
+
+function timeString(date) {
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	var twelve = hours % 12 || 12;
+	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+}
+
+function renderSystemMessage(text) {
+	var node = document.createElement('div');
+	node.className = 'message systemMessage';
+	node.textContent = text;
+	return node;
+}
+
+function renderUserListAvatar(user) {
+	var img = document.createElement('img');
+	img.src = user.avatarURL;
+	img.title = user.username;
+	img.className = "userListAvatar";
+	return img;
+}
+
+function renderUserBlock(user, uid, date) {
+	var div = document.createElement('div');
+	div.className = 'message';
+	
+	var img = document.createElement('img');
+	if (user)
+		img.src = user.avatarURL;
+	img.className = 'messageAvatar';
+	div.appendChild(img);
+	
+	var name = document.createElement('span');
+	name.className = 'messageUsername';
+	if (user)
+		name.textContent = user.username+":";
+	else
+		name.textContent = "["+uid+"]"+":";
+	div.appendChild(name);
+	
+	var time = document.createElement('span');
+	time.textContent = timeString(date);
+	time.className = 'messageTime'
+	div.appendChild(time);
+	
+	var contentBox = document.createElement('div');
+	contentBox.className = 'messageContents';
+	div.appendChild(contentBox);
+	return [div, contentBox];
+}
+
+function renderCategory(cat, users) {
+	var div = document.createElement('a');
+	div.href = "#categories/"+cat.id;
+	div.className = "pre categoryPage";
+	var title = document.createElement('span');
+	title.className = "categoryPageTitle item";
+	title.textContent = "\uD83D\uDCC1 "+cat.name;
+	div.appendChild(title);
+	return div;
+}
+
+function reasonableDateString(date) {
+	var seconds = Math.floor((new Date() - date) / 1000);
+	var interval = Math.floor(seconds / 31536000);
+	if (interval >= 1) return interval + " years ago";
+	interval = Math.floor(seconds / 2592000);
+	if (interval >= 1) return interval + " months ago";
+	interval = Math.floor(seconds / 86400);
+	if (interval >= 1) return interval + " days ago";
+	interval = Math.floor(seconds / 3600);
+	if (interval >= 1) return interval + " hours ago";
+	interval = Math.floor(seconds / 60);
+	if (interval >= 1) return interval + " minutes ago";
+	if (seconds < 0)
+		return " IN THE FUTURE?";
+	return Math.floor(seconds) + " seconds ago";
+	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
+}
+
+function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
+	visible(avatarE, !hideUser);
+	visible(nameE, !hideUser);
+	if (!hideUser) {
+		avatarE.src = user.avatarURL;
+		nameE.textContent = user.username;
+	}
+	link.href = "#user/"+user.id;
+	dateE.textContent = reasonableDateString(time);
+}
+
+function renderPageContents(page, element) {
+	if (page.values)
+		var markup = page.values.markupLang;
+	if (markup == "12y") {
+		element.innerHTML = "";
+		element.appendChild(parse(page.content));
+	} else {
+		element.textContent = page.content;
+	}
+}
+
+function renderMessagePart(comment, sizedOnload){
+	var c = comment.content;
+	var t, m;
+	try {
+		c = JSON.parse(c);
+		if (c.t)
+			t = c.t;
+		else
+			t = c;
+		m = c.m;
+	} catch (e) {
+		t = c;
+	}
+	if (m == '12y') {
+		element = parse(t);
+		var x = element.getElementsByTagName('img');
+		for (var i=0;i<x.length;i++) {
+			x[i].onload = sizedOnload;
+		}
+	} else {
+		element = document.createElement('div');
+		element.appendChild(document.createTextNode(t));
+	}
+	element.className += ' messagePart';
+	//document.title=comment.username+":"+t;
+	return element;
+}
+
+function hide(element) {
+	element.style.display = 'none';
+}
+
+function show(element) {
+	element.style.display = '';
+}
+
+function visible(element, state) {
+	element.style.display = state ? '' : 'none';
+}
+
+// Based on sbs chat autoscroller
+function AutoScroller(element) {
+	this.element = element;
+	this.smoothScroll = true;
+	this.nodes = {};
+	this.blocks = {};
+	var $=this;
+	function onresize() {
+		//todo: make this only happen when the element was previously scrolled to bottom
+		// may need to detect onscroll to keep track
+		// I'd like to avoid onscroll for o3ds though (especially since window can't even be resized so it doesn't matter) (also does o3DS EVEN HAVE onscroll lol)
+		$.autoScroll(true);
+	};
+	window.addEventListener('resize', onresize);
+}
+// do autoscroll
+AutoScroller.prototype.autoScroll = function(instant) {
+	var parent = this.element.parentNode;
+	if (!window.requestAnimationFrame || !this.smoothScroll || instant) {
+		parent.scrollTop = parent.scrollHeight - parent.clientHeight;
+	} else {
+		// only start a new animation if previous isn't already running
+		if (!this.animationId) {
+			this.autoScrollAnimation();
+		}
+	}
+}
+// check if element is scrolled to near the bottom (within 0.25*height)
+// this threshold can probably be decreased...
+AutoScroller.prototype.shouldScroll = function() {
+	return this.scrollDistance() < this.element.parentNode.clientHeight*0.25;
+}
+// check distance to bottom
+AutoScroller.prototype.scrollDistance = function() {
+	var parent = this.element.parentNode;
+	return parent.scrollHeight-parent.clientHeight-parent.scrollTop;
+}
+
+// scrolls down until reaching bottom
+// stops if interrupted by user scrolling
+AutoScroller.prototype.autoScrollAnimation = function() {
+	var $=this;
+	var parent = this.element.parentNode;
+
+	parent.scrollTop += Math.max(Math.ceil(this.scrollDistance()/4), 1);
+	
+	if (this.scrollDistance() > 0) {
+		// save scroll position
+		this.expectedTop = parent.scrollTop;
+		this.animationId = window.requestAnimationFrame(function(time) {
+			// only call again if scroll pos has not changed
+			// (if it has, that means the user probably scrolled manually)
+			if ($.expectedTop == $.element.parentNode.scrollTop) {
+				$.autoScrollAnimation();
+			} else {
+				$.animationId = null;
+			}
+		});
+	} else {
+		this.animationId = null;
+	}
+}
+AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
+	var s = this.shouldScroll();
+	// replace an existing message (we assume uid doesn't change)
+	if (this.nodes[id]) {
+		this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
+	// insert a new line to the last block
+	} else if (uid && this.lastUid == uid) {
+		this.lastUidBlock.appendChild(node);
+	// create a new block
+	} else {
+		var b = makeBlock();
+		b[1].appendChild(node);
+		this.element.appendChild(b[0]);
+		
+		this.lastUidBlock = b[1];
+		this.lastUid = uid;
+	}
+	this.nodes[id] = node;
+	if (s)
+		this.autoScroll();
+}
+AutoScroller.prototype.remove = function(id) {
+	var node = this.nodes[id]
+	// todo: remove block when all messages are gone from it
+	// don't forget to update lastUidBlock etc. too
+	if (node) {
+		node.parentNode.removeChild(node);
+	}
+	this.nodes[id] = undefined;
+}
+// currently just clears no matter what
+// in the future you might, if this is properly connected to a LongPoller,
+// cache messages when switching rooms, or something
+AutoScroller.prototype.switchRoom = function(id) {
+	this.element.innerHTML = "";
+	this.lastUid = undefined;
+	this.lastUidBlock = undefined;
+	this.nodes = {};
+	// probably needs more cleanup
+}
+
+AutoScroller.prototype.embed = function(node) {
+	var s = this.shouldScroll();
+	this.element.appendChild(node);
+	this.lastUid = null;
+	this.lastUidBlock = null;
+	if (s)
+		this.autoScroll();
+}
+var scriptLoaded = Date.now();
+
+// to load a page:
+// - request info for a page (page, comments, associated users)
+// -- start long poller for comments
+// --- keep getting user objects for new users that post comments*
+// - request listeners list
+// -- get user objects for users in listeners list*
+// -- start long poller for listeners list
+// --- keep getting user objects for new users in listeners list*
+
+//* (problem: these must (well, SHOULD) be cached and so avatars won't update dynamically)
+
+// the difference between pages and chat is that comments are rendered differently, etc.
+
+// for chat:
+// [ header bar ]
+// [ nav bar ]
+// [ user list ]
+// [ scroller
+//  [ page contents ]
+//  [ "load older messages" button]
+//  [ chat messages ]
+// ]
+// [ textarea ]
+
+// (maybe have some buttons for jumping to the top/bottom of the scroller, for mobile)
+
+// for pages:
+// [ header bar ]
+// [ nav bar ]
+// [ user list ]
+// [ scroller
+//  [ page contents ]
+//  [ textarea ]
+//  [ comments (reverse order) ]
+//  [ "load older comments" button]
+// ]
+
+// for the editor:
+// [ header bar ]
+// [ nav bar ]
+// [ page info fields (title etc.) ]
+// [ textarea ]
+// [ preview ]
+
+// for comments
+// I don't want to auto-load older messages because this is awkward
+// there should also be a way to jump to a certain date,
+// perhaps have a "historic" section of chat, where
+// old comments are loaded,
+// as in
+// ["load older comments"]
+// [historic comments]
+// ["load newer older comments"]
+// [modern comments (deleted after some limit is reached)]
+// ugh idk
+// 
+
+var me = new Myself(true);
+me.loadCachedAuth(function(){});
+var scroller;
+var lp = new DiscussionLongPoller(me, null);
+
+debugMessage = function(text) {
+	scroller.embed(renderSystemMessage(String(text)));
+}
+
+if (document.readyState == 'loading')
+	document.addEventListener('DOMContentLoaded', ready);
+else {
+	ready();
+}
+
+function ready() {
+	var loadTime = Date.now() - scriptLoaded;
+	if (me.auth)
+		onLogin(me);
+	else
+		onLogout();
+	
+	me.on('login', function(gotUser) {
+		onLogin(me);
+	});
+	me.on('logout', function() {
+		onLogout(me);
+	});
+	
+	$loggedOut.$login.onclick = function() {
+		event.preventDefault();
+		me.logOut();
+		me.logIn($loggedOut.$username.value, $loggedOut.$password.value, function(){});
+	}
+	$logout.onclick = function() {
+		event.preventDefault();
+		me.logOut();
+	}
+	
+	$editorTextarea.oninput = function() {
+		updateEditorPreview();
+	}
+	$markupSelect.onchange = function() {
+		updateEditorPreview();
+	}
+
+	$submitEdit.onclick = submitEdit;
+	
+	$chatSend.onclick = function() {
+		if ($chatTextarea.value) {
+			me.postComment(lp.idList[0], $chatTextarea.value, "plaintext", function(){});
+			$chatTextarea.value = "";
+		}
+	}
+
+	$chatTextarea.onkeypress = function(e) {
+		if (!e.shiftKey && e.keyCode == 13) {
+			e.preventDefault();
+			$chatSend.onclick();
+		}
+	};
+	
+	scroller = new AutoScroller($messageList);
+	
+	console.log = debugMessage;
+	
+	var query = location.hash.substr(1);
+	navigateTo(query, true);
+	
+}
+
+window.onhashchange = function() {
+	var query = location.hash.substr(1);
+	navigateTo(query);
+}
+
+function navigateTo(path, first) {
+	lp.reset();
+	path = path.split("/").filter(function(x){return x;});
+	var type = path[0];
+	var id = +(path[1]);
+	if (type == "pages") {
+		if (path[1] == "edit") {
+			first && ($main.className = 'editMode');
+			if (path[2]) {
+				path[2] = path[2].split(/[&?]/g);
+				id = +(path[2][0]);
+			} else {
+				id = undefined;
+			}
+			generateEditorView(id);
+		} else {
+			first && ($main.className = 'pageMode');
+			generatePageView(id);
+		}
+	} else if (type == "categories") {
+		first && ($main.className = 'categoryMode');
+		generateCategoryView(id);
+	} else if (type == "user") {
+		first && ($main.className = 'userMode');
+		generateUserView(id);
+	} else if (type == "discussions") {
+		first && ($main.className = 'chatMode');
+		generateChatView(id);
+	} else if (typeof type == 'undefined') { //home
+		first && ($main.className = 'homeMode');
+		generateHomeView();
+	} else {
+		$main.className = "pageMode errorMode";
+		generateAuthorBox();
+		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
+		$pageContents.textContent = "";
+	}
+}
+
+function generateHomeView() {
+	$main.className = "homeMode";
+	generateAuthorBox();
+	generatePath();
+	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
+}
+
+function generatePath(cid) {
+	$navPane.innerHTML = "";
+	if (typeof cid != 'undefined') {
+		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane);
+	}
+}
+
+var editingPage;
+function generateEditorView(id) {
+	loadStart();
+	if (id)
+		me.getPageForEditing(id, go);
+	else
+		go();
+	
+	function go(page, users) {
+		$main.className = "editorMode";
+		generateAuthorBox(page, users);
+		if (page) {
+			generatePath(page.parentId);
+			editingPage = page;
+			$pageTitle.textContent = "";
+			if (page.values)
+				var markup = page.values.markupLang;
+			$titleInput.value = page.name;
+			$markupSelect.value = markup;
+			$editorTextarea.value = page.content;
+			updateEditorPreview();
+		} else {
+			generatePath();
+			$pageTitle.textContent = "";
+			$titleInput.value = "";
+			$editorTextarea.value = "";
+			editingPage = {}; //todo: fill stuff here
+		}
+		loadEnd();
+	}
+}
+
+// These are used to signal to the user when content is loading
+function loadStart() {
+	$titlePane.style.backgroundColor = "#48F";
+}
+function loadEnd() {
+	$titlePane.style.backgroundColor = "";
+}
+
+//maybe turn the title <h1> into an input box
+//so you can just edit the page title there
+function submitEdit() {
+	if (editingPage) {
+		editingPage.content = $editorTextarea.value;
+		if (!editingPage.values)
+			editingPage.values = {};
+		editingPage.values.markupLang = $markupSelect.value;
+		editingPage.name = $titleInput.value;
+		//todo: other fields
+		me.postPage(editingPage, function(e, resp) {
+			if (e) {
+				alert("ERROR");
+			} else {
+				alert("OK EDIT");
+			}
+		});
+	}
+}
+
+function updateEditorPreview() {
+	renderPageContents({
+		values: {
+			markupLang: $markupSelect.value
+		},
+		content: $editorTextarea.value
+	}, $editorPreview);
+}
+
+// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
+function parseDate(str) {
+	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
+	if (data) {
+		var sec = Math.floor(+data[6]);
+		var ms = +data[6] - sec;
+		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
+	}
+	return new Date(0);
+}
+
+function generateAuthorBox(page, users) {
+	if (page) {
+		show($pageAuthorBox);
+		renderEditor(users[page.createUserId], parseDate(page.createDate), $pageAuthorAvatar, $pageAuthorName, $pageAuthorDate, false, $authorLink);
+		visible($pageEdited, page.editDate);
+		if (page.editDate) {
+			renderEditor(users[page.editUserId], parseDate(page.editDate), $pageEditorAvatar, $pageEditorName, $pageEditorDate, page.editUserId == page.createUserId, $editorLink);
+		}
+	} else {
+		hide($pageAuthorBox);
+	}
+}
+
+function generatePageView(id) {
+	loadStart();
+	me.getPage(id, function(page, users, comments){
+		$main.className = "pageMode";
+		generateAuthorBox(page, users);
+		if (page) {
+			generatePath(page.parentId);
+			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
+			renderPageContents(page, $pageContents)
+		} else {
+			generatePath();
+			$main.className += "errorMode";
+			$pageTitle.textContent = "Page not found";
+			$pageContents.innerHTML = "";
+		}
+		loadEnd();
+	});
+}
+
+function generateUserView(id) {
+	loadStart();
+	me.getUserPage(id, function(user, page, comments, userMap) {
+		console.info(arguments);
+		$main.className = 'pageMode';
+		generateAuthorBox(user && page, userMap);
+		generatePath();
+		if (user) {
+			$pageTitle.textContent = user.username;
+			if (page) {
+				renderPageContents(page, $pageContents)
+			} else {
+				$pageContents.innerHTML = "";
+			}
+		} else {
+			$main.className += " errorMode";
+			$pageTitle.textContent = "User Not Found";
+		}
+		loadEnd();
+	});
+}
+
+function updateUserlist(listeners, userMap) {
+	$chatUserlist.innerHTML = "";
+	listeners && listeners.forEach(function(l) {
+		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
+	})
+}
+
+function generateChatView(id) {
+	loadStart();
+	lp.callback = function(comments, listeners, userMap, page) {
+		if (page && page.id == id) {
+			generatePath(page.parentId);
+			generateAuthorBox(page, userMap);
+			$messageList.innerHTML = ""
+			$main.className = "chatMode";
+			scroller.switchRoom(id);
+			$pageTitle.textContent = page.name;
+			renderPageContents(page, $chatPageContents);
+			loadEnd();
+		} else if (page == false) { //1st request, page doesn't exist
+			generatePath();
+			generateAuthorBox(page, userMap);
+			$messageList.innerHTML = ""
+			$pageTitle.textContent = "Page not found";
+			$chatPageContents.innerHTML = "";
+			loadEnd();
+			// TODO: page list passed to callback needs to be PER-ID!!
+		}
+		if (comments) {
+			comments.forEach(function(comment) {
+				if (comment.parentId == id)
+					displayMessage(comment, userMap[comment.createUserId]);
+			});
+		}
+		if (listeners)
+			updateUserlist(listeners[id], userMap);
+		if (page) {
+			scroller.autoScroll(true);
+		}
+	}
+	lp.addRoom(id);
+}
+
+function displayMessage(c, user) {
+	if (c.deleted) {
+		scroller.remove(c.id);
+	} else {
+		var node = renderMessagePart(c, function(){
+			scroller.autoScroll();
+		});
+		scroller.insert(c.id, node, c.createUserId, function() {
+			var b = renderUserBlock(user, c.createUserId, parseDate(c.createDate));
+			if (c.createUserId == me.uid)
+				b[0].className += " ownMessage";
+			return b;
+		});
+	}
+}
+
+function generateCategoryView(id) {
+	loadStart();
+	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
+		hide($pageAuthorBox);
+		$main.className = 'categoryMode';
+		
+		$categoryPages.innerHTML = "";
+		$categoryCategories.innerHTML = "";
+		$categoryDescription.textContent = "";
+		if (category) {
+			generatePath(category.parentId);
+			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
+			$categoryDescription.textContent = category.description;
+			childs.forEach(function(cat) {
+				$categoryCategories.appendChild(renderCategory(cat, users));
+			});
+			contentz.forEach(function(content) {
+				$categoryPages.appendChild(renderCategoryPage(content, users));
+			});
+		} else {
+			generatePath();
+			$main.className += "errorMode";
+			$pageTitle.textContent = "Category not found";
+		}
+		loadEnd();
+	});
+}
+
+function onLogin(me) {
+	me.whenUser(me.uid, function(user) {
+		$myAvatar.src = user.avatarURL;
+		$myName.textContent = user.username;
+	});
+	hide($loggedOut);
+	show($loggedIn);
+}
+
+function onLogout() {
+	$myAvatar.src = "";
+	$myName.textContent = "";
+	hide($loggedIn);
+	show($loggedOut);
+}
+</script>
+
+<main class="pageMode" id="$main">
+	<!--
+		 
+	  -->
+	<div class="headerPane">
+		<a href="#"><img src="logo.png" class="item"></img></a>
+		<div class="loggedIn headerRight" id="$loggedIn" style="display: none;"><button id="$logout" class="item">Log Out</button><span class="myName" id="$myName" class="item"></span><img class="myAvatar item" id="$myAvatar"></div><form class="loggedOut headerRight" id="$loggedOut" style="display: none;"><input id="$username" placeholder="username" name="username" class="item"><input id="$password" type="password" name="password" placeholder="password" class="item"><button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form></div>
+	
+	<div class="navPane" id="$navPane">
+		<!--<input type="file" id="$fileinput"></input>-->
+	</div>
+	
+	<div class="titlePane" id="$titlePane">
+		<span class="editorMode item editingLabel">Editing: <input class="item" id="$titleInput" placeholder="Page Title" required></span><h1 class="pageTitle textItem" id="$pageTitle"></h1>
+		<div class="pageCreate" id="$pageAuthorBox" style="display: none;">
+			<span class="textItem">
+				<span class="textItem">Author:</span><a id="$authorLink"><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"></a><span class="pageAuthorDate textItem" id="$pageAuthorDate">
+				</span><!-- *standing in the middle of a mess of html*
+"gosh, I guess I have to clean all this up, then" -->
+			</span><span id="$pageEdited" class="pageEdited">
+				<span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
+			</span>
+		</div>
+	</div>
+	<div class="userlistPane userlist chatMode" id="$chatUserlist"></div>
+	<div class="messagePane chatMode scroller paneGrow">
+		<div class="chatPageContents" id="$chatPageContents"></div>
+		<div class="spacer"></div>
+		<div id="$messageList" class="messageList"></div>
+	</div>
+
+	<div class="infoPane editorMode">
+		<button id="$submitEdit">Submit</button><br>
+		<input placeholder="Keywords (space separated, optional)"><br>
+		<label for="$markupSelect">Markup language:</label>
+		<select id="$markupSelect">
+			<option value="plaintext">plain text</option>
+			<option value="12y">12-y documentation markup format</option>
+			<option value="bbcode">bbcode</option>
+		</select>
+	</div>
+
+	<!--
+		 These panes have the main content
+		 one of them will be visible at a time, depending on the view mode
+	  -->
+	<div class="categoryPane paneGrow categoryMode scroller" id="$categoryPane">
+		<div id="$categoryDescription" class="categoryDescription pre pageContents"></div>
+		<div id="$categoryCategories"></div>
+		<div id="$categoryPages" class="categoryPages"></div>
+	</div>
+	
+	<div class="pagePane pageMode scroller paneGrow">
+		<div class="pageContents pre" id="$pageContents"></div>
+		<div class="spacer"></div>
+		<div class="pageUserlist userlist" title="Users viewing this page"></div>
+		<div class="pageTextarea">
+			<textarea id="$pageTextarea"></textarea>
+		</div>
+		<div class="pageComments"></div>
+	</div>
+	
+	<div class="editorPane editorMode paneGrow">
+		<div class="editorTextarea">
+			<textarea id="$editorTextarea"></textarea>
+		</div>
+		<div class="editorPreview" id="$editorPreview"></div>
+	</div>
+	
+	<div class="homeMode homePane paneGrow">
+		hey<br>
+		go <a href="#categories/0">her</a>e:<br>
+	</div>
+
+	<!--
+		 Bottom of the page
+	  -->
+	<div class="inputPane chatMode">
+		<textarea id="$chatTextarea"></textarea>
+		<button id="$chatSend">Send</button>
+	</div>
+</main>
+<!--- NEXT TASK: Clean up html/css !
+THere is a lot of repeated stuff
+item/textitem are good -- improve them!
+there is an issue: max-width: 100%; is not a sustainable solution
+consider switching to display: inline; and then using padding on the container? or something.
+this allows the float: right elements to be mixed in with the text which is nice, 
+though honestly INLINE might be too limiting. but either way, we need a better solution than max-width: 100%;
+
+problem 2:
+I think, on small devices, the whole "main document should not scroll"
+idea is not good.
+perhaps have a separate mode or something, idk.
+I don't think pages (or at least, DEFINITELY not discussions) should be in big unscrolling boxes (with only the main page scrolling)
+but at the very least, like
+perhaps make the main page have a min height of like 600px and the viewport scrolls inside that? idk
+-->

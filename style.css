@@ -16,6 +16,14 @@ body {
 	white-space: pre-wrap;
 }
 
+.navPane {
+	line-height: 2.3rem;
+}
+
+.navPane a {
+	padding: 0rem 0.2rem;
+}
+
 textarea {
 	border-radius: 2px;
 	border: 2px solid #00C8B4;
@@ -39,6 +47,15 @@ textarea {
 	float: right;
 }
 
+.textItem {
+	max-width: 100;
+	display: inline-block;
+}
+.item {
+	display: inline-block;
+	max-width: 100%;
+}
+
 /****************************
  ** Main Container Element **
  ****************************/
@@ -52,7 +69,6 @@ main {
 	bottom: 0;
 	background-color: white;
 }
-
 
 main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
 	border-top: 1px solid gray;
@@ -102,13 +118,7 @@ main:not(.homeMode) .homeMode {
 }
 
 .headerPane .item {
-	max-width: 100%;
-	display: inline-block;
 	height: 2.3rem;
-}
-
-.headerPane .textItem {
-	max-width: 100%;
 }
 
 .myName {
@@ -128,10 +138,6 @@ main:not(.homeMode) .homeMode {
 	background-color: #999;
 }
 
-.navPane .item {
-	max-width: 100%;
-}
-
 /****************
  ** Title Pane **
  ****************/
@@ -145,17 +151,13 @@ main:not(.homeMode) .homeMode {
 
 .titlePane .item {
 	height: 2.3rem;
-	display: inline-block;
 	line-height: 2.3rem;
-	max-width: 100%;
 }
 /* .item's are things like the site logo, user avatar, etc.*/
 /* .textItem is similar, but is allowd to wrap */
 .titlePane .textItem {
 	min-height: 2.3rem;
-	display: inline-block;
 	line-height: 2.3rem;
-	max-width: 100%;
 }
 
 .editingLabel {
@@ -220,15 +222,11 @@ main:not(.homeMode) .homeMode {
 }
 .categoryPage .textItem {
 	min-height: 2.3rem;
-	display: inline-block;
 	line-height: 2.3rem;
-	max-width: 100%;
 }
 .categoryPage .item {
 	height: 2.3rem;
 	line-height: 2.3rem;
-	display: inline-block;
-	max-width: 100%;
 }
 .categoryPages {
 	margin-top: 0.5rem;

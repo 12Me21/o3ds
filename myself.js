@@ -154,7 +154,7 @@ Myself.prototype.readSimple = function(url, type, callback) {
 	});
 }
 
-Myself.prototype.read = function(url, requests, filters, callback, cancel) {
+Myself.prototype.read = function(requests, filters, callback, cancel) {
 	var $=this;
 	var query = {};
 	query.requests = requests.map(function(req) {
@@ -167,8 +167,15 @@ Myself.prototype.read = function(url, requests, filters, callback, cancel) {
 	});
 	for (var filter in filters)
 		query[filter] = filters[filter];
+	var needCategorys = !$.categoryTree;
+	if (needCategorys) {
+		query.requests.push('category');
+	}
 	
-	$.request(url+queryString(query), 'GET', function(e, resp) {
+	$.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
+		if (needCategorys) {
+			$.categoryTree = buildCategoryTree(resp.category);
+		}
 		$.handle(e, resp);
 		$.cb(callback, e, resp);
 	}, undefined, cancel);
@@ -295,7 +302,7 @@ Myself.prototype.loadCachedAuth = function(callback) {
 Myself.prototype.getPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read("Read/chain", [
+	$.read([
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 50}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
@@ -315,7 +322,7 @@ Myself.prototype.getPage = function(id, callback) {
 Myself.prototype.getDiscussion = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read("Read/chain",[
+	$.read([
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 30, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
@@ -346,7 +353,7 @@ Myself.prototype.whenUser = function(id, callback) {
 
 Myself.prototype.getCategories = function(callback) {
 	var $=this;
-	$.read("Read/chain",[
+	$.read([
 		'category'
 	], {
 		category: "id,name,description,parentId"
@@ -381,7 +388,7 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 		var childCategorysFilter = {parentIds: [id]};
 	else
 		childCategorysFilter = {};
-	$.read("Read/chain",[
+	$.read([
 		{content: search},
 		{category: {ids: [id]}},
 		{category: childCategorysFilter},
@@ -413,7 +420,7 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 Myself.prototype.getPageForEditing = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read("Read/chain",[
+	$.read([
 		{content: {ids: [id]}},
 		"user.0createUserId.0editUserId",
 	], {
@@ -469,7 +476,7 @@ Myself.prototype.postComment = function(id, message, markup, callback) {
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read("Read/chain",[
+	$.read([
 		{user: {ids: [id]}},
 		{content: {parentIds: [id], type: '@user.page', limit: 1}},
 		"comment.1id$parentIds",
@@ -487,16 +494,19 @@ Myself.prototype.getUserPage = function(id, callback) {
 }
 
 function buildCategoryTree(categories) {
-	var root = {childs: []};
+	console.info("making category tree!");
+	var root = {childs: [], id: 0, name: "[root]"};
 	var orphans = [];
 	var map = {
 		'0': root
 	};
+	root.map = map;
 	categories.forEach(function(cat) {
 		cat.childs = [];
 		map[cat.id] = cat;
 	});
 	categories.forEach(function(cat) {
+		//cat = Object.assign({}, cat); //copy
 		if (cat.parentId < 0)
 			cat.parentId = 0;
 		var parent = map[cat.parentId];

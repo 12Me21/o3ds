@@ -124,7 +124,7 @@ function ready() {
 	console.log = debugMessage;
 	
 	var query = location.hash.substr(1);
-	navigateTo(query);
+	navigateTo(query, true);
 	
 }
 
@@ -133,13 +133,14 @@ window.onhashchange = function() {
 	navigateTo(query);
 }
 
-function navigateTo(path) {
+function navigateTo(path, first) {
 	lp.reset();
 	path = path.split("/").filter(function(x){return x;});
 	var type = path[0];
 	var id = +(path[1]);
 	if (type == "pages") {
 		if (path[1] == "edit") {
+			first && ($main.className = 'editMode');
 			if (path[2]) {
 				path[2] = path[2].split(/[&?]/g);
 				id = +(path[2][0]);
@@ -147,15 +148,21 @@ function navigateTo(path) {
 				id = undefined;
 			}
 			generateEditorView(id);
-		} else
+		} else {
+			first && ($main.className = 'pageMode');
 			generatePageView(id);
+		}
 	} else if (type == "categories") {
+		first && ($main.className = 'categoryMode');
 		generateCategoryView(id);
 	} else if (type == "user") {
+		first && ($main.className = 'userMode');
 		generateUserView(id);
 	} else if (type == "discussions") {
+		first && ($main.className = 'chatMode');
 		generateChatView(id);
 	} else if (typeof type == 'undefined') { //home
+		first && ($main.className = 'homeMode');
 		generateHomeView();
 	} else {
 		$main.className = "pageMode errorMode";
@@ -168,7 +175,15 @@ function navigateTo(path) {
 function generateHomeView() {
 	$main.className = "homeMode";
 	generateAuthorBox();
+	generatePath();
 	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
+}
+
+function generatePath(cid) {
+	$navPane.innerHTML = "";
+	if (typeof cid != 'undefined') {
+		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane);
+	}
 }
 
 var editingPage;
@@ -183,6 +198,7 @@ function generateEditorView(id) {
 		$main.className = "editorMode";
 		generateAuthorBox(page, users);
 		if (page) {
+			generatePath(page.parentId);
 			editingPage = page;
 			$pageTitle.textContent = "";
 			if (page.values)
@@ -192,6 +208,7 @@ function generateEditorView(id) {
 			$editorTextarea.value = page.content;
 			updateEditorPreview();
 		} else {
+			generatePath();
 			$pageTitle.textContent = "";
 			$titleInput.value = "";
 			$editorTextarea.value = "";
@@ -268,9 +285,11 @@ function generatePageView(id) {
 		$main.className = "pageMode";
 		generateAuthorBox(page, users);
 		if (page) {
-			$pageTitle.textContent = page.name;
+			generatePath(page.parentId);
+			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
 			renderPageContents(page, $pageContents)
 		} else {
+			generatePath();
 			$main.className += "errorMode";
 			$pageTitle.textContent = "Page not found";
 			$pageContents.innerHTML = "";
@@ -285,6 +304,7 @@ function generateUserView(id) {
 		console.info(arguments);
 		$main.className = 'pageMode';
 		generateAuthorBox(user && page, userMap);
+		generatePath();
 		if (user) {
 			$pageTitle.textContent = user.username;
 			if (page) {
@@ -311,6 +331,7 @@ function generateChatView(id) {
 	loadStart();
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
+			generatePath(page.parentId);
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			$main.className = "chatMode";
@@ -319,6 +340,7 @@ function generateChatView(id) {
 			renderPageContents(page, $chatPageContents);
 			loadEnd();
 		} else if (page == false) { //1st request, page doesn't exist
+			generatePath();
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			$pageTitle.textContent = "Page not found";
@@ -367,7 +389,8 @@ function generateCategoryView(id) {
 		$categoryCategories.innerHTML = "";
 		$categoryDescription.textContent = "";
 		if (category) {
-			$pageTitle.textContent = category.name;
+			generatePath(category.parentId);
+			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
 			$categoryDescription.textContent = category.description;
 			childs.forEach(function(cat) {
 				$categoryCategories.appendChild(renderCategory(cat, users));
@@ -376,6 +399,7 @@ function generateCategoryView(id) {
 				$categoryPages.appendChild(renderCategoryPage(content, users));
 			});
 		} else {
+			generatePath();
 			$main.className += "errorMode";
 			$pageTitle.textContent = "Category not found";
 		}

@@ -5,7 +5,7 @@ function renderCategoryPage(page, users) {
 	div.className = "pre categoryPage";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle textItem";
-	title.textContent = page.name;
+	title.textContent = "\uD83D\uDCC4 " + page.name;
 	div.appendChild(title);
 	var right = document.createElement('a');
 	right.href = "#user/"+user.id;
@@ -20,6 +20,27 @@ function renderCategoryPage(page, users) {
 	right.appendChild(img);
 	div.appendChild(right);
 	return div;
+}
+
+function insertFirst(node, child) {
+	if (node.firstChild)
+		node.insertBefore(child, node.firstChild);
+	else
+		node.appendChild(child);
+}
+
+function renderPath(tree, node, element) {
+	while (node) {
+		var link = document.createElement('a');
+		link.href = "#categories/"+node.id;
+		link.textContent = node.name;
+		var slash = document.createElement('span');
+		slash.textContent = "/";
+		slash.className = "pathSeparator";
+		insertFirst(element, slash);
+		insertFirst(element, link);
+		node = node.parent;
+	}
 }
 
 function timeString(date) {
@@ -79,7 +100,7 @@ function renderCategory(cat, users) {
 	div.className = "pre categoryPage";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle item";
-	title.textContent = cat.name;
+	title.textContent = "\uD83D\uDCC1 "+cat.name;
 	div.appendChild(title);
 	return div;
 }
@@ -96,6 +117,8 @@ function reasonableDateString(date) {
 	if (interval >= 1) return interval + " hours ago";
 	interval = Math.floor(seconds / 60);
 	if (interval >= 1) return interval + " minutes ago";
+	if (seconds < 0)
+		return " IN THE FUTURE?";
 	return Math.floor(seconds) + " seconds ago";
 	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
 }

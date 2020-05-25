@@ -5,28 +5,35 @@
 <link rel="shortcut icon" href="favicon.svg?a">
 <link rel="image_src" href="favicon.svg?a">
 
-<link rel="stylesheet" href="style.css?c">
+<!--START-->
+<link rel="stylesheet" href="style.css?d">
 <link rel="stylesheet" href="markup.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?a"></script>
+<script src="myself.js?b"></script>
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="12y.js?a"></script>
 
-<script src="render.js?b"></script>
-<script src="main.js?a"></script>
+<script src="render.js?c"></script>
+<script src="main.js?b"></script>
+<!--END-->
 
 <main class="pageMode" id="$main">
+	<!--
+		 
+	  -->
 	<div class="headerPane">
 		<a href="#"><img src="logo.png" class="item"></img></a>
 		<div class="loggedIn headerRight" id="$loggedIn" style="display: none;"><button id="$logout" class="item">Log Out</button><span class="myName" id="$myName" class="item"></span><img class="myAvatar item" id="$myAvatar"></div><form class="loggedOut headerRight" id="$loggedOut" style="display: none;"><input id="$username" placeholder="username" name="username" class="item"><input id="$password" type="password" name="password" placeholder="password" class="item"><button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form></div>
-	<div class="navPane">
+	
+	<div class="navPane" id="$navPane">
 		<!--<input type="file" id="$fileinput"></input>-->
 	</div>
+	
 	<div class="titlePane" id="$titlePane">
 		<span class="editorMode item editingLabel">Editing: <input class="item" id="$titleInput" placeholder="Page Title" required></span><h1 class="pageTitle textItem" id="$pageTitle"></h1>
 		<div class="pageCreate" id="$pageAuthorBox" style="display: none;">
@@ -39,7 +46,28 @@
 			</span>
 		</div>
 	</div>
+	<div class="userlistPane userlist chatMode" id="$chatUserlist"></div>
+	<div class="messagePane chatMode scroller paneGrow">
+		<div class="chatPageContents" id="$chatPageContents"></div>
+		<div class="spacer"></div>
+		<div id="$messageList" class="messageList"></div>
+	</div>
 
+	<div class="infoPane editorMode">
+		<button id="$submitEdit">Submit</button><br>
+		<input placeholder="Keywords (space separated, optional)"><br>
+		<label for="$markupSelect">Markup language:</label>
+		<select id="$markupSelect">
+			<option value="plaintext">plain text</option>
+			<option value="12y">12-y documentation markup format</option>
+			<option value="bbcode">bbcode</option>
+		</select>
+	</div>
+
+	<!--
+		 These panes have the main content
+		 one of them will be visible at a time, depending on the view mode
+	  -->
 	<div class="categoryPane paneGrow categoryMode scroller" id="$categoryPane">
 		<div id="$categoryDescription" class="categoryDescription pre pageContents"></div>
 		<div id="$categoryCategories"></div>
@@ -56,36 +84,24 @@
 		<div class="pageComments"></div>
 	</div>
 	
-	<div class="userlistPane userlist chatMode" id="$chatUserlist"></div>
-	<div class="messagePane chatMode scroller paneGrow">
-		<div class="chatPageContents" id="$chatPageContents"></div>
-		<div class="spacer"></div>
-		<div id="$messageList" class="messageList"></div>
-	</div>
-	<div class="inputPane chatMode">
-		<textarea id="$chatTextarea"></textarea>
-		<button id="$chatSend">Send</button>
-	</div>
-
-	<div class="infoPane editorMode">
-		<button id="$submitEdit">Submit</button><br>
-		<input placeholder="Keywords (space separated, optional)"><br>
-		<label for="$markupSelect">Markup language:</label>
-		<select id="$markupSelect">
-			<option value="plaintext">plain text</option>
-			<option value="12y">12-y documentation markup format</option>
-			<option value="bbcode">bbcode</option>
-		</select>
-	</div>
 	<div class="editorPane editorMode paneGrow">
 		<div class="editorTextarea">
 			<textarea id="$editorTextarea"></textarea>
 		</div>
 		<div class="editorPreview" id="$editorPreview"></div>
 	</div>
+	
 	<div class="homeMode homePane paneGrow">
 		hey<br>
 		go <a href="#categories/0">her</a>e:<br>
+	</div>
+
+	<!--
+		 Bottom of the page
+	  -->
+	<div class="inputPane chatMode">
+		<textarea id="$chatTextarea"></textarea>
+		<button id="$chatSend">Send</button>
 	</div>
 </main>
 <!--- NEXT TASK: Clean up html/css !
