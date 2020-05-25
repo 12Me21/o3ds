@@ -494,7 +494,6 @@ Myself.prototype.getUserPage = function(id, callback) {
 }
 
 function buildCategoryTree(categories) {
-	console.info("making category tree!");
 	var root = {childs: [], id: 0, name: "[root]"};
 	var orphans = [];
 	var map = {

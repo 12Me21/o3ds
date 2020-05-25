@@ -6,20 +6,38 @@
 <link rel="image_src" href="favicon.svg?a">
 
 <!--START-->
-<link rel="stylesheet" href="style.css?d">
-<link rel="stylesheet" href="markup.css?a">
+<link rel="stylesheet" href="style.css?e">
+<link rel="stylesheet" href="markup.css?b">
+<link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?b"></script>
+<script src="myself.js?c"></script>
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="12y.js?a"></script>
+<script src="bbcode.js?a"></script>
 
-<script src="render.js?c"></script>
-<script src="main.js?b"></script>
+<script src="render.js?d"></script>
+<script src="main.js?c"></script>
+<!--- NEXT TASK: Clean up html/css !
+THere is a lot of repeated stuff
+item/textitem are good -- improve them!
+there is an issue: max-width: 100%; is not a sustainable solution
+consider switching to display: inline; and then using padding on the container? or something.
+this allows the float: right elements to be mixed in with the text which is nice, 
+though honestly INLINE might be too limiting. but either way, we need a better solution than max-width: 100%;
+
+problem 2:
+I think, on small devices, the whole "main document should not scroll"
+idea is not good.
+perhaps have a separate mode or something, idk.
+I don't think pages (or at least, DEFINITELY not discussions) should be in big unscrolling boxes (with only the main page scrolling)
+but at the very least, like
+perhaps make the main page have a min height of like 600px and the viewport scrolls inside that? idk
+-->
 <!--END-->
 
 <main class="pageMode" id="$main">
@@ -104,19 +122,3 @@
 		<button id="$chatSend">Send</button>
 	</div>
 </main>
-<!--- NEXT TASK: Clean up html/css !
-THere is a lot of repeated stuff
-item/textitem are good -- improve them!
-there is an issue: max-width: 100%; is not a sustainable solution
-consider switching to display: inline; and then using padding on the container? or something.
-this allows the float: right elements to be mixed in with the text which is nice, 
-though honestly INLINE might be too limiting. but either way, we need a better solution than max-width: 100%;
-
-problem 2:
-I think, on small devices, the whole "main document should not scroll"
-idea is not good.
-perhaps have a separate mode or something, idk.
-I don't think pages (or at least, DEFINITELY not discussions) should be in big unscrolling boxes (with only the main page scrolling)
-but at the very least, like
-perhaps make the main page have a min height of like 600px and the viewport scrolls inside that? idk
--->

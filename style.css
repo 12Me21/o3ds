@@ -16,12 +16,16 @@ body {
 	white-space: pre-wrap;
 }
 
-.navPane {
-	line-height: 2.3rem;
+a:visited {
+	color: #00A;
 }
 
-.navPane a {
-	padding: 0rem 0.2rem;
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	color: #06F;
 }
 
 textarea {
@@ -48,7 +52,7 @@ textarea {
 }
 
 .textItem {
-	max-width: 100;
+	max-width: 100%;
 	display: inline-block;
 }
 .item {
@@ -135,7 +139,17 @@ main:not(.homeMode) .homeMode {
 	min-height: 2.3rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
-	background-color: #999;
+	background-color: #BBB;
+	padding: 0 0.2rem;
+	line-height: 2.3rem;
+}
+
+.pathSeparator {
+	padding: 0 0.2rem;
+}
+
+.navPane a {
+	font-weight: bold;
 }
 
 /****************
@@ -145,7 +159,7 @@ main:not(.homeMode) .homeMode {
 	min-height: 2.3rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
-	background-color: #BBB;
+	background-color: #DDD;
 	overflow: auto;
 }
 
@@ -185,7 +199,7 @@ main:not(.homeMode) .homeMode {
 	padding: 0 0.5rem;
 }
 .pageCreate {
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(255,255,255,0.1);
 }
 .pageAuthorAvatar {
 	width: 2.3rem;

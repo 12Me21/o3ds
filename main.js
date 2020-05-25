@@ -1,62 +1,5 @@
 var scriptLoaded = Date.now();
 
-// to load a page:
-// - request info for a page (page, comments, associated users)
-// -- start long poller for comments
-// --- keep getting user objects for new users that post comments*
-// - request listeners list
-// -- get user objects for users in listeners list*
-// -- start long poller for listeners list
-// --- keep getting user objects for new users in listeners list*
-
-//* (problem: these must (well, SHOULD) be cached and so avatars won't update dynamically)
-
-// the difference between pages and chat is that comments are rendered differently, etc.
-
-// for chat:
-// [ header bar ]
-// [ nav bar ]
-// [ user list ]
-// [ scroller
-//  [ page contents ]
-//  [ "load older messages" button]
-//  [ chat messages ]
-// ]
-// [ textarea ]
-
-// (maybe have some buttons for jumping to the top/bottom of the scroller, for mobile)
-
-// for pages:
-// [ header bar ]
-// [ nav bar ]
-// [ user list ]
-// [ scroller
-//  [ page contents ]
-//  [ textarea ]
-//  [ comments (reverse order) ]
-//  [ "load older comments" button]
-// ]
-
-// for the editor:
-// [ header bar ]
-// [ nav bar ]
-// [ page info fields (title etc.) ]
-// [ textarea ]
-// [ preview ]
-
-// for comments
-// I don't want to auto-load older messages because this is awkward
-// there should also be a way to jump to a certain date,
-// perhaps have a "historic" section of chat, where
-// old comments are loaded,
-// as in
-// ["load older comments"]
-// [historic comments]
-// ["load newer older comments"]
-// [modern comments (deleted after some limit is reached)]
-// ugh idk
-// 
-
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
 var scroller;
@@ -71,9 +14,10 @@ if (document.readyState == 'loading')
 else {
 	ready();
 }
-
+var loadTime;
 function ready() {
-	var loadTime = Date.now() - scriptLoaded;
+	console.info("ready");
+	loadTime = Date.now() - scriptLoaded;
 	if (me.auth)
 		onLogin(me);
 	else
@@ -121,7 +65,7 @@ function ready() {
 	
 	scroller = new AutoScroller($messageList);
 	
-	console.log = debugMessage;
+	//console.log = debugMessage;
 	
 	var query = location.hash.substr(1);
 	navigateTo(query, true);
@@ -220,9 +164,11 @@ function generateEditorView(id) {
 
 // These are used to signal to the user when content is loading
 function loadStart() {
+	console.info("load start");
 	$titlePane.style.backgroundColor = "#48F";
 }
 function loadEnd() {
+	console.info("load end");
 	$titlePane.style.backgroundColor = "";
 }
 
@@ -395,9 +341,11 @@ function generateCategoryView(id) {
 			childs.forEach(function(cat) {
 				$categoryCategories.appendChild(renderCategory(cat, users));
 			});
+			$categoryPages.style.display="none";
 			contentz.forEach(function(content) {
 				$categoryPages.appendChild(renderCategoryPage(content, users));
 			});
+			$categoryPages.style.display="";
 		} else {
 			generatePath();
 			$main.className += "errorMode";

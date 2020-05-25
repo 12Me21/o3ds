@@ -34,9 +34,10 @@ function renderPath(tree, node, element) {
 		var link = document.createElement('a');
 		link.href = "#categories/"+node.id;
 		link.textContent = node.name;
+		link.className = "textItem";
 		var slash = document.createElement('span');
 		slash.textContent = "/";
-		slash.className = "pathSeparator";
+		slash.className = "pathSeparator textItem";
 		insertFirst(element, slash);
 		insertFirst(element, link);
 		node = node.parent;
@@ -137,9 +138,12 @@ function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
 function renderPageContents(page, element) {
 	if (page.values)
 		var markup = page.values.markupLang;
-	if (markup == "12y") {
+	if (markup == '12y') {
 		element.innerHTML = "";
 		element.appendChild(parse(page.content));
+	} else if (markup == 'bbcode') {
+		element.innerHTML = "";
+		element.appendChild(bbcodeParse(page.content));
 	} else {
 		element.textContent = page.content;
 	}

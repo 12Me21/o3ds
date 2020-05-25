@@ -6,7 +6,6 @@
 <link rel="shortcut icon" href="favicon.svg?a">
 <link rel="image_src" href="favicon.svg?a">
 
-<!--START-->
 <style>
 * {
 	margin: 0;
@@ -26,12 +25,26 @@ body {
 	white-space: pre-wrap;
 }
 
+a:visited {
+	color: #00A;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	color: #06F;
+}
+
 .navPane {
 	line-height: 2.3rem;
 }
 
 .navPane a {
 	padding: 0rem 0.2rem;
+	font-weight: bold;
+	
 }
 
 textarea {
@@ -145,7 +158,7 @@ main:not(.homeMode) .homeMode {
 	min-height: 2.3rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
-	background-color: #999;
+	background-color: #BBB;
 }
 
 /****************
@@ -155,7 +168,7 @@ main:not(.homeMode) .homeMode {
 	min-height: 2.3rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
-	background-color: #BBB;
+	background-color: #DDD;
 	overflow: auto;
 }
 
@@ -195,7 +208,7 @@ main:not(.homeMode) .homeMode {
 	padding: 0 0.5rem;
 }
 .pageCreate {
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(255,255,255,0.1);
 }
 .pageAuthorAvatar {
 	width: 2.3rem;
@@ -2708,9 +2721,9 @@ if (document.readyState == 'loading')
 else {
 	ready();
 }
-
+var loadTime;
 function ready() {
-	var loadTime = Date.now() - scriptLoaded;
+	loadTime = Date.now() - scriptLoaded;
 	if (me.auth)
 		onLogin(me);
 	else
@@ -2758,7 +2771,7 @@ function ready() {
 	
 	scroller = new AutoScroller($messageList);
 	
-	console.log = debugMessage;
+	//console.log = debugMessage;
 	
 	var query = location.hash.substr(1);
 	navigateTo(query, true);
@@ -3032,9 +3045,11 @@ function generateCategoryView(id) {
 			childs.forEach(function(cat) {
 				$categoryCategories.appendChild(renderCategory(cat, users));
 			});
+			$categoryPages.style.display="none";
 			contentz.forEach(function(content) {
 				$categoryPages.appendChild(renderCategoryPage(content, users));
 			});
+			$categoryPages.style.display="";
 		} else {
 			generatePath();
 			$main.className += "errorMode";
@@ -3143,19 +3158,3 @@ function onLogout() {
 		<button id="$chatSend">Send</button>
 	</div>
 </main>
-<!--- NEXT TASK: Clean up html/css !
-THere is a lot of repeated stuff
-item/textitem are good -- improve them!
-there is an issue: max-width: 100%; is not a sustainable solution
-consider switching to display: inline; and then using padding on the container? or something.
-this allows the float: right elements to be mixed in with the text which is nice, 
-though honestly INLINE might be too limiting. but either way, we need a better solution than max-width: 100%;
-
-problem 2:
-I think, on small devices, the whole "main document should not scroll"
-idea is not good.
-perhaps have a separate mode or something, idk.
-I don't think pages (or at least, DEFINITELY not discussions) should be in big unscrolling boxes (with only the main page scrolling)
-but at the very least, like
-perhaps make the main page have a min height of like 600px and the viewport scrolls inside that? idk
--->
