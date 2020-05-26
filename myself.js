@@ -467,6 +467,10 @@ Myself.prototype.postPage = function(page, callback) {
 	}
 }
 
+Myself.prototype.deletePage = function(id, callback) {
+	this.request("Content/"+id, 'DELETE', callback);
+}
+
 Myself.prototype.postComment = function(id, message, markup, callback) {
 	this.request("Comment", 'POST', callback, {
 		parentId: id,

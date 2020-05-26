@@ -49,6 +49,7 @@ function ready() {
 	}
 
 	$submitEdit.onclick = submitEdit;
+	$deletePage.onclick = deletePage;
 	
 	$chatSend.onclick = function() {
 		if ($chatTextarea.value) {
@@ -205,6 +206,20 @@ function submitEdit() {
 		});
 	}
 }
+
+function deletePage() {
+	if (editingPage) {
+		alert("DELETING!");
+		me.deletePage(editingPage, function(e, resp) {
+			if (e) {
+				alert("ERROR");
+			} else {
+				alert("OK DELETE");
+			}
+		});
+	}
+}
+
 
 function updateEditorPreview() {
 	renderPageContents({

@@ -1065,6 +1065,10 @@ Myself.prototype.postPage = function(page, callback) {
 	}
 }
 
+Myself.prototype.deletePage = function(id, callback) {
+	this.request("Content/"+id, 'DELETE', callback);
+}
+
 Myself.prototype.postComment = function(id, message, markup, callback) {
 	this.request("Comment", 'POST', callback, {
 		parentId: id,
@@ -3123,6 +3127,7 @@ function ready() {
 	}
 
 	$submitEdit.onclick = submitEdit;
+	$deletePage.onclick = deletePage;
 	
 	$chatSend.onclick = function() {
 		if ($chatTextarea.value) {
@@ -3279,6 +3284,20 @@ function submitEdit() {
 		});
 	}
 }
+
+function deletePage() {
+	if (editingPage) {
+		alert("DELETING!");
+		me.deletePage(editingPage, function(e, resp) {
+			if (e) {
+				alert("ERROR");
+			} else {
+				alert("OK DELETE");
+			}
+		});
+	}
+}
+
 
 function updateEditorPreview() {
 	renderPageContents({
@@ -3526,6 +3545,7 @@ function onLogout() {
 
 	<div class="infoPane editorMode">
 		<button id="$submitEdit">Submit</button><br>
+		<button id="$deletePage">DELETE</button><br>
 		<input placeholder="Keywords (space separated, optional)"><br>
 		<label for="$markupSelect">Markup language:</label>
 		<select id="$markupSelect">
