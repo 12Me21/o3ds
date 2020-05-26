@@ -468,7 +468,7 @@ Myself.prototype.postPage = function(page, callback) {
 }
 
 Myself.prototype.deletePage = function(id, callback) {
-	this.request("Content/"+id, 'DELETE', callback);
+	this.request("Content/"+id+"/delete", 'POST', callback);
 }
 
 Myself.prototype.postComment = function(id, message, markup, callback) {
@@ -479,8 +479,10 @@ Myself.prototype.postComment = function(id, message, markup, callback) {
 };
 
 Myself.prototype.setWatch = function(id, state, callback) {
-	var method = state ? 'POST' : 'DELETE';
-	this.request("Watch/"+id, method, callback);
+	if (state)
+		this.request("Watch/"+id, 'POST', callback);
+	else
+		this.request("Watch/"+id+"/delete", 'POST', callback);
 };
 
 Myself.prototype.getWatch = function(query, callback) {
@@ -491,7 +493,7 @@ Myself.prototype.setVote = function(id, state, callback) {
 	if (state)
 		this.request("Vote/"+id+"/"+state, 'POST', callback);
 	else
-		this.request("Vote/"+id, 'DELETE', callback);
+		this.request("Vote/"+id+"/delete", 'POST', callback);
 }
 
 Myself.prototype.getVote = function(query, callback) {
