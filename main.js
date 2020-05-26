@@ -208,9 +208,9 @@ function submitEdit() {
 }
 
 function deletePage() {
-	if (editingPage) {
+	if (editingPage && editingPage.id) {
 		alert("DELETING!");
-		me.deletePage(editingPage, function(e, resp) {
+		me.deletePage(editingPage.id, function(e, resp) {
 			if (e) {
 				alert("ERROR");
 			} else {
