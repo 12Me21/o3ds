@@ -9,6 +9,9 @@ debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
 }
 
+var query = location.hash.substr(1);
+navigateTo(query, false);
+
 if (document.readyState == 'loading')
 	document.addEventListener('DOMContentLoaded', ready);
 else {
@@ -66,10 +69,6 @@ function ready() {
 	scroller = new AutoScroller($messageList);
 	
 	//console.log = debugMessage;
-	
-	var query = location.hash.substr(1);
-	navigateTo(query, true);
-	
 }
 
 window.onhashchange = function() {
@@ -165,7 +164,8 @@ function generateEditorView(id) {
 // These are used to signal to the user when content is loading
 function loadStart() {
 	console.info("load start");
-	$titlePane.style.backgroundColor = "#48F";
+	if (window.$titlePane)
+		window.$titlePane.style.backgroundColor = "#48F";
 }
 function loadEnd() {
 	console.info("load end");

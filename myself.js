@@ -278,6 +278,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 		if (!e) {
 			$.setAuth(resp);
 			localStorage.setItem($.lsKey, resp);
+			$.readSimple("User/me", 'user', callback);
 		}
 		$.cb(callback, e, resp);
 	}, {username: username, password: password});
