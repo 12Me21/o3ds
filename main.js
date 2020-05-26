@@ -64,12 +64,7 @@ function ready() {
 		}
 	};
 
-	var state;
-	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = function(e) {
-		e.target.checked = true;
-	}
-	$vote.voteB.onclick = $vote.voteO.onclick = $vote.voteG.onclick = function(e) {
-		e.target.checked = false;
+	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = $vote.voteN.onchange = function() {
 		window.setTimeout(function() {
 			var vote = $vote.vote.value;
 			loadStart();
@@ -245,8 +240,11 @@ function generateAuthorBox(page, users) {
 }
 
 function setRadio(radio, state) {
-	if (state) {
-		radio.value = state;
+	if (typeof state != 'undefined') {
+		for (var i=0;i<radio.length;i++) {
+			if (radio[i].value == state)
+				radio[i].checked = true;
+		}
 	} else {
 		radio[0].checked = true;
 		radio[0].checked = false;
@@ -262,13 +260,16 @@ function generatePageView(id) {
 			currentPage = page.id;
 			generatePath(page.parentId);
 			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
-			setRadio($vote.vote, page.about.myVote);
+			console.log(page.about.myVote);
+			// todo: handle showing/hiding the vote box when logged in/out
+			setRadio($vote.vote, page.about.myVote || "");
 			renderPageContents(page, $pageContents)
 		} else {
 			currentPage = null;
 			generatePath();
 			$main.className += "errorMode";
 			setRadio($vote.vote);
+			$vote.vote.value = undefined;
 			$pageTitle.textContent = "Page not found";
 			$pageContents.innerHTML = "";
 		}
