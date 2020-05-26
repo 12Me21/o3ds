@@ -909,12 +909,11 @@ Myself.prototype.getPage = function(id, callback) {
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
-			console.log(resp);
 			var page = resp.content[0];
 			if (page)
-				$.cb(callback, page, resp.userMap, resp.comment, resp.vote[0]);
+				$.cb(callback, page, resp.userMap, resp.comment);
 			else
-				$.cb(callback, null, {}, [], {});
+				$.cb(callback, null, {}, []);
 		}
 	});
 }
