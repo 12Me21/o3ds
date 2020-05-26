@@ -307,15 +307,18 @@ Myself.prototype.getPage = function(id, callback) {
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 50}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
+		/*{watch: {ids: [id]}},*/
+		{vote: {ids: [id]}}
 	], {
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
+			console.log(resp);
 			var page = resp.content[0];
 			if (page)
-				$.cb(callback, page, resp.userMap, resp.comment);
+				$.cb(callback, page, resp.userMap, resp.comment, resp.vote[0]);
 			else
-				$.cb(callback, null, {}, []);
+				$.cb(callback, null, {}, [], {});
 		}
 	});
 }
@@ -472,6 +475,26 @@ Myself.prototype.postComment = function(id, message, markup, callback) {
 		parentId: id,
 		content: JSON.stringify({t: message, m: markup})
 	});
+};
+
+Myself.prototype.setWatch = function(id, state, callback) {
+	var method = state ? 'POST' : 'DELETE';
+	this.request("Watch/"+id, method, callback);
+};
+
+Myself.prototype.getWatch = function(query, callback) {
+	this.request("Watch"+queryString(query), 'GET', callback);
+}
+
+Myself.prototype.setVote = function(id, state, callback) {
+	if (state)
+		this.request("Vote/"+id+"/"+state, 'POST', callback);
+	else
+		this.request("Vote/"+id, 'DELETE', callback);
+}
+
+Myself.prototype.getVote = function(query, callback) {
+	this.request("Vote"+queryString(query), 'GET', callback);
 }
 
 Myself.prototype.getUserPage = function(id, callback) {

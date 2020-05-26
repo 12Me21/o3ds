@@ -4,13 +4,11 @@ var me = new Myself(true);
 me.loadCachedAuth(function(){});
 var scroller;
 var lp = new DiscussionLongPoller(me, null);
+var currentPage;
 
 debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
 }
-
-var query = location.hash.substr(1);
-navigateTo(query, false);
 
 if (document.readyState == 'loading')
 	document.addEventListener('DOMContentLoaded', ready);
@@ -65,9 +63,26 @@ function ready() {
 			$chatSend.onclick();
 		}
 	};
+
+	var state;
+	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = function(e) {
+		e.target.checked = true;
+	}
+	$vote.voteB.onclick = $vote.voteO.onclick = $vote.voteG.onclick = function(e) {
+		e.target.checked = false;
+		window.setTimeout(function() {
+			var vote = $vote.vote.value;
+			loadStart();
+			me.setVote(currentPage, vote, function(e){
+				e ? loadError() : loadEnd();
+			});
+		}, 0);
+	}
 	
 	scroller = new AutoScroller($messageList);
 	
+	var query = location.hash.substr(1);
+	navigateTo(query, true);
 	//console.log = debugMessage;
 }
 
@@ -130,6 +145,7 @@ function generatePath(cid) {
 }
 
 var editingPage;
+
 function generateEditorView(id) {
 	loadStart();
 	if (id)
@@ -170,6 +186,9 @@ function loadStart() {
 function loadEnd() {
 	console.info("load end");
 	$titlePane.style.backgroundColor = "";
+}
+function loadError() {
+	$titlePane.style.backgroundColor = "#FCC";
 }
 
 //maybe turn the title <h1> into an input box
@@ -225,18 +244,31 @@ function generateAuthorBox(page, users) {
 	}
 }
 
+function setRadio(radio, state) {
+	if (state) {
+		radio.value = state;
+	} else {
+		radio[0].checked = true;
+		radio[0].checked = false;
+	}
+}
+
 function generatePageView(id) {
 	loadStart();
 	me.getPage(id, function(page, users, comments){
 		$main.className = "pageMode";
 		generateAuthorBox(page, users);
 		if (page) {
+			currentPage = page.id;
 			generatePath(page.parentId);
 			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
+			setRadio($vote.vote, page.about.myVote);
 			renderPageContents(page, $pageContents)
 		} else {
+			currentPage = null;
 			generatePath();
 			$main.className += "errorMode";
+			setRadio($vote.vote);
 			$pageTitle.textContent = "Page not found";
 			$pageContents.innerHTML = "";
 		}

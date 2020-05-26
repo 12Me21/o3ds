@@ -2,6 +2,8 @@
  ** EVENT SYSTEM **
  ******************/
 // based on nodejs EventEmitter
+// ok I like, never even use this...
+// should I really keep it even..
 
 function EventEmitter() {
 	this.events = {};

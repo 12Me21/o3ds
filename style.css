@@ -124,6 +124,14 @@ main:not(.homeMode) .homeMode {
 .headerPane .item {
 	height: 2.3rem;
 }
+.headerPane .textItem{
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+
+.myAvatar {
+	width: 2.3rem;
+}
 
 .myName {
 	color: white;
@@ -165,7 +173,6 @@ main:not(.homeMode) .homeMode {
 
 .titlePane .item {
 	height: 2.3rem;
-	line-height: 2.3rem;
 }
 /* .item's are things like the site logo, user avatar, etc.*/
 /* .textItem is similar, but is allowd to wrap */
