@@ -7,510 +7,6 @@
 <link rel="shortcut icon" href="favicon.svg?a">
 <link rel="image_src" href="favicon.svg?a">
 
-<style>
-* {
-	margin: 0;
-	box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	overflow-wrap: break-word;
-	vertical-align: top;
-}
-
-body {
-	background-color: red;
-	font-family: sans-serif;
-}
-
-/* all elements with user content, where whitespace should be preserved */
-.pre {
-	white-space: pre-wrap;
-}
-
-a:visited {
-	color: #00A;
-}
-
-a {
-	text-decoration: none;
-}
-
-a:hover {
-	color: #06F;
-}
-
-textarea {
-	border-radius: 2px;
-	border: 2px solid #00C8B4;
-	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
-	max-width: 100%;
-	font-size: 1em; /* prevent zoom in on iphone */
-}
-
-.scroller {
-	display: flex;
-	flex-direction: column;
-	overflow-y: scroll;
-	min-height: 300px;
-	height: 300px;
-}
-.spacer {
-	flex-grow: 1;
-}
-
-.rightAlign {
-	float: right;
-}
-
-.textItem {
-	max-width: 100%;
-	display: inline-block;
-}
-.item {
-	display: inline-block;
-	max-width: 100%;
-}
-
-/****************************
- ** Main Container Element **
- ****************************/
-main {
-	display: flex;
-	flex-direction: column;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: white;
-}
-
-main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
-	border-top: 1px solid gray;
-}
-
-/* most elements will be fixed-height, and should never shrink */
-main > * {
-	flex-shrink: 0;
-}
-
-/* each view has one pane which takes up the remaining screen height */
-.paneGrow {
-	flex-grow: 1;
-	flex-shrink: 1;
-	min-height: 100px;
-	/*overflow-y: scroll;*/
-}
-
-/* visibility control */
-main:not(.pageMode) .pageMode,
-main:not(.chatMode) .chatMode,
-main:not(.editorMode) .editorMode,
-main:not(.categoryMode) .categoryMode,
-main:not(.navMode) .navMode,
-main:not(.homeMode) .homeMode {
-	display: none;
-}
-
-/*************
- ** Top Bar **
- *************/
-.headerPane {
-	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	background-color: #333;
-	overflow: auto;
-}
-
-.headerRight {
-	float: right;
-}
-
-.headerPane > *  {
-	display: inline-block;
-	max-width: 100%;
-}
-
-.headerPane .item {
-	height: 2.3rem;
-}
-
-.myName {
-	color: white;
-	line-height: 2.3rem;
-	font-weight: bold;
-	margin: 0 0.5rem;
-}
-
-/**************
- ** Nav Pane **
- **************/
-.navPane {
-	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	background-color: #BBB;
-	padding: 0 0.2rem;
-	line-height: 2.3rem;
-}
-
-.pathSeparator {
-	padding: 0 0.2rem;
-}
-
-.navPane a {
-	font-weight: bold;
-}
-
-/****************
- ** Title Pane **
- ****************/
-.titlePane {
-	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	background-color: #DDD;
-	overflow: auto;
-}
-
-.titlePane .item {
-	height: 2.3rem;
-	line-height: 2.3rem;
-}
-/* .item's are things like the site logo, user avatar, etc.*/
-/* .textItem is similar, but is allowd to wrap */
-.titlePane .textItem {
-	min-height: 2.3rem;
-	line-height: 2.3rem;
-}
-
-.editingLabel {
-	padding-left: 0.3rem;
-	font-weight: bold;
-}
-.pageTitle {
-	font-weight: bold;
-	padding: 0 0.5rem;
-	font-size: 1.6rem;
-}
-
-.errorMode .titlePane {
-	background-color: pink;
-	color: maroon;
-	font-family: monospace;
-}
-
-/* Box showing the page author/editor */
-.pageCreate {
-	float: right;
-}
-.titlePane .pageCreate > * { /*hack because i reused pagecreate xd */
-	display: inline-block;
-	padding: 0 0.5rem;
-}
-.pageCreate {
-	background-color: rgba(255,255,255,0.1);
-}
-.pageAuthorAvatar {
-	width: 2.3rem;
-}
-.pageAuthorDate {
-	padding-left: 0.5rem;
-}
-.pageAuthorName {
-	font-weight: bold;
-	padding: 0 0.5rem;
-}
-.pageEdited {
-	border-left: 1px solid gray;
-}
-
-/*******************
- ** Category Pane **
- *******************/
-.categoryPage {
-	font-weight: bold;
-	background-color: #EEE;
-	display: block;
-	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	overflow: auto; /* find other places that we need to use this */
-	clear: both;
-}
-.categoryPage, .categoryDescription {
-	border-bottom: 1px solid gray;
-}
-.categoryPageTitle {
-	padding: 0 0.5rem;
-}
-.categoryPage .textItem {
-	min-height: 2.3rem;
-	line-height: 2.3rem;
-}
-.categoryPage .item {
-	height: 2.3rem;
-	line-height: 2.3rem;
-}
-.categoryPages {
-	margin-top: 0.5rem;
-}
-
-/***************
- ** Page Pane **
- ***************/
-.pageContents, .editorPreview {
-	padding: 0.5rem;
-}
-
-/*******************
- ** Chat Userlist **
- *******************/
-.userlist {
-	background-color: #EEE;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box; /* make class 4 this */
-	min-height: 2.3rem;
-}
-.userlist > * {
-	height: 2.3rem;
-}
-
-/***********************
- ** Chat Message Pane **
- ***********************/
-/* ... */
-.messageList {
-	padding-bottom: 0.7rem;
-}
-
-/** Chat Messages **/
-.message {
-	font-size: 0.9rem;
-	padding: 0.4rem 0.5rem;
-	white-space: pre-wrap;
-	border-left-width: 0.5em;
-	border-left-style: solid;
-	border-left-color: rgb(255,153,153);
-	clear: both;
-	overflow: auto;
-}
-.systemMessage {
-	background-color: rgba(187,187,187, 0.2);
-	font-weight: bold;
-	color: #666;
-	border-left: 0.5em solid rgb(187,187,187);
-}
-.ownMessage {
-	background-color: rgba(255,153,153, 0.2);
-}
-.messageTime {
-	float: right;
-	font-weight: normal;
-	padding-right: .5em;
-	color: #666;
-}
-.messageAvatar {
-	display: inline-block;
-	width: 3.5rem;
-	height: 3.5rem;
-	border: 1px solid #777;
-	margin-right: 0.5rem;
-	float: left;
-}
-.messageUsername {
-	display: inline-block;
-	font-weight: bold;
-}
-.messageContents {
-	display: block;
-	vertical-align: top;
-	overflow: auto;
-}
-.messagePart {
-	margin: .2rem;
-}
-.messagePart img {
-	max-width: 100%;
-	max-height: 10vh;
-	border: 1px solid silver;
-}
-/****************
- ** Chat Input **
- ****************/
-.inputPane {
-	overflow-wrap: break-word;
-	height: 3.25rem;
-	box-sizing: content-box;
-	display: flex;
-	flex-direction: row;
-}
-.inputPane > * {
-	height: 100%;
-}
-.inputPane > textarea {
-	flex-grow: 1;
-	resize: none;
-	min-width: 0;
-}
-
-.inputPane > button {
-	width: 3.25rem;
-}
-
-/**********************
- ** Editor Info Pane **
- **********************/
-
-/*****************
- ** Editor Pane **
- *****************/
-.editorPane {
-	display: flex;
-	flex-direction: column;
-}
-
-.editorPreview {
-	flex-grow: 1;
-	flex-shrink: 1;
-	overflow-y: scroll;
-	flex-basis: 0;
-	min-height: 10rem;
-}
-
-.editorTextarea > textarea {
-	resize: vertical;
-	width: 100%;
-	height: 40vh;
-	box-sizing: border-box;
-}
-.markup-root table, .markup-root td, .markup-root th {
-	border: 1px solid black;
-	border-collapse: collapse;
-}
-
-.markup-root td, .markup-root th {
-	padding: 0.2rem 0.3rem;
-}
-
-.markup-root table {
-	margin: 0.25rem 0;
-}
-
-.markup-root * {
-	vertical-align: baseline;
-}
-
-.markup-root h2, .markup-root h3 {
-	border-bottom: 1px solid #eaecef;
-	margin-bottom: 0.2rem;
-}
-
-.markup-root h2 {
-	margin-top: 0.5rem;
-}
-
-.markup-root h3 {
-	margin-top: 0.3rem;
-}
-
-.markup-root pre {
-	font-family: consolas, monospace;
-	color: white;
-	background-color: black;
-}
-
-.markup-root code {
-	font-family: consolas, monospace;
-	background-color: rgba(0,0,0,0.1);
-	padding: 0 0.2rem;
-}
-
-.markup-root pre, .markup-root table {
-	box-shadow: 2px 2px 2px #888888;
-}
-
-.markup-root pre {
-	border: 1px solid black;
-	padding: 0.5rem;
-	margin: 0.25rem 0;
-}
-
-.markup-root {
-	padding-top: 0.3rem;
-	padding-bottom: 0.5rem;
-}
-
-.markup-root img {
-	max-width: 100%;
-	max-height: 10vh;
-	display: block;
-	transition: all 0.25s ease;
-}
-
-.markup-root img:focus {
-	max-height: 75vh;
-}
-.markup-root pre {
-	background-color: #000;
-	color: #EEE;
-}
-.markup-root pre * {
-	background-color: transparent;
-}
-.markup-root pre .name {
-	color: #7FF5EF;
-}
-.markup-root pre .string {
-	color: #59EE79;
-}
-.markup-root pre .number {
-	color: #f359ab;
-}
-.markup-root pre .keyword {
-	font-weight: bold;
-	color: #2494f0;
-}
-.markup-root pre .comment {
-	color: #a1f198;
-}
-.markup-root pre .variable {
-	color: #fbf4cb;
-}
-.markup-root pre .function {
-	color: #8d7ff5;
-}
-.markup-root pre .statement {
-	color: #7ff5ef;
-}
-.markup-root pre .backslash {
-	color: #777;
-}
-.markup-root pre .operator {
-	color: #EEE;
-}
-.markup-root pre .equals {
-	color: #EEE;
-}
-
-.markup-root pre .label {
-	color: #f4963e;
-}
-
-.markup-root pre .word-operator {
-	color: #2494f0;
-}
-.markup-root pre .to-step {
-	color: #2494f0;
-}
-.markup-root pre .constant {
-	color: #aeb5c2;
-}
-
-
-/*--highlight-question: #2494f0;*/
-
-</style>
 <script>
 /******************
  ** EVENT SYSTEM **
@@ -3416,6 +2912,510 @@ function onLogout() {
 	show($loggedOut);
 }
 </script>
+<style>
+* {
+	margin: 0;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	overflow-wrap: break-word;
+	vertical-align: top;
+}
+
+body {
+	background-color: red;
+	font-family: sans-serif;
+}
+
+/* all elements with user content, where whitespace should be preserved */
+.pre {
+	white-space: pre-wrap;
+}
+
+a:visited {
+	color: #00A;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	color: #06F;
+}
+
+textarea {
+	border-radius: 2px;
+	border: 2px solid #00C8B4;
+	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
+	max-width: 100%;
+	font-size: 1em; /* prevent zoom in on iphone */
+}
+
+.scroller {
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+	min-height: 300px;
+	height: 300px;
+}
+.spacer {
+	flex-grow: 1;
+}
+
+.rightAlign {
+	float: right;
+}
+
+.textItem {
+	max-width: 100%;
+	display: inline-block;
+}
+.item {
+	display: inline-block;
+	max-width: 100%;
+}
+
+/****************************
+ ** Main Container Element **
+ ****************************/
+main {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+}
+
+main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
+	border-top: 1px solid gray;
+}
+
+/* most elements will be fixed-height, and should never shrink */
+main > * {
+	flex-shrink: 0;
+}
+
+/* each view has one pane which takes up the remaining screen height */
+.paneGrow {
+	flex-grow: 1;
+	flex-shrink: 1;
+	min-height: 100px;
+	/*overflow-y: scroll;*/
+}
+
+/* visibility control */
+main:not(.pageMode) .pageMode,
+main:not(.chatMode) .chatMode,
+main:not(.editorMode) .editorMode,
+main:not(.categoryMode) .categoryMode,
+main:not(.navMode) .navMode,
+main:not(.homeMode) .homeMode {
+	display: none;
+}
+
+/*************
+ ** Top Bar **
+ *************/
+.headerPane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #333;
+	overflow: auto;
+}
+
+.headerRight {
+	float: right;
+}
+
+.headerPane > *  {
+	display: inline-block;
+	max-width: 100%;
+}
+
+.headerPane .item {
+	height: 2.3rem;
+}
+
+.myName {
+	color: white;
+	line-height: 2.3rem;
+	font-weight: bold;
+	margin: 0 0.5rem;
+}
+
+/**************
+ ** Nav Pane **
+ **************/
+.navPane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #BBB;
+	padding: 0 0.2rem;
+	line-height: 2.3rem;
+}
+
+.pathSeparator {
+	padding: 0 0.2rem;
+}
+
+.navPane a {
+	font-weight: bold;
+}
+
+/****************
+ ** Title Pane **
+ ****************/
+.titlePane {
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	background-color: #DDD;
+	overflow: auto;
+}
+
+.titlePane .item {
+	height: 2.3rem;
+	line-height: 2.3rem;
+}
+/* .item's are things like the site logo, user avatar, etc.*/
+/* .textItem is similar, but is allowd to wrap */
+.titlePane .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+
+.editingLabel {
+	padding-left: 0.3rem;
+	font-weight: bold;
+}
+.pageTitle {
+	font-weight: bold;
+	padding: 0 0.5rem;
+	font-size: 1.6rem;
+}
+
+.errorMode .titlePane {
+	background-color: pink;
+	color: maroon;
+	font-family: monospace;
+}
+
+/* Box showing the page author/editor */
+.pageCreate {
+	float: right;
+}
+.titlePane .pageCreate > * { /*hack because i reused pagecreate xd */
+	display: inline-block;
+	padding: 0 0.5rem;
+}
+.pageCreate {
+	background-color: rgba(255,255,255,0.1);
+}
+.pageAuthorAvatar {
+	width: 2.3rem;
+}
+.pageAuthorDate {
+	padding-left: 0.5rem;
+}
+.pageAuthorName {
+	font-weight: bold;
+	padding: 0 0.5rem;
+}
+.pageEdited {
+	border-left: 1px solid gray;
+}
+
+/*******************
+ ** Category Pane **
+ *******************/
+.categoryPage {
+	font-weight: bold;
+	background-color: #EEE;
+	display: block;
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	overflow: auto; /* find other places that we need to use this */
+	clear: both;
+}
+.categoryPage, .categoryDescription {
+	border-bottom: 1px solid gray;
+}
+.categoryPageTitle {
+	padding: 0 0.5rem;
+}
+.categoryPage .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+.categoryPage .item {
+	height: 2.3rem;
+	line-height: 2.3rem;
+}
+.categoryPages {
+	margin-top: 0.5rem;
+}
+
+/***************
+ ** Page Pane **
+ ***************/
+.pageContents, .editorPreview {
+	padding: 0.5rem;
+}
+
+/*******************
+ ** Chat Userlist **
+ *******************/
+.userlist {
+	background-color: #EEE;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box; /* make class 4 this */
+	min-height: 2.3rem;
+}
+.userlist > * {
+	height: 2.3rem;
+}
+
+/***********************
+ ** Chat Message Pane **
+ ***********************/
+/* ... */
+.messageList {
+	padding-bottom: 0.7rem;
+}
+
+/** Chat Messages **/
+.message {
+	font-size: 0.9rem;
+	padding: 0.4rem 0.5rem;
+	white-space: pre-wrap;
+	border-left-width: 0.5em;
+	border-left-style: solid;
+	border-left-color: rgb(255,153,153);
+	clear: both;
+	overflow: auto;
+}
+.systemMessage {
+	background-color: rgba(187,187,187, 0.2);
+	font-weight: bold;
+	color: #666;
+	border-left: 0.5em solid rgb(187,187,187);
+}
+.ownMessage {
+	background-color: rgba(255,153,153, 0.2);
+}
+.messageTime {
+	float: right;
+	font-weight: normal;
+	padding-right: .5em;
+	color: #666;
+}
+.messageAvatar {
+	display: inline-block;
+	width: 3.5rem;
+	height: 3.5rem;
+	border: 1px solid #777;
+	margin-right: 0.5rem;
+	float: left;
+}
+.messageUsername {
+	display: inline-block;
+	font-weight: bold;
+}
+.messageContents {
+	display: block;
+	vertical-align: top;
+	overflow: auto;
+}
+.messagePart {
+	margin: .2rem;
+}
+.messagePart img {
+	max-width: 100%;
+	max-height: 10vh;
+	border: 1px solid silver;
+}
+/****************
+ ** Chat Input **
+ ****************/
+.inputPane {
+	overflow-wrap: break-word;
+	height: 3.25rem;
+	box-sizing: content-box;
+	display: flex;
+	flex-direction: row;
+}
+.inputPane > * {
+	height: 100%;
+}
+.inputPane > textarea {
+	flex-grow: 1;
+	resize: none;
+	min-width: 0;
+}
+
+.inputPane > button {
+	width: 3.25rem;
+}
+
+/**********************
+ ** Editor Info Pane **
+ **********************/
+
+/*****************
+ ** Editor Pane **
+ *****************/
+.editorPane {
+	display: flex;
+	flex-direction: column;
+}
+
+.editorPreview {
+	flex-grow: 1;
+	flex-shrink: 1;
+	overflow-y: scroll;
+	flex-basis: 0;
+	min-height: 10rem;
+}
+
+.editorTextarea > textarea {
+	resize: vertical;
+	width: 100%;
+	height: 40vh;
+	box-sizing: border-box;
+}
+.markup-root table, .markup-root td, .markup-root th {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+.markup-root td, .markup-root th {
+	padding: 0.2rem 0.3rem;
+}
+
+.markup-root table {
+	margin: 0.25rem 0;
+}
+
+.markup-root * {
+	vertical-align: baseline;
+}
+
+.markup-root h2, .markup-root h3 {
+	border-bottom: 1px solid #eaecef;
+	margin-bottom: 0.2rem;
+}
+
+.markup-root h2 {
+	margin-top: 0.5rem;
+}
+
+.markup-root h3 {
+	margin-top: 0.3rem;
+}
+
+.markup-root pre {
+	font-family: consolas, monospace;
+	color: white;
+	background-color: black;
+}
+
+.markup-root code {
+	font-family: consolas, monospace;
+	background-color: rgba(0,0,0,0.1);
+	padding: 0 0.2rem;
+}
+
+.markup-root pre, .markup-root table {
+	box-shadow: 2px 2px 2px #888888;
+}
+
+.markup-root pre {
+	border: 1px solid black;
+	padding: 0.5rem;
+	margin: 0.25rem 0;
+}
+
+.markup-root {
+	padding-top: 0.3rem;
+	padding-bottom: 0.5rem;
+}
+
+.markup-root img {
+	max-width: 100%;
+	max-height: 10vh;
+	display: block;
+	transition: all 0.25s ease;
+}
+
+.markup-root img:focus {
+	max-height: 75vh;
+}
+.markup-root pre {
+	background-color: #000;
+	color: #EEE;
+}
+.markup-root pre * {
+	background-color: transparent;
+}
+.markup-root pre .name {
+	color: #7FF5EF;
+}
+.markup-root pre .string {
+	color: #59EE79;
+}
+.markup-root pre .number {
+	color: #f359ab;
+}
+.markup-root pre .keyword {
+	font-weight: bold;
+	color: #2494f0;
+}
+.markup-root pre .comment {
+	color: #a1f198;
+}
+.markup-root pre .variable {
+	color: #fbf4cb;
+}
+.markup-root pre .function {
+	color: #8d7ff5;
+}
+.markup-root pre .statement {
+	color: #7ff5ef;
+}
+.markup-root pre .backslash {
+	color: #777;
+}
+.markup-root pre .operator {
+	color: #EEE;
+}
+.markup-root pre .equals {
+	color: #EEE;
+}
+
+.markup-root pre .label {
+	color: #f4963e;
+}
+
+.markup-root pre .word-operator {
+	color: #2494f0;
+}
+.markup-root pre .to-step {
+	color: #2494f0;
+}
+.markup-root pre .constant {
+	color: #aeb5c2;
+}
+
+
+/*--highlight-question: #2494f0;*/
+
+</style>
 <script>console.log(me.auth)</script>
 
 <main class="pageMode" id="$main">
