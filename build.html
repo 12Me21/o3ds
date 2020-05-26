@@ -905,8 +905,6 @@ Myself.prototype.getPage = function(id, callback) {
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 50}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
-		/*{watch: {ids: [id]}},*/
-		{vote: {ids: [id]}}
 	], {
 		user: "id,username,avatar"
 	}, function(e, resp) {
