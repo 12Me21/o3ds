@@ -66,7 +66,7 @@ function ready() {
 
 	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = $vote.voteN.onchange = function() {
 		window.setTimeout(function() {
-			var vote = $vote.vote.value;
+			var vote = getRadio($vote.vote);
 			loadStart();
 			me.setVote(currentPage, vote, function(e){
 				e ? loadError() : loadEnd();
@@ -251,6 +251,14 @@ function setRadio(radio, state) {
 	}
 }
 
+function getRadio(radio) {
+	for (var i=0;i<radio.length;i++) {
+		if (radio[i].checked)
+			return radio[i].value;
+	}
+	return null;
+}
+
 function generatePageView(id) {
 	loadStart();
 	me.getPage(id, function(page, users, comments){
@@ -269,7 +277,6 @@ function generatePageView(id) {
 			generatePath();
 			$main.className += "errorMode";
 			setRadio($vote.vote);
-			$vote.vote.value = undefined;
 			$pageTitle.textContent = "Page not found";
 			$pageContents.innerHTML = "";
 		}
