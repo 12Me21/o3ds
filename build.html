@@ -728,6 +728,680 @@ DiscussionLongPoller.prototype.loop = function() {
 		}
 	}, $.cancel);
 }
+function renderCategoryPage(page, users) {
+	var user = users[page.createUserId];
+	var div = document.createElement('a');
+	div.href = "#pages/"+page.id;
+	div.className = "pre categoryPage";
+	var title = document.createElement('span');
+	title.className = "categoryPageTitle textItem";
+	title.textContent = "\uD83D\uDCC4 " + page.name;
+	div.appendChild(title);
+	var right = document.createElement('a');
+	right.href = "#user/"+user.id;
+	right.className = "rightAlign textItem pageCreate";
+	var name = document.createElement('span');
+	name.textContent = user.username;
+	name.className = "textItem pageAuthorName";
+	right.appendChild(name);
+	var img = document.createElement('img');
+	img.className = "item";
+	img.src = user.avatarURL;
+	right.appendChild(img);
+	div.appendChild(right);
+	return div;
+}
+
+function insertFirst(node, child) {
+	if (node.firstChild)
+		node.insertBefore(child, node.firstChild);
+	else
+		node.appendChild(child);
+}
+
+function renderPath(tree, node, element) {
+	while (node) {
+		var link = document.createElement('a');
+		link.href = "#categories/"+node.id;
+		link.textContent = node.name;
+		link.className = "textItem";
+		var slash = document.createElement('span');
+		slash.textContent = "/";
+		slash.className = "pathSeparator textItem";
+		insertFirst(element, slash);
+		insertFirst(element, link);
+		node = node.parent;
+	}
+}
+
+function timeString(date) {
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	var twelve = hours % 12 || 12;
+	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+}
+
+function renderSystemMessage(text) {
+	var node = document.createElement('div');
+	node.className = 'message systemMessage';
+	node.textContent = text;
+	return node;
+}
+
+function renderUserListAvatar(user) {
+	var img = document.createElement('img');
+	img.src = user.avatarURL;
+	img.title = user.username;
+	img.className = "userListAvatar";
+	return img;
+}
+
+function renderUserBlock(user, uid, date) {
+	var div = document.createElement('div');
+	div.className = 'message';
+	
+	var img = document.createElement('img');
+	if (user)
+		img.src = user.avatarURL;
+	img.className = 'messageAvatar';
+	div.appendChild(img);
+	
+	var name = document.createElement('span');
+	name.className = 'messageUsername';
+	if (user)
+		name.textContent = user.username+":";
+	else
+		name.textContent = "["+uid+"]"+":";
+	div.appendChild(name);
+	
+	var time = document.createElement('span');
+	time.textContent = timeString(date);
+	time.className = 'messageTime'
+	div.appendChild(time);
+	
+	var contentBox = document.createElement('div');
+	contentBox.className = 'messageContents';
+	div.appendChild(contentBox);
+	return [div, contentBox];
+}
+
+function renderCategory(cat, users) {
+	var div = document.createElement('a');
+	div.href = "#categories/"+cat.id;
+	div.className = "pre categoryPage";
+	var title = document.createElement('span');
+	title.className = "categoryPageTitle item";
+	title.textContent = "\uD83D\uDCC1 "+cat.name;
+	div.appendChild(title);
+	return div;
+}
+
+function reasonableDateString(date) {
+	var seconds = Math.floor((new Date() - date) / 1000);
+	var interval = Math.floor(seconds / 31536000);
+	if (interval >= 1) return interval + " years ago";
+	interval = Math.floor(seconds / 2592000);
+	if (interval >= 1) return interval + " months ago";
+	interval = Math.floor(seconds / 86400);
+	if (interval >= 1) return interval + " days ago";
+	interval = Math.floor(seconds / 3600);
+	if (interval >= 1) return interval + " hours ago";
+	interval = Math.floor(seconds / 60);
+	if (interval >= 1) return interval + " minutes ago";
+	if (seconds < 0)
+		return " IN THE FUTURE?";
+	return Math.floor(seconds) + " seconds ago";
+	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
+}
+
+function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
+	visible(avatarE, !hideUser);
+	visible(nameE, !hideUser);
+	if (!hideUser) {
+		avatarE.src = user.avatarURL;
+		nameE.textContent = user.username;
+	}
+	link.href = "#user/"+user.id;
+	dateE.textContent = reasonableDateString(time);
+}
+
+function renderPageContents(page, element) {
+	if (page.values)
+		var markup = page.values.markupLang;
+	if (markup == '12y') {
+		element.innerHTML = "";
+		element.appendChild(parse(page.content));
+	} else if (markup == 'bbcode') {
+		element.innerHTML = "";
+		element.appendChild(bbcodeParse(page.content));
+	} else {
+		element.textContent = page.content;
+	}
+}
+
+function renderMessagePart(comment, sizedOnload){
+	var c = comment.content;
+	var t, m;
+	try {
+		c = JSON.parse(c);
+		if (c.t)
+			t = c.t;
+		else
+			t = c;
+		m = c.m;
+	} catch (e) {
+		t = c;
+	}
+	if (m == '12y') {
+		element = parse(t);
+		var x = element.getElementsByTagName('img');
+		for (var i=0;i<x.length;i++) {
+			x[i].onload = sizedOnload;
+		}
+	} else {
+		element = document.createElement('div');
+		element.appendChild(document.createTextNode(t));
+	}
+	element.className += ' messagePart';
+	//document.title=comment.username+":"+t;
+	return element;
+}
+
+function hide(element) {
+	element.style.display = 'none';
+}
+
+function show(element) {
+	element.style.display = '';
+}
+
+function visible(element, state) {
+	element.style.display = state ? '' : 'none';
+}
+
+// Based on sbs chat autoscroller
+function AutoScroller(element) {
+	this.element = element;
+	this.smoothScroll = true;
+	this.nodes = {};
+	this.blocks = {};
+	var $=this;
+	function onresize() {
+		//todo: make this only happen when the element was previously scrolled to bottom
+		// may need to detect onscroll to keep track
+		// I'd like to avoid onscroll for o3ds though (especially since window can't even be resized so it doesn't matter) (also does o3DS EVEN HAVE onscroll lol)
+		$.autoScroll(true);
+	};
+	window.addEventListener('resize', onresize);
+}
+// do autoscroll
+AutoScroller.prototype.autoScroll = function(instant) {
+	var parent = this.element.parentNode;
+	if (!window.requestAnimationFrame || !this.smoothScroll || instant) {
+		parent.scrollTop = parent.scrollHeight - parent.clientHeight;
+	} else {
+		// only start a new animation if previous isn't already running
+		if (!this.animationId) {
+			this.autoScrollAnimation();
+		}
+	}
+}
+// check if element is scrolled to near the bottom (within 0.25*height)
+// this threshold can probably be decreased...
+AutoScroller.prototype.shouldScroll = function() {
+	return this.scrollDistance() < this.element.parentNode.clientHeight*0.25;
+}
+// check distance to bottom
+AutoScroller.prototype.scrollDistance = function() {
+	var parent = this.element.parentNode;
+	return parent.scrollHeight-parent.clientHeight-parent.scrollTop;
+}
+
+// scrolls down until reaching bottom
+// stops if interrupted by user scrolling
+AutoScroller.prototype.autoScrollAnimation = function() {
+	var $=this;
+	var parent = this.element.parentNode;
+
+	parent.scrollTop += Math.max(Math.ceil(this.scrollDistance()/4), 1);
+	
+	if (this.scrollDistance() > 0) {
+		// save scroll position
+		this.expectedTop = parent.scrollTop;
+		this.animationId = window.requestAnimationFrame(function(time) {
+			// only call again if scroll pos has not changed
+			// (if it has, that means the user probably scrolled manually)
+			if ($.expectedTop == $.element.parentNode.scrollTop) {
+				$.autoScrollAnimation();
+			} else {
+				$.animationId = null;
+			}
+		});
+	} else {
+		this.animationId = null;
+	}
+}
+AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
+	var s = this.shouldScroll();
+	// replace an existing message (we assume uid doesn't change)
+	if (this.nodes[id]) {
+		this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
+	// insert a new line to the last block
+	} else if (uid && this.lastUid == uid) {
+		this.lastUidBlock.appendChild(node);
+	// create a new block
+	} else {
+		var b = makeBlock();
+		b[1].appendChild(node);
+		this.element.appendChild(b[0]);
+		
+		this.lastUidBlock = b[1];
+		this.lastUid = uid;
+	}
+	this.nodes[id] = node;
+	if (s)
+		this.autoScroll();
+}
+AutoScroller.prototype.remove = function(id) {
+	var node = this.nodes[id]
+	// todo: remove block when all messages are gone from it
+	// don't forget to update lastUidBlock etc. too
+	if (node) {
+		node.parentNode.removeChild(node);
+	}
+	this.nodes[id] = undefined;
+}
+// currently just clears no matter what
+// in the future you might, if this is properly connected to a LongPoller,
+// cache messages when switching rooms, or something
+AutoScroller.prototype.switchRoom = function(id) {
+	this.element.innerHTML = "";
+	this.lastUid = undefined;
+	this.lastUidBlock = undefined;
+	this.nodes = {};
+	// probably needs more cleanup
+}
+
+AutoScroller.prototype.embed = function(node) {
+	var s = this.shouldScroll();
+	this.element.appendChild(node);
+	this.lastUid = null;
+	this.lastUidBlock = null;
+	if (s)
+		this.autoScroll();
+}
+var scriptLoaded = Date.now();
+
+var me = new Myself(true);
+me.loadCachedAuth(function(){});
+var scroller;
+var lp = new DiscussionLongPoller(me, null);
+
+debugMessage = function(text) {
+	scroller.embed(renderSystemMessage(String(text)));
+}
+
+var query = location.hash.substr(1);
+navigateTo(query, false);
+
+if (document.readyState == 'loading')
+	document.addEventListener('DOMContentLoaded', ready);
+else {
+	ready();
+}
+var loadTime;
+function ready() {
+	console.info("ready");
+	loadTime = Date.now() - scriptLoaded;
+	if (me.auth)
+		onLogin(me);
+	else
+		onLogout();
+	
+	me.on('login', function(gotUser) {
+		onLogin(me);
+	});
+	me.on('logout', function() {
+		onLogout(me);
+	});
+	
+	$loggedOut.$login.onclick = function() {
+		event.preventDefault();
+		me.logOut();
+		me.logIn($loggedOut.$username.value, $loggedOut.$password.value, function(){});
+	}
+	$logout.onclick = function() {
+		event.preventDefault();
+		me.logOut();
+	}
+	
+	$editorTextarea.oninput = function() {
+		updateEditorPreview();
+	}
+	$markupSelect.onchange = function() {
+		updateEditorPreview();
+	}
+
+	$submitEdit.onclick = submitEdit;
+	
+	$chatSend.onclick = function() {
+		if ($chatTextarea.value) {
+			me.postComment(lp.idList[0], $chatTextarea.value, "plaintext", function(){});
+			$chatTextarea.value = "";
+		}
+	}
+
+	$chatTextarea.onkeypress = function(e) {
+		if (!e.shiftKey && e.keyCode == 13) {
+			e.preventDefault();
+			$chatSend.onclick();
+		}
+	};
+	
+	scroller = new AutoScroller($messageList);
+	
+	//console.log = debugMessage;
+}
+
+window.onhashchange = function() {
+	var query = location.hash.substr(1);
+	navigateTo(query);
+}
+
+function navigateTo(path, first) {
+	lp.reset();
+	path = path.split("/").filter(function(x){return x;});
+	var type = path[0];
+	var id = +(path[1]);
+	if (type == "pages") {
+		if (path[1] == "edit") {
+			first && ($main.className = 'editMode');
+			if (path[2]) {
+				path[2] = path[2].split(/[&?]/g);
+				id = +(path[2][0]);
+			} else {
+				id = undefined;
+			}
+			generateEditorView(id);
+		} else {
+			first && ($main.className = 'pageMode');
+			generatePageView(id);
+		}
+	} else if (type == "categories") {
+		first && ($main.className = 'categoryMode');
+		generateCategoryView(id);
+	} else if (type == "user") {
+		first && ($main.className = 'userMode');
+		generateUserView(id);
+	} else if (type == "discussions") {
+		first && ($main.className = 'chatMode');
+		generateChatView(id);
+	} else if (typeof type == 'undefined') { //home
+		first && ($main.className = 'homeMode');
+		generateHomeView();
+	} else {
+		$main.className = "pageMode errorMode";
+		generateAuthorBox();
+		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
+		$pageContents.textContent = "";
+	}
+}
+
+function generateHomeView() {
+	$main.className = "homeMode";
+	generateAuthorBox();
+	generatePath();
+	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
+}
+
+function generatePath(cid) {
+	$navPane.innerHTML = "";
+	if (typeof cid != 'undefined') {
+		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane);
+	}
+}
+
+var editingPage;
+function generateEditorView(id) {
+	loadStart();
+	if (id)
+		me.getPageForEditing(id, go);
+	else
+		go();
+	
+	function go(page, users) {
+		$main.className = "editorMode";
+		generateAuthorBox(page, users);
+		if (page) {
+			generatePath(page.parentId);
+			editingPage = page;
+			$pageTitle.textContent = "";
+			if (page.values)
+				var markup = page.values.markupLang;
+			$titleInput.value = page.name;
+			$markupSelect.value = markup;
+			$editorTextarea.value = page.content;
+			updateEditorPreview();
+		} else {
+			generatePath();
+			$pageTitle.textContent = "";
+			$titleInput.value = "";
+			$editorTextarea.value = "";
+			editingPage = {}; //todo: fill stuff here
+		}
+		loadEnd();
+	}
+}
+
+// These are used to signal to the user when content is loading
+function loadStart() {
+	console.info("load start");
+	if (window.$titlePane)
+		window.$titlePane.style.backgroundColor = "#48F";
+}
+function loadEnd() {
+	console.info("load end");
+	$titlePane.style.backgroundColor = "";
+}
+
+//maybe turn the title <h1> into an input box
+//so you can just edit the page title there
+function submitEdit() {
+	if (editingPage) {
+		editingPage.content = $editorTextarea.value;
+		if (!editingPage.values)
+			editingPage.values = {};
+		editingPage.values.markupLang = $markupSelect.value;
+		editingPage.name = $titleInput.value;
+		//todo: other fields
+		me.postPage(editingPage, function(e, resp) {
+			if (e) {
+				alert("ERROR");
+			} else {
+				alert("OK EDIT");
+			}
+		});
+	}
+}
+
+function updateEditorPreview() {
+	renderPageContents({
+		values: {
+			markupLang: $markupSelect.value
+		},
+		content: $editorTextarea.value
+	}, $editorPreview);
+}
+
+// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
+function parseDate(str) {
+	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
+	if (data) {
+		var sec = Math.floor(+data[6]);
+		var ms = +data[6] - sec;
+		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
+	}
+	return new Date(0);
+}
+
+function generateAuthorBox(page, users) {
+	if (page) {
+		show($pageAuthorBox);
+		renderEditor(users[page.createUserId], parseDate(page.createDate), $pageAuthorAvatar, $pageAuthorName, $pageAuthorDate, false, $authorLink);
+		visible($pageEdited, page.editDate);
+		if (page.editDate) {
+			renderEditor(users[page.editUserId], parseDate(page.editDate), $pageEditorAvatar, $pageEditorName, $pageEditorDate, page.editUserId == page.createUserId, $editorLink);
+		}
+	} else {
+		hide($pageAuthorBox);
+	}
+}
+
+function generatePageView(id) {
+	loadStart();
+	me.getPage(id, function(page, users, comments){
+		$main.className = "pageMode";
+		generateAuthorBox(page, users);
+		if (page) {
+			generatePath(page.parentId);
+			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
+			renderPageContents(page, $pageContents)
+		} else {
+			generatePath();
+			$main.className += "errorMode";
+			$pageTitle.textContent = "Page not found";
+			$pageContents.innerHTML = "";
+		}
+		loadEnd();
+	});
+}
+
+function generateUserView(id) {
+	loadStart();
+	me.getUserPage(id, function(user, page, comments, userMap) {
+		console.info(arguments);
+		$main.className = 'pageMode';
+		generateAuthorBox(user && page, userMap);
+		generatePath();
+		if (user) {
+			$pageTitle.textContent = user.username;
+			if (page) {
+				renderPageContents(page, $pageContents)
+			} else {
+				$pageContents.innerHTML = "";
+			}
+		} else {
+			$main.className += " errorMode";
+			$pageTitle.textContent = "User Not Found";
+		}
+		loadEnd();
+	});
+}
+
+function updateUserlist(listeners, userMap) {
+	$chatUserlist.innerHTML = "";
+	listeners && listeners.forEach(function(l) {
+		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
+	})
+}
+
+function generateChatView(id) {
+	loadStart();
+	lp.callback = function(comments, listeners, userMap, page) {
+		if (page && page.id == id) {
+			generatePath(page.parentId);
+			generateAuthorBox(page, userMap);
+			$messageList.innerHTML = ""
+			$main.className = "chatMode";
+			scroller.switchRoom(id);
+			$pageTitle.textContent = page.name;
+			renderPageContents(page, $chatPageContents);
+			loadEnd();
+		} else if (page == false) { //1st request, page doesn't exist
+			generatePath();
+			generateAuthorBox(page, userMap);
+			$messageList.innerHTML = ""
+			$pageTitle.textContent = "Page not found";
+			$chatPageContents.innerHTML = "";
+			loadEnd();
+			// TODO: page list passed to callback needs to be PER-ID!!
+		}
+		if (comments) {
+			comments.forEach(function(comment) {
+				if (comment.parentId == id)
+					displayMessage(comment, userMap[comment.createUserId]);
+			});
+		}
+		if (listeners)
+			updateUserlist(listeners[id], userMap);
+		if (page) {
+			scroller.autoScroll(true);
+		}
+	}
+	lp.addRoom(id);
+}
+
+function displayMessage(c, user) {
+	if (c.deleted) {
+		scroller.remove(c.id);
+	} else {
+		var node = renderMessagePart(c, function(){
+			scroller.autoScroll();
+		});
+		scroller.insert(c.id, node, c.createUserId, function() {
+			var b = renderUserBlock(user, c.createUserId, parseDate(c.createDate));
+			if (c.createUserId == me.uid)
+				b[0].className += " ownMessage";
+			return b;
+		});
+	}
+}
+
+function generateCategoryView(id) {
+	loadStart();
+	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
+		hide($pageAuthorBox);
+		$main.className = 'categoryMode';
+		
+		$categoryPages.innerHTML = "";
+		$categoryCategories.innerHTML = "";
+		$categoryDescription.textContent = "";
+		if (category) {
+			generatePath(category.parentId);
+			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
+			$categoryDescription.textContent = category.description;
+			childs.forEach(function(cat) {
+				$categoryCategories.appendChild(renderCategory(cat, users));
+			});
+			$categoryPages.style.display="none";
+			contentz.forEach(function(content) {
+				$categoryPages.appendChild(renderCategoryPage(content, users));
+			});
+			$categoryPages.style.display="";
+		} else {
+			generatePath();
+			$main.className += "errorMode";
+			$pageTitle.textContent = "Category not found";
+		}
+		loadEnd();
+	});
+}
+
+function onLogin(me) {
+	me.whenUser(me.uid, function(user) {
+		$myAvatar.src = user.avatarURL;
+		$myName.textContent = user.username;
+	});
+	hide($loggedOut);
+	show($loggedIn);
+}
+
+function onLogout() {
+	$myAvatar.src = "";
+	$myName.textContent = "";
+	hide($loggedIn);
+	show($loggedOut);
+}
 var highlight_smilebasic = (function(){
 	//keywords that don't have an expression after them
 	var keywords=[
@@ -2237,680 +2911,6 @@ bbcodeParse.options = (function(){
 		}
 	}
 })();
-function renderCategoryPage(page, users) {
-	var user = users[page.createUserId];
-	var div = document.createElement('a');
-	div.href = "#pages/"+page.id;
-	div.className = "pre categoryPage";
-	var title = document.createElement('span');
-	title.className = "categoryPageTitle textItem";
-	title.textContent = "\uD83D\uDCC4 " + page.name;
-	div.appendChild(title);
-	var right = document.createElement('a');
-	right.href = "#user/"+user.id;
-	right.className = "rightAlign textItem pageCreate";
-	var name = document.createElement('span');
-	name.textContent = user.username;
-	name.className = "textItem pageAuthorName";
-	right.appendChild(name);
-	var img = document.createElement('img');
-	img.className = "item";
-	img.src = user.avatarURL;
-	right.appendChild(img);
-	div.appendChild(right);
-	return div;
-}
-
-function insertFirst(node, child) {
-	if (node.firstChild)
-		node.insertBefore(child, node.firstChild);
-	else
-		node.appendChild(child);
-}
-
-function renderPath(tree, node, element) {
-	while (node) {
-		var link = document.createElement('a');
-		link.href = "#categories/"+node.id;
-		link.textContent = node.name;
-		link.className = "textItem";
-		var slash = document.createElement('span');
-		slash.textContent = "/";
-		slash.className = "pathSeparator textItem";
-		insertFirst(element, slash);
-		insertFirst(element, link);
-		node = node.parent;
-	}
-}
-
-function timeString(date) {
-	var hours = date.getHours();
-	var minutes = date.getMinutes();
-	var twelve = hours % 12 || 12;
-	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
-}
-
-function renderSystemMessage(text) {
-	var node = document.createElement('div');
-	node.className = 'message systemMessage';
-	node.textContent = text;
-	return node;
-}
-
-function renderUserListAvatar(user) {
-	var img = document.createElement('img');
-	img.src = user.avatarURL;
-	img.title = user.username;
-	img.className = "userListAvatar";
-	return img;
-}
-
-function renderUserBlock(user, uid, date) {
-	var div = document.createElement('div');
-	div.className = 'message';
-	
-	var img = document.createElement('img');
-	if (user)
-		img.src = user.avatarURL;
-	img.className = 'messageAvatar';
-	div.appendChild(img);
-	
-	var name = document.createElement('span');
-	name.className = 'messageUsername';
-	if (user)
-		name.textContent = user.username+":";
-	else
-		name.textContent = "["+uid+"]"+":";
-	div.appendChild(name);
-	
-	var time = document.createElement('span');
-	time.textContent = timeString(date);
-	time.className = 'messageTime'
-	div.appendChild(time);
-	
-	var contentBox = document.createElement('div');
-	contentBox.className = 'messageContents';
-	div.appendChild(contentBox);
-	return [div, contentBox];
-}
-
-function renderCategory(cat, users) {
-	var div = document.createElement('a');
-	div.href = "#categories/"+cat.id;
-	div.className = "pre categoryPage";
-	var title = document.createElement('span');
-	title.className = "categoryPageTitle item";
-	title.textContent = "\uD83D\uDCC1 "+cat.name;
-	div.appendChild(title);
-	return div;
-}
-
-function reasonableDateString(date) {
-	var seconds = Math.floor((new Date() - date) / 1000);
-	var interval = Math.floor(seconds / 31536000);
-	if (interval >= 1) return interval + " years ago";
-	interval = Math.floor(seconds / 2592000);
-	if (interval >= 1) return interval + " months ago";
-	interval = Math.floor(seconds / 86400);
-	if (interval >= 1) return interval + " days ago";
-	interval = Math.floor(seconds / 3600);
-	if (interval >= 1) return interval + " hours ago";
-	interval = Math.floor(seconds / 60);
-	if (interval >= 1) return interval + " minutes ago";
-	if (seconds < 0)
-		return " IN THE FUTURE?";
-	return Math.floor(seconds) + " seconds ago";
-	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
-}
-
-function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
-	visible(avatarE, !hideUser);
-	visible(nameE, !hideUser);
-	if (!hideUser) {
-		avatarE.src = user.avatarURL;
-		nameE.textContent = user.username;
-	}
-	link.href = "#user/"+user.id;
-	dateE.textContent = reasonableDateString(time);
-}
-
-function renderPageContents(page, element) {
-	if (page.values)
-		var markup = page.values.markupLang;
-	if (markup == '12y') {
-		element.innerHTML = "";
-		element.appendChild(parse(page.content));
-	} else if (markup == 'bbcode') {
-		element.innerHTML = "";
-		element.appendChild(bbcodeParse(page.content));
-	} else {
-		element.textContent = page.content;
-	}
-}
-
-function renderMessagePart(comment, sizedOnload){
-	var c = comment.content;
-	var t, m;
-	try {
-		c = JSON.parse(c);
-		if (c.t)
-			t = c.t;
-		else
-			t = c;
-		m = c.m;
-	} catch (e) {
-		t = c;
-	}
-	if (m == '12y') {
-		element = parse(t);
-		var x = element.getElementsByTagName('img');
-		for (var i=0;i<x.length;i++) {
-			x[i].onload = sizedOnload;
-		}
-	} else {
-		element = document.createElement('div');
-		element.appendChild(document.createTextNode(t));
-	}
-	element.className += ' messagePart';
-	//document.title=comment.username+":"+t;
-	return element;
-}
-
-function hide(element) {
-	element.style.display = 'none';
-}
-
-function show(element) {
-	element.style.display = '';
-}
-
-function visible(element, state) {
-	element.style.display = state ? '' : 'none';
-}
-
-// Based on sbs chat autoscroller
-function AutoScroller(element) {
-	this.element = element;
-	this.smoothScroll = true;
-	this.nodes = {};
-	this.blocks = {};
-	var $=this;
-	function onresize() {
-		//todo: make this only happen when the element was previously scrolled to bottom
-		// may need to detect onscroll to keep track
-		// I'd like to avoid onscroll for o3ds though (especially since window can't even be resized so it doesn't matter) (also does o3DS EVEN HAVE onscroll lol)
-		$.autoScroll(true);
-	};
-	window.addEventListener('resize', onresize);
-}
-// do autoscroll
-AutoScroller.prototype.autoScroll = function(instant) {
-	var parent = this.element.parentNode;
-	if (!window.requestAnimationFrame || !this.smoothScroll || instant) {
-		parent.scrollTop = parent.scrollHeight - parent.clientHeight;
-	} else {
-		// only start a new animation if previous isn't already running
-		if (!this.animationId) {
-			this.autoScrollAnimation();
-		}
-	}
-}
-// check if element is scrolled to near the bottom (within 0.25*height)
-// this threshold can probably be decreased...
-AutoScroller.prototype.shouldScroll = function() {
-	return this.scrollDistance() < this.element.parentNode.clientHeight*0.25;
-}
-// check distance to bottom
-AutoScroller.prototype.scrollDistance = function() {
-	var parent = this.element.parentNode;
-	return parent.scrollHeight-parent.clientHeight-parent.scrollTop;
-}
-
-// scrolls down until reaching bottom
-// stops if interrupted by user scrolling
-AutoScroller.prototype.autoScrollAnimation = function() {
-	var $=this;
-	var parent = this.element.parentNode;
-
-	parent.scrollTop += Math.max(Math.ceil(this.scrollDistance()/4), 1);
-	
-	if (this.scrollDistance() > 0) {
-		// save scroll position
-		this.expectedTop = parent.scrollTop;
-		this.animationId = window.requestAnimationFrame(function(time) {
-			// only call again if scroll pos has not changed
-			// (if it has, that means the user probably scrolled manually)
-			if ($.expectedTop == $.element.parentNode.scrollTop) {
-				$.autoScrollAnimation();
-			} else {
-				$.animationId = null;
-			}
-		});
-	} else {
-		this.animationId = null;
-	}
-}
-AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
-	var s = this.shouldScroll();
-	// replace an existing message (we assume uid doesn't change)
-	if (this.nodes[id]) {
-		this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
-	// insert a new line to the last block
-	} else if (uid && this.lastUid == uid) {
-		this.lastUidBlock.appendChild(node);
-	// create a new block
-	} else {
-		var b = makeBlock();
-		b[1].appendChild(node);
-		this.element.appendChild(b[0]);
-		
-		this.lastUidBlock = b[1];
-		this.lastUid = uid;
-	}
-	this.nodes[id] = node;
-	if (s)
-		this.autoScroll();
-}
-AutoScroller.prototype.remove = function(id) {
-	var node = this.nodes[id]
-	// todo: remove block when all messages are gone from it
-	// don't forget to update lastUidBlock etc. too
-	if (node) {
-		node.parentNode.removeChild(node);
-	}
-	this.nodes[id] = undefined;
-}
-// currently just clears no matter what
-// in the future you might, if this is properly connected to a LongPoller,
-// cache messages when switching rooms, or something
-AutoScroller.prototype.switchRoom = function(id) {
-	this.element.innerHTML = "";
-	this.lastUid = undefined;
-	this.lastUidBlock = undefined;
-	this.nodes = {};
-	// probably needs more cleanup
-}
-
-AutoScroller.prototype.embed = function(node) {
-	var s = this.shouldScroll();
-	this.element.appendChild(node);
-	this.lastUid = null;
-	this.lastUidBlock = null;
-	if (s)
-		this.autoScroll();
-}
-var scriptLoaded = Date.now();
-
-var me = new Myself(true);
-me.loadCachedAuth(function(){});
-var scroller;
-var lp = new DiscussionLongPoller(me, null);
-
-debugMessage = function(text) {
-	scroller.embed(renderSystemMessage(String(text)));
-}
-
-var query = location.hash.substr(1);
-navigateTo(query, false);
-
-if (document.readyState == 'loading')
-	document.addEventListener('DOMContentLoaded', ready);
-else {
-	ready();
-}
-var loadTime;
-function ready() {
-	console.info("ready");
-	loadTime = Date.now() - scriptLoaded;
-	if (me.auth)
-		onLogin(me);
-	else
-		onLogout();
-	
-	me.on('login', function(gotUser) {
-		onLogin(me);
-	});
-	me.on('logout', function() {
-		onLogout(me);
-	});
-	
-	$loggedOut.$login.onclick = function() {
-		event.preventDefault();
-		me.logOut();
-		me.logIn($loggedOut.$username.value, $loggedOut.$password.value, function(){});
-	}
-	$logout.onclick = function() {
-		event.preventDefault();
-		me.logOut();
-	}
-	
-	$editorTextarea.oninput = function() {
-		updateEditorPreview();
-	}
-	$markupSelect.onchange = function() {
-		updateEditorPreview();
-	}
-
-	$submitEdit.onclick = submitEdit;
-	
-	$chatSend.onclick = function() {
-		if ($chatTextarea.value) {
-			me.postComment(lp.idList[0], $chatTextarea.value, "plaintext", function(){});
-			$chatTextarea.value = "";
-		}
-	}
-
-	$chatTextarea.onkeypress = function(e) {
-		if (!e.shiftKey && e.keyCode == 13) {
-			e.preventDefault();
-			$chatSend.onclick();
-		}
-	};
-	
-	scroller = new AutoScroller($messageList);
-	
-	//console.log = debugMessage;
-}
-
-window.onhashchange = function() {
-	var query = location.hash.substr(1);
-	navigateTo(query);
-}
-
-function navigateTo(path, first) {
-	lp.reset();
-	path = path.split("/").filter(function(x){return x;});
-	var type = path[0];
-	var id = +(path[1]);
-	if (type == "pages") {
-		if (path[1] == "edit") {
-			first && ($main.className = 'editMode');
-			if (path[2]) {
-				path[2] = path[2].split(/[&?]/g);
-				id = +(path[2][0]);
-			} else {
-				id = undefined;
-			}
-			generateEditorView(id);
-		} else {
-			first && ($main.className = 'pageMode');
-			generatePageView(id);
-		}
-	} else if (type == "categories") {
-		first && ($main.className = 'categoryMode');
-		generateCategoryView(id);
-	} else if (type == "user") {
-		first && ($main.className = 'userMode');
-		generateUserView(id);
-	} else if (type == "discussions") {
-		first && ($main.className = 'chatMode');
-		generateChatView(id);
-	} else if (typeof type == 'undefined') { //home
-		first && ($main.className = 'homeMode');
-		generateHomeView();
-	} else {
-		$main.className = "pageMode errorMode";
-		generateAuthorBox();
-		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
-		$pageContents.textContent = "";
-	}
-}
-
-function generateHomeView() {
-	$main.className = "homeMode";
-	generateAuthorBox();
-	generatePath();
-	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
-}
-
-function generatePath(cid) {
-	$navPane.innerHTML = "";
-	if (typeof cid != 'undefined') {
-		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane);
-	}
-}
-
-var editingPage;
-function generateEditorView(id) {
-	loadStart();
-	if (id)
-		me.getPageForEditing(id, go);
-	else
-		go();
-	
-	function go(page, users) {
-		$main.className = "editorMode";
-		generateAuthorBox(page, users);
-		if (page) {
-			generatePath(page.parentId);
-			editingPage = page;
-			$pageTitle.textContent = "";
-			if (page.values)
-				var markup = page.values.markupLang;
-			$titleInput.value = page.name;
-			$markupSelect.value = markup;
-			$editorTextarea.value = page.content;
-			updateEditorPreview();
-		} else {
-			generatePath();
-			$pageTitle.textContent = "";
-			$titleInput.value = "";
-			$editorTextarea.value = "";
-			editingPage = {}; //todo: fill stuff here
-		}
-		loadEnd();
-	}
-}
-
-// These are used to signal to the user when content is loading
-function loadStart() {
-	console.info("load start");
-	if (window.$titlePane)
-		window.$titlePane.style.backgroundColor = "#48F";
-}
-function loadEnd() {
-	console.info("load end");
-	$titlePane.style.backgroundColor = "";
-}
-
-//maybe turn the title <h1> into an input box
-//so you can just edit the page title there
-function submitEdit() {
-	if (editingPage) {
-		editingPage.content = $editorTextarea.value;
-		if (!editingPage.values)
-			editingPage.values = {};
-		editingPage.values.markupLang = $markupSelect.value;
-		editingPage.name = $titleInput.value;
-		//todo: other fields
-		me.postPage(editingPage, function(e, resp) {
-			if (e) {
-				alert("ERROR");
-			} else {
-				alert("OK EDIT");
-			}
-		});
-	}
-}
-
-function updateEditorPreview() {
-	renderPageContents({
-		values: {
-			markupLang: $markupSelect.value
-		},
-		content: $editorTextarea.value
-	}, $editorPreview);
-}
-
-// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
-function parseDate(str) {
-	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
-	if (data) {
-		var sec = Math.floor(+data[6]);
-		var ms = +data[6] - sec;
-		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
-	}
-	return new Date(0);
-}
-
-function generateAuthorBox(page, users) {
-	if (page) {
-		show($pageAuthorBox);
-		renderEditor(users[page.createUserId], parseDate(page.createDate), $pageAuthorAvatar, $pageAuthorName, $pageAuthorDate, false, $authorLink);
-		visible($pageEdited, page.editDate);
-		if (page.editDate) {
-			renderEditor(users[page.editUserId], parseDate(page.editDate), $pageEditorAvatar, $pageEditorName, $pageEditorDate, page.editUserId == page.createUserId, $editorLink);
-		}
-	} else {
-		hide($pageAuthorBox);
-	}
-}
-
-function generatePageView(id) {
-	loadStart();
-	me.getPage(id, function(page, users, comments){
-		$main.className = "pageMode";
-		generateAuthorBox(page, users);
-		if (page) {
-			generatePath(page.parentId);
-			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
-			renderPageContents(page, $pageContents)
-		} else {
-			generatePath();
-			$main.className += "errorMode";
-			$pageTitle.textContent = "Page not found";
-			$pageContents.innerHTML = "";
-		}
-		loadEnd();
-	});
-}
-
-function generateUserView(id) {
-	loadStart();
-	me.getUserPage(id, function(user, page, comments, userMap) {
-		console.info(arguments);
-		$main.className = 'pageMode';
-		generateAuthorBox(user && page, userMap);
-		generatePath();
-		if (user) {
-			$pageTitle.textContent = user.username;
-			if (page) {
-				renderPageContents(page, $pageContents)
-			} else {
-				$pageContents.innerHTML = "";
-			}
-		} else {
-			$main.className += " errorMode";
-			$pageTitle.textContent = "User Not Found";
-		}
-		loadEnd();
-	});
-}
-
-function updateUserlist(listeners, userMap) {
-	$chatUserlist.innerHTML = "";
-	listeners && listeners.forEach(function(l) {
-		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
-	})
-}
-
-function generateChatView(id) {
-	loadStart();
-	lp.callback = function(comments, listeners, userMap, page) {
-		if (page && page.id == id) {
-			generatePath(page.parentId);
-			generateAuthorBox(page, userMap);
-			$messageList.innerHTML = ""
-			$main.className = "chatMode";
-			scroller.switchRoom(id);
-			$pageTitle.textContent = page.name;
-			renderPageContents(page, $chatPageContents);
-			loadEnd();
-		} else if (page == false) { //1st request, page doesn't exist
-			generatePath();
-			generateAuthorBox(page, userMap);
-			$messageList.innerHTML = ""
-			$pageTitle.textContent = "Page not found";
-			$chatPageContents.innerHTML = "";
-			loadEnd();
-			// TODO: page list passed to callback needs to be PER-ID!!
-		}
-		if (comments) {
-			comments.forEach(function(comment) {
-				if (comment.parentId == id)
-					displayMessage(comment, userMap[comment.createUserId]);
-			});
-		}
-		if (listeners)
-			updateUserlist(listeners[id], userMap);
-		if (page) {
-			scroller.autoScroll(true);
-		}
-	}
-	lp.addRoom(id);
-}
-
-function displayMessage(c, user) {
-	if (c.deleted) {
-		scroller.remove(c.id);
-	} else {
-		var node = renderMessagePart(c, function(){
-			scroller.autoScroll();
-		});
-		scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderUserBlock(user, c.createUserId, parseDate(c.createDate));
-			if (c.createUserId == me.uid)
-				b[0].className += " ownMessage";
-			return b;
-		});
-	}
-}
-
-function generateCategoryView(id) {
-	loadStart();
-	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
-		hide($pageAuthorBox);
-		$main.className = 'categoryMode';
-		
-		$categoryPages.innerHTML = "";
-		$categoryCategories.innerHTML = "";
-		$categoryDescription.textContent = "";
-		if (category) {
-			generatePath(category.parentId);
-			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
-			$categoryDescription.textContent = category.description;
-			childs.forEach(function(cat) {
-				$categoryCategories.appendChild(renderCategory(cat, users));
-			});
-			$categoryPages.style.display="none";
-			contentz.forEach(function(content) {
-				$categoryPages.appendChild(renderCategoryPage(content, users));
-			});
-			$categoryPages.style.display="";
-		} else {
-			generatePath();
-			$main.className += "errorMode";
-			$pageTitle.textContent = "Category not found";
-		}
-		loadEnd();
-	});
-}
-
-function onLogin(me) {
-	me.whenUser(me.uid, function(user) {
-		$myAvatar.src = user.avatarURL;
-		$myName.textContent = user.username;
-	});
-	hide($loggedOut);
-	show($loggedIn);
-}
-
-function onLogout() {
-	$myAvatar.src = "";
-	$myName.textContent = "";
-	hide($loggedIn);
-	show($loggedOut);
-}
 </script>
 <style>
 * {
