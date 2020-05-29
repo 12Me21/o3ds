@@ -490,10 +490,7 @@ Myself.prototype.getWatch = function(query, callback) {
 }
 
 Myself.prototype.setVote = function(id, state, callback) {
-	if (state)
-		this.request("Vote/"+id+"/"+state, 'POST', callback);
-	else
-		this.request("Vote/"+id+"/delete", 'POST', callback);
+	this.request("Vote/"+id+"/"+(state||"delete"), 'POST', callback);
 }
 
 Myself.prototype.getVote = function(query, callback) {

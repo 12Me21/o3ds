@@ -97,6 +97,7 @@ main:not(.chatMode) .chatMode,
 main:not(.editorMode) .editorMode,
 main:not(.categoryMode) .categoryMode,
 main:not(.navMode) .navMode,
+main:not(.userMode) .userMode,
 main:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -381,3 +382,7 @@ main:not(.homeMode) .homeMode {
 	height: 40vh;
 	box-sizing: border-box;
 }
+
+/***************
+ ** User Page **
+ ***************/

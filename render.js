@@ -140,10 +140,10 @@ function renderPageContents(page, element) {
 		var markup = page.values.markupLang;
 	if (markup == '12y') {
 		element.innerHTML = "";
-		element.appendChild(parse(page.content));
+		element.appendChild(parse12y(page.content));
 	} else if (markup == 'bbcode') {
 		element.innerHTML = "";
-		element.appendChild(bbcodeParse(page.content));
+		element.appendChild(parseBBCode(page.content));
 	} else {
 		element.textContent = page.content;
 	}

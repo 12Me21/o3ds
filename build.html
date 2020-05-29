@@ -107,6 +107,7 @@ main:not(.chatMode) .chatMode,
 main:not(.editorMode) .editorMode,
 main:not(.categoryMode) .categoryMode,
 main:not(.navMode) .navMode,
+main:not(.userMode) .userMode,
 main:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -391,6 +392,10 @@ main:not(.homeMode) .homeMode {
 	height: 40vh;
 	box-sizing: border-box;
 }
+
+/***************
+ ** User Page **
+ ***************/
 .markup-root table, .markup-root td, .markup-root th {
 	border: 1px solid black;
 	border-collapse: collapse;
@@ -1088,10 +1093,7 @@ Myself.prototype.getWatch = function(query, callback) {
 }
 
 Myself.prototype.setVote = function(id, state, callback) {
-	if (state)
-		this.request("Vote/"+id+"/"+state, 'POST', callback);
-	else
-		this.request("Vote/"+id+"/delete", 'POST', callback);
+	this.request("Vote/"+id+"/"+(state||"delete"), 'POST', callback);
 }
 
 Myself.prototype.getVote = function(query, callback) {
@@ -1746,24 +1748,141 @@ function highlightSB(text, lang) {
 	
 	return html;
 }
-function parse(code, options) {
-	options = options || parse.defoptions;
-	if (!options)
-		return;
+var create = function(x) {
+	return document.createElement(x);
+}
+var createText = function(x) {
+	return document.createTextNode(x);
+}
+var creator = function (tag) {
+	return function() {
+		return create(tag);
+	}
+};
+
+var options = {
+	append: function (parent, child) {
+		parent.appendChild(child);
+	},
+	parent: function (child) { // unused currently
+		return child.parent;
+	},
+	remove: function(child) {
+		child.parentNode.removeChild(child);
+	},
+
+	//========================
+	// nodes without children:
+	text: function(text) {
+		return createText(text);
+	},
+	lineBreak: creator('br'),
+	line: creator('hr'),
+	// code block
+	code: function(code, language) {
+		var node = create('pre');
+		node.setAttribute('data-lang', language);
+		node.innerHTML = highlightSB(code, language);
+		return node;
+	},
+	// inline code
+	icode: function(code) {
+		var node = create('code');
+		node.textContent = code;
+		return node;
+	},
+	audio: function(url) {
+		var node = create('audio');
+		node.setAttribute('controls', "");
+		node.setAttribute('src', url);
+		return node;
+	},
+	video: function(url) {
+		var node = create('video');
+		node.setAttribute('controls', "");
+		node.setAttribute('src', url);
+		return node;
+	},
+	youtube: function(node, contents) {
+		var protocol = "https:";
+		if (window.location && window.location.protocol == "http:")
+			protocol = "http:"
+		var match = contents.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
+		if (match)
+			node.src = protocol+"//www.youtube-nocookie.com/embed/"+match[1];
+	},
 	
+	//=====================
+	// nodes with children
+	root: function() {
+		var node = create('div');
+		node.className = "markup-root";
+		return node;
+	},
+	bold: creator('b'),
+	italic: creator('i'),
+	underline: creator('u'),
+	strikethrough: creator('s'),
+	heading: function(level) { // input: 1, 2, or 3
+		return create('h' + (level+1));//['h1','h2','h3'][level-1] || 'h3');
+	},
+	quote: function(user) {
+		var node = create('blockquote');
+		node.setAttribute('cite', user);
+		return node;
+	},
+	list: creator('ul'),
+	item: creator('li'), // (list item)
+	link: function(url) {
+		var protocol = url.match(/^([-\w]+:)([^]*)$/);
+		if (protocol && protocol[1] == "sbs:") {
+			url = "#"+protocol[2];
+		}
+		var node = create('a');
+		node.setAttribute('href', url);
+		return node;
+	},
+	table: creator('table'),
+	row: creator('tr'),
+	cell: function (header) {
+		return header ?
+			create('th') :
+			create('td');
+	},
+	image: function(url) {
+		var node = create('img');
+		node.setAttribute('src', url);
+		node.setAttribute('tab-index', "-1");
+		return node;
+	},
+	error: function() {
+		var node = create('div');
+		node.className = "parse-error";
+		node.textContent = "Error";
+		return node;
+	},
+	align: function(arg) {
+		var node = create('div');
+		if (arg == 'left' || arg == 'right' || arg == 'center')
+			node.style.textAlign = arg;
+		return node;
+	},
+	sup: creator('sup'),
+	sub: creator('sub'),
+	anchor: function(name) {
+		var node = create('a');
+		node.name = "_anchor_"+name;
+		return node;
+	}
+}
+
+function parse12y(code) {
 	var output = options.root();
 	var curr = output;
 	var lastLineBreak = null;
 	var displayBlock = {
-		code: true,
-		audio: true,
-		video: true,
-		heading: true,
-		quote: true,
-		list: true,
-		item: true,
-		table: true,
-		image: true
+		code:true,audio:true,video:true,heading:true,quote:true,
+		list:true,item:true,table:true,image:true
 	};
 	var skipNextLineBreak;
 	
@@ -2345,128 +2464,58 @@ function parse(code, options) {
 	}
 }
 
-parse.defoptions = (function(){
-	if (!document)
-		return;
-	
-	var create = function(x) {
-		return document.createElement(x);
-	}
-	var createText = function(x) {
-		return document.createTextNode(x);
-	}
-	var creator = function (tag) {
-		return function() {
-			return create(tag);
-		}
-	};
-
-	return {
-		append: function (parent, child) {
-			parent.appendChild(child);
-		},
-		parent: function (child) { // unused currently
-			return child.parent;
-		},
-		remove: function(child) {
-			child.parentNode.removeChild(child);
-		},
-
-		//========================
-		// nodes without children:
-		text: function (text) {
-			return createText(text);
-		},
-		lineBreak: creator('br'),
-		line: creator('hr'),
-		// code block
-		code: function (code, language) {
-			var node = create('pre');
-			node.setAttribute('data-lang', language);
-			node.innerHTML = highlightSB(code, language);
-			return node;
-		},
-		// inline code
-		icode: function (code) {
-			var node = create('code');
-			node.textContent = code;
-			return node;
-		},
-		audio: function (url) {
-			var node = create('audio');
-			node.setAttribute('controls', "");
-			node.setAttribute('src', url);
-			return node;
-		},
-		video: function (url) {
-			var node = create('video');
-			node.setAttribute('controls', "");
-			node.setAttribute('src', url);
-			return node;
-		},
-
-		//=====================
-		// nodes with children
-		root: function () {
-			var node = create('div');
-			node.className = "markup-root";
-			return node;
-		},
-		bold: creator('b'),
-		italic: creator('i'),
-		underline: creator('u'),
-		strikethrough: creator('s'),
-		heading: function (level) { // input: 1, 2, or 3
-			return create('h' + (level+1));//['h1','h2','h3'][level-1] || 'h3');
-		},
-		quote: function (user) {
-			var node = create('blockquote');
-			node.setAttribute('cite', user);
-			return node;
-		},
-		list: creator('ul'),
-		item: creator('li'), // (list item)
-		link: function (url) {
-			var protocol = url.match(/^([-\w]+:)([^]*)$/);
-			if (protocol && protocol[1] == "sbs:") {
-				url = "#"+protocol[2];
-			}
-			var node = create('a');
-			node.setAttribute('href', url);
-			return node;
-		},
-		table: creator('table'),
-		row: creator('tr'),
-		cell: function (header) {
-			return header ?
-				create('th') :
-				create('td');
-		},
-		image: function (url) {
-			var node = create('img');
-			node.setAttribute('src', url);
-			node.setAttribute('tab-index', "-1");
-			return node;
-		},
-		error: function() {
-			var node = create('div');
-			node.className = "parse-error";
-			node.textContent = "Error";
-			return node;
-		}
-	};
-})();
-function bbcodeParse(code, options) {
-	options = options || bbcodeParse.options;
+function parseBBCode(code) {
 	var output = options.root();
 	var curr = output;
-	var allowedTags = {
-		b:true,i:true,u:true,s:true,sup:true,sub:true,h1:true,h2:true,h3:true,align:true,anchor:true,img:true,list:true,code:true,spoiler:true,youtube:true,quote:true,table:true,tr:true,th:true,td:true,url:true
-	};
 	var displayBlock = {
 		h1:true,h2:true,h3:true,align:true,list:true,spoiler:true,youtube:true,quote:true,table:true,tr:true,img:true
 	};
-
+	var blocks = {
+		b: options.bold,
+		i: options.italic,
+		u: options.underline,
+		s: options.strikethrough,
+		sup: options.superscript,
+		sub: options.subscript,
+		h1: function(){return options.heading(1)},
+		h2: function(){return options.heading(2)},
+		h3: function(){return options.heading(3)},
+		table: options.table,
+		tr: options.row,
+		td: function(){return options.cell(false)},
+		th: function(){return options.cell(true)},
+		code: true, 
+		align: options.align,
+		url: options.url,//+<VERY special case> (only hardcode when no argument)
+		youtube: true, //<special case>,
+		img: true, //<special case>,
+		list: options.list,
+		spoiler: options.spoiler,
+		quote: options.quote,
+		anchor: function(arg){
+			console.log(arg)
+			return options.anchor(arg);
+		}
+	};
+	var specialBlock = {
+		url: function(arg, args, contents){
+			return options.url(contents);
+		},
+		code: function(arg, args, contents) {
+			if (args)
+				var lang = args.lang;
+			if (arg == 'inline')
+				return options.icode(contents, lang);
+			return options.code(contents, lang);
+		},
+		youtube: function(arg, args, contents) {
+			return options.youtube(contents);
+		},
+		img: function(arg, args, contents) {
+			return options.image(contents);
+		}
+	};
+	
 	var skipNextLineBreak;
 	var lastLineBreak;
 	
@@ -2487,14 +2536,14 @@ function bbcodeParse(code, options) {
 			point = i-1;
 			if(eatChar("/")) {
 				var name = readTagName();
-				if (!eatChar("]") && !name || stack.top().type != name) {
+				if (!eatChar("]") || !name || stack.top().type != name) {
 					cancel();
 				} else {
 					endBlock(point);
 				}
 			} else {
 				var name = readTagName();
-				if (!name || !allowedTags[name]) {
+				if (!name || !blocks[name]) {
 					cancel();
 				} else {
 					// [tag=...
@@ -2504,22 +2553,30 @@ function bbcodeParse(code, options) {
 						while (c && c!="]" && c!=" ")
 							scan();
 						if (c == "]" || c == " ")
-							arg = code.substring(start, i-1);
+							arg = code.substring(start, i);
 					}
 					if (eatChar(" ")) {
 						args = readArgList();
 					}
 					if (eatChar("]")) {
-						startBlock(name, arg, args, i);
-						if (name == 'code') {
-							var end = code.indexOf("[/code]", i);
-							if (end == -1)
-								end = code.length;
-							endBlock(end);
-							i = end+"[/code]".length;
-							i--;
-							scan();
-						}
+						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
+							var endTag = "[/"+name+"]";
+							var end = code.indexOf(endTag, i);
+							if (end < 0)
+								cancel();
+							else {
+								var contents = code.substring(i, end);
+								i = end + endTag.length;
+								i--;
+								scan();
+								addBlock(specialBlock[name](arg,args,contents));
+								if (name == "youtube" || name=="img" || (name=="code" && arg != "inline"))
+									skipNextLineBreak = true;
+							}
+						} else if (blocks[name]) {
+							startBlock(name, arg, args, i);
+						} else
+							cancel();
 					} else {
 						cancel();
 					}
@@ -2643,11 +2700,7 @@ function bbcodeParse(code, options) {
 	function endBlock(index) {
 		flushText();
 		var item = stack.pop();
-		var endFunc = options.end[item.type];
-		if (endFunc) {
-			endFunc(item.node, code.substring(item.start, index));
-		}
-		if (displayBlock[item.type] || (item.type=='code' && item.arg!='inline')) {
+		if (displayBlock[item.type]) {
 			skipNextLineBreak = true;
 		}
 		if (stack.length)
@@ -2657,13 +2710,13 @@ function bbcodeParse(code, options) {
 	}
 	
 	function startBlock(type, arg, args, index) {
-		if (displayBlock[type] || (type=='code' && arg!='inline')) {
+		if (displayBlock[type]) {
 			if (eatChar("\n")) //hack
 				index++;
 			else
 				skipNextLineBreak = true;
 		}
-		var node = options.tag[type](arg, args);
+		var node = blocks[type](arg, args);
 		stack.push({
 			type: type,
 			node: node,
@@ -2675,107 +2728,6 @@ function bbcodeParse(code, options) {
 		curr = node;
 	}
 }
-
-bbcodeParse.options = (function(){
-	if (!document)
-		return;
-
-	var create = function(x) {
-		return document.createElement(x);
-	}
-	var createText = function(x) {
-		return document.createTextNode(x);
-	}
-	var creator = function(tag) {
-		return function() {
-			return document.createElement(tag);
-		}
-	}
-
-	return {
-		append: function(parent, child) {
-			parent.appendChild(child);
-		},
-		remove: function(child) {
-			child.parentNode.removeChild(child);
-		},
-		root: function() {
-			var node = create('div');
-			node.className = "markup-root";
-			return node;
-		},
-		text: function (text) {
-			return createText(text);
-		},
-		lineBreak: creator('br'),
-		tag: {
-			b: creator('b'),
-			i: creator('i'),
-			u: creator('u'),
-			s: creator('s'),
-			sup: creator('sup'),
-			sub: creator('sub'),
-			h1: creator('h2'),
-			h2: creator('h3'),
-			h3: creator('h4'),
-			table: creator('table'),
-			tr: creator('tr'),
-			td: creator('td'),
-			th: creator('th'),
-			code: function(arg, args) {
-				if (arg == 'inline')
-					var node = create('code');
-				node = create('pre');
-				if (args && args.lang)
-					node.setAttribute('data-lang', args.lang);
-				return node;
-			},
-			align: function(arg) {
-				var node = create('div');
-				if (arg == 'left' || arg == 'right' || arg == 'center')
-					node.style.textAlign = arg;
-				return node;
-			},
-			url: function(arg) {
-				var node = create('a');
-				if (arg) {
-					node.href = arg;
-				}
-				return node;
-			},
-			youtube: function(arg) {
-				var node = create('iframe');
-				return node;
-			},
-			img: function(arg) {
-				var node = create('img');
-				node.setAttribute('tabindex', "-1");
-				return node;
-			}
-		},
-		end: {
-			url: function(node, contents) {
-				if (!node.href) {
-					node.href = contents;
-				}
-			},
-			youtube: function(node, contents) {
-				var protocol = "https:";
-				if (window.location && window.location.protocol == "http:")
-					protocol = "http:"
-				var match = contents.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
-				if (match)
-					node.src = protocol+"//www.youtube-nocookie.com/embed/"+match[1];
-			},
-			img: function(node, contents) {
-				node.src = contents;
-			},
-			code: function(node, contents) {
-				node.innerHTML = highlightSB(contents, node.getAttribute('data-lang'));
-			}
-		}
-	}
-})();
 function renderCategoryPage(page, users) {
 	var user = users[page.createUserId];
 	var div = document.createElement('a');
@@ -2918,10 +2870,10 @@ function renderPageContents(page, element) {
 		var markup = page.values.markupLang;
 	if (markup == '12y') {
 		element.innerHTML = "";
-		element.appendChild(parse(page.content));
+		element.appendChild(parse12y(page.content));
 	} else if (markup == 'bbcode') {
 		element.innerHTML = "";
-		element.appendChild(bbcodeParse(page.content));
+		element.appendChild(parseBBCode(page.content));
 	} else {
 		element.textContent = page.content;
 	}
@@ -3156,18 +3108,31 @@ function ready() {
 	}
 	
 	scroller = new AutoScroller($messageList);
-	
-	var query = location.hash.substr(1);
-	navigateTo(query, true);
+
+	hashChange(true);
 	//console.log = debugMessage;
 }
 
-window.onhashchange = function() {
-	var query = location.hash.substr(1);
-	navigateTo(query);
+function hashChange(first) {
+	var fragment = getPath();
+	navigateTo(fragment[0], first, function() {
+		if (fragment[1]) {
+			var n = document.getElementsByName("_anchor_"+fragment[1]);
+			if (n[0])
+				n[0].scrollIntoView();
+		}
+	});
 }
 
-function navigateTo(path, first) {
+window.onhashchange = function() {
+	hashChange(false);
+}
+
+function getPath() {
+	return location.hash.substr(1).split("#");
+}
+
+function navigateTo(path, first, callback) {
 	lp.reset();
 	path = path.split("/").filter(function(x){return x;});
 	var type = path[0];
@@ -3181,36 +3146,38 @@ function navigateTo(path, first) {
 			} else {
 				id = undefined;
 			}
-			generateEditorView(id);
+			generateEditorView(id, callback);
 		} else {
 			first && ($main.className = 'pageMode');
-			generatePageView(id);
+			generatePageView(id, callback);
 		}
 	} else if (type == "categories") {
 		first && ($main.className = 'categoryMode');
-		generateCategoryView(id);
+		generateCategoryView(id, callback);
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
-		generateUserView(id);
+		generateUserView(id, callback);
 	} else if (type == "discussions") {
 		first && ($main.className = 'chatMode');
-		generateChatView(id);
+		generateChatView(id, callback);
 	} else if (typeof type == 'undefined') { //home
 		first && ($main.className = 'homeMode');
-		generateHomeView();
+		generateHomeView(null, callback);
 	} else {
 		$main.className = "pageMode errorMode";
 		generateAuthorBox();
 		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
 		$pageContents.textContent = "";
+		callback();
 	}
 }
 
-function generateHomeView() {
+function generateHomeView(idk, callback) {
 	$main.className = "homeMode";
 	generateAuthorBox();
 	generatePath();
 	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
+	callback();
 }
 
 function generatePath(cid) {
@@ -3222,7 +3189,7 @@ function generatePath(cid) {
 
 var editingPage;
 
-function generateEditorView(id) {
+function generateEditorView(id, callback) {
 	loadStart();
 	if (id)
 		me.getPageForEditing(id, go);
@@ -3249,7 +3216,8 @@ function generateEditorView(id) {
 			$editorTextarea.value = "";
 			editingPage = {}; //todo: fill stuff here
 		}
-		loadEnd();
+		loadEnd(); //todo: move loadStart/End events into an event on Myself and do it all automatically for all requests
+		callback();
 	}
 }
 
@@ -3354,7 +3322,7 @@ function getRadio(radio) {
 	return null;
 }
 
-function generatePageView(id) {
+function generatePageView(id, callback) {
 	loadStart();
 	me.getPage(id, function(page, users, comments){
 		$main.className = "pageMode";
@@ -3376,28 +3344,32 @@ function generatePageView(id) {
 			$pageContents.innerHTML = "";
 		}
 		loadEnd();
+		callback();
 	});
 }
 
-function generateUserView(id) {
+// todo: change edit box to "Joined: <date>" and "page edited: <date>"
+function generateUserView(id, callback) {
 	loadStart();
 	me.getUserPage(id, function(user, page, comments, userMap) {
 		console.info(arguments);
-		$main.className = 'pageMode';
+		$main.className = 'userMode';
 		generateAuthorBox(user && page, userMap);
 		generatePath();
 		if (user) {
 			$pageTitle.textContent = user.username;
 			if (page) {
-				renderPageContents(page, $pageContents)
+				renderPageContents(page, $userPageContents)
 			} else {
-				$pageContents.innerHTML = "";
+				$userPageContents.innerHTML = "";
 			}
+			$userPageAvatar.src = user.avatarURL;
 		} else {
 			$main.className += " errorMode";
 			$pageTitle.textContent = "User Not Found";
 		}
 		loadEnd();
+		callback();
 	});
 }
 
@@ -3408,7 +3380,7 @@ function updateUserlist(listeners, userMap) {
 	})
 }
 
-function generateChatView(id) {
+function generateChatView(id, callback) {
 	loadStart();
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
@@ -3420,6 +3392,7 @@ function generateChatView(id) {
 			$pageTitle.textContent = page.name;
 			renderPageContents(page, $chatPageContents);
 			loadEnd();
+			callback();
 		} else if (page == false) { //1st request, page doesn't exist
 			generatePath();
 			generateAuthorBox(page, userMap);
@@ -3427,6 +3400,7 @@ function generateChatView(id) {
 			$pageTitle.textContent = "Page not found";
 			$chatPageContents.innerHTML = "";
 			loadEnd();
+			callback();
 			// TODO: page list passed to callback needs to be PER-ID!!
 		}
 		if (comments) {
@@ -3487,6 +3461,7 @@ function generateCategoryView(id) {
 			$pageTitle.textContent = "Category not found";
 		}
 		loadEnd();
+		callback();
 	});
 }
 
@@ -3561,32 +3536,33 @@ function onLogout() {
 		 These panes have the main content
 		 one of them will be visible at a time, depending on the view mode
 	  -->
-	<div class="categoryPane paneGrow categoryMode scroller" id="$categoryPane">
-		<div id="$categoryDescription" class="categoryDescription pre pageContents"></div>
-		<div id="$categoryCategories"></div>
-		<div id="$categoryPages" class="categoryPages"></div>
-	</div>
-	
-	<div class="pagePane pageMode scroller paneGrow">
-		<div class="pageContents pre" id="$pageContents"></div>
-		<div class="spacer"></div>
-		<div class="pageUserlist userlist" title="Users viewing this page"></div>
-		<div class="pageTextarea">
+	<div class="paneGrow scroller">
+		<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
+		<div id="$categoryCategories" class="categoryMode"></div>
+		<div id="$categoryPages" class="categoryPages categoryMode"></div>
+
+		<img id="$userPageAvatar" class="userPageAvatar userMode">
+		<div class="pageContents pre userMode" id="$userPageContents"></div>
+
+		<div class="pageContents pre pageMode" id="$pageContents"></div>
+		<div class="spacer pageMode"></div>
+		<div class="pageUserlist userlist pageMode" title="Users viewing this page"></div>
+		<div class="pageTextarea pageMode">
 			<textarea id="$pageTextarea"></textarea>
 		</div>
-		<div class="pageComments"></div>
-	</div>
-	
-	<div class="editorPane editorMode paneGrow">
-		<div class="editorTextarea">
-			<textarea id="$editorTextarea"></textarea>
+		<div class="pageComments pageMode"></div>
+		
+		<div class="editorPane editorMode">
+			<div class="editorTextarea">
+				<textarea id="$editorTextarea"></textarea>
+			</div>
+			<div class="editorPreview" id="$editorPreview"></div>
 		</div>
-		<div class="editorPreview" id="$editorPreview"></div>
-	</div>
-	
-	<div class="homeMode homePane paneGrow">
-		hey<br>
-		go <a href="#categories/0">her</a>e:<br>
+		
+		<div class="homeMode homePane paneGrow">
+			hey<br>
+			go <a href="#categories/0">her</a>e:<br>
+		</div>
 	</div>
 
 	<!--

@@ -76,18 +76,31 @@ function ready() {
 	}
 	
 	scroller = new AutoScroller($messageList);
-	
-	var query = location.hash.substr(1);
-	navigateTo(query, true);
+
+	hashChange(true);
 	//console.log = debugMessage;
 }
 
-window.onhashchange = function() {
-	var query = location.hash.substr(1);
-	navigateTo(query);
+function hashChange(first) {
+	var fragment = getPath();
+	navigateTo(fragment[0], first, function() {
+		if (fragment[1]) {
+			var n = document.getElementsByName("_anchor_"+fragment[1]);
+			if (n[0])
+				n[0].scrollIntoView();
+		}
+	});
 }
 
-function navigateTo(path, first) {
+window.onhashchange = function() {
+	hashChange(false);
+}
+
+function getPath() {
+	return location.hash.substr(1).split("#");
+}
+
+function navigateTo(path, first, callback) {
 	lp.reset();
 	path = path.split("/").filter(function(x){return x;});
 	var type = path[0];
@@ -101,36 +114,38 @@ function navigateTo(path, first) {
 			} else {
 				id = undefined;
 			}
-			generateEditorView(id);
+			generateEditorView(id, callback);
 		} else {
 			first && ($main.className = 'pageMode');
-			generatePageView(id);
+			generatePageView(id, callback);
 		}
 	} else if (type == "categories") {
 		first && ($main.className = 'categoryMode');
-		generateCategoryView(id);
+		generateCategoryView(id, callback);
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
-		generateUserView(id);
+		generateUserView(id, callback);
 	} else if (type == "discussions") {
 		first && ($main.className = 'chatMode');
-		generateChatView(id);
+		generateChatView(id, callback);
 	} else if (typeof type == 'undefined') { //home
 		first && ($main.className = 'homeMode');
-		generateHomeView();
+		generateHomeView(null, callback);
 	} else {
 		$main.className = "pageMode errorMode";
 		generateAuthorBox();
 		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
 		$pageContents.textContent = "";
+		callback();
 	}
 }
 
-function generateHomeView() {
+function generateHomeView(idk, callback) {
 	$main.className = "homeMode";
 	generateAuthorBox();
 	generatePath();
 	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
+	callback();
 }
 
 function generatePath(cid) {
@@ -142,7 +157,7 @@ function generatePath(cid) {
 
 var editingPage;
 
-function generateEditorView(id) {
+function generateEditorView(id, callback) {
 	loadStart();
 	if (id)
 		me.getPageForEditing(id, go);
@@ -169,7 +184,8 @@ function generateEditorView(id) {
 			$editorTextarea.value = "";
 			editingPage = {}; //todo: fill stuff here
 		}
-		loadEnd();
+		loadEnd(); //todo: move loadStart/End events into an event on Myself and do it all automatically for all requests
+		callback();
 	}
 }
 
@@ -274,7 +290,7 @@ function getRadio(radio) {
 	return null;
 }
 
-function generatePageView(id) {
+function generatePageView(id, callback) {
 	loadStart();
 	me.getPage(id, function(page, users, comments){
 		$main.className = "pageMode";
@@ -296,28 +312,32 @@ function generatePageView(id) {
 			$pageContents.innerHTML = "";
 		}
 		loadEnd();
+		callback();
 	});
 }
 
-function generateUserView(id) {
+// todo: change edit box to "Joined: <date>" and "page edited: <date>"
+function generateUserView(id, callback) {
 	loadStart();
 	me.getUserPage(id, function(user, page, comments, userMap) {
 		console.info(arguments);
-		$main.className = 'pageMode';
+		$main.className = 'userMode';
 		generateAuthorBox(user && page, userMap);
 		generatePath();
 		if (user) {
 			$pageTitle.textContent = user.username;
 			if (page) {
-				renderPageContents(page, $pageContents)
+				renderPageContents(page, $userPageContents)
 			} else {
-				$pageContents.innerHTML = "";
+				$userPageContents.innerHTML = "";
 			}
+			$userPageAvatar.src = user.avatarURL;
 		} else {
 			$main.className += " errorMode";
 			$pageTitle.textContent = "User Not Found";
 		}
 		loadEnd();
+		callback();
 	});
 }
 
@@ -328,7 +348,7 @@ function updateUserlist(listeners, userMap) {
 	})
 }
 
-function generateChatView(id) {
+function generateChatView(id, callback) {
 	loadStart();
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
@@ -340,6 +360,7 @@ function generateChatView(id) {
 			$pageTitle.textContent = page.name;
 			renderPageContents(page, $chatPageContents);
 			loadEnd();
+			callback();
 		} else if (page == false) { //1st request, page doesn't exist
 			generatePath();
 			generateAuthorBox(page, userMap);
@@ -347,6 +368,7 @@ function generateChatView(id) {
 			$pageTitle.textContent = "Page not found";
 			$chatPageContents.innerHTML = "";
 			loadEnd();
+			callback();
 			// TODO: page list passed to callback needs to be PER-ID!!
 		}
 		if (comments) {
@@ -407,6 +429,7 @@ function generateCategoryView(id) {
 			$pageTitle.textContent = "Category not found";
 		}
 		loadEnd();
+		callback();
 	});
 }
 

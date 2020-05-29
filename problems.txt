@@ -16,6 +16,7 @@ o3DS:
 - passing non-string to console.log throws error? (maybe)
 - new Date(string) and Date.parse(string) don't seem to work?
 - no element.classList
+- no http DELETE
 
 - no box-sizing: border-box
 - no flex (?)

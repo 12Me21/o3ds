@@ -14,16 +14,15 @@
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?j"></script>
+<script src="myself.js?k"></script>
 
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
-<script src="12y.js?a"></script>
-<script src="bbcode.js?a"></script>
+<script src="parse.js?a"></script>
 
-<script src="render.js?d"></script>
-<script src="main.js?i"></script>
+<script src="render.js?e"></script>
+<script src="main.js?j"></script>
 
 <!--- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -97,32 +96,33 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		 These panes have the main content
 		 one of them will be visible at a time, depending on the view mode
 	  -->
-	<div class="categoryPane paneGrow categoryMode scroller" id="$categoryPane">
-		<div id="$categoryDescription" class="categoryDescription pre pageContents"></div>
-		<div id="$categoryCategories"></div>
-		<div id="$categoryPages" class="categoryPages"></div>
-	</div>
-	
-	<div class="pagePane pageMode scroller paneGrow">
-		<div class="pageContents pre" id="$pageContents"></div>
-		<div class="spacer"></div>
-		<div class="pageUserlist userlist" title="Users viewing this page"></div>
-		<div class="pageTextarea">
+	<div class="paneGrow scroller">
+		<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
+		<div id="$categoryCategories" class="categoryMode"></div>
+		<div id="$categoryPages" class="categoryPages categoryMode"></div>
+
+		<img id="$userPageAvatar" class="userPageAvatar userMode">
+		<div class="pageContents pre userMode" id="$userPageContents"></div>
+
+		<div class="pageContents pre pageMode" id="$pageContents"></div>
+		<div class="spacer pageMode"></div>
+		<div class="pageUserlist userlist pageMode" title="Users viewing this page"></div>
+		<div class="pageTextarea pageMode">
 			<textarea id="$pageTextarea"></textarea>
 		</div>
-		<div class="pageComments"></div>
-	</div>
-	
-	<div class="editorPane editorMode paneGrow">
-		<div class="editorTextarea">
-			<textarea id="$editorTextarea"></textarea>
+		<div class="pageComments pageMode"></div>
+		
+		<div class="editorPane editorMode">
+			<div class="editorTextarea">
+				<textarea id="$editorTextarea"></textarea>
+			</div>
+			<div class="editorPreview" id="$editorPreview"></div>
 		</div>
-		<div class="editorPreview" id="$editorPreview"></div>
-	</div>
-	
-	<div class="homeMode homePane paneGrow">
-		hey<br>
-		go <a href="#categories/0">her</a>e:<br>
+		
+		<div class="homeMode homePane paneGrow">
+			hey<br>
+			go <a href="#categories/0">her</a>e:<br>
+		</div>
 	</div>
 
 	<!--
