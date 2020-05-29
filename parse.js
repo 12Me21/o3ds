@@ -87,6 +87,11 @@ var options = {
 		var protocol = url.match(/^([-\w]+:)([^]*)$/);
 		if (protocol && protocol[1] == "sbs:") {
 			url = "#"+protocol[2];
+		} else if (!protocol) {
+			var protocol = "https:";
+			if (window.location && window.location.protocol == "http:")
+				protocol = "http:";
+			url = protocol+"//"+url;
 		}
 		var node = create('a');
 		node.setAttribute('href', url);
@@ -736,7 +741,7 @@ function parseBBCode(code) {
 		th: function(){return options.cell(true)},
 		code: true, 
 		align: options.align,
-		url: options.url,//+<VERY special case> (only hardcode when no argument)
+		url: options.link,//+<VERY special case> (only hardcode when no argument)
 		youtube: true, //<special case>,
 		img: true, //<special case>,
 		list: options.list,
@@ -749,7 +754,9 @@ function parseBBCode(code) {
 	};
 	var specialBlock = {
 		url: function(arg, args, contents){
-			return options.url(contents);
+			var node = options.link(contents);
+			node.textContent = contents;
+			return node;
 		},
 		code: function(arg, args, contents) {
 			if (args)
@@ -793,9 +800,11 @@ function parseBBCode(code) {
 				}
 			} else {
 				var name = readTagName();
+				console.log("READ THE FUCKING NAME",name,blocks[name]);
 				if (!name || !blocks[name]) {
 					cancel();
 				} else {
+					
 					// [tag=...
 					var arg = null, args = null;
 					if (eatChar("=")) {
@@ -809,7 +818,9 @@ function parseBBCode(code) {
 						args = readArgList();
 					}
 					if (eatChar("]")) {
+						console.log("OK WHAT",name);
 						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
+							console.log("Special");
 							var endTag = "[/"+name+"]";
 							var end = code.indexOf(endTag, i);
 							if (end < 0)

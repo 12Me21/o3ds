@@ -98,6 +98,7 @@ main > * {
 	flex-grow: 1;
 	flex-shrink: 1;
 	min-height: 100px;
+	/*padding: 0.5rem;*/
 	/*overflow-y: scroll;*/
 }
 
@@ -108,6 +109,7 @@ main:not(.editorMode) .editorMode,
 main:not(.categoryMode) .categoryMode,
 main:not(.navMode) .navMode,
 main:not(.userMode) .userMode,
+main:not(.membersMode) .membersMode,
 main:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -246,7 +248,7 @@ main:not(.homeMode) .homeMode {
 	overflow: auto; /* find other places that we need to use this */
 	clear: both;
 }
-.categoryPage, .categoryDescription {
+.categoryPage, .categoryDescription, .member {
 	border-bottom: 1px solid gray;
 }
 .categoryPageTitle {
@@ -396,6 +398,63 @@ main:not(.homeMode) .homeMode {
 /***************
  ** User Page **
  ***************/
+
+.member {
+	display: block;
+	background-color: #EEE;
+}
+
+.member .item {
+	height: 2.3rem;
+}
+.member .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+.memberName {
+	padding: 0 0.5rem;
+	font-weight: bold;
+}
+
+.userPageAvatar {
+	width: 10rem;
+	height: 10rem;
+}
+
+.bottomSpacer {
+	flex-shrink: 0;
+	height: 1.5rem;
+}
+
+.listItem {
+	font-weight: bold;
+	background-color: #EEE;
+	display: block;
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	overflow: auto; /* find other places that we need to use this */
+	clear: both;
+	border-top: 1px solid gray;
+}
+
+.listItem * {
+	max-width: 100%;
+	display: inline-block;
+	max-height: 2.3rem;
+	line-height: 2.3rem;
+	padding: 0 0.2rem;
+}
+
+.listItem img {
+	height: 2.3rem;
+}
+
+
+.userPageBox {
+	display: flex;
+	flex-direction: row;
+}
 .markup-root table, .markup-root td, .markup-root th {
 	border: 1px solid black;
 	border-collapse: collapse;
@@ -700,6 +759,7 @@ function Myself(isDev) {
 	this.userCache={};
 	this.userRequests={};
 	this.selectServer(isDev);
+	this.openRequests = 0;
 }
 Myself.prototype = Object.create(EventEmitter.prototype);
 Object.defineProperty(Myself.prototype, 'constructor', {
@@ -730,12 +790,35 @@ Myself.prototype.selectServer = function(isDev) {
 
 Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
+	$.openRequests++;
+	$.loadStart();
 	sbs2Request($.server+"/"+url, method, function(e, resp) {
-		if (e=='auth') {
+		$.openRequests--;
+		$.loadEnd(e);
+		/*if (e=='auth') {
 			$.logOut();
-		}
+		}*/
 		$.cb(callback, e, resp);
 	}, data, $.auth, cancel);
+}
+
+Myself.prototype.loadStart = function() {
+	if (this.onLoadStart)
+		this.cb(this.onLoadStart);
+}
+
+Myself.prototype.loadEnd = function(e) {
+	if (this.onLoadEnd)
+		this.cb(this.onLoadEnd, e);
+}
+
+Myself.prototype.getUsers = function(query, callback) {
+	var $=this;
+	$.readSimple("User"+queryString(query), 'user', function(e, resp){
+		if (!e){
+			$.cb(callback, resp);
+		}
+	});
 }
 
 // Most requests will be done through the chain endpoint with Myself.read
@@ -822,8 +905,9 @@ Myself.prototype.handle = function(e, resp) {
 	resp.user && resp.user.forEach(function(user) {
 		if (user.avatar && user.avatar != 125) {
 			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=128&square=true"
+			user.bigAvatarURL = $.server+"/File/raw/"+user.avatar+"?size=420&square=true"
 		} else {
-			user.avatarURL = "./avatar.png";
+			user.avatarURL = user.bigAvatarURL = "./avatar.png";
 		}
 		var uid = user.id;
 		if (uid) {
@@ -897,7 +981,12 @@ Myself.prototype.loadCachedAuth = function(callback) {
 	var cached = localStorage.getItem($.lsKey);
 	if (cached) {
 		$.setAuth(cached);
-		$.readSimple("User/me", 'user', callback); //this is used to test the auth
+		$.readSimple("User/me", 'user', function(e, resp){
+			if (e == 'auth') {
+				$.logOut(); //auth was invalid
+			}
+			$.cb(callback, e, resp);
+		}); //this is used to test the auth
 		return true;
 	}
 	return false;
@@ -1104,18 +1193,25 @@ Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
 	$.read([
-		{user: {ids: [id]}},
 		{content: {parentIds: [id], type: '@user.page', limit: 1}},
-		"comment.1id$parentIds",
-		"user.1createUserId.1editUserId.2createUserId.2editUserId",
+		{activity: {userIds: [id], limit: 20, reverse: true}},
+		"user.0createUserId.0editUserId.1userId",
+		"content.1contentId",
 	], {
 	}, function(e, resp) {
 		if (!e) {
 			var user = resp.userMap[id];
+			// ugh need to make
+			// content map now
+			// to map Content to Activity
+			// you know, maybe this could be done automatically.... somehow
 			if (user) {
-				$.cb(callback, user, resp.content[0], resp.comment, resp.userMap);
+				var page = resp.content[0];
+				if (page.type != "@user.page")
+					page = undefined;
+				$.cb(callback, user, page, resp.activity, resp.content, resp.userMap);
 			} else
-				$.cb(callback, null, {});
+				$.cb(callback, null, {}, [], {});
 		}
 	});
 }
@@ -1837,6 +1933,11 @@ var options = {
 		var protocol = url.match(/^([-\w]+:)([^]*)$/);
 		if (protocol && protocol[1] == "sbs:") {
 			url = "#"+protocol[2];
+		} else if (!protocol) {
+			var protocol = "https:";
+			if (window.location && window.location.protocol == "http:")
+				protocol = "http:";
+			url = protocol+"//"+url;
 		}
 		var node = create('a');
 		node.setAttribute('href', url);
@@ -2486,7 +2587,7 @@ function parseBBCode(code) {
 		th: function(){return options.cell(true)},
 		code: true, 
 		align: options.align,
-		url: options.url,//+<VERY special case> (only hardcode when no argument)
+		url: options.link,//+<VERY special case> (only hardcode when no argument)
 		youtube: true, //<special case>,
 		img: true, //<special case>,
 		list: options.list,
@@ -2499,7 +2600,9 @@ function parseBBCode(code) {
 	};
 	var specialBlock = {
 		url: function(arg, args, contents){
-			return options.url(contents);
+			var node = options.link(contents);
+			node.textContent = contents;
+			return node;
 		},
 		code: function(arg, args, contents) {
 			if (args)
@@ -2543,9 +2646,11 @@ function parseBBCode(code) {
 				}
 			} else {
 				var name = readTagName();
+				console.log("READ THE FUCKING NAME",name,blocks[name]);
 				if (!name || !blocks[name]) {
 					cancel();
 				} else {
+					
 					// [tag=...
 					var arg = null, args = null;
 					if (eatChar("=")) {
@@ -2559,7 +2664,9 @@ function parseBBCode(code) {
 						args = readArgList();
 					}
 					if (eatChar("]")) {
+						console.log("OK WHAT",name);
 						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
+							console.log("Special");
 							var endTag = "[/"+name+"]";
 							var end = code.indexOf(endTag, i);
 							if (end < 0)
@@ -2759,7 +2866,8 @@ function insertFirst(node, child) {
 		node.appendChild(child);
 }
 
-function renderPath(tree, node, element) {
+function renderPath(tree, node, element, last) {
+	element.innerHTML = "";
 	while (node) {
 		var link = document.createElement('a');
 		link.href = "#categories/"+node.id;
@@ -2772,6 +2880,26 @@ function renderPath(tree, node, element) {
 		insertFirst(element, link);
 		node = node.parent;
 	}
+	if (last) {
+		var link = document.createElement('a');
+		link.href = "#pages/"+last.id;
+		link.textContent = last.name;
+		link.className = "textItem";
+		element.appendChild(link);
+	}
+}
+
+function renderUserPath(element) {
+	element.innerHTML = "";
+	var link = document.createElement('a');
+	link.href = "#users/"
+	link.textContent = "Users";
+	link.className = "textItem";
+	var slash = document.createElement('span');
+	slash.textContent = "/";
+	slash.className = "pathSeparator textItem";
+	insertFirst(element, slash);
+	insertFirst(element, link);
 }
 
 function timeString(date) {
@@ -2877,6 +3005,59 @@ function renderPageContents(page, element) {
 	} else {
 		element.textContent = page.content;
 	}
+}
+
+// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
+function parseDate(str) {
+	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
+	if (data) {
+		var sec = Math.floor(+data[6]);
+		var ms = +data[6] - sec;
+		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
+	}
+	return new Date(0);
+}
+
+function renderActivityItem(activity, page) {
+	var date = parseDate(activity.date);
+	switch(activity.action) {
+	case "c":
+		var text = "Created";
+		break;case "u":
+		text = "Edited";
+		break;case "d":
+		text = "Deleted";
+		break;default:
+		text = "Unknown action";
+	}
+	var div = document.createElement('div');
+	div.className = "listItem";
+	var action = document.createElement('span');
+	action.textContent = text;
+	var link = document.createElement('a');
+	link.href = "#pages/"+activity.contentId;
+	link.textContent = page ? page.name : "UNKNOWN PAGE";
+	var time = document.createElement('span');
+	time.textContent = reasonableDateString(date);
+	div.appendChild(action);
+	div.appendChild(link);
+	div.appendChild(time);
+	return div;
+}
+
+function renderMemberListUser(user) {
+	var div = document.createElement('a');
+	div.className = "member";
+	var avatar = document.createElement('img');
+	avatar.src = user.avatarURL;
+	div.appendChild(avatar);
+	var name = document.createElement('span');
+	name.className = "textItem memberName";
+	avatar.className = "item";
+	name.textContent = user.username;
+	div.href = "#user/"+user.id;
+	div.appendChild(name);
+	return div;
 }
 
 function renderMessagePart(comment, sizedOnload){
@@ -3049,6 +3230,11 @@ else {
 }
 var loadTime;
 function ready() {
+	if (me.openRequests) {
+		loadStart();
+	}
+	me.onLoadStart = loadStart;
+	me.onLoadEnd = loadEnd;
 	console.info("ready");
 	loadTime = Date.now() - scriptLoaded;
 	if (me.auth)
@@ -3100,9 +3286,8 @@ function ready() {
 	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = $vote.voteN.onchange = function() {
 		window.setTimeout(function() {
 			var vote = getRadio($vote.vote);
-			loadStart();
 			me.setVote(currentPage, vote, function(e){
-				e ? loadError() : loadEnd();
+				//e ? loadError() : loadEnd();
 			});
 		}, 0);
 	}
@@ -3158,6 +3343,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
 		generateUserView(id, callback);
+	} else if (type == "users") {
+		first && ($main.className = 'membersMode');
+		generateMembersView(null, callback);
 	} else if (type == "discussions") {
 		first && ($main.className = 'chatMode');
 		generateChatView(id, callback);
@@ -3181,17 +3369,16 @@ function generateHomeView(idk, callback) {
 	callback();
 }
 
-function generatePath(cid) {
+function generatePath(cid, page) {
 	$navPane.innerHTML = "";
 	if (typeof cid != 'undefined') {
-		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane);
+		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane, page);
 	}
 }
 
 var editingPage;
 
 function generateEditorView(id, callback) {
-	loadStart();
 	if (id)
 		me.getPageForEditing(id, go);
 	else
@@ -3201,7 +3388,7 @@ function generateEditorView(id, callback) {
 		$main.className = "editorMode";
 		generateAuthorBox(page, users);
 		if (page) {
-			generatePath(page.parentId);
+			generatePath(page.parentId, page);
 			editingPage = page;
 			$pageTitle.textContent = "";
 			if (page.values)
@@ -3217,7 +3404,6 @@ function generateEditorView(id, callback) {
 			$editorTextarea.value = "";
 			editingPage = {}; //todo: fill stuff here
 		}
-		loadEnd(); //todo: move loadStart/End events into an event on Myself and do it all automatically for all requests
 		callback();
 	}
 }
@@ -3250,7 +3436,7 @@ function submitEdit() {
 			if (e) {
 				alert("ERROR");
 			} else {
-				alert("OK EDIT");
+				window.location.hash = "#pages/"+editingPage.id;
 			}
 		});
 	}
@@ -3258,14 +3444,17 @@ function submitEdit() {
 
 function deletePage() {
 	if (editingPage && editingPage.id) {
-		alert("DELETING!");
-		me.deletePage(editingPage.id, function(e, resp) {
-			if (e) {
-				alert("ERROR");
-			} else {
-				alert("OK DELETE");
-			}
-		});
+		var result = confirm("Are you sure you want to delete this page?");
+		if (result) {
+			// once the page is deleted, it should take you to the category (I guess)
+			me.deletePage(editingPage.id, function(e, resp) {
+				if (e) {
+					alert("ERROR");
+				} else {
+					alert("OK DELETE");
+				}
+			});
+		}
 	}
 }
 
@@ -3277,17 +3466,6 @@ function updateEditorPreview() {
 		},
 		content: $editorTextarea.value
 	}, $editorPreview);
-}
-
-// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
-function parseDate(str) {
-	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
-	if (data) {
-		var sec = Math.floor(+data[6]);
-		var ms = +data[6] - sec;
-		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
-	}
-	return new Date(0);
 }
 
 function generateAuthorBox(page, users) {
@@ -3328,14 +3506,16 @@ function generatePageView(id, callback) {
 	me.getPage(id, function(page, users, comments){
 		$main.className = "pageMode";
 		generateAuthorBox(page, users);
+		visible($pageEditButton, page);
 		if (page) {
 			currentPage = page.id;
-			generatePath(page.parentId);
+			generatePath(page.parentId, page);
 			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
 			console.log(page.about.myVote);
 			// todo: handle showing/hiding the vote box when logged in/out
 			setRadio($vote.vote, page.about.myVote || "");
 			renderPageContents(page, $pageContents)
+			$pageEditButton.href = "#pages/edit/"+page.id;
 		} else {
 			currentPage = null;
 			generatePath();
@@ -3344,19 +3524,19 @@ function generatePageView(id, callback) {
 			$pageTitle.textContent = "Page not found";
 			$pageContents.innerHTML = "";
 		}
-		loadEnd();
 		callback();
 	});
 }
 
 // todo: change edit box to "Joined: <date>" and "page edited: <date>"
 function generateUserView(id, callback) {
-	loadStart();
-	me.getUserPage(id, function(user, page, comments, userMap) {
+	me.getUserPage(id, function(user, page, activity, pages, userMap) {
 		console.info(arguments);
 		$main.className = 'userMode';
 		generateAuthorBox(user && page, userMap);
-		generatePath();
+		renderUserPath($navPane);
+		$userPageAvatar.src = "";
+		$userActivity.innerHTML = "";
 		if (user) {
 			$pageTitle.textContent = user.username;
 			if (page) {
@@ -3364,12 +3544,22 @@ function generateUserView(id, callback) {
 			} else {
 				$userPageContents.innerHTML = "";
 			}
-			$userPageAvatar.src = user.avatarURL;
+			$userPageAvatar.src = user.bigAvatarURL;
+			console.log(pages, activity);
+			activity.forEach(function(activity){
+				var page;
+				for (var i=0;i<pages.length;i++) {
+					if (pages[i].id == activity.contentId) {
+						page = pages[i];
+						break;
+					}
+				}
+				$userActivity.appendChild(renderActivityItem(activity, page));
+			});
 		} else {
 			$main.className += " errorMode";
 			$pageTitle.textContent = "User Not Found";
 		}
-		loadEnd();
 		callback();
 	});
 }
@@ -3382,17 +3572,15 @@ function updateUserlist(listeners, userMap) {
 }
 
 function generateChatView(id, callback) {
-	loadStart();
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
-			generatePath(page.parentId);
+			generatePath(page.parentId, page);
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			$main.className = "chatMode";
 			scroller.switchRoom(id);
 			$pageTitle.textContent = page.name;
 			renderPageContents(page, $chatPageContents);
-			loadEnd();
 			callback();
 		} else if (page == false) { //1st request, page doesn't exist
 			generatePath();
@@ -3400,7 +3588,6 @@ function generateChatView(id, callback) {
 			$messageList.innerHTML = ""
 			$pageTitle.textContent = "Page not found";
 			$chatPageContents.innerHTML = "";
-			loadEnd();
 			callback();
 			// TODO: page list passed to callback needs to be PER-ID!!
 		}
@@ -3435,8 +3622,7 @@ function displayMessage(c, user) {
 	}
 }
 
-function generateCategoryView(id) {
-	loadStart();
+function generateCategoryView(id, callback) {
 	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
 		hide($pageAuthorBox);
 		$main.className = 'categoryMode';
@@ -3445,7 +3631,7 @@ function generateCategoryView(id) {
 		$categoryCategories.innerHTML = "";
 		$categoryDescription.textContent = "";
 		if (category) {
-			generatePath(category.parentId);
+			generatePath(category.id);
 			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
 			$categoryDescription.textContent = category.description;
 			childs.forEach(function(cat) {
@@ -3461,7 +3647,6 @@ function generateCategoryView(id) {
 			$main.className += "errorMode";
 			$pageTitle.textContent = "Category not found";
 		}
-		loadEnd();
 		callback();
 	});
 }
@@ -3480,6 +3665,21 @@ function onLogout() {
 	$myName.textContent = "";
 	hide($loggedIn);
 	show($loggedOut);
+}
+
+function generateMembersView(idk, callback) {
+	me.getUsers({}, function(users) {
+		hide($pageAuthorBox);
+		$main.className = 'membersMode';
+		$memberList.innerHTML = "";
+		generatePath();
+		$pageTitle.textContent = "Users";
+		users.forEach(function(user) {
+			$memberList.appendChild(renderMemberListUser(user));
+		});
+		callback();
+	});
+	
 }
 </script>
 <script>console.log(me.auth)</script>
@@ -3504,12 +3704,13 @@ function onLogout() {
 			<input type="radio" name="vote" value="g" id="voteG" class="item"><label for="voteG" class="textItem">Good</label>
 			<input type="radio" name="vote" value="" id="voteN" class="item">
 		</form>
+
 		<div class="pageCreate textItem" id="$pageAuthorBox" style="display: none;">
 			<span class="textItem">
 				<span class="textItem">Author:</span><a id="$authorLink"><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"></a><span class="pageAuthorDate textItem" id="$pageAuthorDate">
 				</span><!-- *standing in the middle of a mess of html*
 "gosh, I guess I have to clean all this up, then" -->
-			</span><span id="$pageEdited" class="pageEdited">
+			</span>		<a class="textItem pageMode" id="$pageEditButton">Edit</a><span id="$pageEdited" class="pageEdited">
 				<span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
 			</span>
 		</div>
@@ -3542,8 +3743,11 @@ function onLogout() {
 		<div id="$categoryCategories" class="categoryMode"></div>
 		<div id="$categoryPages" class="categoryPages categoryMode"></div>
 
-		<img id="$userPageAvatar" class="userPageAvatar userMode">
-		<div class="pageContents pre userMode" id="$userPageContents"></div>
+		<div class="userPageBox userMode">
+			<img id="$userPageAvatar" class="userPageAvatar">
+			<div class="pageContents pre" id="$userPageContents"></div>
+		</div>
+		<div class="userActivity userMode" id="$userActivity"></div>
 
 		<div class="pageContents pre pageMode" id="$pageContents"></div>
 		<div class="spacer pageMode"></div>
@@ -3564,6 +3768,10 @@ function onLogout() {
 			hey<br>
 			go <a href="#categories/0">her</a>e:<br>
 		</div>
+		<div class="membersMode memberPane">
+			<div id="$memberList"></div>
+		</div>
+		<div class="bottomSpacer"></div>
 	</div>
 
 	<!--

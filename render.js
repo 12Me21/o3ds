@@ -29,7 +29,8 @@ function insertFirst(node, child) {
 		node.appendChild(child);
 }
 
-function renderPath(tree, node, element) {
+function renderPath(tree, node, element, last) {
+	element.innerHTML = "";
 	while (node) {
 		var link = document.createElement('a');
 		link.href = "#categories/"+node.id;
@@ -42,6 +43,26 @@ function renderPath(tree, node, element) {
 		insertFirst(element, link);
 		node = node.parent;
 	}
+	if (last) {
+		var link = document.createElement('a');
+		link.href = "#pages/"+last.id;
+		link.textContent = last.name;
+		link.className = "textItem";
+		element.appendChild(link);
+	}
+}
+
+function renderUserPath(element) {
+	element.innerHTML = "";
+	var link = document.createElement('a');
+	link.href = "#users/"
+	link.textContent = "Users";
+	link.className = "textItem";
+	var slash = document.createElement('span');
+	slash.textContent = "/";
+	slash.className = "pathSeparator textItem";
+	insertFirst(element, slash);
+	insertFirst(element, link);
 }
 
 function timeString(date) {
@@ -147,6 +168,59 @@ function renderPageContents(page, element) {
 	} else {
 		element.textContent = page.content;
 	}
+}
+
+// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
+function parseDate(str) {
+	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
+	if (data) {
+		var sec = Math.floor(+data[6]);
+		var ms = +data[6] - sec;
+		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
+	}
+	return new Date(0);
+}
+
+function renderActivityItem(activity, page) {
+	var date = parseDate(activity.date);
+	switch(activity.action) {
+	case "c":
+		var text = "Created";
+		break;case "u":
+		text = "Edited";
+		break;case "d":
+		text = "Deleted";
+		break;default:
+		text = "Unknown action";
+	}
+	var div = document.createElement('div');
+	div.className = "listItem";
+	var action = document.createElement('span');
+	action.textContent = text;
+	var link = document.createElement('a');
+	link.href = "#pages/"+activity.contentId;
+	link.textContent = page ? page.name : "UNKNOWN PAGE";
+	var time = document.createElement('span');
+	time.textContent = reasonableDateString(date);
+	div.appendChild(action);
+	div.appendChild(link);
+	div.appendChild(time);
+	return div;
+}
+
+function renderMemberListUser(user) {
+	var div = document.createElement('a');
+	div.className = "member";
+	var avatar = document.createElement('img');
+	avatar.src = user.avatarURL;
+	div.appendChild(avatar);
+	var name = document.createElement('span');
+	name.className = "textItem memberName";
+	avatar.className = "item";
+	name.textContent = user.username;
+	div.href = "#user/"+user.id;
+	div.appendChild(name);
+	return div;
 }
 
 function renderMessagePart(comment, sizedOnload){

@@ -88,6 +88,7 @@ main > * {
 	flex-grow: 1;
 	flex-shrink: 1;
 	min-height: 100px;
+	/*padding: 0.5rem;*/
 	/*overflow-y: scroll;*/
 }
 
@@ -98,6 +99,7 @@ main:not(.editorMode) .editorMode,
 main:not(.categoryMode) .categoryMode,
 main:not(.navMode) .navMode,
 main:not(.userMode) .userMode,
+main:not(.membersMode) .membersMode,
 main:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -236,7 +238,7 @@ main:not(.homeMode) .homeMode {
 	overflow: auto; /* find other places that we need to use this */
 	clear: both;
 }
-.categoryPage, .categoryDescription {
+.categoryPage, .categoryDescription, .member {
 	border-bottom: 1px solid gray;
 }
 .categoryPageTitle {
@@ -386,3 +388,60 @@ main:not(.homeMode) .homeMode {
 /***************
  ** User Page **
  ***************/
+
+.member {
+	display: block;
+	background-color: #EEE;
+}
+
+.member .item {
+	height: 2.3rem;
+}
+.member .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+.memberName {
+	padding: 0 0.5rem;
+	font-weight: bold;
+}
+
+.userPageAvatar {
+	width: 10rem;
+	height: 10rem;
+}
+
+.bottomSpacer {
+	flex-shrink: 0;
+	height: 1.5rem;
+}
+
+.listItem {
+	font-weight: bold;
+	background-color: #EEE;
+	display: block;
+	min-height: 2.3rem;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	overflow: auto; /* find other places that we need to use this */
+	clear: both;
+	border-top: 1px solid gray;
+}
+
+.listItem * {
+	max-width: 100%;
+	display: inline-block;
+	max-height: 2.3rem;
+	line-height: 2.3rem;
+	padding: 0 0.2rem;
+}
+
+.listItem img {
+	height: 2.3rem;
+}
+
+
+.userPageBox {
+	display: flex;
+	flex-direction: row;
+}

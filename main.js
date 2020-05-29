@@ -17,6 +17,11 @@ else {
 }
 var loadTime;
 function ready() {
+	if (me.openRequests) {
+		loadStart();
+	}
+	me.onLoadStart = loadStart;
+	me.onLoadEnd = loadEnd;
 	console.info("ready");
 	loadTime = Date.now() - scriptLoaded;
 	if (me.auth)
@@ -68,9 +73,8 @@ function ready() {
 	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = $vote.voteN.onchange = function() {
 		window.setTimeout(function() {
 			var vote = getRadio($vote.vote);
-			loadStart();
 			me.setVote(currentPage, vote, function(e){
-				e ? loadError() : loadEnd();
+				//e ? loadError() : loadEnd();
 			});
 		}, 0);
 	}
@@ -126,6 +130,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
 		generateUserView(id, callback);
+	} else if (type == "users") {
+		first && ($main.className = 'membersMode');
+		generateMembersView(null, callback);
 	} else if (type == "discussions") {
 		first && ($main.className = 'chatMode');
 		generateChatView(id, callback);
@@ -149,17 +156,16 @@ function generateHomeView(idk, callback) {
 	callback();
 }
 
-function generatePath(cid) {
+function generatePath(cid, page) {
 	$navPane.innerHTML = "";
 	if (typeof cid != 'undefined') {
-		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane);
+		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane, page);
 	}
 }
 
 var editingPage;
 
 function generateEditorView(id, callback) {
-	loadStart();
 	if (id)
 		me.getPageForEditing(id, go);
 	else
@@ -169,7 +175,7 @@ function generateEditorView(id, callback) {
 		$main.className = "editorMode";
 		generateAuthorBox(page, users);
 		if (page) {
-			generatePath(page.parentId);
+			generatePath(page.parentId, page);
 			editingPage = page;
 			$pageTitle.textContent = "";
 			if (page.values)
@@ -185,7 +191,6 @@ function generateEditorView(id, callback) {
 			$editorTextarea.value = "";
 			editingPage = {}; //todo: fill stuff here
 		}
-		loadEnd(); //todo: move loadStart/End events into an event on Myself and do it all automatically for all requests
 		callback();
 	}
 }
@@ -218,7 +223,7 @@ function submitEdit() {
 			if (e) {
 				alert("ERROR");
 			} else {
-				alert("OK EDIT");
+				window.location.hash = "#pages/"+editingPage.id;
 			}
 		});
 	}
@@ -226,14 +231,17 @@ function submitEdit() {
 
 function deletePage() {
 	if (editingPage && editingPage.id) {
-		alert("DELETING!");
-		me.deletePage(editingPage.id, function(e, resp) {
-			if (e) {
-				alert("ERROR");
-			} else {
-				alert("OK DELETE");
-			}
-		});
+		var result = confirm("Are you sure you want to delete this page?");
+		if (result) {
+			// once the page is deleted, it should take you to the category (I guess)
+			me.deletePage(editingPage.id, function(e, resp) {
+				if (e) {
+					alert("ERROR");
+				} else {
+					alert("OK DELETE");
+				}
+			});
+		}
 	}
 }
 
@@ -245,17 +253,6 @@ function updateEditorPreview() {
 		},
 		content: $editorTextarea.value
 	}, $editorPreview);
-}
-
-// as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
-function parseDate(str) {
-	var data = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:.\d+)?)/);
-	if (data) {
-		var sec = Math.floor(+data[6]);
-		var ms = +data[6] - sec;
-		return new Date(Date.UTC(+data[1], +data[2]-1, +data[3], +data[4], +data[5], sec, ms));
-	}
-	return new Date(0);
 }
 
 function generateAuthorBox(page, users) {
@@ -296,14 +293,16 @@ function generatePageView(id, callback) {
 	me.getPage(id, function(page, users, comments){
 		$main.className = "pageMode";
 		generateAuthorBox(page, users);
+		visible($pageEditButton, page);
 		if (page) {
 			currentPage = page.id;
-			generatePath(page.parentId);
+			generatePath(page.parentId, page);
 			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
 			console.log(page.about.myVote);
 			// todo: handle showing/hiding the vote box when logged in/out
 			setRadio($vote.vote, page.about.myVote || "");
 			renderPageContents(page, $pageContents)
+			$pageEditButton.href = "#pages/edit/"+page.id;
 		} else {
 			currentPage = null;
 			generatePath();
@@ -312,19 +311,19 @@ function generatePageView(id, callback) {
 			$pageTitle.textContent = "Page not found";
 			$pageContents.innerHTML = "";
 		}
-		loadEnd();
 		callback();
 	});
 }
 
 // todo: change edit box to "Joined: <date>" and "page edited: <date>"
 function generateUserView(id, callback) {
-	loadStart();
-	me.getUserPage(id, function(user, page, comments, userMap) {
+	me.getUserPage(id, function(user, page, activity, pages, userMap) {
 		console.info(arguments);
 		$main.className = 'userMode';
 		generateAuthorBox(user && page, userMap);
-		generatePath();
+		renderUserPath($navPane);
+		$userPageAvatar.src = "";
+		$userActivity.innerHTML = "";
 		if (user) {
 			$pageTitle.textContent = user.username;
 			if (page) {
@@ -332,12 +331,22 @@ function generateUserView(id, callback) {
 			} else {
 				$userPageContents.innerHTML = "";
 			}
-			$userPageAvatar.src = user.avatarURL;
+			$userPageAvatar.src = user.bigAvatarURL;
+			console.log(pages, activity);
+			activity.forEach(function(activity){
+				var page;
+				for (var i=0;i<pages.length;i++) {
+					if (pages[i].id == activity.contentId) {
+						page = pages[i];
+						break;
+					}
+				}
+				$userActivity.appendChild(renderActivityItem(activity, page));
+			});
 		} else {
 			$main.className += " errorMode";
 			$pageTitle.textContent = "User Not Found";
 		}
-		loadEnd();
 		callback();
 	});
 }
@@ -350,17 +359,15 @@ function updateUserlist(listeners, userMap) {
 }
 
 function generateChatView(id, callback) {
-	loadStart();
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
-			generatePath(page.parentId);
+			generatePath(page.parentId, page);
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			$main.className = "chatMode";
 			scroller.switchRoom(id);
 			$pageTitle.textContent = page.name;
 			renderPageContents(page, $chatPageContents);
-			loadEnd();
 			callback();
 		} else if (page == false) { //1st request, page doesn't exist
 			generatePath();
@@ -368,7 +375,6 @@ function generateChatView(id, callback) {
 			$messageList.innerHTML = ""
 			$pageTitle.textContent = "Page not found";
 			$chatPageContents.innerHTML = "";
-			loadEnd();
 			callback();
 			// TODO: page list passed to callback needs to be PER-ID!!
 		}
@@ -403,8 +409,7 @@ function displayMessage(c, user) {
 	}
 }
 
-function generateCategoryView(id) {
-	loadStart();
+function generateCategoryView(id, callback) {
 	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
 		hide($pageAuthorBox);
 		$main.className = 'categoryMode';
@@ -413,7 +418,7 @@ function generateCategoryView(id) {
 		$categoryCategories.innerHTML = "";
 		$categoryDescription.textContent = "";
 		if (category) {
-			generatePath(category.parentId);
+			generatePath(category.id);
 			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
 			$categoryDescription.textContent = category.description;
 			childs.forEach(function(cat) {
@@ -429,7 +434,6 @@ function generateCategoryView(id) {
 			$main.className += "errorMode";
 			$pageTitle.textContent = "Category not found";
 		}
-		loadEnd();
 		callback();
 	});
 }
@@ -448,4 +452,19 @@ function onLogout() {
 	$myName.textContent = "";
 	hide($loggedIn);
 	show($loggedOut);
+}
+
+function generateMembersView(idk, callback) {
+	me.getUsers({}, function(users) {
+		hide($pageAuthorBox);
+		$main.className = 'membersMode';
+		$memberList.innerHTML = "";
+		generatePath();
+		$pageTitle.textContent = "Users";
+		users.forEach(function(user) {
+			$memberList.appendChild(renderMemberListUser(user));
+		});
+		callback();
+	});
+	
 }

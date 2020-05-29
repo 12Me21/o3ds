@@ -7,22 +7,22 @@
 <link rel="image_src" href="favicon.svg?a">
 
 <!--START-->
-<link rel="stylesheet" href="style.css?e">
+<link rel="stylesheet" href="style.css?f">
 <link rel="stylesheet" href="markup.css?b">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?k"></script>
+<script src="myself.js?l"></script>
 
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
-<script src="parse.js?b"></script>
+<script src="parse.js?c"></script>
 
-<script src="render.js?e"></script>
-<script src="main.js?l"></script>
+<script src="render.js?f"></script>
+<script src="main.js?m"></script>
 
 <!--- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -63,12 +63,13 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			<input type="radio" name="vote" value="g" id="voteG" class="item"><label for="voteG" class="textItem">Good</label>
 			<input type="radio" name="vote" value="" id="voteN" class="item">
 		</form>
+
 		<div class="pageCreate textItem" id="$pageAuthorBox" style="display: none;">
 			<span class="textItem">
 				<span class="textItem">Author:</span><a id="$authorLink"><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"></a><span class="pageAuthorDate textItem" id="$pageAuthorDate">
 				</span><!-- *standing in the middle of a mess of html*
 "gosh, I guess I have to clean all this up, then" -->
-			</span><span id="$pageEdited" class="pageEdited">
+			</span>		<a class="textItem pageMode" id="$pageEditButton">Edit</a><span id="$pageEdited" class="pageEdited">
 				<span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
 			</span>
 		</div>
@@ -101,8 +102,11 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		<div id="$categoryCategories" class="categoryMode"></div>
 		<div id="$categoryPages" class="categoryPages categoryMode"></div>
 
-		<img id="$userPageAvatar" class="userPageAvatar userMode">
-		<div class="pageContents pre userMode" id="$userPageContents"></div>
+		<div class="userPageBox userMode">
+			<img id="$userPageAvatar" class="userPageAvatar">
+			<div class="pageContents pre" id="$userPageContents"></div>
+		</div>
+		<div class="userActivity userMode" id="$userActivity"></div>
 
 		<div class="pageContents pre pageMode" id="$pageContents"></div>
 		<div class="spacer pageMode"></div>
@@ -123,6 +127,10 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			hey<br>
 			go <a href="#categories/0">her</a>e:<br>
 		</div>
+		<div class="membersMode memberPane">
+			<div id="$memberList"></div>
+		</div>
+		<div class="bottomSpacer"></div>
 	</div>
 
 	<!--

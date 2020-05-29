@@ -97,6 +97,7 @@ function Myself(isDev) {
 	this.userCache={};
 	this.userRequests={};
 	this.selectServer(isDev);
+	this.openRequests = 0;
 }
 Myself.prototype = Object.create(EventEmitter.prototype);
 Object.defineProperty(Myself.prototype, 'constructor', {
@@ -127,12 +128,35 @@ Myself.prototype.selectServer = function(isDev) {
 
 Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
+	$.openRequests++;
+	$.loadStart();
 	sbs2Request($.server+"/"+url, method, function(e, resp) {
-		if (e=='auth') {
+		$.openRequests--;
+		$.loadEnd(e);
+		/*if (e=='auth') {
 			$.logOut();
-		}
+		}*/
 		$.cb(callback, e, resp);
 	}, data, $.auth, cancel);
+}
+
+Myself.prototype.loadStart = function() {
+	if (this.onLoadStart)
+		this.cb(this.onLoadStart);
+}
+
+Myself.prototype.loadEnd = function(e) {
+	if (this.onLoadEnd)
+		this.cb(this.onLoadEnd, e);
+}
+
+Myself.prototype.getUsers = function(query, callback) {
+	var $=this;
+	$.readSimple("User"+queryString(query), 'user', function(e, resp){
+		if (!e){
+			$.cb(callback, resp);
+		}
+	});
 }
 
 // Most requests will be done through the chain endpoint with Myself.read
@@ -219,8 +243,9 @@ Myself.prototype.handle = function(e, resp) {
 	resp.user && resp.user.forEach(function(user) {
 		if (user.avatar && user.avatar != 125) {
 			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=128&square=true"
+			user.bigAvatarURL = $.server+"/File/raw/"+user.avatar+"?size=420&square=true"
 		} else {
-			user.avatarURL = "./avatar.png";
+			user.avatarURL = user.bigAvatarURL = "./avatar.png";
 		}
 		var uid = user.id;
 		if (uid) {
@@ -294,7 +319,12 @@ Myself.prototype.loadCachedAuth = function(callback) {
 	var cached = localStorage.getItem($.lsKey);
 	if (cached) {
 		$.setAuth(cached);
-		$.readSimple("User/me", 'user', callback); //this is used to test the auth
+		$.readSimple("User/me", 'user', function(e, resp){
+			if (e == 'auth') {
+				$.logOut(); //auth was invalid
+			}
+			$.cb(callback, e, resp);
+		}); //this is used to test the auth
 		return true;
 	}
 	return false;
@@ -501,18 +531,25 @@ Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
 	$.read([
-		{user: {ids: [id]}},
 		{content: {parentIds: [id], type: '@user.page', limit: 1}},
-		"comment.1id$parentIds",
-		"user.1createUserId.1editUserId.2createUserId.2editUserId",
+		{activity: {userIds: [id], limit: 20, reverse: true}},
+		"user.0createUserId.0editUserId.1userId",
+		"content.1contentId",
 	], {
 	}, function(e, resp) {
 		if (!e) {
 			var user = resp.userMap[id];
+			// ugh need to make
+			// content map now
+			// to map Content to Activity
+			// you know, maybe this could be done automatically.... somehow
 			if (user) {
-				$.cb(callback, user, resp.content[0], resp.comment, resp.userMap);
+				var page = resp.content[0];
+				if (page.type != "@user.page")
+					page = undefined;
+				$.cb(callback, user, page, resp.activity, resp.content, resp.userMap);
 			} else
-				$.cb(callback, null, {});
+				$.cb(callback, null, {}, [], {});
 		}
 	});
 }
