@@ -97,6 +97,7 @@ window.onhashchange = function() {
 }
 
 function getPath() {
+	alert(location.hash.substr(1).split("#"));
 	return location.hash.substr(1).split("#");
 }
 
