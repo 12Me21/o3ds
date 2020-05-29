@@ -1,4 +1,5 @@
-var scriptLoaded = Date.now();
+//bug: when going back from another site, page is loaded from cache, and
+// certain things are not reloaded
 
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
@@ -15,7 +16,7 @@ if (document.readyState == 'loading')
 else {
 	ready();
 }
-var loadTime;
+
 function ready() {
 	if (me.openRequests) {
 		loadStart();
@@ -23,7 +24,6 @@ function ready() {
 	me.onLoadStart = loadStart;
 	me.onLoadEnd = loadEnd;
 	console.info("ready");
-	loadTime = Date.now() - scriptLoaded;
 	if (me.auth)
 		onLogin(me);
 	else
@@ -78,6 +78,54 @@ function ready() {
 			});
 		}, 0);
 	}
+
+	$registerForm.$register.onclick = function(e) {
+		e.preventDefault();
+		$registerError.textContent = "";
+		var email = $registerForm.email.value;
+		me.register($registerForm.username.value, $registerForm.password.value, email, function(e, resp) {
+			console.log(e, resp, resp.errors);
+			if (e == 'error' && resp) {
+				var errors = ["Registration failed:"];
+				if (resp.errors) {
+					for (var key in resp.errors) {
+						errors.push(resp.errors[key].join(" "));
+					}
+				} else
+					errors.push(resp);
+				$registerError.textContent = errors.join("\n");
+			} else if (!e) {
+				$registerError.textContent = "Sending email...";
+				me.sendEmail(email, function(e, resp){
+					if (!e) {
+						$registerError.textContent = "Confirmation email sent";
+					} else {
+						$registerError.textContent = "Error sending confirmation email";
+					}
+				});
+			}
+		});
+	}
+	$resendEmail.onclick = function(e) {
+		me.sendEmail($registerForm.email.value, function(e, resp){
+			if (!e) {
+				$registerError.textContent = "Confirmation email sent";
+			} else {
+				$registerError.textContent = "Error sending confirmation email";
+			}
+		});
+	}
+	$registerConfirm.onclick = function() {
+		// todo: validate the key client-side maybe
+		me.confirmRegister($emailCode.value, function(e, resp) {
+			if (!e) {
+				$registerError.textContent = "Registration Complete";
+				window.location.hash = "#user/"+me.uid;
+			} else {
+				$registerError.textContent = "Failed to confirm registration";
+			}
+		});
+	}
 	
 	scroller = new AutoScroller($messageList);
 
@@ -105,9 +153,31 @@ function getPath() {
 	return hash.split("#");
 }
 
+function split1(string, sep) {
+	var n = string.indexOf(sep);
+	if (n == -1)
+		return [string, null];
+	else
+		return [string.substr(0,n), string.substr(n+sep.length)];
+}
+
 function navigateTo(path, first, callback) {
 	lp.reset();
-	path = path.split("/").filter(function(x){return x;});
+	path = split1(path, "?");
+	var query = path[1];
+	var queryVars = {};
+	if (query) {
+		query.split("&").forEach(function(item) {
+			item = split1(item, "=");
+			if (item[1] == null) {
+				queryVars[item[0]] = true;
+			} else {
+				queryVars[item[0]] = item[1];
+			}
+		});
+	}
+	path = path[0].split("/").filter(function(x){return x;});
+	
 	var type = path[0];
 	var id = +(path[1]);
 	if (type == "pages") {
@@ -119,7 +189,7 @@ function navigateTo(path, first, callback) {
 			} else {
 				id = undefined;
 			}
-			generateEditorView(id, callback);
+			generateEditorView(id, queryVars, callback);
 		} else {
 			first && ($main.className = 'pageMode');
 			generatePageView(id, callback);
@@ -139,13 +209,24 @@ function navigateTo(path, first, callback) {
 	} else if (typeof type == 'undefined') { //home
 		first && ($main.className = 'homeMode');
 		generateHomeView(null, callback);
+	} else if (type == 'register') {
+		first && ($main.className = 'registerMode');
+		generateRegisterView(null, callback);
 	} else {
-		$main.className = "pageMode errorMode";
+		$main.className = "errorMode";
 		generateAuthorBox();
 		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
 		$pageContents.textContent = "";
 		callback();
 	}
+}
+
+function generateRegisterView(idk, callback) {
+	$main.className = "registerMode";
+	generateAuthorBox();
+	generatePath();
+	$pageTitle.textContent = "Create an account";
+	callback();
 }
 
 function generateHomeView(idk, callback) {
@@ -165,11 +246,8 @@ function generatePath(cid, page) {
 
 var editingPage;
 
-function generateEditorView(id, callback) {
-	if (id)
-		me.getPageForEditing(id, go);
-	else
-		go();
+function generateEditorView(id, query, callback) {
+	me.getPageForEditing(id, go);
 	
 	function go(page, users) {
 		$main.className = "editorMode";
@@ -185,11 +263,17 @@ function generateEditorView(id, callback) {
 			$editorTextarea.value = page.content;
 			updateEditorPreview();
 		} else {
-			generatePath();
+			var category = +query.cid;
+			generatePath(category);
 			$pageTitle.textContent = "";
 			$titleInput.value = "";
 			$editorTextarea.value = "";
-			editingPage = {}; //todo: fill stuff here
+			editingPage = {
+				parentId: category,
+				permissions: {
+					0: "cr"
+				}
+			}; //todo: fill stuff here
 		}
 		callback();
 	}
@@ -223,7 +307,7 @@ function submitEdit() {
 			if (e) {
 				alert("ERROR");
 			} else {
-				window.location.hash = "#pages/"+editingPage.id;
+				window.location.hash = "#pages/"+resp.id;
 			}
 		});
 	}
@@ -321,10 +405,11 @@ function generateUserView(id, callback) {
 		console.info(arguments);
 		$main.className = 'userMode';
 		generateAuthorBox(user && page, userMap);
-		renderUserPath($navPane);
+		renderUserPath($navPane, user);
 		$userPageAvatar.src = "";
 		$userActivity.innerHTML = "";
 		if (user) {
+			console.log("activity",activity);
 			$pageTitle.textContent = user.username;
 			if (page) {
 				renderPageContents(page, $userPageContents)
@@ -332,16 +417,25 @@ function generateUserView(id, callback) {
 				$userPageContents.innerHTML = "";
 			}
 			$userPageAvatar.src = user.bigAvatarURL;
-			console.log(pages, activity);
+			var lastId, lastAction;
 			activity.forEach(function(activity){
 				var page;
-				for (var i=0;i<pages.length;i++) {
-					if (pages[i].id == activity.contentId) {
-						page = pages[i];
-						break;
+				if (activity.contentId != lastId || activity.action != lastAction) {
+					for (var i=0;i<pages.length;i++) {
+						if (pages[i].id == activity.contentId) {
+							page = pages[i];
+							break;
+						}
+					}
+					if (activity.action == "d" && !page)
+						page = {name: activity.extra, id: activity.contentId};
+					
+					if (page) {
+						$userActivity.appendChild(renderActivityItem(activity, page));
+						lastId = activity.contentId;
+						lastAction = activity.action;
 					}
 				}
-				$userActivity.appendChild(renderActivityItem(activity, page));
 			});
 		} else {
 			$main.className += " errorMode";
@@ -429,8 +523,10 @@ function generateCategoryView(id, callback) {
 				$categoryPages.appendChild(renderCategoryPage(content, users));
 			});
 			$categoryPages.style.display="";
+			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
 		} else {
 			generatePath();
+			$categoryCreatePage.href = ""
 			$main.className += "errorMode";
 			$pageTitle.textContent = "Category not found";
 		}
@@ -442,6 +538,7 @@ function onLogin(me) {
 	me.whenUser(me.uid, function(user) {
 		$myAvatar.src = user.avatarURL;
 		$myName.textContent = user.username;
+		$myUserLink.href = "#user/"+user.id;
 	});
 	hide($loggedOut);
 	show($loggedIn);
@@ -459,7 +556,7 @@ function generateMembersView(idk, callback) {
 		hide($pageAuthorBox);
 		$main.className = 'membersMode';
 		$memberList.innerHTML = "";
-		generatePath();
+		renderUserPath($navPane);
 		$pageTitle.textContent = "Users";
 		users.forEach(function(user) {
 			$memberList.appendChild(renderMemberListUser(user));

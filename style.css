@@ -53,7 +53,7 @@ textarea {
 
 .textItem {
 	max-width: 100%;
-	display: inline-block;
+	display: inline;
 }
 .item {
 	display: inline-block;
@@ -100,6 +100,7 @@ main:not(.categoryMode) .categoryMode,
 main:not(.navMode) .navMode,
 main:not(.userMode) .userMode,
 main:not(.membersMode) .membersMode,
+main:not(.registerMode) .registerMode,
 main:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -108,7 +109,7 @@ main:not(.homeMode) .homeMode {
  ** Top Bar **
  *************/
 .headerPane {
-	min-height: 2.3rem;
+	min-height: 1.5rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	background-color: #333;
@@ -119,48 +120,35 @@ main:not(.homeMode) .homeMode {
 	float: right;
 }
 
-.headerPane > *  {
-	display: inline-block;
-	max-width: 100%;
-}
-
 .headerPane .item {
-	height: 2.3rem;
+	height: 1.5rem;
 }
 .headerPane .textItem{
-	min-height: 2.3rem;
-	line-height: 2.3rem;
+	min-height: 1.5rem;
+	line-height: 1.5rem;
 }
 
 .myAvatar {
-	width: 2.3rem;
+	width: 1.5rem;
 }
 
 .myName {
 	color: white;
-	line-height: 2.3rem;
 	font-weight: bold;
 	margin: 0 0.5rem;
 }
 
-/**************
- ** Nav Pane **
- **************/
-.navPane {
-	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	background-color: #BBB;
-	padding: 0 0.2rem;
-	line-height: 2.3rem;
+.path {
+	font-weight: bold;
+	color: white;
+}
+
+.headerPane a {
+	color: #BCF;
 }
 
 .pathSeparator {
 	padding: 0 0.2rem;
-}
-
-.navPane a {
-	font-weight: bold;
 }
 
 /****************
@@ -251,9 +239,6 @@ main:not(.homeMode) .homeMode {
 .categoryPage .item {
 	height: 2.3rem;
 	line-height: 2.3rem;
-}
-.categoryPages {
-	margin-top: 0.5rem;
 }
 
 /***************
@@ -406,11 +391,6 @@ main:not(.homeMode) .homeMode {
 	font-weight: bold;
 }
 
-.userPageAvatar {
-	width: 10rem;
-	height: 10rem;
-}
-
 .bottomSpacer {
 	flex-shrink: 0;
 	height: 1.5rem;
@@ -420,7 +400,7 @@ main:not(.homeMode) .homeMode {
 	font-weight: bold;
 	background-color: #EEE;
 	display: block;
-	min-height: 2.3rem;
+	min-height: 1.5rem;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	overflow: auto; /* find other places that we need to use this */
@@ -430,18 +410,39 @@ main:not(.homeMode) .homeMode {
 
 .listItem * {
 	max-width: 100%;
-	display: inline-block;
-	max-height: 2.3rem;
-	line-height: 2.3rem;
+	display: inline;
+	line-height: 1.5rem;
 	padding: 0 0.2rem;
 }
 
 .listItem img {
-	height: 2.3rem;
+	height: 2rem;
 }
 
 
 .userPageBox {
 	display: flex;
 	flex-direction: row;
+}
+
+.userPageBox .userPageAvatar {
+	width: 10rem;
+	flex-shrink: 1;
+}
+
+.userPageBox .pageContents {
+	width: 10rem;
+}
+
+.categoryNav .textItem {
+	min-height: 1.5rem;
+	line-height: 1.5rem;
+}
+
+.categoryNav .item {
+	height: 1.5rem;
+}
+
+.loginField {
+	width: 5rem;
 }

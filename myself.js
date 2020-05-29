@@ -29,9 +29,13 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('auth', resp);
 		} else {
 			alert("Request failed! "+code+" "+url);
-			console.log("sbs2Request: request failed! "+code);
-			console.log(x.responseText);
-			console.log(x);
+			//console.log("sbs2Request: request failed! "+code);
+			//console.log(x.responseText);
+			console.log("REQUEST FAILED", x);
+			try {
+				resp = JSON.parse(resp);
+			} catch(e) {
+			}
 			callback('error', resp, code);
 		}
 	}
@@ -44,7 +48,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		} else {
 			alert("Request failed! "+url);
 			console.log("xhr onerror");
-			callback('error');
+			callback('fail');
 		}
 	}
 	x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
@@ -191,7 +195,7 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 	});
 	for (var filter in filters)
 		query[filter] = filters[filter];
-	var needCategorys = !$.categoryTree;
+	var needCategorys = !$.categoryTree && query.requests.length<5;
 	if (needCategorys) {
 		query.requests.push('category');
 	}
@@ -320,7 +324,7 @@ Myself.prototype.loadCachedAuth = function(callback) {
 	if (cached) {
 		$.setAuth(cached);
 		$.readSimple("User/me", 'user', function(e, resp){
-			if (e == 'auth') {
+			if (e == 'auth' || e == 'error') {
 				$.logOut(); //auth was invalid
 			}
 			$.cb(callback, e, resp);
@@ -450,25 +454,38 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 
 Myself.prototype.getPageForEditing = function(id, callback) {
 	var $=this;
-	id = +id;
-	$.read([
-		{content: {ids: [id]}},
-		"user.0createUserId.0editUserId",
-	], {
-		user: "id,username,avatar"
-	}, function(e, resp) {
-		if (!e) {
-			var page = resp.content[0];
-			if (page)
-				$.cb(callback, page, resp.userMap);
-			else
+	if (id) {
+		id = +id;
+		$.read([
+			{content: {ids: [id]}},
+			"user.0createUserId.0editUserId",
+		], {
+			user: "id,username,avatar"
+		}, function(e, resp) {
+			if (!e) {
+				var page = resp.content[0];
+				if (page)
+					$.cb(callback, page, resp.userMap);
+				else
+					$.cb(callback, null, {});
+			}
+		});
+	} else {
+		if ($.categoryTree) {
+			$.cb(callback, null, {});
+		} else {
+			this.readSimple("Category", 'category', function(e, resp) {
+				$.categoryTree = buildCategoryTree(resp);
 				$.cb(callback, null, {});
+			});
 		}
-	});
+	}
 }
 
 Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback, cancel) {
 	var $=this;
+	if (lastId == -Infinity)
+		lastId = undefined;
 	$.listen([
 		{comment: {
 			parentIds: ids,
@@ -527,13 +544,42 @@ Myself.prototype.getVote = function(query, callback) {
 	this.request("Vote"+queryString(query), 'GET', callback);
 }
 
+Myself.prototype.register = function(username, password, email, callback) {
+	this.request("User/register", 'POST', callback, {
+		username: username,
+		password: password,
+		email: email
+	});
+}
+
+Myself.prototype.sendEmail = function(email, callback) {
+	this.request("User/register/sendemail", 'POST', callback, {
+		email: email
+	});
+}
+
+Myself.prototype.confirmRegister = function(key, callback) {
+	var $=this;
+	$.request("User/register/confirm", 'POST', function(e, resp) {
+		if (!e) {
+			$.setAuth(resp);
+			localStorage.setItem($.lsKey, resp);
+			$.readSimple("User/me", 'user', function(){});
+		}
+		$.cb(callback, e, resp);
+	}, {
+		confirmationKey: key
+	});
+}
+
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
 	$.read([
 		{content: {parentIds: [id], type: '@user.page', limit: 1}},
 		{activity: {userIds: [id], limit: 20, reverse: true}},
-		"user.0createUserId.0editUserId.1userId",
+		{user: {userIds: [id]}},
+		"user.0createUserId.0editUserId",
 		"content.1contentId",
 	], {
 	}, function(e, resp) {
@@ -545,7 +591,7 @@ Myself.prototype.getUserPage = function(id, callback) {
 			// you know, maybe this could be done automatically.... somehow
 			if (user) {
 				var page = resp.content[0];
-				if (page.type != "@user.page")
+				if (page && page.type != "@user.page")
 					page = undefined;
 				$.cb(callback, user, page, resp.activity, resp.content, resp.userMap);
 			} else

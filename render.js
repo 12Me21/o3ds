@@ -7,18 +7,20 @@ function renderCategoryPage(page, users) {
 	title.className = "categoryPageTitle textItem";
 	title.textContent = "\uD83D\uDCC4 " + page.name;
 	div.appendChild(title);
-	var right = document.createElement('a');
-	right.href = "#user/"+user.id;
-	right.className = "rightAlign textItem pageCreate";
-	var name = document.createElement('span');
-	name.textContent = user.username;
-	name.className = "textItem pageAuthorName";
-	right.appendChild(name);
-	var img = document.createElement('img');
-	img.className = "item";
-	img.src = user.avatarURL;
-	right.appendChild(img);
-	div.appendChild(right);
+	if (user) {
+		var right = document.createElement('a');
+		right.href = "#user/"+user.id;
+		right.className = "rightAlign textItem pageCreate";
+		var name = document.createElement('span');
+		name.textContent = user.username;
+		name.className = "textItem pageAuthorName";
+		right.appendChild(name);
+		var img = document.createElement('img');
+		img.className = "item";
+		img.src = user.avatarURL;
+		right.appendChild(img);
+		div.appendChild(right);
+	}
 	return div;
 }
 
@@ -52,17 +54,26 @@ function renderPath(tree, node, element, last) {
 	}
 }
 
-function renderUserPath(element) {
+function renderUserPath(element, user) {
 	element.innerHTML = "";
 	var link = document.createElement('a');
 	link.href = "#users/"
 	link.textContent = "Users";
 	link.className = "textItem";
+	element.appendChild(link);
+	
 	var slash = document.createElement('span');
 	slash.textContent = "/";
 	slash.className = "pathSeparator textItem";
-	insertFirst(element, slash);
-	insertFirst(element, link);
+	element.appendChild(slash);
+	
+	if (user) {
+		link = document.createElement('a');
+		link.href = "#user/"+user.id
+		link.textContent = user.username;
+		link.className = "textItem";
+		element.appendChild(link);	
+	}
 }
 
 function timeString(date) {
@@ -148,11 +159,14 @@ function reasonableDateString(date) {
 function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
 	visible(avatarE, !hideUser);
 	visible(nameE, !hideUser);
-	if (!hideUser) {
-		avatarE.src = user.avatarURL;
-		nameE.textContent = user.username;
+	if (user) {
+		if (!hideUser && user) {
+			avatarE.src = user.avatarURL;
+			nameE.textContent = user.username;
+		}
+		
+		link.href = "#user/"+user.id;
 	}
-	link.href = "#user/"+user.id;
 	dateE.textContent = reasonableDateString(time);
 }
 
@@ -199,7 +213,7 @@ function renderActivityItem(activity, page) {
 	action.textContent = text;
 	var link = document.createElement('a');
 	link.href = "#pages/"+activity.contentId;
-	link.textContent = page ? page.name : "UNKNOWN PAGE";
+	link.textContent = page.name;
 	var time = document.createElement('span');
 	time.textContent = reasonableDateString(date);
 	div.appendChild(action);
