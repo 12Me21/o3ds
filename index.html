@@ -7,7 +7,7 @@
 <link rel="image_src" href="favicon.svg?a">
 
 <!--START-->
-<link rel="stylesheet" href="style.css?h">
+<link rel="stylesheet" href="style.css?i">
 <link rel="stylesheet" href="markup.css?b">
 <link rel="stylesheet" href="code.css?a">
 
@@ -23,7 +23,7 @@
 
 <script src="render.js?h"></script>
 <script src="view.js?a"></script>
-<script src="main.js?o"></script>
+<script src="main.js?p"></script>
 
 <!--- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -73,8 +73,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 				<span class="textItem">Author:</span><a id="$authorLink" class="item"><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"></a><span class="pageAuthorDate textItem" id="$pageAuthorDate">
 				</span><!-- *standing in the middle of a mess of html*
 "gosh, I guess I have to clean all this up, then" -->
-			</span><a class="textItem pageMode" id="$pageEditButton"><button class="item">Edit</button></a><span id="$pageEdited" class="pageEdited">
-				<span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
+			</span><a class="textItem pageMode" id="$pageEditButton"><button class="item">Edit</button></a><span id="$pageEdited" class="pageEdited"><span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
 			</span>
 		</div>
 	</header>
@@ -87,7 +86,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 	</div>
 
 	<div class="infoPane editorMode">
-		<input placeholder="Keywords (space separated, optional)"><br>
+		<label for="$keywords">Keywords:</label><input placeholder="(space separated, optional)" id="$keywords"><br>
 		<label for="$markupSelect">Markup language:</label>
 		<select id="$markupSelect">
 			<option value="plaintext">plain text</option>

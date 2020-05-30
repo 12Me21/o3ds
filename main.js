@@ -239,15 +239,16 @@ function generatePath(cid, page) {
 
 // These are used to signal to the user when content is loading
 function loadStart() {
-	console.info("load start");
+	document.body.className = "loading"
 	if (window.$titlePane)
 		window.$titlePane.style.backgroundColor = "#48F";
 }
 function loadEnd() {
-	console.info("load end");
+	document.body.className = "";
 	$titlePane.style.backgroundColor = "";
 }
 function loadError() {
+	document.body.className = "";
 	$titlePane.style.backgroundColor = "#FCC";
 }
 
@@ -273,7 +274,7 @@ function deletePage() {
 				if (e) {
 					alert("ERROR");
 				} else {
-					alert("OK DELETE");
+					window.location.hash = "#categories/"+editingPage.parentId;
 				}
 			});
 		}

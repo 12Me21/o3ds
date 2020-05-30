@@ -6,6 +6,10 @@
 	vertical-align: top;
 }
 
+body.loading * {
+	cursor: wait !important;
+}
+
 html {
 	background-color: red;
 	font-family: sans-serif;
@@ -25,6 +29,7 @@ button {
 	border: 2px solid transparent;
 	background-color: transparent;
 	box-shadow: inset 2px 2px 1px #AAA, inset -2px -2px 1px #777, inset 100000px 0 #EEE;
+	cursor: pointer;
 }
 
 button:hover {
@@ -165,6 +170,10 @@ body:not(.homeMode) .homeMode {
 
 .headerPane a {
 	color: #BCF;
+}
+
+.headerPane a:hover {
+	color: #9AF;
 }
 
 .pathSeparator {
