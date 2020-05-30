@@ -142,7 +142,7 @@ Parse.lang['12y'] = function(code) {
 	var lastLineBreak = null;
 	var displayBlock = {
 		code:true,audio:true,video:true,heading:true,quote:true,
-		list:true,item:true,table:true,image:true
+		list:true,item:true,table:true,image:true,line:true
 	};
 	var skipNextLineBreak;
 	
@@ -244,6 +244,7 @@ Parse.lang['12y'] = function(code) {
 					// ---<EOL> hr
 					if (c == "\n" || !c) { //this is kind of bad
 						addBlock(options.line());
+						skipNextLineBreak = true; //hack
 					//----------
 					// ---... normal text
 					} else {

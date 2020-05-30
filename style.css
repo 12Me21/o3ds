@@ -7,7 +7,7 @@
 }
 
 html.loading * {
-	cursor: wait !important;
+	cursor: progress !important;
 }
 
 html {
