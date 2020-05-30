@@ -6,7 +6,7 @@
 	vertical-align: top;
 }
 
-body {
+html {
 	background-color: red;
 	font-family: sans-serif;
 }
@@ -18,6 +18,17 @@ body {
 
 a:visited {
 	color: #00A;
+}
+
+button {
+	border-radius: 5px;
+	border: 2px solid transparent;
+	background-color: transparent;
+	box-shadow: inset 2px 2px 1px #AAA, inset -2px -2px 1px #777, inset 100000px 0 #EEE;
+}
+
+button:hover {
+	box-shadow: inset 2px 2px 1px #888, inset -2px -2px 1px #AAA, inset 100000px 0 #DDD;
 }
 
 a {
@@ -39,10 +50,11 @@ textarea {
 .scroller {
 	display: flex;
 	flex-direction: column;
-	overflow-y: scroll;
+	overflow-y: auto;
 	min-height: 300px;
 	height: 300px;
 }
+
 .spacer {
 	flex-grow: 1;
 }
@@ -51,19 +63,29 @@ textarea {
 	float: right;
 }
 
-.textItem {
+/* These 3 classes handle like 90% of the layout lol */
+.bar { /* contains textitems and items */
+	display: block;
+	overflow: hidden;
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	/* set min-height */
+}
+.textItem { /* basically anything within a .bar */
 	max-width: 100%;
 	display: inline;
+	/* set min-height, line-height */
 }
-.item {
+.item { /* for images and other blocks that can't wrap */
 	display: inline-block;
 	max-width: 100%;
+	/* set height */
 }
 
 /****************************
  ** Main Container Element **
  ****************************/
-main {
+body {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
@@ -74,12 +96,12 @@ main {
 	background-color: white;
 }
 
-main > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
+body > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
 	border-top: 1px solid gray;
 }
 
 /* most elements will be fixed-height, and should never shrink */
-main > * {
+body > * {
 	flex-shrink: 0;
 }
 
@@ -93,15 +115,15 @@ main > * {
 }
 
 /* visibility control */
-main:not(.pageMode) .pageMode,
-main:not(.chatMode) .chatMode,
-main:not(.editorMode) .editorMode,
-main:not(.categoryMode) .categoryMode,
-main:not(.navMode) .navMode,
-main:not(.userMode) .userMode,
-main:not(.membersMode) .membersMode,
-main:not(.registerMode) .registerMode,
-main:not(.homeMode) .homeMode {
+body:not(.pageMode) .pageMode,
+body:not(.chatMode) .chatMode,
+body:not(.editorMode) .editorMode,
+body:not(.categoryMode) .categoryMode,
+body:not(.navMode) .navMode,
+body:not(.userMode) .userMode,
+body:not(.membersMode) .membersMode,
+body:not(.registerMode) .registerMode,
+body:not(.homeMode) .homeMode {
 	display: none;
 }
 
@@ -110,10 +132,7 @@ main:not(.homeMode) .homeMode {
  *************/
 .headerPane {
 	min-height: 1.5rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
 	background-color: #333;
-	overflow: auto;
 }
 
 .headerRight {
@@ -123,6 +142,7 @@ main:not(.homeMode) .homeMode {
 .headerPane .item {
 	height: 1.5rem;
 }
+
 .headerPane .textItem{
 	min-height: 1.5rem;
 	line-height: 1.5rem;
@@ -156,10 +176,7 @@ main:not(.homeMode) .homeMode {
  ****************/
 .titlePane {
 	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
 	background-color: #DDD;
-	overflow: auto;
 }
 
 .titlePane .item {
@@ -219,12 +236,7 @@ main:not(.homeMode) .homeMode {
 .categoryPage {
 	font-weight: bold;
 	background-color: #EEE;
-	display: block;
 	min-height: 2.3rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	overflow: auto; /* find other places that we need to use this */
-	clear: both;
 }
 .categoryPage, .categoryDescription, .member {
 	border-bottom: 1px solid gray;
@@ -253,8 +265,6 @@ main:not(.homeMode) .homeMode {
  *******************/
 .userlist {
 	background-color: #EEE;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box; /* make class 4 this */
 	min-height: 2.3rem;
 }
 .userlist > * {
@@ -324,9 +334,7 @@ main:not(.homeMode) .homeMode {
  ** Chat Input **
  ****************/
 .inputPane {
-	overflow-wrap: break-word;
 	height: 3.25rem;
-	box-sizing: content-box;
 	display: flex;
 	flex-direction: row;
 }
@@ -353,6 +361,7 @@ main:not(.homeMode) .homeMode {
 .editorPane {
 	display: flex;
 	flex-direction: column;
+	flex-grow: 1;
 }
 
 .editorPreview {
@@ -397,15 +406,13 @@ main:not(.homeMode) .homeMode {
 }
 
 .listItem {
-	font-weight: bold;
 	background-color: #EEE;
-	display: block;
 	min-height: 1.5rem;
-	box-sizing: content-box;
-	-webkit-box-sizing: content-box;
-	overflow: auto; /* find other places that we need to use this */
-	clear: both;
 	border-top: 1px solid gray;
+}
+
+.listItem a {
+	font-weight: bold;
 }
 
 .listItem * {
@@ -418,7 +425,6 @@ main:not(.homeMode) .homeMode {
 .listItem img {
 	height: 2rem;
 }
-
 
 .userPageBox {
 	display: flex;
@@ -437,6 +443,10 @@ main:not(.homeMode) .homeMode {
 .categoryNav .textItem {
 	min-height: 1.5rem;
 	line-height: 1.5rem;
+	
+}
+.categoryNav {
+	flex-shrink: 0;
 }
 
 .categoryNav .item {
@@ -445,4 +455,12 @@ main:not(.homeMode) .homeMode {
 
 .loginField {
 	width: 5rem;
+}
+
+button {
+	line-height: normal !important;
+}
+
+img.item {
+	vertical-align: top;
 }

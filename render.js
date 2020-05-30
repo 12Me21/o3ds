@@ -2,7 +2,7 @@ function renderCategoryPage(page, users) {
 	var user = users[page.createUserId];
 	var div = document.createElement('a');
 	div.href = "#pages/"+page.id;
-	div.className = "pre categoryPage";
+	div.className = "pre categoryPage bar";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle textItem";
 	title.textContent = "\uD83D\uDCC4 " + page.name;
@@ -171,17 +171,16 @@ function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
 }
 
 function renderPageContents(page, element) {
-	if (page.values)
-		var markup = page.values.markupLang;
-	if (markup == '12y') {
-		element.innerHTML = "";
-		element.appendChild(parse12y(page.content));
-	} else if (markup == 'bbcode') {
-		element.innerHTML = "";
-		element.appendChild(parseBBCode(page.content));
-	} else {
-		element.textContent = page.content;
+	if (page.values) {
+		var parser = Parse.lang[page.values.markupLang];
 	}
+	parser = parser || Parse.fallback;
+	setChild(element, parser(page.content));
+}
+
+function setChild(element, child) {
+	element.innerHTML = "";
+	element.appendChild(child);
 }
 
 // as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
@@ -208,7 +207,7 @@ function renderActivityItem(activity, page) {
 		text = "Unknown action";
 	}
 	var div = document.createElement('div');
-	div.className = "listItem";
+	div.className = "listItem bar";
 	var action = document.createElement('span');
 	action.textContent = text;
 	var link = document.createElement('a');

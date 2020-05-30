@@ -1,3 +1,7 @@
+var Parse = {
+	lang:{}
+};
+
 var create = function(x) {
 	return document.createElement(x);
 }
@@ -10,7 +14,7 @@ var creator = function (tag) {
 	}
 };
 
-var options = {
+Parse.options = {
 	append: function (parent, child) {
 		parent.appendChild(child);
 	},
@@ -131,7 +135,8 @@ var options = {
 	}
 }
 
-function parse12y(code) {
+Parse.lang['12y'] = function(code) {
+	var options = Parse.options;
 	var output = options.root();
 	var curr = output;
 	var lastLineBreak = null;
@@ -429,7 +434,6 @@ function parse12y(code) {
 		try {
 			flushText();
 			closeAll(true);
-			console.log(e);
 			addBlock(options.error());
 
 			addText(code.substr(i));
@@ -719,7 +723,8 @@ function parse12y(code) {
 	}
 }
 
-function parseBBCode(code) {
+Parse.lang.bbcode = function(code) {
+	var options = Parse.options;
 	var output = options.root();
 	var curr = output;
 	var displayBlock = {
@@ -748,7 +753,6 @@ function parseBBCode(code) {
 		spoiler: options.spoiler,
 		quote: options.quote,
 		anchor: function(arg){
-			console.log(arg)
 			return options.anchor(arg);
 		}
 	};
@@ -800,7 +804,6 @@ function parseBBCode(code) {
 				}
 			} else {
 				var name = readTagName();
-				console.log("READ THE FUCKING NAME",name,blocks[name]);
 				if (!name || !blocks[name]) {
 					cancel();
 				} else {
@@ -818,9 +821,7 @@ function parseBBCode(code) {
 						args = readArgList();
 					}
 					if (eatChar("]")) {
-						console.log("OK WHAT",name);
 						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
-							console.log("Special");
 							var endTag = "[/"+name+"]";
 							var end = code.indexOf(endTag, i);
 							if (end < 0)
@@ -988,4 +989,12 @@ function parseBBCode(code) {
 		options.append(curr, node);
 		curr = node;
 	}
+}
+
+Parse.fallback = function(text) {
+	var root = options.root();
+	var text = options.text(text);
+	options.append(root, text);
+	//todo: autolinker
+	return root;
 }

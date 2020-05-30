@@ -229,53 +229,11 @@ function generateRegisterView(idk, callback) {
 	callback();
 }
 
-function generateHomeView(idk, callback) {
-	$main.className = "homeMode";
-	generateAuthorBox();
-	generatePath();
-	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
-	callback();
-}
 
 function generatePath(cid, page) {
 	$navPane.innerHTML = "";
 	if (typeof cid != 'undefined') {
 		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane, page);
-	}
-}
-
-var editingPage;
-
-function generateEditorView(id, query, callback) {
-	me.getPageForEditing(id, go);
-	
-	function go(page, users) {
-		$main.className = "editorMode";
-		generateAuthorBox(page, users);
-		if (page) {
-			generatePath(page.parentId, page);
-			editingPage = page;
-			$pageTitle.textContent = "";
-			if (page.values)
-				var markup = page.values.markupLang;
-			$titleInput.value = page.name;
-			$markupSelect.value = markup;
-			$editorTextarea.value = page.content;
-			updateEditorPreview();
-		} else {
-			var category = +query.cid;
-			generatePath(category);
-			$pageTitle.textContent = "";
-			$titleInput.value = "";
-			$editorTextarea.value = "";
-			editingPage = {
-				parentId: category,
-				permissions: {
-					0: "cr"
-				}
-			}; //todo: fill stuff here
-		}
-		callback();
 	}
 }
 
@@ -296,21 +254,14 @@ function loadError() {
 //maybe turn the title <h1> into an input box
 //so you can just edit the page title there
 function submitEdit() {
-	if (editingPage) {
-		editingPage.content = $editorTextarea.value;
-		if (!editingPage.values)
-			editingPage.values = {};
-		editingPage.values.markupLang = $markupSelect.value;
-		editingPage.name = $titleInput.value;
-		//todo: other fields
-		me.postPage(editingPage, function(e, resp) {
-			if (e) {
-				alert("ERROR");
-			} else {
-				window.location.hash = "#pages/"+resp.id;
-			}
-		});
-	}
+	readEditorFields(editingPage);
+	me.postPage(editingPage, function(e, resp) {
+		if (e) {
+			alert("ERROR");
+		} else {
+			window.location.hash = "#pages/"+resp.id;
+		}
+	});
 }
 
 function deletePage() {
@@ -372,78 +323,7 @@ function getRadio(radio) {
 	return null;
 }
 
-function generatePageView(id, callback) {
-	loadStart();
-	me.getPage(id, function(page, users, comments){
-		$main.className = "pageMode";
-		generateAuthorBox(page, users);
-		visible($pageEditButton, page);
-		if (page) {
-			currentPage = page.id;
-			generatePath(page.parentId, page);
-			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
-			console.log(page.about.myVote);
-			// todo: handle showing/hiding the vote box when logged in/out
-			setRadio($vote.vote, page.about.myVote || "");
-			renderPageContents(page, $pageContents)
-			$pageEditButton.href = "#pages/edit/"+page.id;
-		} else {
-			currentPage = null;
-			generatePath();
-			$main.className += "errorMode";
-			setRadio($vote.vote);
-			$pageTitle.textContent = "Page not found";
-			$pageContents.innerHTML = "";
-		}
-		callback();
-	});
-}
 
-// todo: change edit box to "Joined: <date>" and "page edited: <date>"
-function generateUserView(id, callback) {
-	me.getUserPage(id, function(user, page, activity, pages, userMap) {
-		console.info(arguments);
-		$main.className = 'userMode';
-		generateAuthorBox(user && page, userMap);
-		renderUserPath($navPane, user);
-		$userPageAvatar.src = "";
-		$userActivity.innerHTML = "";
-		if (user) {
-			console.log("activity",activity);
-			$pageTitle.textContent = user.username;
-			if (page) {
-				renderPageContents(page, $userPageContents)
-			} else {
-				$userPageContents.innerHTML = "";
-			}
-			$userPageAvatar.src = user.bigAvatarURL;
-			var lastId, lastAction;
-			activity.forEach(function(activity){
-				var page;
-				if (activity.contentId != lastId || activity.action != lastAction) {
-					for (var i=0;i<pages.length;i++) {
-						if (pages[i].id == activity.contentId) {
-							page = pages[i];
-							break;
-						}
-					}
-					if (activity.action == "d" && !page)
-						page = {name: activity.extra, id: activity.contentId};
-					
-					if (page) {
-						$userActivity.appendChild(renderActivityItem(activity, page));
-						lastId = activity.contentId;
-						lastAction = activity.action;
-					}
-				}
-			});
-		} else {
-			$main.className += " errorMode";
-			$pageTitle.textContent = "User Not Found";
-		}
-		callback();
-	});
-}
 
 function updateUserlist(listeners, userMap) {
 	$chatUserlist.innerHTML = "";
@@ -452,87 +332,6 @@ function updateUserlist(listeners, userMap) {
 	})
 }
 
-function generateChatView(id, callback) {
-	lp.callback = function(comments, listeners, userMap, page) {
-		if (page && page.id == id) {
-			generatePath(page.parentId, page);
-			generateAuthorBox(page, userMap);
-			$messageList.innerHTML = ""
-			$main.className = "chatMode";
-			scroller.switchRoom(id);
-			$pageTitle.textContent = page.name;
-			renderPageContents(page, $chatPageContents);
-			callback();
-		} else if (page == false) { //1st request, page doesn't exist
-			generatePath();
-			generateAuthorBox(page, userMap);
-			$messageList.innerHTML = ""
-			$pageTitle.textContent = "Page not found";
-			$chatPageContents.innerHTML = "";
-			callback();
-			// TODO: page list passed to callback needs to be PER-ID!!
-		}
-		if (comments) {
-			comments.forEach(function(comment) {
-				if (comment.parentId == id)
-					displayMessage(comment, userMap[comment.createUserId]);
-			});
-		}
-		if (listeners)
-			updateUserlist(listeners[id], userMap);
-		if (page) {
-			scroller.autoScroll(true);
-		}
-	}
-	lp.addRoom(id);
-}
-
-function displayMessage(c, user) {
-	if (c.deleted) {
-		scroller.remove(c.id);
-	} else {
-		var node = renderMessagePart(c, function(){
-			scroller.autoScroll();
-		});
-		scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderUserBlock(user, c.createUserId, parseDate(c.createDate));
-			if (c.createUserId == me.uid)
-				b[0].className += " ownMessage";
-			return b;
-		});
-	}
-}
-
-function generateCategoryView(id, callback) {
-	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
-		hide($pageAuthorBox);
-		$main.className = 'categoryMode';
-		
-		$categoryPages.innerHTML = "";
-		$categoryCategories.innerHTML = "";
-		$categoryDescription.textContent = "";
-		if (category) {
-			generatePath(category.id);
-			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
-			$categoryDescription.textContent = category.description;
-			childs.forEach(function(cat) {
-				$categoryCategories.appendChild(renderCategory(cat, users));
-			});
-			$categoryPages.style.display="none";
-			contentz.forEach(function(content) {
-				$categoryPages.appendChild(renderCategoryPage(content, users));
-			});
-			$categoryPages.style.display="";
-			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
-		} else {
-			generatePath();
-			$categoryCreatePage.href = ""
-			$main.className += "errorMode";
-			$pageTitle.textContent = "Category not found";
-		}
-		callback();
-	});
-}
 
 function onLogin(me) {
 	me.whenUser(me.uid, function(user) {
@@ -549,19 +348,4 @@ function onLogout() {
 	$myName.textContent = "";
 	hide($loggedIn);
 	show($loggedOut);
-}
-
-function generateMembersView(idk, callback) {
-	me.getUsers({}, function(users) {
-		hide($pageAuthorBox);
-		$main.className = 'membersMode';
-		$memberList.innerHTML = "";
-		renderUserPath($navPane);
-		$pageTitle.textContent = "Users";
-		users.forEach(function(user) {
-			$memberList.appendChild(renderMemberListUser(user));
-		});
-		callback();
-	});
-	
 }
