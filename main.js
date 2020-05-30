@@ -162,6 +162,7 @@ function split1(string, sep) {
 }
 
 function navigateTo(path, first, callback) {
+	console.log("FIRST?",first);
 	lp.reset();
 	path = split1(path, "?");
 	var query = path[1];
@@ -239,16 +240,16 @@ function generatePath(cid, page) {
 
 // These are used to signal to the user when content is loading
 function loadStart() {
-	document.body.className = "loading"
+	document.body.parentNode.className = "loading"
 	if (window.$titlePane)
 		window.$titlePane.style.backgroundColor = "#48F";
 }
 function loadEnd() {
-	document.body.className = "";
+	document.body.parentNode.className = "";
 	$titlePane.style.backgroundColor = "";
 }
 function loadError() {
-	document.body.className = "";
+	document.body.parentNode.className = "";
 	$titlePane.style.backgroundColor = "#FCC";
 }
 

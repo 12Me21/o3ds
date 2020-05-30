@@ -6,7 +6,7 @@
 	vertical-align: top;
 }
 
-body.loading * {
+html.loading * {
 	cursor: wait !important;
 }
 
