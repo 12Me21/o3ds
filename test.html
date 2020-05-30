@@ -1,0 +1,15 @@
+<link rel="icon" sizes="32x32" href="32.png">
+<link rel="icon" sizes="16x16" href="16.png">
+
+
+
+
+<script src="parse.js"></script>
+<textarea id="$t"></textarea>
+<div id="$o"></div>
+<script>
+	$t.oninput = function() {
+	$o.innerHTML = "";
+	$o.appendChild(parseBBCode($t.value));
+	}
+	</script>
