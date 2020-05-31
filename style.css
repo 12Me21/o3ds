@@ -473,3 +473,7 @@ button {
 img.item {
 	vertical-align: top;
 }
+
+.markup-root {
+	white-space: pre-wrap;
+}
