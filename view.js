@@ -8,7 +8,8 @@ function newPage(query) {
 		},
 		permissions: {
 			0: "cr"
-		}
+		},
+		keywords: [],
 	};
 }
 
@@ -22,12 +23,16 @@ function fillEditorFields(page) {
 	if (page.content)
 		$editorTextarea.value = page.content;
 	updateEditorPreview();
+	$keywords.value = page.keywords.join(" ");
+	$permissions.value = JSON.stringify(page.permissions);
 	generatePath(page.parentId, page.name ? page : undefined);
 }
 
 function readEditorFields(page) {
 	page.name = $titleInput.value;
 	page.values.markupLang = $markupSelect.value;
+	page.keywords = $keywords.value.split(" ");
+	page.permissions = JSON.parse($permissions.value);
 	page.content = $editorTextarea.value;
 }
 

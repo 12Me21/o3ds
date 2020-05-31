@@ -217,6 +217,7 @@ function navigateTo(path, first, callback) {
 		$main.className = "errorMode";
 		generateAuthorBox();
 		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
+		generatePath();
 		$pageContents.textContent = "";
 		callback();
 	}
