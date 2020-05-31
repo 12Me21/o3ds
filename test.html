@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>heck</title>
-<link rel="icon" sizes="64x64" href="64.png?1">
-<link rel="icon" sizes="32x32" href="32.png?1">
+
+<link rel="icon" sizes="1024x1024" href="favicon.svg?1">
 <link rel="icon" sizes="16x16" href="16.png?1">
+<link rel="icon" sizes="64x64" href="64.png?1">
+
 <link rel="image_src" href="100.png?1">
 
 
@@ -14,5 +16,11 @@
 	$t.oninput = function() {
 	$o.innerHTML = "";
 	$o.appendChild(parseBBCode($t.value));
+	}
+	$t.onclick = function() {
+	alert("CLICKED");
+	window.setTimeout(function(){
+	alert("CLICK TIMEOUT");
+	}, 0);
 	}
 	</script>
