@@ -46,17 +46,13 @@ function ready() {
 		me.logOut();
 	}
 
-	if ($editorTextarea.oninput != undefined) { //if supported, will be null
-		$editorTextarea.oninput = function() {
-			updateEditorPreview();
-		}
-	} else {
-		$editorTextarea.onchange = function() {
-			updateEditorPreview();
-		}
+	$editorTextarea.oninput = function() {
+		updateEditorPreview();
 	}
-	
 	$markupSelect.onchange = function() {
+		updateEditorPreview();
+	}
+	$markupUpdate.onclick = function() {
 		updateEditorPreview();
 	}
 
