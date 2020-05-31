@@ -24,6 +24,7 @@ a:visited {
 	color: #00A;
 }
 
+/*
 button {
 	border-radius: 5px;
 	border: 2px solid transparent;
@@ -34,7 +35,7 @@ button {
 
 button:hover {
 	box-shadow: inset 2px 2px 1px #888, inset -2px -2px 1px #AAA, inset 100000px 0 #DDD;
-}
+}*/
 
 a {
 	text-decoration: none;
