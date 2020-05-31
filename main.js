@@ -45,10 +45,17 @@ function ready() {
 		event.preventDefault();
 		me.logOut();
 	}
-	
-	$editorTextarea.oninput = function() {
-		updateEditorPreview();
+
+	if ($editorTextarea.oninput != undefined) { //if supported, will be null
+		$editorTextarea.oninput = function() {
+			updateEditorPreview();
+		}
+	} else {
+		$editorTextarea.onchange = function() {
+			updateEditorPreview();
+		}
 	}
+	
 	$markupSelect.onchange = function() {
 		updateEditorPreview();
 	}
