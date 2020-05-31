@@ -246,8 +246,8 @@ Myself.prototype.handle = function(e, resp) {
 	var userMap = {};
 	resp.user && resp.user.forEach(function(user) {
 		if (user.avatar && user.avatar != 125) {
-			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=128&square=true"
-			user.bigAvatarURL = $.server+"/File/raw/"+user.avatar+"?size=420&square=true"
+			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=120&crop=true"
+			user.bigAvatarURL = $.server+"/File/raw/"+user.avatar+"?size=400&crop=true"
 		} else {
 			user.avatarURL = user.bigAvatarURL = "./avatar.png";
 		}
