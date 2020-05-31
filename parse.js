@@ -88,15 +88,23 @@ Parse.options = {
 	list: creator('ul'),
 	item: creator('li'), // (list item)
 	link: function(url) {
-		var protocol = url.match(/^([-\w]+:)([^]*)$/);
+		// important, do not remove, prevents script injection
+		if (/^ *javascript:/i.test(url))
+			url = "";
+		
+		var protocol = url.match(/^([-\w]+:)([^]*)$/).toLowerCase();
 		if (protocol && protocol[1] == "sbs:") {
+			// put your custom local url handling code here
 			url = "#"+protocol[2];
+			
 		} else if (!protocol) {
+			// urls without protocol get https:// or http:// added
 			var protocol = "https:";
 			if (window.location && window.location.protocol == "http:")
 				protocol = "http:";
 			url = protocol+"//"+url;
 		}
+		
 		var node = create('a');
 		node.setAttribute('href', url);
 		return node;
@@ -455,14 +463,6 @@ Parse.lang['12y'] = function(code) {
 		}
 	}
 	
-	// block dangerous url protocols
-	function sanitizeUrl(url) {
-		// this might need to be improved
-		if (/^ *javascript:/i.test(url)) //most browsers don't allow leading spaces but I think IE does.
-			return "";
-		return url;
-	}
-
 	function readBracketedLink(embed) {
 		if (c != "[") {
 			return false;
@@ -499,7 +499,7 @@ Parse.lang['12y'] = function(code) {
 		else
 			while (isUrlChar(c))
 				scan();
-		return sanitizeUrl(code.substring(start, i));
+		return code.substring(start, i);
 	}
 	
 	// ew regex
