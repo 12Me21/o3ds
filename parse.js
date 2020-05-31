@@ -92,8 +92,8 @@ Parse.options = {
 		if (/^ *javascript:/i.test(url))
 			url = "";
 		
-		var protocol = url.match(/^([-\w]+:)([^]*)$/).toLowerCase();
-		if (protocol && protocol[1] == "sbs:") {
+		var protocol = url.match(/^([-\w]+:)([^]*)$/);
+		if (protocol && protocol[1].toLowerCase() == "sbs:") {
 			// put your custom local url handling code here
 			url = "#"+protocol[2];
 			
