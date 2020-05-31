@@ -993,7 +993,7 @@ Parse.lang.bbcode = function(code) {
 }
 
 Parse.fallback = function(text) {
-	var options = Parse.options();
+	var options = Parse.options;
 	var root = options.root();
 	var text = options.text(text);
 	options.append(root, text);
