@@ -129,6 +129,7 @@ body:not(.navMode) .navMode,
 body:not(.userMode) .userMode,
 body:not(.membersMode) .membersMode,
 body:not(.registerMode) .registerMode,
+body:not(.settingsMode) .settingsMode,
 body:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -443,6 +444,7 @@ body:not(.homeMode) .homeMode {
 
 .userPageBox .userPageAvatar {
 	width: 10rem;
+	height: 10rem;
 	flex-shrink: 1;
 }
 

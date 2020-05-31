@@ -57,11 +57,11 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		x.setRequestHeader('Authorization', "Bearer "+auth);
 	
 	if (data) {
-		if (typeof data == 'string') { //todo: allow formdata, file, blob, etc.
-			x.send(data);
-		} else { //plain object
+		if (data && data.constructor == Object) { //plain object
 			x.setRequestHeader('Content-Type',"application/json;charset=UTF-8");
 			x.send(JSON.stringify(data));
+		} else { //string, formdata, arraybuffer, etc.
+			x.send(data);
 		}
 	} else {
 		x.send();
@@ -570,6 +570,32 @@ Myself.prototype.confirmRegister = function(key, callback) {
 	}, {
 		confirmationKey: key
 	});
+}
+
+Myself.prototype.getSettings = function(callback) {
+	var $=this;
+	if (me.auth) {
+		$.read([
+			{user: {ids: [$.uid]}}
+		], {
+		}, function(e, resp) {
+			if (!e && resp.user && resp.user[0]) {
+				$.cb(callback, resp.user[0]);
+			} else {
+				$.cb(callback, null);
+			}
+		});
+	} else {
+		$.cb(callback, null);
+	}
+}
+
+Myself.prototype.uploadFile = function(data, callback) {
+	this.request("File", 'POST', callback, data);
+}
+
+Myself.prototype.setBasic = function(data, callback) {
+	this.request("User/basic", 'PUT', callback, data);
 }
 
 Myself.prototype.getUserPage = function(id, callback) {

@@ -3,28 +3,27 @@
 <script>console.log("test");</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="icon" sizes="32x32" href="favicon.svg?c">
-<link rel="icon" sizes="16x16" href="favicon.svg?b">
+<link rel="icon" href="favicon.svg?d">
 <link rel="image_src" href="favicon2.svg?a">
 
 <!--START-->
-<link rel="stylesheet" href="style.css?m">
+<link rel="stylesheet" href="style.css?n">
 <link rel="stylesheet" href="markup.css?b">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?m"></script>
+<script src="myself.js?n"></script>
 
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?i"></script>
 
-<script src="render.js?h"></script>
-<script src="view.js?b"></script>
-<script src="main.js?t"></script>
+<script src="render.js?i"></script>
+<script src="view.js?c"></script>
+<script src="main.js?u"></script>
 
 <!--- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -137,12 +136,14 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		
 		<div class="homeMode homePane paneGrow">
 			hey<br>
-			go <a href="#categories/0">her</a>e:<br>
-<br>
-			"why is this so fast<br>
-			what the fuck"
-
-			- snail_
+			Users: <a href="#users">here</a><br>
+			Pages: <a href="#categories/0">here</a><br>
+			<hr>
+			<blockquote>
+				why is this so fast<br>
+				what the fuck
+				<footer>- snail_</footer>
+			</blockquote>
 		</div>
 		<div class="membersMode memberPane">
 			<div id="$memberList"></div>
@@ -159,6 +160,12 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			<div id="$registerError" class="pre"></div>
 			<input id="$emailCode" placeholder="Confirmation Code"><br>
 			<button id="$registerConfirm">Confirm</button>
+		</div>
+
+		<div class="settingsMode">
+			<img id="$settingsAvatar" class="userPageAvatar"><br>
+			<input type="file" accept="image/*" id="$settingsAvatarUpload" autocomplete="off"><br>
+			<button id="$settingsAvatarSubmit">Submit</button>
 		</div>
 		
 		<div class="bottomSpacer"></div>

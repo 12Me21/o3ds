@@ -1,3 +1,19 @@
+var uploadedAvatar;
+
+function generateSettingsView(n, callback) {
+	// todo: check for logged in status
+	me.getSettings(function(user) {
+		$main.className = "settingsMode";
+		generateAuthorBox();
+		generatePath();
+		if (user) {
+			$pageTitle.textContent = "User Settings: " + user.username;
+			$settingsAvatar.src = user.avatarURL;
+		}
+		callback();
+	});
+}
+
 var editingPage;
 
 function newPage(query) {

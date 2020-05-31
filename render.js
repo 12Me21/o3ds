@@ -130,7 +130,7 @@ function renderUserBlock(user, uid, date) {
 function renderCategory(cat, users) {
 	var div = document.createElement('a');
 	div.href = "#categories/"+cat.id;
-	div.className = "pre categoryPage";
+	div.className = "pre categoryPage bar";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle item";
 	title.textContent = "\uD83D\uDCC1 "+cat.name;

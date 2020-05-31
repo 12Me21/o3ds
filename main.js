@@ -129,6 +129,26 @@ function ready() {
 			}
 		});
 	}
+
+	$settingsAvatarUpload.onchange = function() {
+		var reader = new FileReader();
+		uploadedAvatar = new FormData();
+		uploadedAvatar.append('file', this.files[0]);
+	};
+
+	//todo: when avatar changes, update internal cache and whatever
+	// need to especially change the avatar in the corner of the screen
+	// aaaaaaa eventssss
+	$settingsAvatarSubmit.onclick = function() {
+		if (uploadedAvatar) {
+			me.uploadFile(uploadedAvatar, function(e, resp) {
+				if (!e) {
+					me.setBasic({avatar:resp.id},console.log);
+				}
+			});
+			uploadedAvatar = null;
+		}
+	}
 	
 	scroller = new AutoScroller($messageList);
 
@@ -216,6 +236,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == 'register') {
 		first && ($main.className = 'registerMode');
 		generateRegisterView(null, callback);
+	} else if (type == 'usersettings') {
+		first && ($main.className = 'settingsMode');
+		generateSettingsView(null, callback);
 	} else {
 		$main.className = "errorMode";
 		generateAuthorBox();
