@@ -65,3 +65,7 @@
 .markup-root img:focus {
 	max-height: 75vh;
 }
+
+.markup-root ul {
+	padding-left: 1.1em;
+}

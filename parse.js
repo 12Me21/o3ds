@@ -755,7 +755,8 @@ Parse.lang.bbcode = function(code) {
 		quote: options.quote,
 		anchor: function(arg){
 			return options.anchor(arg);
-		}
+		},
+		item: options.item,
 	};
 	var specialBlock = {
 		url: function(arg, args, contents){
@@ -798,15 +799,29 @@ Parse.lang.bbcode = function(code) {
 			point = i-1;
 			if(eatChar("/")) {
 				var name = readTagName();
-				if (!eatChar("]") || !name || stack.top().type != name) {
+				if (!eatChar("]") || !name) {
 					cancel();
 				} else {
-					endBlock(point);
+					if (name == "list" && stack.top().type == "item") {
+						endBlock(point);
+					}
+					if (name == stack.top().type) {
+						endBlock(point);
+					} else {
+						cancel();
+					}
 				}
 			} else {
 				var name = readTagName();
 				if (!name || !blocks[name]) {
-					cancel();
+					if (eatChar("*") && eatChar("]")) {
+						if (stack.top().type == "item") {
+							endBlock(point);
+						}
+						startBlock("item", undefined, undefined, i);
+					} else {
+						cancel();
+					}
 				} else {
 					
 					// [tag=...
