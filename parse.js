@@ -524,14 +524,11 @@ Parse.lang['12y'] = function(code) {
 	}
 	
 	function endLine() {
-		var eat = false;
 		while (1) {
 			var top = stack.top();
 			if (top.type == 'heading' || top.type == 'quote') {
 				endBlock();
-				eat = true;
 			} else if (top.type == 'item') {
-				eat = true;
 				if (top.type == 'item')
 					endBlock();
 				var indent = 0;
@@ -582,8 +579,7 @@ Parse.lang['12y'] = function(code) {
 					break; //really?
 				}
 			} else {
-				if (!eat)
-					addLineBreak();
+				addLineBreak();
 				break;
 			}
 		}
