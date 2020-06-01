@@ -216,6 +216,7 @@ function generateCategoryView(id, callback) {
 		$categoryCategories.innerHTML = "";
 		$categoryDescription.textContent = "";
 		if (category) {
+			contentz.reverse();
 			generatePath(category.id);
 			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
 			$categoryDescription.textContent = category.description;
