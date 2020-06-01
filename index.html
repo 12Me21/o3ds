@@ -17,7 +17,7 @@
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?o"></script>
+<script src="myself.js?p"></script>
 
 <script src="lp.js?a"></script>
 
@@ -86,12 +86,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 	</header>
 	
 	<div class="userlistPane userlist chatMode bar" id="$chatUserlist"></div>
-	<div class="messagePane chatMode scroller paneGrow">
-		<div class="chatPageContents" id="$chatPageContents"></div>
-		<div class="spacer"></div>
-		<div id="$messageList" class="messageList"></div>
-	</div>
-
+	
 	<div class="infoPane editorMode">
 		<label for="$keywords">Keywords:</label><input placeholder="(space separated, optional)" id="$keywords"><br>
 		<label for="$permissions">Permissions:</label><input id="$permissions"><br>
@@ -108,6 +103,10 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		 one of them will be visible at a time, depending on the view mode
 	  -->
 	<main class="paneGrow scroller">
+		<div class="chatPageContents chatMode" id="$chatPageContents"></div>
+		<div class="spacer chatMode"></div>
+		<div id="$messageList" class="messageList chatMode"></div>
+		
 		<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 		<div id="$categoryCategories" class="categoryMode"></div>
 		<div class="categoryMode categoryNav">

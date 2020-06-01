@@ -487,22 +487,20 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback
 	if (lastId == -Infinity)
 		lastId = undefined;
 	$.listen([
-		{comment: {
+		{actions: {
 			parentIds: ids,
 			lastId: lastId,
-			chain: ["user.0createUserId"]
+			chain: ["comment.0id","user.1createUserId"]
 		}},
-		{listener: {
-			parentIdsLast: listeners,
-			chain: ["user.0listeners"]
-		}}
 	], {
 		user: "id,username,avatar"
 	}, function(e, resp) {
+		console.log(resp);
 		if (e)
 			$.cb(callback, e, resp);
-		else
-			$.cb(callback, e, resp.comments, resp.listeners, resp.chain.userMap);
+		else {
+			$.cb(callback, e, resp.chain.comment, resp.listeners, resp.chain.userMap);
+		}
 	}, cancel);
 }
 
