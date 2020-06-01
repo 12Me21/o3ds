@@ -480,3 +480,7 @@ img.item {
 .markup-root {
 	white-space: pre-wrap;
 }
+
+.userPageContents {
+	flex-grow: 1;
+}

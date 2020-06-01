@@ -574,13 +574,14 @@ Myself.prototype.getSettings = function(callback) {
 	var $=this;
 	if (me.auth) {
 		$.read([
-			{user: {ids: [$.uid]}}
+			{user: {ids: [$.uid]}},
+			{content: {createUserIds: [$.uid], type: '@user.page', limit: 1}},
 		], {
 		}, function(e, resp) {
 			if (!e && resp.user && resp.user[0]) {
-				$.cb(callback, resp.user[0]);
+				$.cb(callback, resp.user[0], resp.content[0]);
 			} else {
-				$.cb(callback, null);
+				$.cb(callback, null, null);
 			}
 		});
 	} else {
@@ -600,11 +601,11 @@ Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
 	$.read([
-		{content: {parentIds: [id], type: '@user.page', limit: 1}},
+		{content: {createUserIds: [id], type: '@user.page', limit: 1}}, //page
 		{activity: {userIds: [id], limit: 20, reverse: true}},
 		{user: {userIds: [id]}},
-		"user.0createUserId.0editUserId",
-		"content.1contentId",
+		//"user.0createUserId.0editUserId",
+		"content.1contentId"
 	], {
 	}, function(e, resp) {
 		if (!e) {

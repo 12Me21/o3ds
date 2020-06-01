@@ -206,12 +206,12 @@ function renderActivityItem(activity, page) {
 		break;default:
 		text = "Unknown action";
 	}
-	var div = document.createElement('div');
+	var div = document.createElement('a');
 	div.className = "listItem bar";
 	var action = document.createElement('span');
 	action.textContent = text;
-	var link = document.createElement('a');
-	link.href = "#pages/"+activity.contentId;
+	var link = document.createElement('b');
+	div.href = "#pages/"+activity.contentId;
 	link.textContent = page.name;
 	var time = document.createElement('span');
 	time.textContent = reasonableDateString(date);
@@ -289,7 +289,7 @@ function AutoScroller(element) {
 		// I'd like to avoid onscroll for o3ds though (especially since window can't even be resized so it doesn't matter) (also does o3DS EVEN HAVE onscroll lol)
 		$.autoScroll(true);
 	};
-	window.addEventListener('resize', onresize);
+	//window.addEventListener('resize', onresize); //todo: only do this whe nin chat mode!!
 }
 // do autoscroll
 AutoScroller.prototype.autoScroll = function(instant) {

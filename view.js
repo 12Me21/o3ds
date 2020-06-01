@@ -2,13 +2,18 @@ var uploadedAvatar;
 
 function generateSettingsView(n, callback) {
 	// todo: check for logged in status
-	me.getSettings(function(user) {
+	me.getSettings(function(user, page) {
 		$main.className = "settingsMode";
 		generateAuthorBox();
 		generatePath();
 		if (user) {
 			$pageTitle.textContent = "User Settings: " + user.username;
 			$settingsAvatar.src = user.avatarURL;
+			if (page) {
+				$userPageLink.href = "#pages/edit/"+page.id;
+			} else {
+				$userPageLink.href = "#pages/edit?type=@user.page&name=User Page";
+			}
 		}
 		callback();
 	});
@@ -18,14 +23,16 @@ var editingPage;
 
 function newPage(query) {
 	return {
-		parentId: +query.cid,
+		parentId: +query.cid || 0,
+		type: query.type || "@page.resource",
+		name: query.name || "",
 		values: {
 			markupLang: "12y"
 		},
 		permissions: {
 			0: "cr"
 		},
-		keywords: [],
+		keywords: []
 	};
 }
 
@@ -41,6 +48,7 @@ function fillEditorFields(page) {
 	updateEditorPreview();
 	$keywords.value = page.keywords.join(" ");
 	$permissions.value = JSON.stringify(page.permissions);
+	$editPageType.value = page.type;
 	generatePath(page.parentId, page.name ? page : undefined);
 }
 
@@ -49,6 +57,7 @@ function readEditorFields(page) {
 	page.values.markupLang = $markupSelect.value;
 	page.keywords = $keywords.value.split(" ");
 	page.permissions = JSON.parse($permissions.value);
+	page.type = $editPageType.value;
 	page.content = $editorTextarea.value;
 }
 
@@ -62,7 +71,11 @@ function generateEditorView(id, query, callback) {
 	function go(page, users) {
 		$main.className = "editorMode";
 		generateAuthorBox(page, users);
-		visible($deletePage, page);
+		visible($deletePage, page && /d/.test(page.myPerms));
+		visible($submitEdit, !page || /u/.test(page.myPerms));
+		//todo: set buttons to "disabled" instead maybe
+		// and add explanation of permissions?
+		//make it more clear when you can't modify page, especially
 		$pageTitle.textContent = "Editing:";
 		if (page) {
 			editingPage = page;
