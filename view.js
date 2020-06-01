@@ -76,10 +76,12 @@ function generateEditorView(id, query, callback) {
 		//todo: set buttons to "disabled" instead maybe
 		// and add explanation of permissions?
 		//make it more clear when you can't modify page, especially
-		$pageTitle.textContent = "Editing:";
+		
 		if (page) {
+			$pageTitle.textContent = "Editing:";
 			editingPage = page;
 		} else {
+			$pageTitle.textContent = "Creating:";
 			editingPage = newPage(query);
 			$titleInput.focus();
 		}

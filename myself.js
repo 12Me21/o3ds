@@ -577,7 +577,9 @@ Myself.prototype.getSettings = function(callback) {
 			{user: {ids: [$.uid]}},
 			{content: {createUserIds: [$.uid], type: '@user.page', limit: 1}},
 		], {
+			content: "id"
 		}, function(e, resp) {
+			console.log("userpage",resp.content[0]);
 			if (!e && resp.user && resp.user[0]) {
 				$.cb(callback, resp.user[0], resp.content[0]);
 			} else {
