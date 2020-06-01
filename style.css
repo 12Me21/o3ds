@@ -268,7 +268,7 @@ body:not(.homeMode) .homeMode {
  ** Page Pane **
  ***************/
 .pageContents, .editorPreview {
-	padding: 0.5rem;
+	/*padding: 0.5rem;*/
 }
 
 /*******************
