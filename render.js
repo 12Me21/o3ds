@@ -125,7 +125,7 @@ function renderPath(tree, node, element, last) {
 function renderUserPath(element, user) {
 	element.innerHTML = "";
 	var link = document.createElement('a');
-	link.href = "#users/"
+	link.href = "#users"
 	link.textContent = "Users";
 	link.className = "textItem";
 	element.appendChild(link);
@@ -142,6 +142,20 @@ function renderUserPath(element, user) {
 		link.className = "textItem";
 		element.appendChild(link);	
 	}
+}
+
+function renderActivityPath(element) {
+	element.innerHTML = "";
+	var link = document.createElement('a');
+	link.href = "#activity"
+	link.textContent = "Activity";
+	link.className = "textItem";
+	element.appendChild(link);
+	
+	var slash = document.createElement('span');
+	slash.textContent = "/";
+	slash.className = "pathSeparator textItem";
+	element.appendChild(slash);
 }
 
 function timeString(date) {

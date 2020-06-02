@@ -182,8 +182,11 @@ function generateUserView(id, callback) {
 		$userActivity.innerHTML = "";
 		if (page) {
 			$pageEditButton.href = "#pages/edit/"+page.id;
-		} else {
+		} else if (id == me.uid) {
 			$pageEditButton.href = "#pages/edit?type=@user.page&name=User Page";
+		} else {
+			//todo: hide
+			$pageEditButton.removeAttribute('href');
 		}
 		if (user) {
 			console.log("activity",activity);
@@ -313,6 +316,7 @@ function generateMembersView(idk, callback) {
 function generateActivityView(idk, callback) {
 	me.getActivity(function(activity, ca, pages, users) {
 		$main.className = 'activityMode';
+		renderActivityPath($navPane);
 		if (activity) {
 			setTitle("Activity");
 			var last = {};
