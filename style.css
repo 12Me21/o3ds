@@ -130,6 +130,7 @@ body:not(.userMode) .userMode,
 body:not(.membersMode) .membersMode,
 body:not(.registerMode) .registerMode,
 body:not(.settingsMode) .settingsMode,
+body:not(.activityMode) .activityMode,
 body:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -483,4 +484,8 @@ img.item {
 
 .userPageContents {
 	flex-grow: 1;
+}
+
+.voteButton[data-selected] {
+	background-color: lime;
 }

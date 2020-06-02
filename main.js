@@ -73,15 +73,31 @@ function ready() {
 		}
 	};
 
-	$vote.voteB.onchange = $vote.voteO.onchange = $vote.voteG.onchange = $vote.voteN.onchange = function() {
-		window.setTimeout(function() {
-			var vote = getRadio($vote.vote);
-			me.setVote(currentPage, vote, function(e){
-				//e ? loadError() : loadEnd();
-			});
-		}, 0);
+	var voteBtns = [$voteButton_b, $voteButton_o, $voteButton_g];
+	// todo: this breaks when clicking things INSIDE the button
+	//wtf
+	// todo: update counts when changing
+	$voteBox.addEventListener('click', function(e){
+		var btn = e.target;
+		if (voteBtns.indexOf(btn) == -1)
+			return;
+		var selected = e.target.getAttribute('data-selected');
+		voteBtns.forEach(function(btn) {
+			btn.removeAttribute('data-selected');
+		});
+		if (selected)
+			e.target.removeAttribute('data-selected');
+		else
+			e.target.setAttribute('data-selected', "true");
+		var vote = !selected ? e.target.getAttribute('data-vote') : null;
+		me.setVote(currentPage, vote, function(e){
+		});
+	},true);
+	
+	$watchCheck.onchange = function() {
+		me.setWatch(currentPage, $watchCheck.checked, function(){});
 	}
-
+	
 	$registerForm.$register.onclick = function(e) {
 		e.preventDefault();
 		$registerError.textContent = "";
@@ -165,6 +181,7 @@ function hashChange(first) {
 				n[0].scrollIntoView();
 		}
 	});
+	
 }
 
 window.onhashchange = function() {
@@ -185,7 +202,6 @@ function split1(string, sep) {
 }
 
 function navigateTo(path, first, callback) {
-	console.log("FIRST?",first);
 	lp.reset();
 	path = split1(path, "?");
 	var query = path[1];
@@ -239,6 +255,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == 'usersettings') {
 		first && ($main.className = 'settingsMode');
 		generateSettingsView(null, callback);
+	} else if (type == 'activity') {
+		first && ($main.className = 'activityMode');
+		generateActivityView(null, callback);
 	} else {
 		$main.className = "errorMode";
 		generateAuthorBox();

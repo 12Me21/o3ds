@@ -599,6 +599,23 @@ Myself.prototype.setBasic = function(data, callback) {
 	this.request("User/basic", 'PUT', callback, data);
 }
 
+Myself.prototype.getActivity = function(callback) {
+	var $=this;
+	$.read([
+		{activity: {limit: 20, reverse: true}},
+		"content.0contentId",
+		"user.0userId"
+	], {
+		content: "name,id"
+	},function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.activity, resp.content, resp.userMap)
+		} else {
+			$.cb(callback, null, null, {});
+		}
+	});
+}
+
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;

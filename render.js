@@ -1,3 +1,11 @@
+function userAvatar(user, cls) {
+	var img = document.createElement('img');
+	img.src = user.avatarURL;
+	img.alt = user.username;
+	img.className = cls;
+	return img;
+}
+
 function renderCategoryPage(page, users) {
 	var user = users[page.createUserId];
 	var div = document.createElement('a');
@@ -15,10 +23,7 @@ function renderCategoryPage(page, users) {
 		name.textContent = user.username;
 		name.className = "textItem pageAuthorName";
 		right.appendChild(name);
-		var img = document.createElement('img');
-		img.className = "item";
-		img.src = user.avatarURL;
-		right.appendChild(img);
+		right.appendChild(userAvatar(user, 'item'));
 		div.appendChild(right);
 	}
 	return div;
@@ -91,29 +96,20 @@ function renderSystemMessage(text) {
 }
 
 function renderUserListAvatar(user) {
-	var img = document.createElement('img');
-	img.src = user.avatarURL;
-	img.title = user.username;
-	img.className = "userListAvatar";
-	return img;
+	var a = userAvatar(user, "userListAvatar");
+	a.title = user.username;
+	return a;
 }
 
-function renderUserBlock(user, uid, date) {
+function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
-	
-	var img = document.createElement('img');
-	if (user)
-		img.src = user.avatarURL;
-	img.className = 'messageAvatar';
-	div.appendChild(img);
+
+	div.appendChild(userAvatar(user, 'messageAvatar'));
 	
 	var name = document.createElement('span');
 	name.className = 'messageUsername';
-	if (user)
-		name.textContent = user.username+":";
-	else
-		name.textContent = "["+uid+"]"+":";
+	name.textContent = user.username+":";
 	div.appendChild(name);
 	
 	var time = document.createElement('span');
@@ -194,7 +190,7 @@ function parseDate(str) {
 	return new Date(0);
 }
 
-function renderActivityItem(activity, page) {
+function renderActivityItem(activity, page, user) {
 	var date = parseDate(activity.date);
 	switch(activity.action) {
 	case "c":
@@ -215,6 +211,17 @@ function renderActivityItem(activity, page) {
 	link.textContent = page.name;
 	var time = document.createElement('span');
 	time.textContent = reasonableDateString(date);
+	if (user) {
+		var usr = document.createElement('a');
+		usr.className = 'textItem';
+		usr.href = "#user/"+user.id;
+		
+		var name = document.createElement('span');
+		name.textContent = user.username;
+		usr.appendChild(userAvatar(user, 'item'));
+		usr.appendChild(name);
+		div.appendChild(usr);
+	}
 	div.appendChild(action);
 	div.appendChild(link);
 	div.appendChild(time);
@@ -224,12 +231,12 @@ function renderActivityItem(activity, page) {
 function renderMemberListUser(user) {
 	var div = document.createElement('a');
 	div.className = "member";
-	var avatar = document.createElement('img');
-	avatar.src = user.avatarURL;
-	div.appendChild(avatar);
+
+	div.appendChild(userAvatar(user, 'item'));
+	
 	var name = document.createElement('span');
+	
 	name.className = "textItem memberName";
-	avatar.className = "item";
 	name.textContent = user.username;
 	div.href = "#user/"+user.id;
 	div.appendChild(name);
@@ -249,16 +256,17 @@ function renderMessagePart(comment, sizedOnload){
 	} catch (e) {
 		t = c;
 	}
-	if (m == '12y') {
+	/*if (m == '12y') {
+		//todo: update for parser aaaa
 		element = parse(t);
 		var x = element.getElementsByTagName('img');
 		for (var i=0;i<x.length;i++) {
 			x[i].onload = sizedOnload;
 		}
-	} else {
+	} else {*/
 		element = document.createElement('div');
 		element.appendChild(document.createTextNode(t));
-	}
+	//}
 	element.className += ' messagePart';
 	//document.title=comment.username+":"+t;
 	return element;

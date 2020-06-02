@@ -1,5 +1,9 @@
 var uploadedAvatar;
 
+function setTitle(text) {
+	$pageTitle.textContent = text;
+}
+
 function generateSettingsView(n, callback) {
 	// todo: check for logged in status
 	me.getSettings(function(user, page) {
@@ -7,7 +11,7 @@ function generateSettingsView(n, callback) {
 		generateAuthorBox();
 		generatePath();
 		if (user) {
-			$pageTitle.textContent = "User Settings: " + user.username;
+			setTitle("User Settings: " + user.username);
 			$settingsAvatar.src = user.avatarURL;
 			if (page) {
 				$userPageLink.href = "#pages/edit/"+page.id;
@@ -78,10 +82,10 @@ function generateEditorView(id, query, callback) {
 		//make it more clear when you can't modify page, especially
 		
 		if (page) {
-			$pageTitle.textContent = "Editing:";
+			setTitle("Editing:");
 			editingPage = page;
 		} else {
-			$pageTitle.textContent = "Creating:";
+			setTitle("Creating:");
 			editingPage = newPage(query);
 			$titleInput.focus();
 		}
@@ -94,7 +98,7 @@ function generateHomeView(idk, callback) {
 	$main.className = "homeMode";
 	generateAuthorBox();
 	generatePath();
-	$pageTitle.textContent = "Welcome to smilebnasic soruce! 2";
+	setTitle("Welcome to smilebnasic soruce! 2");
 	callback();
 }
 
@@ -107,18 +111,27 @@ function generatePageView(id, callback) {
 		if (page) {
 			currentPage = page.id;
 			generatePath(page.parentId, page);
-			$pageTitle.textContent = "\uD83D\uDCC4 " + page.name;
-			console.log(page.about.myVote);
+			setTitle("\uD83D\uDCC4 " + page.name);
+			console.log(page.about);
+			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
-			setRadio($vote.vote, page.about.myVote || "");
 			renderPageContents(page, $pageContents)
 			$pageEditButton.href = "#pages/edit/"+page.id;
+			$voteCount_b.textContent = page.about.votes.b.count;
+			$voteCount_o.textContent = page.about.votes.o.count;
+			$voteCount_g.textContent = page.about.votes.g.count;
+			["b","o","g"].forEach(function(vote) {
+				window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
+				if (page.about.myVote == vote)
+					window['$voteButton_'+vote].setAttribute('data-selected', "");
+				else
+					window['$voteButton_'+vote].removeAttribute('data-selected');
+			});
 		} else {
 			currentPage = null;
 			generatePath();
-			$main.className += "errorMode";
-			setRadio($vote.vote);
-			$pageTitle.textContent = "Page not found";
+			$main.className += " errorMode";
+			setTitle("Page not found");
 			$pageContents.innerHTML = "";
 		}
 		callback();
@@ -136,7 +149,7 @@ function generateUserView(id, callback) {
 		$userActivity.innerHTML = "";
 		if (user) {
 			console.log("activity",activity);
-			$pageTitle.textContent = user.username;
+			setTitle(user.username);
 			if (page) {
 				renderPageContents(page, $userPageContents)
 			} else {
@@ -165,7 +178,7 @@ function generateUserView(id, callback) {
 			});
 		} else {
 			$main.className += " errorMode";
-			$pageTitle.textContent = "User Not Found";
+			setTitle("User Not Found");
 		}
 		callback();
 	});
@@ -179,14 +192,14 @@ function generateChatView(id, callback) {
 			$messageList.innerHTML = ""
 			$main.className = "chatMode";
 			scroller.switchRoom(id);
-			$pageTitle.textContent = page.name;
+			setTitle(page.name);
 			renderPageContents(page, $chatPageContents);
 			callback();
 		} else if (page == false) { //1st request, page doesn't exist
 			generatePath();
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
-			$pageTitle.textContent = "Page not found";
+			setTitle("Page not found");
 			$chatPageContents.innerHTML = "";
 			callback();
 			// TODO: page list passed to callback needs to be PER-ID!!
@@ -214,7 +227,7 @@ function displayMessage(c, user) {
 			scroller.autoScroll();
 		});
 		scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderUserBlock(user, c.createUserId, parseDate(c.createDate));
+			var b = renderUserBlock(user, parseDate(c.createDate));
 			if (c.createUserId == me.uid)
 				b[0].className += " ownMessage";
 			return b;
@@ -233,7 +246,7 @@ function generateCategoryView(id, callback) {
 		if (category) {
 			contentz.reverse();
 			generatePath(category.id);
-			$pageTitle.textContent = "\uD83D\uDCC1 "+category.name;
+			setTitle("\uD83D\uDCC1 "+category.name);
 			$categoryDescription.textContent = category.description;
 			childs.forEach(function(cat) {
 				$categoryCategories.appendChild(renderCategory(cat, users));
@@ -248,7 +261,7 @@ function generateCategoryView(id, callback) {
 			generatePath();
 			$categoryCreatePage.href = ""
 			$main.className += "errorMode";
-			$pageTitle.textContent = "Category not found";
+			setTitle("Category not found");
 		}
 		callback();
 	});
@@ -260,11 +273,40 @@ function generateMembersView(idk, callback) {
 		$main.className = 'membersMode';
 		$memberList.innerHTML = "";
 		renderUserPath($navPane);
-		$pageTitle.textContent = "Users";
+		setTitle("Users");
 		users.forEach(function(user) {
 			$memberList.appendChild(renderMemberListUser(user));
 		});
 		callback();
 	});
-	
+}
+
+function generateActivityView(idk, callback) {
+	me.getActivity(function(activity, pages, users) {
+		$main.className = 'activityMode';
+		if (activity) {
+			setTitle("Activity");
+			var last = {};
+			$activity.innerHTML = "";
+			activity.forEach(function(activity){
+				var page;
+				if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
+					for (var i=0;i<pages.length;i++) {
+						if (pages[i].id == activity.contentId) {
+							page = pages[i];
+							break;
+						}
+					}
+					if (activity.action == "d" && !page)
+						page = {name: activity.extra, id: activity.contentId};
+					
+					if (page) {
+						$activity.appendChild(renderActivityItem(activity, page, users[activity.userId]));
+						last = activity;
+					}
+				}
+			});
+		}
+		console.log(activity, pages, users);
+	});
 }

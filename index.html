@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script>console.log("test");</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="icon" href="favicon.ico?a">
@@ -10,23 +9,23 @@
 <link rel="image_src" href="fav-big.png?b">
 
 <!--START-->
-<link rel="stylesheet" href="style.css?p">
+<link rel="stylesheet" href="style.css?q">
 <link rel="stylesheet" href="markup.css?d">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?r"></script>
+<script src="myself.js?s"></script>
 
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?k"></script>
 
-<script src="render.js?j"></script>
-<script src="view.js?f"></script>
-<script src="main.js?u"></script>
+<script src="render.js?k"></script>
+<script src="view.js?g"></script>
+<script src="main.js?v"></script>
 
 <!--- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -45,7 +44,6 @@ but at the very least, like
 perhaps make the main page have a min height of like 600px and the viewport scrolls inside that? idk
 -->
 <!--END-->
-<script>console.log(me.auth)</script>
 
 <body class="pageMode" id="$main">
 	<!--
@@ -68,12 +66,13 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		<span class="editorMode textItem">
 			<button id="$submitEdit" class="item">Submit</button><div class="textItem"></div>
 		</span>
-		<form class="textItem pageMode" id="$vote" autocomplete="off">
-			<input type="radio" name="vote" value="b" id="voteB" class="item"><label for="voteB" class="textItem">Bad</label>
-			<input type="radio" name="vote" value="o" id="voteO" class="item"><label for="voteO" class="textItem">OK</label>
-			<input type="radio" name="vote" value="g" id="voteG" class="item"><label for="voteG" class="textItem">Good</label>
-			<input type="radio" name="vote" value="" id="voteN" class="item">
-		</form>
+		<span class="textItem pageMode" id="$voteBox">
+			<button id="$voteButton_b" class="item voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button>
+			<button id="$voteButton_o" class="item voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button>
+			<button id="$voteButton_g" class="item voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button>
+		</span>
+		<label for="$watchCheck" class="textItem pageMode">Watching:</label>
+		<input type="checkbox" id="$watchCheck" class="item pageMode">
 
 		<div class="pageCreate textItem rightAlign" id="$pageAuthorBox" style="display: none;">
 			<button id="$deletePage" class="item editorMode">DELETE</button>
@@ -142,6 +141,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			hey<br>
 			Users: <a href="#users">here</a><br>
 			Pages: <a href="#categories/0">here</a><br>
+			Activity: <a href="#activity">here</a><br>
 			<hr>
 			<blockquote>
 				why is this so fast<br>
@@ -171,6 +171,12 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			<input type="file" accept="image/*" id="$settingsAvatarUpload" autocomplete="off">
 			<button id="$settingsAvatarSubmit">Submit</button><br>
 			<a id="$userPageLink">Edit User Page</a>
+		</div>
+
+		<div class="activityMode categoryNav">
+			<span class="textItem"><button id="$categoryPagesPrev" class="item">&lt;</button><button id="$categoryPagesNext" class="item">&gt;</button></span>
+		</div>
+		<div class="activityMode" id="$activity">
 		</div>
 		
 		<div class="bottomSpacer"></div>
