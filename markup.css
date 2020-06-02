@@ -1,3 +1,7 @@
+.markup-root {
+	white-space: pre-wrap;
+}
+
 .markup-root table, .markup-root td, .markup-root th {
 	border: 1px solid black;
 	border-collapse: collapse;

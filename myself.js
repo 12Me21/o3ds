@@ -133,10 +133,10 @@ Myself.prototype.selectServer = function(isDev) {
 Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
 	$.openRequests++;
-	$.loadStart();
+	$.loadStart(!!cancel);
 	sbs2Request($.server+"/"+url, method, function(e, resp) {
 		$.openRequests--;
-		$.loadEnd(e);
+		$.loadEnd(!!cancel, e);
 		/*if (e=='auth') {
 			$.logOut();
 		}*/
@@ -144,14 +144,14 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 	}, data, $.auth, cancel);
 }
 
-Myself.prototype.loadStart = function() {
+Myself.prototype.loadStart = function(lp) {
 	if (this.onLoadStart)
-		this.cb(this.onLoadStart);
+		this.cb(this.onLoadStart, lp);
 }
 
-Myself.prototype.loadEnd = function(e) {
+Myself.prototype.loadEnd = function(lp, e) {
 	if (this.onLoadEnd)
-		this.cb(this.onLoadEnd, e);
+		this.cb(this.onLoadEnd, lp, e);
 }
 
 Myself.prototype.getUsers = function(query, callback) {

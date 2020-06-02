@@ -143,6 +143,14 @@ body:not(.homeMode) .homeMode {
 	background-color: #333;
 }
 
+html.loading .headerPane {
+	background-color: #008;
+}
+
+html.error .headerPane {
+	background-color: #800;
+}
+
 .headerRight {
 	float: right;
 }
@@ -478,10 +486,6 @@ img.item {
 	vertical-align: top;
 }
 
-.markup-root {
-	white-space: pre-wrap;
-}
-
 .userPageContents {
 	flex-grow: 1;
 }
@@ -496,10 +500,6 @@ img.item {
 	overflow-x:auto;
 }
 
-html.loading .headerPane {
-	background-color: #008;
-}
-
 .listItem span {
 	color: black;
 }
@@ -507,3 +507,5 @@ html.loading .headerPane {
 .listItem .avatar {
 	margin-right: 0.3ch;
 }
+
+

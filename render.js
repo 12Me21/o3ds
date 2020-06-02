@@ -7,7 +7,7 @@ function renderPath(element, list) {
 			var link = document.createElement('a');
 			link.href = item[0];
 			link.textContent = item[1];
-			link.className = "textItem";
+			link.className = "textItem pre";
 			element.appendChild(link);
 		}
 		
@@ -46,6 +46,8 @@ function textItem(text) {
 	return s;
 }
 
+// todo: this should probably be like
+// <a><figure><img><figcaption>
 function renderUserLink(user, nameFirst) {
 	var a = document.createElement('a');
 	a.className = 'item userLink';

@@ -284,18 +284,20 @@ function makeCategoryPath(tree, id, leaf) {
 }
 
 // These are used to signal to the user when content is loading
-function loadStart() {
-	document.body.parentNode.className = "loading"
+function loadStart(lp) {
+	if (!lp)
+		document.body.parentNode.className = "loading"
 	/*if (window.$titlePane)
 		window.$titlePane.style.backgroundColor = "#48F";*/
 }
-function loadEnd() {
-	document.body.parentNode.className = "";
+function loadEnd(lp, e) {
+	if (!lp) {
+		if (e)
+			document.body.parentNode.className = "error";
+		else
+			document.body.parentNode.className = "";
+	}
 	/*$titlePane.style.backgroundColor = "";*/
-}
-function loadError() {
-	document.body.parentNode.className = "error";
-	/*$titlePane.style.backgroundColor = "#FCC";*/
 }
 
 //maybe turn the title <h1> into an input box
