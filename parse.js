@@ -57,13 +57,15 @@ Parse.options = {
 		node.setAttribute('src', url);
 		return node;
 	},
-	youtube: function(node, contents) {
+	youtube: function(url) {
+		var node = create('iframe');
 		var protocol = "https:";
 		if (window.location && window.location.protocol == "http:")
 			protocol = "http:"
-		var match = contents.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
+		var match = url.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
 		if (match)
 			node.src = protocol+"//www.youtube-nocookie.com/embed/"+match[1];
+		return node;
 	},
 	
 	//=====================
@@ -597,6 +599,8 @@ Parse.lang['12y'] = function(code) {
 			return "audio";
 		if (/(\.mp4(?!\w)|#video$)/.test(url))
 			return "video";
+		if (/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/.test(url))
+			return "youtube";
 		return "image";
 	}
 	
