@@ -9,7 +9,7 @@ function generateSettingsView(n, callback) {
 	me.getSettings(function(user, page) {
 		$main.className = "settingsMode";
 		generateAuthorBox();
-		generatePath();
+		renderPath();
 		if (user) {
 			setTitle("User Settings: " + user.username);
 			userAvatar(user, $settingsAvatar);
@@ -53,7 +53,7 @@ function fillEditorFields(page) {
 	$keywords.value = page.keywords.join(" ");
 	$permissions.value = JSON.stringify(page.permissions);
 	$editPageType.value = page.type;
-	generatePath(page.parentId, page.name ? page : undefined);
+	renderPath($navPane, makeCategoryPath(me.categoryTree, page.parentId, page.name ? page : undefined));
 }
 
 function readEditorFields(page) {
@@ -99,7 +99,7 @@ function generateEditorView(id, query, callback) {
 function generateHomeView(idk, callback) {
 	$main.className = "homeMode";
 	generateAuthorBox();
-	generatePath();
+	renderPath($navPane);
 	setTitle("Welcome to smilebnasic soruce! 2");
 	callback();
 }
@@ -112,7 +112,7 @@ function generatePageView(id, callback) {
 		visible($pageEditButton, page);
 		if (page) {
 			currentPage = page.id;
-			generatePath(page.parentId, page);
+			renderPath($navPane, makeCategoryPath(me.categoryTree, page.parentId, page));
 			setTitle("\uD83D\uDCC4 " + page.name);
 			console.log(page.about);
 			$watchCheck.checked = page.about.watching;
@@ -131,7 +131,7 @@ function generatePageView(id, callback) {
 			});
 		} else {
 			currentPage = null;
-			generatePath();
+			renderPath();
 			$main.className += " errorMode";
 			setTitle("Page not found");
 			$pageContents.innerHTML = "";
@@ -171,13 +171,14 @@ function megaAggregate(activity, ca, contents) {
 	return allAct;
 }
 
+
 function generateUserView(id, callback) {
 	me.getUserPage(id, function(user, page, activity, ca, pages, userMap) {
 		console.info(arguments);
 		$main.className = 'userMode';
 		// todo: change edit box to "Joined: <date>" and "page edited: <date>"
 		generateAuthorBox(user && page, userMap);
-		renderUserPath($navPane, user);
+		renderPath($navPane, [["#users","Users"], ["#user/"+id,user.name]]);
 		$userPageAvatar.src = "";
 		$userActivity.innerHTML = "";
 		if (page) {
@@ -221,7 +222,7 @@ function generateUserView(id, callback) {
 function generateChatView(id, callback) {
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
-			generatePath(page.parentId, page);
+			renderPath($navPane, makeCategoryPath(me.categoryTree, page.parentId, page));
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			$main.className = "chatMode";
@@ -230,7 +231,7 @@ function generateChatView(id, callback) {
 			renderPageContents(page, $chatPageContents);
 			callback();
 		} else if (page == false) { //1st request, page doesn't exist
-			generatePath();
+			renderPath($navPane);
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			setTitle("Page not found");
@@ -278,7 +279,7 @@ function generateCategoryView(id, callback) {
 		$categoryDescription.textContent = "";
 		if (category) {
 			contentz.reverse();
-			generatePath(category.id);
+			renderPath($navPane, makeCategoryPath(me.categoryTree, category.id));
 			setTitle("\uD83D\uDCC1 "+category.name);
 			$categoryDescription.textContent = category.description;
 			childs.forEach(function(cat) {
@@ -291,7 +292,7 @@ function generateCategoryView(id, callback) {
 			$categoryPages.style.display="";
 			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
 		} else {
-			generatePath();
+			renderPath($navPane);
 			$categoryCreatePage.href = ""
 			$main.className += "errorMode";
 			setTitle("Category not found");
@@ -340,4 +341,12 @@ function generateActivityView(idk, callback) {
 		}
 		console.log(activity, pages, users);
 	});
+}
+
+function generateRegisterView(idk, callback) {
+	$main.className = "registerMode";
+	generateAuthorBox();
+	renderPath($navPane);
+	$pageTitle.textContent = "Create an account";
+	callback();
 }

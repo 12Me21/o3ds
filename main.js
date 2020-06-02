@@ -262,26 +262,25 @@ function navigateTo(path, first, callback) {
 		$main.className = "errorMode";
 		generateAuthorBox();
 		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
-		generatePath();
+		renderPath($navPane);
 		$pageContents.textContent = "";
 		callback();
 	}
 }
 
-function generateRegisterView(idk, callback) {
-	$main.className = "registerMode";
-	generateAuthorBox();
-	generatePath();
-	$pageTitle.textContent = "Create an account";
-	callback();
-}
-
-
-function generatePath(cid, page) {
-	$navPane.innerHTML = "";
-	if (typeof cid != 'undefined') {
-		renderPath(me.categoryTree, me.categoryTree.map[cid], $navPane, page);
+function makeCategoryPath(tree, id, leaf) {
+	var node = tree.map[id];
+	var path = [];
+	while (node) {
+		path.unshift(["#categories/"+node.id, node.name])
+		node = node.parent;
 	}
+	if (leaf) {
+		path.push(["#pages/"+leaf.id, leaf.name]);
+	} else {
+		path.push(null);
+	}
+	return path;
 }
 
 // These are used to signal to the user when content is loading

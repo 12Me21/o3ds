@@ -1,3 +1,29 @@
+function renderPath(element, list) {
+	element.innerHTML = "";
+	if (!list)
+		return;
+	list.forEach(function(item, i, list) {
+		if (item) {
+			var link = document.createElement('a');
+			link.href = item[0];
+			link.textContent = item[1];
+			link.className = "textItem";
+			element.appendChild(link);
+		}
+		
+		if (i < list.length-1) {
+			var slash = document.createElement('span');
+			slash.textContent = "/";
+			slash.className = "pathSeparator textItem";
+			element.appendChild(slash);
+		}
+	});
+}
+
+// todo: shorthand for renderPath to $navpane
+//function generatePath
+// function generatePagePath - category tree paths
+
 function userAvatar(user, cls, big) {
 	if (cls.innerHTML != undefined)
 		var img = cls
@@ -97,29 +123,6 @@ function insertFirst(node, child) {
 		node.insertBefore(child, node.firstChild);
 	else
 		node.appendChild(child);
-}
-
-function renderPath(tree, node, element, last) {
-	element.innerHTML = "";
-	while (node) {
-		var link = document.createElement('a');
-		link.href = "#categories/"+node.id;
-		link.textContent = node.name;
-		link.className = "textItem";
-		var slash = document.createElement('span');
-		slash.textContent = "/";
-		slash.className = "pathSeparator textItem";
-		insertFirst(element, slash);
-		insertFirst(element, link);
-		node = node.parent;
-	}
-	if (last) {
-		var link = document.createElement('a');
-		link.href = "#pages/"+last.id;
-		link.textContent = last.name;
-		link.className = "textItem";
-		element.appendChild(link);
-	}
 }
 
 function renderUserPath(element, user) {
