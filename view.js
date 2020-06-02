@@ -67,6 +67,8 @@ function readEditorFields(page) {
 
 // call this function with no `id` to create a new page
 // remember to set .cid in `query` so it knows what parentId to use
+
+// idea: when editing, store the parent category/whatever somewhere, to tell where to go back to when deleting/ and also a way to send you to your user page when editing that I guess.
 function generateEditorView(id, query, callback) {
 	me.getPageForEditing(id, go);
 	// if there's no ID, getPageForEditing will just
@@ -138,11 +140,42 @@ function generatePageView(id, callback) {
 	});
 }
 
-// todo: change edit box to "Joined: <date>" and "page edited: <date>"
+function megaAggregate(activity, ca, contents) {
+	console.log("mega", arguments);
+	var contentMap = {};
+	contents.forEach(function(x){
+		contentMap[x.id] = x;
+	})
+	var allAct = activity.concat(ca.map(function(x){
+		return {
+			action: "p",
+			contentId: x.id,
+			date: x.lastDate,
+			firstDate: x.firstDate,
+			id: x.lastId,
+			userId: x.userIds,
+			type: 'content',
+		}
+	}));
+	allAct.forEach(function(x) {
+		if (x.action == 'd')
+			x.content = {name: x.extra, id: x.contentId, deleted: true};
+		else
+			x.content = contentMap[x.contentId];
+	});
+	allAct.sort(function(a, b) {
+		return a.date < b.date;
+	});
+	return allAct;
+	//todo: trim all trailing of same type because that's when the other runs out
+	// also we can optimize merging of 2 sorted arrays here!
+}
+
 function generateUserView(id, callback) {
-	me.getUserPage(id, function(user, page, activity, pages, userMap) {
+	me.getUserPage(id, function(user, page, activity, ca, pages, userMap) {
 		console.info(arguments);
 		$main.className = 'userMode';
+		// todo: change edit box to "Joined: <date>" and "page edited: <date>"
 		generateAuthorBox(user && page, userMap);
 		renderUserPath($navPane, user);
 		$userPageAvatar.src = "";
@@ -157,20 +190,12 @@ function generateUserView(id, callback) {
 			}
 			$userPageAvatar.src = user.bigAvatarURL;
 			var lastId, lastAction;
-			activity.forEach(function(activity){
-				var page;
+			megaAggregate(activity, ca, pages).forEach(function(activity){
+				if (activity.type != "content") //idk, category?
+					return;
 				if (activity.contentId != lastId || activity.action != lastAction) {
-					for (var i=0;i<pages.length;i++) {
-						if (pages[i].id == activity.contentId) {
-							page = pages[i];
-							break;
-						}
-					}
-					if (activity.action == "d" && !page)
-						page = {name: activity.extra, id: activity.contentId};
-					
-					if (page) {
-						$userActivity.appendChild(renderActivityItem(activity, page));
+					if (activity.content) {
+						$userActivity.appendChild(renderActivityItem(activity, activity.content));
 						lastId = activity.contentId;
 						lastAction = activity.action;
 					}
@@ -282,26 +307,24 @@ function generateMembersView(idk, callback) {
 }
 
 function generateActivityView(idk, callback) {
-	me.getActivity(function(activity, pages, users) {
+	me.getActivity(function(activity, ca, pages, users) {
 		$main.className = 'activityMode';
 		if (activity) {
 			setTitle("Activity");
 			var last = {};
 			$activity.innerHTML = "";
-			activity.forEach(function(activity){
-				var page;
+			megaAggregate(activity, ca, pages).forEach(function(activity){
+				if (activity.type != "content") //idk, category?
+					return;
 				if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
-					for (var i=0;i<pages.length;i++) {
-						if (pages[i].id == activity.contentId) {
-							page = pages[i];
-							break;
-						}
-					}
-					if (activity.action == "d" && !page)
-						page = {name: activity.extra, id: activity.contentId};
-					
-					if (page) {
-						$activity.appendChild(renderActivityItem(activity, page, users[activity.userId]));
+					if (activity.content) {
+						if (activity.userId instanceof Array)
+							var user = activity.userId.map(function(x){
+								return users[x];
+							})
+						else
+							user = users[activity.userId]
+						$activity.appendChild(renderActivityItem(activity, activity.content, user));
 						last = activity;
 					}
 				}

@@ -287,16 +287,16 @@ function generatePath(cid, page) {
 // These are used to signal to the user when content is loading
 function loadStart() {
 	document.body.parentNode.className = "loading"
-	if (window.$titlePane)
-		window.$titlePane.style.backgroundColor = "#48F";
+	/*if (window.$titlePane)
+		window.$titlePane.style.backgroundColor = "#48F";*/
 }
 function loadEnd() {
 	document.body.parentNode.className = "";
-	$titlePane.style.backgroundColor = "";
+	/*$titlePane.style.backgroundColor = "";*/
 }
 function loadError() {
-	document.body.parentNode.className = "";
-	$titlePane.style.backgroundColor = "#FCC";
+	document.body.parentNode.className = "error";
+	/*$titlePane.style.backgroundColor = "#FCC";*/
 }
 
 //maybe turn the title <h1> into an input box

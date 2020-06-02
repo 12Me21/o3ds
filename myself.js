@@ -495,7 +495,6 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback
 	], {
 		user: "id,username,avatar"
 	}, function(e, resp) {
-		console.log(resp);
 		if (e)
 			$.cb(callback, e, resp);
 		else {
@@ -579,7 +578,6 @@ Myself.prototype.getSettings = function(callback) {
 		], {
 			content: "id"
 		}, function(e, resp) {
-			console.log("userpage",resp.content[0]);
 			if (!e && resp.user && resp.user[0]) {
 				$.cb(callback, resp.user[0], resp.content[0]);
 			} else {
@@ -602,16 +600,19 @@ Myself.prototype.setBasic = function(data, callback) {
 Myself.prototype.getActivity = function(callback) {
 	var $=this;
 	$.read([
+		//todo: this should just get an entire day??
+		// except no that won't work if site dies lol
 		{activity: {limit: 20, reverse: true}},
-		"content.0contentId",
-		"user.0userId"
+		{commentaggregate: {limit: 100, reverse: true}},
+		"content.0contentId.1id",
+		"user.0userId.1userIds"
 	], {
 		content: "name,id"
 	},function(e, resp) {
 		if (!e) {
-			$.cb(callback, resp.activity, resp.content, resp.userMap)
+			$.cb(callback, resp.activity, resp.commentaggregate, resp.content, resp.userMap)
 		} else {
-			$.cb(callback, null, null, {});
+			$.cb(callback, null, null, null, {});
 		}
 	});
 }
@@ -620,14 +621,15 @@ Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
 	$.read([
+		{user: {userIds: [id]}},
 		{content: {createUserIds: [id], type: '@user.page', limit: 1}}, //page
 		{activity: {userIds: [id], limit: 20, reverse: true}},
-		{user: {userIds: [id]}},
-		//"user.0createUserId.0editUserId",
-		"content.1contentId"
+		{commentaggregate: {userIds: [id], limit: 100, reverse: true}},
+		"content.2contentId.3id"
 	], {
 	}, function(e, resp) {
 		if (!e) {
+			console.log("user page",resp);
 			var user = resp.userMap[id];
 			// ugh need to make
 			// content map now
@@ -637,11 +639,16 @@ Myself.prototype.getUserPage = function(id, callback) {
 				var page = resp.content[0];
 				if (page && page.type != "@user.page")
 					page = undefined;
-				$.cb(callback, user, page, resp.activity, resp.content, resp.userMap);
+				$.cb(callback, user, page, resp.activity, resp.commentaggregate, resp.content, resp.userMap);
 			} else
-				$.cb(callback, null, {}, [], {});
+				$.cb(callback, null, {}, [], [], [], {});
 		}
 	});
+	// what we need:
+	// user object
+	// user page
+	// recent activity + assoc contentz
+	// recent comment aggregate + assoc contentz
 }
 
 function buildCategoryTree(categories) {

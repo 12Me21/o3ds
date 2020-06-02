@@ -191,6 +191,10 @@ function parseDate(str) {
 }
 
 function renderActivityItem(activity, page, user) {
+	if (!user)
+		user = [];
+	else if (!(user instanceof Array))
+		user = [user];
 	var date = parseDate(activity.date);
 	switch(activity.action) {
 	case "c":
@@ -199,29 +203,35 @@ function renderActivityItem(activity, page, user) {
 		text = "Edited";
 		break;case "d":
 		text = "Deleted";
+		break;case "p":
+		text = "Posted on";
 		break;default:
 		text = "Unknown action";
 	}
 	var div = document.createElement('a');
 	div.className = "listItem bar";
 	var action = document.createElement('span');
+	action.className = "textItem";
 	action.textContent = text;
 	var link = document.createElement('b');
+	link.className = "textItem";
 	div.href = "#pages/"+activity.contentId;
 	link.textContent = page.name;
 	var time = document.createElement('span');
+	time.className = "textItem";
 	time.textContent = reasonableDateString(date);
-	if (user) {
+	user.forEach(function(user){
 		var usr = document.createElement('a');
-		usr.className = 'textItem';
+		usr.className = 'item';
 		usr.href = "#user/"+user.id;
 		
 		var name = document.createElement('span');
 		name.textContent = user.username;
+		name.className = "textItem";
 		usr.appendChild(userAvatar(user, 'item'));
 		usr.appendChild(name);
 		div.appendChild(usr);
-	}
+	});
 	div.appendChild(action);
 	div.appendChild(link);
 	div.appendChild(time);

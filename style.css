@@ -6,9 +6,9 @@
 	vertical-align: top;
 }
 
-html.loading * {
+/* html.loading * {
 	cursor: progress !important;
-}
+}*/
 
 html {
 	background-color: red;
@@ -429,12 +429,15 @@ body:not(.homeMode) .homeMode {
 
 .listItem * {
 	max-width: 100%;
-	display: inline;
-	line-height: 1.5rem;
 	padding: 0 0.2rem;
 }
 
-.listItem img {
+.listItem .textItem {
+	max-height: 2rem;
+	line-height: 2rem;
+}
+
+.listItem .item {
 	height: 2rem;
 }
 
@@ -488,4 +491,14 @@ img.item {
 
 .voteButton[data-selected] {
 	background-color: lime;
+}
+
+/* hecko yo */
+.pageContents {
+	max-width:100%;
+	overflow-x:auto;
+}
+
+html.loading .headerPane {
+	background-color: #008;
 }

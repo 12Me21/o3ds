@@ -68,3 +68,7 @@
 .markup-root ul {
 	padding-left: 1.1em;
 }
+
+.markup-root audio {
+	display: block;
+}
