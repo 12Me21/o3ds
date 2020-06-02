@@ -1,26 +1,42 @@
 var uploadedAvatar;
 
+// clean up stuff whenever switching pages
+function cleanUp() {
+	var nodes = document.querySelectorAll(".markup-root");
+	for (var i=0;i<nodes.length;i++) {
+		nodes[i].innerHTML = "";
+	}
+}
+
 function setTitle(text) {
 	$pageTitle.textContent = text;
 }
 
 function generateSettingsView(n, callback) {
-	// todo: check for logged in status
-	me.getSettings(function(user, page) {
-		$main.className = "settingsMode";
-		generateAuthorBox();
-		renderPath();
-		if (user) {
-			setTitle("User Settings: " + user.username);
-			userAvatar(user, $settingsAvatar);
-			if (page) {
-				$userPageLink.href = "#pages/edit/"+page.id;
-			} else {
-				$userPageLink.href = "#pages/edit?type=@user.page&name=User Page";
+	// maybe merge this with the register page somehow?
+	// only one of them really works at a time anyway
+	if (me.auth) {
+		me.getSettings(function(user, page) {
+			cleanUp();
+			$main.className = "settingsMode";
+			generateAuthorBox();
+			generatePath([["#usersettings","Settings"]]);
+			if (user) {
+				setTitle("User Settings: " + user.username);
+				userAvatar(user, $settingsAvatar);
+				if (page) {
+					$userPageLink.href = "#pages/edit/"+page.id;
+				} else {
+					$userPageLink.href = "#pages/edit?type=@user.page&name=User Page";
+				}
 			}
-		}
-		callback();
-	});
+			callback();
+		});
+	} else {
+		cleanUp();
+		$main.className = "errorMode";
+		setTitle("WHAT IS YOUR NAME?");
+	}
 }
 
 var editingPage;
@@ -53,7 +69,7 @@ function fillEditorFields(page) {
 	$keywords.value = page.keywords.join(" ");
 	$permissions.value = JSON.stringify(page.permissions);
 	$editPageType.value = page.type;
-	renderPath($navPane, makeCategoryPath(me.categoryTree, page.parentId, page.name ? page : undefined));
+	generatePath(makeCategoryPath(me.categoryTree, page.parentId, page.name ? page : undefined));
 }
 
 function readEditorFields(page) {
@@ -75,6 +91,7 @@ function generateEditorView(id, query, callback) {
 	// get the category tree if it's needed
 	
 	function go(page, users) {
+		cleanUp();
 		$main.className = "editorMode";
 		generateAuthorBox(page, users);
 		visible($deletePage, page && /d/.test(page.myPerms));
@@ -99,22 +116,29 @@ function generateEditorView(id, query, callback) {
 function generateHomeView(idk, callback) {
 	$main.className = "homeMode";
 	generateAuthorBox();
-	renderPath($navPane);
+	generatePath();
 	setTitle("Welcome to smilebnasic soruce! 2");
 	callback();
+}
+
+function attr(element, attr, value) {
+	if (value == undefined)
+		element.removeAttribute(attr)
+	else
+		element.setAttribute(attr, value);
 }
 
 function generatePageView(id, callback) {
 	loadStart();
 	me.getPage(id, function(page, users, comments){
+		cleanUp();
 		$main.className = "pageMode";
 		generateAuthorBox(page, users);
 		visible($pageEditButton, page);
 		if (page) {
 			currentPage = page.id;
-			renderPath($navPane, makeCategoryPath(me.categoryTree, page.parentId, page));
+			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 			setTitle("\uD83D\uDCC4 " + page.name);
-			console.log(page.about);
 			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
 			renderPageContents(page, $pageContents)
@@ -124,17 +148,13 @@ function generatePageView(id, callback) {
 			$voteCount_g.textContent = page.about.votes.g.count;
 			["b","o","g"].forEach(function(vote) {
 				window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
-				if (page.about.myVote == vote)
-					window['$voteButton_'+vote].setAttribute('data-selected', "");
-				else
-					window['$voteButton_'+vote].removeAttribute('data-selected');
+				attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "" : undefined);
 			});
 		} else {
 			currentPage = null;
-			renderPath();
-			$main.className += " errorMode";
 			setTitle("Page not found");
-			$pageContents.innerHTML = "";
+			generatePath();
+			$main.className = "errorMode";
 		}
 		callback();
 	});
@@ -171,14 +191,18 @@ function megaAggregate(activity, ca, contents) {
 	return allAct;
 }
 
+function generatePath(path) {
+	renderPath($navPane, path);
+}
+// function generatePagePath - category tree paths
 
 function generateUserView(id, callback) {
 	me.getUserPage(id, function(user, page, activity, ca, pages, userMap) {
-		console.info(arguments);
+		cleanUp();
 		$main.className = 'userMode';
 		// todo: change edit box to "Joined: <date>" and "page edited: <date>"
 		generateAuthorBox(user && page, userMap);
-		renderPath($navPane, [["#users","Users"], ["#user/"+id,user.name]]);
+		generatePath([["#users","Users"], ["#user/"+id, user.username]]);
 		$userPageAvatar.src = "";
 		$userActivity.innerHTML = "";
 		if (page) {
@@ -220,22 +244,24 @@ function generateUserView(id, callback) {
 }
 
 function generateChatView(id, callback) {
+	// todo: make this work when logged out
+	// use a normal request at first and then switch on the long poller IF logged in
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
-			renderPath($navPane, makeCategoryPath(me.categoryTree, page.parentId, page));
+			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			$main.className = "chatMode";
 			scroller.switchRoom(id);
 			setTitle(page.name);
-			renderPageContents(page, $chatPageContents);
+			renderPageContents(page, $pageContents);
 			callback();
 		} else if (page == false) { //1st request, page doesn't exist
-			renderPath($navPane);
+			generatePath();
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			setTitle("Page not found");
-			$chatPageContents.innerHTML = "";
+			$pageContents.innerHTML = "";
 			callback();
 			// TODO: page list passed to callback needs to be PER-ID!!
 		}
@@ -272,6 +298,7 @@ function displayMessage(c, user) {
 
 function generateCategoryView(id, callback) {
 	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
+		cleanUp();
 		$main.className = 'categoryMode';
 		
 		$categoryPages.innerHTML = "";
@@ -279,7 +306,7 @@ function generateCategoryView(id, callback) {
 		$categoryDescription.textContent = "";
 		if (category) {
 			contentz.reverse();
-			renderPath($navPane, makeCategoryPath(me.categoryTree, category.id));
+			generatePath(makeCategoryPath(me.categoryTree, category.id));
 			setTitle("\uD83D\uDCC1 "+category.name);
 			$categoryDescription.textContent = category.description;
 			childs.forEach(function(cat) {
@@ -292,7 +319,7 @@ function generateCategoryView(id, callback) {
 			$categoryPages.style.display="";
 			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
 		} else {
-			renderPath($navPane);
+			generatePath();
 			$categoryCreatePage.href = ""
 			$main.className += "errorMode";
 			setTitle("Category not found");
@@ -303,6 +330,7 @@ function generateCategoryView(id, callback) {
 
 function generateMembersView(idk, callback) {
 	me.getUsers({}, function(users) {
+		cleanUp();
 		$main.className = 'membersMode';
 		$memberList.innerHTML = "";
 		renderUserPath($navPane);
@@ -316,6 +344,7 @@ function generateMembersView(idk, callback) {
 
 function generateActivityView(idk, callback) {
 	me.getActivity(function(activity, ca, pages, users) {
+		cleanUp();
 		$main.className = 'activityMode';
 		renderActivityPath($navPane);
 		if (activity) {
@@ -346,7 +375,7 @@ function generateActivityView(idk, callback) {
 function generateRegisterView(idk, callback) {
 	$main.className = "registerMode";
 	generateAuthorBox();
-	renderPath($navPane);
+	generatePath();
 	$pageTitle.textContent = "Create an account";
 	callback();
 }

@@ -170,6 +170,9 @@ function ready() {
 
 	hashChange(true);
 	//console.log = debugMessage;
+	$reload.onclick = function(){
+		hashChange();
+	}
 }
 
 function hashChange(first) {
@@ -199,6 +202,21 @@ function split1(string, sep) {
 		return [string, null];
 	else
 		return [string.substr(0,n), string.substr(n+sep.length)];
+}
+
+var flags = {};
+function flag(flag, state) {
+	if (!flags[flag] != !state) {
+		if (state)
+			flags[flag] = true;
+		else
+			delete flags[flag];
+		var cls = "";
+		for (flag in flags) {
+			cls += " f-"+flag;
+		}
+		document.documentElement.className = cls;
+	}
 }
 
 function navigateTo(path, first, callback) {
@@ -286,16 +304,13 @@ function makeCategoryPath(tree, id, leaf) {
 // These are used to signal to the user when content is loading
 function loadStart(lp) {
 	if (!lp)
-		document.body.parentNode.className = "loading"
+		flag('loading', true);
 	/*if (window.$titlePane)
 		window.$titlePane.style.backgroundColor = "#48F";*/
 }
 function loadEnd(lp, e) {
 	if (!lp) {
-		if (e)
-			document.body.parentNode.className = "error";
-		else
-			document.body.parentNode.className = "";
+		flag('loading');
 	}
 	/*$titlePane.style.backgroundColor = "";*/
 }
@@ -329,14 +344,41 @@ function deletePage() {
 	}
 }
 
+function replaceTree(root, tree) {
+	var c1 = root.childNodes;
+	var c2 = tree.childNodes;
+	var cc2=[],cc1=[];
+	for (var i=0;i<c2.length;i++)
+		cc2[i]=c2[i];
+	for (var i=0;i<c1.length;i++)
+		cc1[i]=c1[i];
+	//console.log(cc2,cc1);
+	for (var i=0;i<cc1.length;i++) {
+		if (!cc1[i].isEqualNode(cc2[i])) {
+			if (cc2[i]) {
+				root.replaceChild(cc2[i], cc1[i]);
+				//console.log("node",i,"different, replacing");
+			}else {
+				root.removeChild(cc1[i]);
+				//console.log("node",i,"different, removing");
+			}
+		} else {
+			//console.log("node",i,"same, not replacing");
+		}
+	}
+	for (;i<cc2.length;i++) {
+		root.appendChild(cc2[i]);
+		//console.log("node",i,"new, appending");
+	}
+}
 
 function updateEditorPreview() {
-	renderPageContents({
+	replaceTree($editorPreview, renderPageContents({
 		values: {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
-	}, $editorPreview);
+	}));
 }
 
 function generateAuthorBox(page, users) {
@@ -379,13 +421,11 @@ function onLogin(me) {
 		$myName.textContent = user.username;
 		$myUserLink.href = "#user/"+user.id;
 	});
-	hide($loggedOut);
-	show($loggedIn);
+	flag("loggedIn",true);
 }
 
 function onLogout() {
 	$myAvatar.src = "";
 	$myName.textContent = "";
-	hide($loggedIn);
-	show($loggedOut);
+	flag("loggedIn");
 }

@@ -129,6 +129,7 @@ body:not(.registerMode) .registerMode,
 body:not(.settingsMode) .settingsMode,
 body:not(.activityMode) .activityMode,
 body:not(.userMode):not(.pageMode) .pageUserMode,
+body:not(.chatMode):not(.pageMode) .pageChatMode,
 body:not(.homeMode) .homeMode {
 	display: none;
 }
@@ -143,12 +144,17 @@ body:not(.homeMode) .homeMode {
 	background-color: #333;
 }
 
-html.loading .headerPane {
+html.f-loading .headerPane {
 	background-color: #008;
 }
 
-html.error .headerPane {
+html.f-error .headerPane {
 	background-color: #800;
+}
+
+html:not(.f-loggedIn) .loggedIn,
+html.f-loggedIn .loggedOut {
+	display: none;
 }
 
 .headerRight {
@@ -170,7 +176,6 @@ html.error .headerPane {
 
 .myName {
 	color: white;
-	font-weight: bold;
 	margin: 0 0.5rem;
 }
 
@@ -244,7 +249,6 @@ html.error .headerPane {
 	padding-left: 0.5rem;
 }
 .pageAuthorName {
-	font-weight: bold;
 	padding: 0 0.5rem;
 }
 .pageEdited {
@@ -326,7 +330,7 @@ html.error .headerPane {
 	padding-right: .5em;
 	color: #666;
 }
-.messageAvatar {
+.message .avatar {
 	display: inline-block;
 	width: 3.5rem;
 	height: 3.5rem;
@@ -336,7 +340,6 @@ html.error .headerPane {
 }
 .messageUsername {
 	display: inline-block;
-	font-weight: bold;
 }
 .messageContents {
 	display: block;
@@ -418,7 +421,6 @@ html.error .headerPane {
 }
 .memberName {
 	padding: 0 0.5rem;
-	font-weight: bold;
 }
 
 .bottomSpacer {
@@ -498,6 +500,7 @@ img.item {
 .pageContents {
 	max-width:100%;
 	overflow-x:auto;
+	flex-shrink: 0;
 }
 
 .listItem span {
@@ -509,3 +512,14 @@ img.item {
 }
 
 
+.username {
+	font-weight: bold;
+}
+
+.member .avatar {
+	margin-right: 0.7ch;
+}
+
+.iframe {
+	border: 1px solid red;
+}

@@ -20,10 +20,6 @@ function renderPath(element, list) {
 	});
 }
 
-// todo: shorthand for renderPath to $navpane
-//function generatePath
-// function generatePagePath - category tree paths
-
 function userAvatar(user, cls, big) {
 	if (cls.innerHTML != undefined)
 		var img = cls
@@ -54,6 +50,7 @@ function renderUserLink(user, nameFirst) {
 	if (user) {
 		a.href = "#user/"+user.id;
 		var name = textItem(user.username);
+		name.className = "username textItem"
 		var avatar = userAvatar(user, 'item');
 		if (nameFirst)
 			a.appendChild(name)
@@ -187,10 +184,10 @@ function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
 
-	div.appendChild(userAvatar(user, 'messageAvatar'));
+	div.appendChild(userAvatar(user, 'avatar'));
 	
 	var name = document.createElement('span');
-	name.className = 'messageUsername';
+	name.className = 'username';
 	name.textContent = user.username+":";
 	div.appendChild(name);
 	
@@ -243,7 +240,11 @@ function renderPageContents(page, element) {
 		var parser = Parse.lang[page.values.markupLang];
 	}
 	parser = parser || Parse.fallback;
-	setChild(element, parser(page.content));
+	if (element) {
+		setChild(element, parser(page.content));
+	} else {
+		return parser(page.content);
+	}
 }
 
 function setChild(element, child) {
@@ -315,17 +316,8 @@ function renderActivityItem(activity, page, user) {
 }
 
 function renderMemberListUser(user) {
-	var div = document.createElement('a');
-	div.className = "member";
-
-	div.appendChild(userAvatar(user, 'item'));
-	
-	var name = document.createElement('span');
-	
-	name.className = "textItem memberName";
-	name.textContent = user.username;
-	div.href = "#user/"+user.id;
-	div.appendChild(name);
+	var div = renderUserLink(user)
+	div.className = "member userLink";
 	return div;
 }
 

@@ -10,17 +10,11 @@
 
 
 <script src="parse.js"></script>
+<script src="tree.js"></script>
 <textarea id="$t"></textarea>
-<div id="$o"></div>
+<div id="$o"><div class="markup-root"></div></div>
 <script>
 	$t.oninput = function() {
-	$o.innerHTML = "";
-	$o.appendChild(parseBBCode($t.value));
-	}
-	$t.onclick = function() {
-	alert("CLICKED");
-	window.setTimeout(function(){
-	alert("CLICK TIMEOUT");
-	}, 0);
+	replaceTree($o,Parse.lang.bbcode($t.value));
 	}
 	</script>
