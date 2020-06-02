@@ -212,7 +212,7 @@ Parse.lang['12y'] = function(code) {
 					if (eatChar(" "))
 						startBlock('heading', {}, headingLevel);
 					else
-						addText('*'.repeat(headingLevel));
+						addMulti('*', headingLevel);
 				} else {
 					doMarkup('bold', options.bold);
 				}
@@ -256,7 +256,7 @@ Parse.lang['12y'] = function(code) {
 					//----------
 					// ---... normal text
 					} else {
-						addText("-".repeat(count));
+						addMulti("-", count);
 					}
 				//------------
 				// - ... list
@@ -444,6 +444,7 @@ Parse.lang['12y'] = function(code) {
 			flushText();
 			closeAll(true);
 			addBlock(options.error());
+			console.log(e);
 
 			addText(code.substr(i));
 			flushText();
@@ -487,6 +488,11 @@ Parse.lang['12y'] = function(code) {
 			}
 			return true;
 		}
+	}
+
+	function addMulti(text, count) {
+		while (count --> 0)
+			addText(text);
 	}
 
 	// read a url
@@ -540,7 +546,7 @@ Parse.lang['12y'] = function(code) {
 					while (top_is('list')) {//should ALWAYS happen at least once
 						endBlock();
 					}
-					addText(" ".repeat(indent));
+					addMulti(" ", indent);
 				} else {
 					scan();
 					while (eatChar(" "))
