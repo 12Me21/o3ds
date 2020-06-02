@@ -119,7 +119,7 @@ Parse.options = {
 	image: function(url) {
 		var node = create('img');
 		node.setAttribute('src', url);
-		node.setAttribute('tab-index', "-1");
+		node.setAttribute('tabindex', "-1");
 		return node;
 	},
 	error: function() {
