@@ -12,7 +12,7 @@ function generateSettingsView(n, callback) {
 		generatePath();
 		if (user) {
 			setTitle("User Settings: " + user.username);
-			$settingsAvatar.src = user.avatarURL;
+			userAvatar(user, $settingsAvatar);
 			if (page) {
 				$userPageLink.href = "#pages/edit/"+page.id;
 			} else {
@@ -188,7 +188,8 @@ function generateUserView(id, callback) {
 			} else {
 				$userPageContents.innerHTML = "";
 			}
-			$userPageAvatar.src = user.bigAvatarURL;
+			userAvatar(user, $userPageAvatar, true);
+			$userPageAvatarLink.href = user.rawAvatarURL;
 			var lastId, lastAction;
 			megaAggregate(activity, ca, pages).forEach(function(activity){
 				if (activity.type != "content") //idk, category?

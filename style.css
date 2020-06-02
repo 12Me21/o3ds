@@ -421,15 +421,11 @@ body:not(.homeMode) .homeMode {
 	background-color: #EEE;
 	min-height: 1.5rem;
 	border-top: 1px solid gray;
+	padding: 0 0.2rem;
 }
 
 .listItem a {
 	font-weight: bold;
-}
-
-.listItem * {
-	max-width: 100%;
-	padding: 0 0.2rem;
 }
 
 .listItem .textItem {

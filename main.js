@@ -383,7 +383,7 @@ function updateUserlist(listeners, userMap) {
 
 function onLogin(me) {
 	me.whenUser(me.uid, function(user) {
-		$myAvatar.src = user.avatarURL;
+		userAvatar(user, $myAvatar);
 		$myName.textContent = user.username;
 		$myUserLink.href = "#user/"+user.id;
 	});

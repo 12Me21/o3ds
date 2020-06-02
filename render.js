@@ -1,8 +1,15 @@
-function userAvatar(user, cls) {
-	var img = document.createElement('img');
-	img.src = user.avatarURL;
+function userAvatar(user, cls, big) {
+	if (cls.innerHTML != undefined)
+		var img = cls
+	else {
+		img = document.createElement('img');
+		img.className = cls;
+	}
+	if (big)
+		img.src = user.bigAvatarURL;
+	else
+		img.src = user.avatarURL;
 	img.alt = user.username;
-	img.className = cls;
 	return img;
 }
 
@@ -157,7 +164,7 @@ function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
 	visible(nameE, !hideUser);
 	if (user) {
 		if (!hideUser && user) {
-			avatarE.src = user.avatarURL;
+			userAvatar(user, avatarE);
 			nameE.textContent = user.username;
 		}
 		
@@ -214,9 +221,12 @@ function renderActivityItem(activity, page, user) {
 	action.className = "textItem";
 	action.textContent = text;
 	var link = document.createElement('b');
-	link.className = "textItem";
-	div.href = "#pages/"+activity.contentId;
-	link.textContent = page.name;
+	link.className = "textItem pre";
+	if (activity.action =="p")
+		div.href = "#discussions/"+activity.contentId;
+	else
+		div.href = "#pages/"+activity.contentId;
+	link.textContent = " "+page.name+" ";
 	var time = document.createElement('span');
 	time.className = "textItem";
 	time.textContent = reasonableDateString(date);

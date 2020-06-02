@@ -246,10 +246,11 @@ Myself.prototype.handle = function(e, resp) {
 	var userMap = {};
 	resp.user && resp.user.forEach(function(user) {
 		if (user.avatar && user.avatar != 125) {
-			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=120&crop=true"
-			user.bigAvatarURL = $.server+"/File/raw/"+user.avatar+"?size=400&crop=true"
+			user.avatarURL = $.server+"/File/raw/"+user.avatar+"?size=120&crop=true";
+			user.bigAvatarURL = $.server+"/File/raw/"+user.avatar+"?size=400&crop=true";
+			user.rawAvatarURL = $.server+"/File/raw/"+user.avatar;
 		} else {
-			user.avatarURL = user.bigAvatarURL = "./avatar.png";
+			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./avatar.png";
 		}
 		var uid = user.id;
 		if (uid) {
