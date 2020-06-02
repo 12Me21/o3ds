@@ -10,7 +10,7 @@
 <link rel="image_src" href="fav-big.png?b"> <!-- large 3 -->
 
 <!--START-->
-<link rel="stylesheet" href="style.css?s">
+<link rel="stylesheet" href="style.css?t">
 <link rel="stylesheet" href="markup.css?e">
 <link rel="stylesheet" href="code.css?a">
 
@@ -24,9 +24,9 @@
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?m"></script>
 
-<script src="render.js?m"></script>
-<script src="view.js?i"></script>
-<script src="main.js?x"></script>
+<script src="render.js?n"></script>
+<script src="view.js?j"></script>
+<script src="main.js?y"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -57,13 +57,13 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 
 		<span class="rightAlign textItem">
 			<input id="$search" placeholder="Search" class="item">
-			<div class="loggedIn textItem" id="$loggedIn" style="display: none;"><button id="$logout" class="textItem">Log Out</button><a class="textItem" id="$myUserLink"><span class="myName textItem" id="$myName" class="item"></span><img class="myAvatar item" id="$myAvatar"></a></div><form class="textItem loggedOut" id="$loggedOut" style="display: none;"><a href="#register">Register</a><input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
+			<div class="loggedIn textItem" id="$loggedIn" style="display: none;"><button id="$logout" class="textItem">Log Out</button><a class="textItem userLink" id="$myUserLink"><span class="myName textItem" id="$myName" class="item"></span><img class="myAvatar item avatar" id="$myAvatar"></a></div><form class="textItem loggedOut" id="$loggedOut" style="display: none;"><a href="#register">Register</a><input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
 		</span>
 	</nav>
 	
 	<header class="titlePane bar" id="$titlePane">
 		<h1 class="pageTitle textItem" id="$pageTitle"></h1>
-		<a class="textItem userMode" href="#usersettings"><button class="item">Settings</button></a>
+		<a class="textItem userMode" href="#usersettings">Settings</a>
 		<input class="item editorMode" id="$titleInput" placeholder="Page Title" required>
 		<span class="editorMode textItem">
 			<button id="$submitEdit" class="item">Submit</button><div class="textItem"></div>
@@ -76,14 +76,10 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		<label for="$watchCheck" class="textItem pageMode">Watching:</label>
 		<input type="checkbox" id="$watchCheck" class="item pageMode">
 
-		<div class="pageCreate textItem rightAlign" id="$pageAuthorBox" style="display: none;">
+		<div class="pageCreate textItem rightAlign">
 			<button id="$deletePage" class="item editorMode">DELETE</button>
-			<span class="textItem">
-				<span class="textItem">Author:</span><a id="$authorLink" class="item"><span class="pageAuthorName textItem" id="$pageAuthorName"></span><img class="pageAuthorAvatar item" id="$pageAuthorAvatar"></a><span class="pageAuthorDate textItem" id="$pageAuthorDate">
-				</span><!-- *standing in the middle of a mess of html*
-"gosh, I guess I have to clean all this up, then" -->
-			</span><a class="textItem pageMode" id="$pageEditButton"><button class="item">Edit</button></a><span id="$pageEdited" class="pageEdited"><span class="textItem">Edited:</span><a id="$editorLink"><span class="pageAuthorName textItem" id="$pageEditorName"></span><img class="pageAuthorAvatar item" id="$pageEditorAvatar"></a><span class="pageAuthorDate textItem" id="$pageEditorDate"></span>
-			</span>
+			<a class="textItem pageUserMode" id="$pageEditButton"><button class="item" tabindex="-1">Edit</button></a>
+			<span class="textItem" id="$authorBox"></span>
 		</div>
 	</header>
 	
@@ -119,7 +115,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		<div id="$categoryPages" class="categoryPages categoryMode"></div>
 
 		<div class="userPageBox userMode">
-			<a id="$userPageAvatarLink"><img id="$userPageAvatar" class="userPageAvatar"></a>
+			<a id="$userPageAvatarLink"><img id="$userPageAvatar" class="userPageAvatar avatar"></a>
 			<div class="pageContents pre userPageContents" id="$userPageContents"></div>
 		</div>
 		<div class="userActivity userMode" id="$userActivity"></div>
@@ -169,7 +165,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		</div>
 
 		<div class="settingsMode">
-			<img id="$settingsAvatar" class="userPageAvatar"><br>
+			<img id="$settingsAvatar" class="userPageAvatar avatar"><br>
 			<input type="file" accept="image/*" id="$settingsAvatarUpload" autocomplete="off">
 			<button id="$settingsAvatarSubmit">Submit</button><br>
 			<a id="$userPageLink">Edit User Page</a>

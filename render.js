@@ -3,7 +3,7 @@ function userAvatar(user, cls, big) {
 		var img = cls
 	else {
 		img = document.createElement('img');
-		img.className = cls;
+		img.className = cls+" avatar";
 	}
 	if (big)
 		img.src = user.bigAvatarURL;
@@ -11,6 +11,62 @@ function userAvatar(user, cls, big) {
 		img.src = user.avatarURL;
 	img.alt = user.username;
 	return img;
+}
+
+function textItem(text) {
+	var s = document.createElement('span');
+	s.textContent = text;
+	s.className = 'textItem';
+	return s;
+}
+
+function renderUserLink(user, nameFirst) {
+	var a = document.createElement('a');
+	a.className = 'item userLink';
+	if (user) {
+		a.href = "#user/"+user.id;
+		var name = textItem(user.username);
+		var avatar = userAvatar(user, 'item');
+		if (nameFirst)
+			a.appendChild(name)
+		a.appendChild(avatar)
+		if (!nameFirst)
+			a.appendChild(name)
+	} else {
+		a.textContent = "MISSINGNO."
+	}
+	return a;
+}
+
+function renderTimeAgo(date) {
+	var time = document.createElement('time');
+	var d = parseDate(date)
+	time.setAttribute('datetime',date);
+	time.setAttribute('title',readableDate(d));
+	time.textContent = timeAgo(d);
+	time.className = "textItem time";
+	return time;
+}
+
+function renderAuthorBox(page, users, element) {
+	element.innerHTML = "";
+	if (!page)
+		return;
+	element.appendChild(textItem("Author: "));
+	element.appendChild(renderUserLink(users[page.createUserId], true));
+	element.appendChild(renderTimeAgo(page.createDate));
+	// page was edited by other user
+	if (page.editUserId != page.createUserId) {
+		element.appendChild(textItem(", edited by: "));
+		var editedText = true;
+		element.appendChild(renderUserLink(users[page.editUserId], true));
+	}
+	// page was edited
+	if (page.createDate != page.editDate) {
+		if (!editedText)
+			element.appendChild(textItem(", edited "));
+		element.appendChild(renderTimeAgo(page.editDate));
+	}
 }
 
 function renderCategoryPage(page, users) {
@@ -141,36 +197,26 @@ function renderCategory(cat, users) {
 	return div;
 }
 
-function reasonableDateString(date) {
+function readableDate(date) {
+	return date.toLocaleString();
+}
+
+function timeAgo(date) {
 	var seconds = Math.floor((new Date() - date) / 1000);
 	var interval = Math.floor(seconds / 31536000);
 	if (interval >= 1) return interval + " years ago";
-	interval = Math.floor(seconds / 2592000);
+	interval = Math.round(seconds / 2592000);
 	if (interval >= 1) return interval + " months ago";
-	interval = Math.floor(seconds / 86400);
+	interval = Math.round(seconds / 86400);
 	if (interval >= 1) return interval + " days ago";
-	interval = Math.floor(seconds / 3600);
+	interval = Math.round(seconds / 3600);
 	if (interval >= 1) return interval + " hours ago";
-	interval = Math.floor(seconds / 60);
+	interval = Math.round(seconds / 60);
 	if (interval >= 1) return interval + " minutes ago";
 	if (seconds < 0)
 		return " IN THE FUTURE?";
-	return Math.floor(seconds) + " seconds ago";
+	return Math.round(seconds) + " seconds ago";
 	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
-}
-
-function renderEditor(user, time, avatarE, nameE, dateE, hideUser, link) {
-	visible(avatarE, !hideUser);
-	visible(nameE, !hideUser);
-	if (user) {
-		if (!hideUser && user) {
-			userAvatar(user, avatarE);
-			nameE.textContent = user.username;
-		}
-		
-		link.href = "#user/"+user.id;
-	}
-	dateE.textContent = reasonableDateString(time);
 }
 
 function renderPageContents(page, element) {
@@ -202,7 +248,7 @@ function renderActivityItem(activity, page, user) {
 		user = [];
 	else if (!(user instanceof Array))
 		user = [user];
-	var date = parseDate(activity.date);
+
 	switch(activity.action) {
 	case "c":
 		var text = "Created";
@@ -227,9 +273,7 @@ function renderActivityItem(activity, page, user) {
 	else
 		div.href = "#pages/"+activity.contentId;
 	link.textContent = " "+page.name+" ";
-	var time = document.createElement('span');
-	time.className = "textItem";
-	time.textContent = reasonableDateString(date);
+	
 	user.forEach(function(user){
 		var usr = document.createElement('a');
 		usr.className = 'item';
@@ -241,9 +285,12 @@ function renderActivityItem(activity, page, user) {
 		usr.appendChild(userAvatar(user, 'item'));
 		usr.appendChild(name);
 		div.appendChild(usr);
+		div.appendChild(document.createTextNode(" "));
 	});
 	div.appendChild(action);
 	div.appendChild(link);
+	var time = renderTimeAgo(activity.date);
+	time.className += " rightAlign";
 	div.appendChild(time);
 	return div;
 }

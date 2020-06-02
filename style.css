@@ -24,18 +24,15 @@ a:visited {
 	color: #00A;
 }
 
-/*
-button {
-	border-radius: 5px;
-	border: 2px solid transparent;
-	background-color: transparent;
-	box-shadow: inset 2px 2px 1px #AAA, inset -2px -2px 1px #777, inset 100000px 0 #EEE;
-	cursor: pointer;
+.time {
+	color: #333;
+	font-size: 0.9em;
+	vertical-align: baseline;
 }
 
-button:hover {
-	box-shadow: inset 2px 2px 1px #888, inset -2px -2px 1px #AAA, inset 100000px 0 #DDD;
-}*/
+.avatar {
+	border: 1px solid white;
+}
 
 a {
 	text-decoration: none;
@@ -131,9 +128,12 @@ body:not(.membersMode) .membersMode,
 body:not(.registerMode) .registerMode,
 body:not(.settingsMode) .settingsMode,
 body:not(.activityMode) .activityMode,
+body:not(.userMode):not(.pageMode) .pageUserMode,
 body:not(.homeMode) .homeMode {
 	display: none;
 }
+
+
 
 /*************
  ** Top Bar **
@@ -189,6 +189,11 @@ body:not(.homeMode) .homeMode {
 .titlePane {
 	min-height: 2.3rem;
 	background-color: #DDD;
+	padding: 0 0.5rem;
+}
+
+.titlePane .userLink img {
+	margin: 0 0.7ch;
 }
 
 .titlePane .item {
@@ -207,7 +212,7 @@ body:not(.homeMode) .homeMode {
 }
 .pageTitle {
 	font-weight: bold;
-	padding: 0 0.5rem;
+	padding-right: 0.5rem;
 	font-size: 1.6rem;
 }
 
@@ -220,10 +225,6 @@ body:not(.homeMode) .homeMode {
 /* Box showing the page author/editor */
 .pageCreate {
 	float: right;
-}
-.titlePane .pageCreate > * { /*hack because i reused pagecreate xd */
-	display: inline-block;
-	padding: 0 0.5rem;
 }
 .pageCreate {
 	background-color: rgba(255,255,255,0.1);
@@ -497,4 +498,12 @@ img.item {
 
 html.loading .headerPane {
 	background-color: #008;
+}
+
+.listItem span {
+	color: black;
+}
+
+.listItem .avatar {
+	margin-right: 0.3ch;
 }

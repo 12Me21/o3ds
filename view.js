@@ -166,9 +166,9 @@ function megaAggregate(activity, ca, contents) {
 	allAct.sort(function(a, b) {
 		return a.date < b.date;
 	});
-	return allAct;
 	//todo: trim all trailing of same type because that's when the other runs out
 	// also we can optimize merging of 2 sorted arrays here!
+	return allAct;
 }
 
 function generateUserView(id, callback) {
@@ -180,6 +180,11 @@ function generateUserView(id, callback) {
 		renderUserPath($navPane, user);
 		$userPageAvatar.src = "";
 		$userActivity.innerHTML = "";
+		if (page) {
+			$pageEditButton.href = "#pages/edit/"+page.id;
+		} else {
+			$pageEditButton.href = "#pages/edit?type=@user.page&name=User Page";
+		}
 		if (user) {
 			console.log("activity",activity);
 			setTitle(user.username);
@@ -263,7 +268,6 @@ function displayMessage(c, user) {
 
 function generateCategoryView(id, callback) {
 	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
-		hide($pageAuthorBox);
 		$main.className = 'categoryMode';
 		
 		$categoryPages.innerHTML = "";
@@ -295,7 +299,6 @@ function generateCategoryView(id, callback) {
 
 function generateMembersView(idk, callback) {
 	me.getUsers({}, function(users) {
-		hide($pageAuthorBox);
 		$main.className = 'membersMode';
 		$memberList.innerHTML = "";
 		renderUserPath($navPane);

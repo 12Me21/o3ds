@@ -339,16 +339,7 @@ function updateEditorPreview() {
 }
 
 function generateAuthorBox(page, users) {
-	if (page) {
-		show($pageAuthorBox);
-		renderEditor(users[page.createUserId], parseDate(page.createDate), $pageAuthorAvatar, $pageAuthorName, $pageAuthorDate, false, $authorLink);
-		visible($pageEdited, page.editDate);
-		if (page.editDate) {
-			renderEditor(users[page.editUserId], parseDate(page.editDate), $pageEditorAvatar, $pageEditorName, $pageEditorDate, page.editUserId == page.createUserId, $editorLink);
-		}
-	} else {
-		hide($pageAuthorBox);
-	}
+	renderAuthorBox(page, users, $authorBox);
 }
 
 function setRadio(radio, state) {
