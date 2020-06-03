@@ -4,6 +4,7 @@
 	-webkit-box-sizing: border-box;
 	overflow-wrap: break-word;
 	vertical-align: top;
+	
 }
 
 /* html.loading * {
@@ -12,7 +13,7 @@
 
 html {
 	background-color: red;
-	font-family: sans-serif;
+	font-family: roboto, sans-serif;
 }
 
 /* all elements with user content, where whitespace should be preserved */
@@ -451,6 +452,8 @@ html.f-loggedIn .loggedOut {
 .userPageBox {
 	display: flex;
 	flex-direction: row;
+	max-height: 40vh;
+	/* todo: make this outside of scroller and have activity list scroll separately*/
 }
 
 .userPageBox .userPageAvatar {
@@ -490,6 +493,7 @@ img.item {
 
 .userPageContents {
 	flex-grow: 1;
+
 }
 
 .voteButton[data-selected] {
@@ -527,3 +531,4 @@ img.item {
 .bottomSpacer {
 	border-top: 1px solid gray;
 }
+

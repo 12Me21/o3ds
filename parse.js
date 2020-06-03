@@ -443,6 +443,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 							code.substring(start, i!=-1 ? i : code.length),
 							language
 						));
+						skipNextLineBreak = true;
 						if (i != -1) {
 							i += 2;
 							scan();
