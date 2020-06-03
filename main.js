@@ -10,6 +10,7 @@ me.loadCachedAuth(function(){});
 var scroller;
 var lp = new DiscussionLongPoller(me, null);
 var currentPage;
+flag('sidebar', localStorage.getItem('sbs-sidebar') == 'true');
 
 debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
@@ -183,6 +184,7 @@ function ready() {
 
 function toggleSidebar() {
 	flag('sidebar', !flags.sidebar);
+	localStorage.setItem('sbs-sidebar', flags.sidebar);
 }
 
 var currentPath = null;
@@ -226,21 +228,6 @@ function split1(string, sep) {
 		return [string, null];
 	else
 		return [string.substr(0,n), string.substr(n+sep.length)];
-}
-
-var flags = {};
-function flag(flag, state) {
-	if (!flags[flag] != !state) {
-		if (state)
-			flags[flag] = true;
-		else
-			delete flags[flag];
-		var cls = "";
-		for (flag in flags) {
-			cls += " f-"+flag;
-		}
-		document.documentElement.className = cls;
-	}
 }
 
 function navigateTo(path, first, callback) {

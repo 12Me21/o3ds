@@ -1,3 +1,18 @@
+var flags = {};
+function flag(flag, state) {
+	if (!flags[flag] != !state) {
+		if (state)
+			flags[flag] = true;
+		else
+			delete flags[flag];
+		var cls = "";
+		for (flag in flags) {
+			cls += " f-"+flag;
+		}
+		document.documentElement.className = cls;
+	}
+}
+
 var uploadedAvatar;
 
 // clean up stuff whenever switching pages
