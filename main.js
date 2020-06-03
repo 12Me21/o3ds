@@ -248,7 +248,7 @@ function navigateTo(path, first, callback) {
 	path = path[0].split("/").filter(function(x){return x;});
 	
 	var type = path[0];
-	var id = +(path[1]);
+	var id = +(path[1]) || 0;
 	if (type == "pages") {
 		if (path[1] == "edit") {
 			first && ($main.className = 'editMode');
