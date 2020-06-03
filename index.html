@@ -65,7 +65,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 	
 	<header class="titlePane bar" id="$titlePane">
 		<h1 class="pageTitle textItem pre" id="$pageTitle"></h1>
-		<a class="textItem userMode" href="#usersettings">Settings</a>
+		<a class="textItem userMode loggedIn" href="#usersettings">Settings</a>
 		<input class="item editorMode" id="$titleInput" placeholder="Page Title" required>
 		<span class="editorMode textItem">
 			<button id="$submitEdit" class="item">Submit</button><div class="textItem"></div>
@@ -84,7 +84,9 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			<span class="textItem" id="$authorBox"></span>
 		</div>
 	</header>
-	
+
+	<div class="sideBarContainer">
+	<div class="m">
 	<div class="userlistPane userlist chatMode bar" id="$chatUserlist"></div>
 	
 	<div class="infoPane editorMode">
@@ -112,6 +114,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		 These panes have the main content
 		 one of them will be visible at a time, depending on the view mode
 	  -->
+	
 	<main class="paneGrow scroller">
 		<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 		<div id="$categoryCategories" class="categoryMode"></div>
@@ -183,6 +186,9 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 	<div class="inputPane chatMode">
 		<textarea id="$chatTextarea"></textarea>
 		<button id="$chatSend">Send</button>
+	</div>
+	</div>
+	<div class="sideBar"></div>
 	</div>
 </body>
 

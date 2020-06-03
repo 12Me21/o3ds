@@ -456,9 +456,18 @@ html.f-loggedIn .loggedOut {
 	/* todo: make this outside of scroller and have activity list scroll separately*/
 }
 
+.titlePane .avatar {
+	width: 2.3rem;
+}
+
+.member .avatar {
+	width: 2.3rem;
+}
+
 .userPageBox .userPageAvatar {
 	width: 10rem;
 	height: 10rem;
+	display: inline-block;
 	flex-shrink: 1;
 }
 
@@ -532,3 +541,46 @@ img.item {
 	border-top: 1px solid gray;
 }
 
+.sideBarContainer {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+	overflow-x: hidden;
+}
+
+.m {
+	width:100%;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.sideBar {
+	flex: 0 0 30vw;
+	background-color: rgba(204, 221, 238, 0.9);
+	border-left: 2px solid black;
+	transition: margin-left 0.25s ease, transform 0.25s ease;
+}
+
+html:not(.f-sidebar) .sideBar {
+	transform: translateX(100%);
+	margin-left: -30vw;
+}
+
+@media (max-width: 700px) {
+	.sideBar {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		border-left: none;
+	}
+	html:not(.f-sidebar) .sideBar {
+		margin-left: 0;
+	}
+	.m {
+		width: 100%;
+	}
+}
