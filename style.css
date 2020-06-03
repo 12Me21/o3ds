@@ -4,7 +4,6 @@
 	-webkit-box-sizing: border-box;
 	overflow-wrap: break-word;
 	vertical-align: top;
-	
 }
 
 /* html.loading * {
@@ -57,8 +56,9 @@ textarea {
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	overflow-y: auto;
-	min-height: 300px;
-	height: 300px;
+	flex-basis: 0;
+	/*min-height: 300px;
+	height: 300px;*/
 }
 
 .spacer {
@@ -482,7 +482,7 @@ html.f-loggedIn .loggedOut {
 
 .userPageBox .pageContents {
 	/*width: 10rem;*/
-	/*flex-basis: 0;*/
+	flex-basis: 0;
 }
 
 .categoryNav {
@@ -584,8 +584,18 @@ html:not(.f-myUserPage) .myUserPage {
 	display: none;
 }
 
+/*@media (max-width: 700px) {
+	.userPageBox {
+		flex-direction: column;
+		max-height: none;
+	}
+	.userPageContents {
+		width: 100%;
+	}
+}*/
+
 /* for devices with small screens */
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-height: 500px) {
 	/* make sidebar fill screen */
 	.sideBar {
 		width: 100%;
@@ -608,6 +618,7 @@ html:not(.f-myUserPage) .myUserPage {
 	body {
 		position: static;
 		min-height: 100vh;
+		font-size: 0.9em;
 	}
 	main {
 		height: auto !important;
@@ -620,7 +631,11 @@ html:not(.f-myUserPage) .myUserPage {
 		height: 20vh;
 	}
 	.userPageBox {
-		flex-direction: column;
 		max-height: none;
 	}
+	.scroller {
+		flex-basis: auto;
+	}
 }
+
+
