@@ -4,6 +4,7 @@ var uploadedAvatar;
 function cleanUp() {
 	flag('myUserPage');
 	$messageList.innerHTML = "";
+	$authorBox.innerHTML = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
