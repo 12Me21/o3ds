@@ -563,6 +563,7 @@ img.item {
 }
 
 html:not(.f-sidebar) .sideBar {
+	-webkit-transform: translateX(100%);
 	transform: translateX(100%);
 	margin-left: -30vw;
 }
