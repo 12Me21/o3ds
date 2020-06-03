@@ -50,17 +50,6 @@ textarea {
 	font-size: 1em; /* prevent zoom in on iphone */
 }
 
-.scroller {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	overflow-y: auto;
-	flex-basis: 0;
-	/*min-height: 300px;
-	height: 300px;*/
-}
-
 .spacer {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
@@ -115,18 +104,6 @@ body > * {
 	flex-shrink: 0;
 }
 
-/* each view has one pane which takes up the remaining screen height */
-.paneGrow {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	-webkit-flex-shrink: 1;
-	flex-shrink: 1;
-
-	min-height: 100px;
-	/*padding: 0.5rem;*/
-	/*overflow-y: scroll;*/
-}
-
 /* visibility control */
 body:not(.pageMode) .pageMode,
 body:not(.chatMode) .chatMode,
@@ -143,8 +120,6 @@ body:not(.chatMode):not(.pageMode) .pageChatMode,
 body:not(.homeMode) .homeMode {
 	display: none;
 }
-
-
 
 /*************
  ** Top Bar **
@@ -237,24 +212,28 @@ html.f-loggedIn .loggedOut {
 	font-family: monospace;
 }
 
-/* Box showing the page author/editor */
-.pageCreate {
-	float: right;
-}
-.pageCreate {
-	background-color: rgba(255,255,255,0.1);
-}
-.pageAuthorAvatar {
-	width: 2.3rem;
-}
-.pageAuthorDate {
-	padding-left: 0.5rem;
-}
-.pageAuthorName {
-	padding: 0 0.5rem;
-}
-.pageEdited {
-	border-left: 1px solid gray;
+/*******************
+ ** main **
+ **********/
+main {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	overflow-y: auto;
+	flex-basis: 0;
+
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	-webkit-flex-shrink: 1;
+	flex-shrink: 1;
+
+	min-height: 100px;
+	/*padding: 0.5rem;*/
+	/*overflow-y: scroll;*/
+	
+	/*min-height: 300px;
+	height: 300px;*/
 }
 
 /*******************
@@ -272,18 +251,18 @@ html.f-loggedIn .loggedOut {
 	padding: 0 0.4rem;
 }
 
-.rem1-5 {
+.rem1-7 {
 	min-height: 1.7rem;
 }
-.rem1-5 .item {
+.rem1-7 .item {
 	height: 1.7rem;
 	line-height: 1.7rem;
 }
-.rem1-5 .textItem {
+.rem1-7 .textItem {
 	min-height: 1.7rem;
 	line-height: 1.7rem;
 }
-.rem1-5 .avatar {
+.rem1-7 .avatar {
 	width: 1.7rem;
 }
 
@@ -305,9 +284,6 @@ html.f-loggedIn .loggedOut {
 /***************
  ** Page Pane **
  ***************/
-.pageContents, .editorPreview {
-	/*padding: 0.5rem;*/
-}
 
 /*******************
  ** Chat Userlist **
@@ -622,6 +598,7 @@ html:not(.f-myUserPage) .myUserPage {
 	}
 	main {
 		height: auto !important;
+		flex-basis: auto;
 	}
 	html {
 		background-color: transparent;
@@ -633,9 +610,4 @@ html:not(.f-myUserPage) .myUserPage {
 	.userPageBox {
 		max-height: none;
 	}
-	.scroller {
-		flex-basis: auto;
-	}
 }
-
-

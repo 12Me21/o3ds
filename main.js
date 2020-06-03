@@ -286,7 +286,7 @@ function navigateTo(path, first, callback) {
 		generateSettingsView(null, callback);
 	} else if (type == 'activity') {
 		first && ($main.className = 'activityMode');
-		generateActivityView(null, callback);
+		generateActivityView(queryVars, callback);
 	} else {
 		$main.className = "errorMode";
 		generateAuthorBox();

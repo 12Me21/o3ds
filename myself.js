@@ -598,13 +598,16 @@ Myself.prototype.setBasic = function(data, callback) {
 	this.request("User/basic", 'PUT', callback, data);
 }
 
-Myself.prototype.getActivity = function(callback) {
+Myself.prototype.getActivity = function(page, callback) {
 	var $=this;
+	var day = 1000*60*60*24
+	var start = new Date(Date.now() - day*(page+1)).toISOString();
+	var end = new Date(Date.now() - day*page).toISOString();
 	$.read([
 		//todo: this should just get an entire day??
 		// except no that won't work if site dies lol
-		{activity: {limit: 20, reverse: true}},
-		{commentaggregate: {limit: 100, reverse: true}},
+		{activity: {createStart: start, createEnd: end}},
+		{commentaggregate: {createStart: start, createEnd: end}},
 		"content.0contentId.1id",
 		"user.0userId.1userIds"
 	], {

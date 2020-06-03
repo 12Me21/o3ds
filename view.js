@@ -1,3 +1,6 @@
+//todo: make sidebar easier to close
+// don't auto-open on mobile
+
 var flags = {};
 function flag(flag, state) {
 	if (!flags[flag] != !state) {
@@ -364,8 +367,12 @@ function generateMembersView(idk, callback) {
 	});
 }
 
-function generateActivityView(idk, callback) {
-	me.getActivity(function(activity, ca, pages, users) {
+function generateActivityView(query, callback) {
+	var page = +query.page || 0;
+	me.getActivity(page, function(activity, ca, pages, users) {
+		$activityPageNumber.textContent = " "+page+" days ago";
+		$activityPagePrev.href = "#activity?page="+(page-1);
+		$activityPageNext.href = "#activity?page="+(page+1);
 		cleanUp();
 		$main.className = 'activityMode';
 		renderActivityPath($navPane);

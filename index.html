@@ -11,23 +11,23 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?G">
+<link rel="stylesheet" href="style.css?H">
 <link rel="stylesheet" href="markup.css?k">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?w"></script>
+<script src="myself.js?x"></script>
 
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?r"></script>
 
-<script src="render.js?u"></script>
-<script src="view.js?q"></script>
-<script src="main.js?I"></script>
+<script src="render.js?v"></script>
+<script src="view.js?r"></script>
+<script src="main.js?J"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 	  THere is a lot of repeated stuff
@@ -96,7 +96,7 @@
 			</div>
 
 			<div class="activityMode categoryNav">
-				<span class="textItem"><button id="$categoryPagesPrev" class="item">&lt;</button><button id="$categoryPagesNext" class="item">&gt;</button></span>
+				<span class="textItem"><a id="$activityPagePrev"><button class="item">&lt;</button></a><a id="$activityPageNext"><button class="item">&gt;</button></a><span class="textItem" id="$activityPageNumber"></span></span>
 			</div>
 			
 			<div class="membersMode">
@@ -113,7 +113,7 @@
 				 one of them will be visible at a time, depending on the view mode
 			  -->
 			
-			<main class="paneGrow scroller">
+			<main>
 				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div class="categoryMode categoryNav">
@@ -141,7 +141,7 @@
 					<div class="editorPreview" id="$editorPreview"><div class="markup-root" ></div></div>
 				</div>
 				
-				<div class="homeMode homePane paneGrow">
+				<div class="homeMode homePane">
 					hey<br>
 					Users: <a href="#users">here</a><br>
 					Pages: <a href="#categories/0">here</a><br>

@@ -31,7 +31,7 @@ function userAvatar(user, cls, big) {
 		img.src = user.bigAvatarURL;
 	else
 		img.src = user.avatarURL;
-	img.alt = user.username;
+	img.alt = "";//user.username;
 	return img;
 }
 
@@ -276,7 +276,7 @@ function renderActivityItem(activity, page, user) {
 		text = "Unknown action";
 	}
 	var div = document.createElement('a');
-	div.className = "listItem bar rem1-5";
+	div.className = "listItem bar rem1-7";
 	var action = document.createElement('span');
 	action.className = "textItem";
 	action.textContent = text;
