@@ -36,6 +36,7 @@
 	font-family: consolas, monospace;
 	color: white;
 	background-color: black;
+	white-space: pre-wrap;
 }
 
 .markup-root code {
