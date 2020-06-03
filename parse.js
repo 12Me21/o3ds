@@ -176,13 +176,30 @@ Parse.options = {
 }
 
 Parse.lang['12y'] = function(code, preview) {
+	// so what happens here is
+	// when a video needs to be generated
+	// first, check the cache. if it exists there, insert it
+	// (remember that a node can only exist in one place in the DOM though)
+	// now, if the video needs to be created, and preview mode is enabled,
+	// a place holder is generated (and not stored in the cache)
+	// if preview is disabled (and cache is passed), the video is generated
+	// and stored in the cache, to be reused later
+	
+	// in the editor, this should be called normally with preview mode enabled
+	// then maybe after a delay of no typing, call it with preview off,
+	// to generate any new videos
+	// or don't use preview at all! maybe it's fine!
+	var cache;
+	if (cache)
+		markCacheUnused();
+	
 	var options = Parse.options;
 	var output = options.root();
 	var curr = output;
 	var lastLineBreak = null;
 	var displayBlock = {
 		code:true,audio:true,video:true,heading:true,quote:true,
-		list:true,item:true,table:true,image:true,line:true
+		list:true,item:true,table:true,image:true,line:true,youtube:true,
 	};
 	var skipNextLineBreak;
 	
@@ -697,17 +714,50 @@ Parse.lang['12y'] = function(code, preview) {
 		var top = stack.top();
 		return top && top.type == type;
 	}
+
+	function markCacheUnused() {
+		for (type in cache)
+			for (arg in cache[type])
+				cache[type][arg].used = false
+	}
 	
-	function startBlock(type, data, arg, arg2) {
+	function findUnusedCached(type, arg) {
+		var list = cache[type][arg]
+		if (!list)
+			return null;
+		for (i=0;i<list.length;i++) {
+			if (!list[i].used)
+				return list[i];
+		}
+		return null;
+	}
+	
+	function startBlock(type, data, arg) {
 		if (displayBlock[type]) {
 			/*if (lastLineBreak) {
 				options.remove(lastLineBreak);
 			}*/
 			skipNextLineBreak = true;
 		}
+		if (cache && cache[type]) {
+			var item = findUnusedCached(type, arg);
+			if (item) {
+				item.used = true;
+				var node = item.node;
+			}
+		}
+		if (!node) {
+			var node = options[type](arg);
+			if (cache && cache[type]) {
+				if (!cache[type][arg])
+					cache[type][arg] = [];
+				cache[type][arg].push({node:node, used:false});
+			}
+		}
+		
 		data.type = type;
 		if (type) {
-			data.node = options[type](arg, arg2);
+			data.node = node;
 			flushText();
 			options.append(curr, data.node);
 			curr = data.node;

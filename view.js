@@ -40,6 +40,7 @@ function generateSettingsView(n, callback) {
 }
 
 var editingPage;
+var editorCache = {};
 
 function newPage(query) {
 	return {

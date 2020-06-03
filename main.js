@@ -352,24 +352,23 @@ function replaceTree(root, tree) {
 		cc2[i]=c2[i];
 	for (var i=0;i<c1.length;i++)
 		cc1[i]=c1[i];
-	//console.log(cc2,cc1);
 	for (var i=0;i<cc1.length;i++) {
 		if (!cc1[i].isEqualNode(cc2[i])) {
-			if (cc2[i]) {
-				root.replaceChild(cc2[i], cc1[i]);
-				//console.log("node",i,"different, replacing");
-			}else {
+			if (cc2[i])
+				if (shallowCompare(cc2[i], cc1[i]))
+					replaceTree(cc1[i], cc2[i]);
+				else
+					root.replaceChild(cc2[i], cc1[i]);
+			else
 				root.removeChild(cc1[i]);
-				//console.log("node",i,"different, removing");
-			}
-		} else {
-			//console.log("node",i,"same, not replacing");
 		}
 	}
-	for (;i<cc2.length;i++) {
+	for (;i<cc2.length;i++) 
 		root.appendChild(cc2[i]);
-		//console.log("node",i,"new, appending");
-	}
+}
+
+function shallowCompare(node1, node2) {
+	return node1.cloneNode(false).isEqualNode(node2.cloneNode(false));
 }
 
 function updateEditorPreview(preview) {
@@ -378,34 +377,15 @@ function updateEditorPreview(preview) {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
-	}, undefined, preview));
+	}, undefined, true));
 }
 
+// "generate" functions operate implicitly on specific html elements, and should be in view.js
+// "render" functions often are similar but more general, and are in render.js
+// I feel like the names are backwards, sorry...
 function generateAuthorBox(page, users) {
 	renderAuthorBox(page, users, $authorBox);
 }
-
-function setRadio(radio, state) {
-	if (typeof state != 'undefined') {
-		for (var i=0;i<radio.length;i++) {
-			if (radio[i].value == state)
-				radio[i].checked = true;
-		}
-	} else {
-		radio[0].checked = true;
-		radio[0].checked = false;
-	}
-}
-
-function getRadio(radio) {
-	for (var i=0;i<radio.length;i++) {
-		if (radio[i].checked)
-			return radio[i].value;
-	}
-	return null;
-}
-
-
 
 function updateUserlist(listeners, userMap) {
 	$chatUserlist.innerHTML = "";
@@ -413,7 +393,6 @@ function updateUserlist(listeners, userMap) {
 		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
 	})
 }
-
 
 function onLogin(me) {
 	me.whenUser(me.uid, function(user) {
