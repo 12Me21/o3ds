@@ -52,7 +52,9 @@ textarea {
 }
 
 .scroller {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 	overflow-y: auto;
 	min-height: 300px;
@@ -60,6 +62,7 @@ textarea {
 }
 
 .spacer {
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
 
@@ -90,7 +93,9 @@ textarea {
  ** Main Container Element **
  ****************************/
 body {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 	position: absolute;
 	top: 0;
@@ -106,13 +111,17 @@ body > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(
 
 /* most elements will be fixed-height, and should never shrink */
 body > * {
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
 /* each view has one pane which takes up the remaining screen height */
 .paneGrow {
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
+	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
+
 	min-height: 100px;
 	/*padding: 0.5rem;*/
 	/*overflow-y: scroll;*/
@@ -370,13 +379,16 @@ html.f-loggedIn .loggedOut {
  ****************/
 .inputPane {
 	height: 3.25rem;
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: row;
 	flex-direction: row;
 }
 .inputPane > * {
 	height: 100%;
 }
 .inputPane > textarea {
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
 	resize: none;
 	min-width: 0;
@@ -394,15 +406,21 @@ html.f-loggedIn .loggedOut {
  ** Editor Pane **
  *****************/
 .editorPane {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
 
 .editorPreview {
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
+	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
 	overflow-y: scroll;
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 	min-height: 10rem;
 }
@@ -428,6 +446,7 @@ html.f-loggedIn .loggedOut {
 }
 
 .bottomSpacer {
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 	height: 1.5rem;
 }
@@ -443,7 +462,9 @@ html.f-loggedIn .loggedOut {
 }
 
 .userPageBox {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: row;
 	flex-direction: row;
 	max-height: 40vh;
 	overflow: auto;
@@ -454,6 +475,7 @@ html.f-loggedIn .loggedOut {
 	width: 10rem;
 	height: 10rem;
 	display: inline-block;
+	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
 }
 
@@ -462,6 +484,7 @@ html.f-loggedIn .loggedOut {
 }
 
 .categoryNav {
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
@@ -478,8 +501,9 @@ img.item {
 }
 
 .userPageContents {
+	
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
-
 }
 
 .voteButton[data-selected] {
@@ -490,6 +514,7 @@ img.item {
 .pageContents {
 	max-width:100%;
 	overflow-x:auto;
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
@@ -520,19 +545,26 @@ img.item {
 
 .sideBarContainer {
 	display: flex;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
 	flex-direction: row;
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
 	overflow-x: hidden;
 }
 
 .m {
 	width:100%;
+	-webkit-flex-grow: 1;
 	flex-grow: 1;
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 }
 
 .sideBar {
+	-webkit-flex: 0 0 30vw;
 	flex: 0 0 30vw;
 	background-color: rgba(204, 221, 238, 0.9);
 	border-left: 2px solid black;
