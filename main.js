@@ -371,13 +371,14 @@ function shallowCompare(node1, node2) {
 	return node1.cloneNode(false).isEqualNode(node2.cloneNode(false));
 }
 
+var editorCache = {video:{},audio:{},youtube:{}};
 function updateEditorPreview(preview) {
-	replaceTree($editorPreview, renderPageContents({
+	renderPageContents({
 		values: {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
-	}, undefined, true));
+	}, $editorPreview, editorCache, );
 }
 
 // "generate" functions operate implicitly on specific html elements, and should be in view.js

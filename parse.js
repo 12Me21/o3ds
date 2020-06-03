@@ -82,17 +82,20 @@ Parse.options = {
 		return node;
 	},
 	youtube: function(url, preview) {
-		if (preview) {
-			var node = create('div');
-			node.className = "videoPreview preview";
-			node.textContent = "[youtube preview]\n";
-			return node;
-		}
-		var node = create('iframe');
 		var protocol = "https:";
 		if (window.location && window.location.protocol == "http:")
 			protocol = "http:"
 		var match = url.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
+		
+		if (true) {
+			var node = create('img');
+			node.className = "youtube";
+			if (match)
+				node.src = protocol+"//i.ytimg.com/vi/"+match[1]+"/mqdefault.jpg";
+			return node;
+		}
+		var node = create('iframe');
+		node.className = "youtube";
 		if (match)
 			node.src = protocol+"//www.youtube-nocookie.com/embed/"+match[1];
 		return node;
@@ -175,7 +178,7 @@ Parse.options = {
 	}
 }
 
-Parse.lang['12y'] = function(code, preview) {
+Parse.lang['12y'] = function(code, preview, cache) {
 	// so what happens here is
 	// when a video needs to be generated
 	// first, check the cache. if it exists there, insert it
@@ -189,7 +192,7 @@ Parse.lang['12y'] = function(code, preview) {
 	// then maybe after a delay of no typing, call it with preview off,
 	// to generate any new videos
 	// or don't use preview at all! maybe it's fine!
-	var cache;
+	console.log("PARSE CACHE:",cache);
 	if (cache)
 		markCacheUnused();
 	
@@ -718,14 +721,16 @@ Parse.lang['12y'] = function(code, preview) {
 	function markCacheUnused() {
 		for (type in cache)
 			for (arg in cache[type])
-				cache[type][arg].used = false
+				cache[type][arg].forEach(function(x){
+					x.used = false;
+				});
 	}
 	
 	function findUnusedCached(type, arg) {
 		var list = cache[type][arg]
 		if (!list)
 			return null;
-		for (i=0;i<list.length;i++) {
+		for (var i=0;i<list.length;i++) {
 			if (!list[i].used)
 				return list[i];
 		}
@@ -739,19 +744,23 @@ Parse.lang['12y'] = function(code, preview) {
 			}*/
 			skipNextLineBreak = true;
 		}
-		if (cache && cache[type]) {
+		var node;
+		if (cache && type && cache[type]) {
 			var item = findUnusedCached(type, arg);
 			if (item) {
+				console.log("got item from cache");
 				item.used = true;
-				var node = item.node;
+				node = item.node;
 			}
 		}
-		if (!node) {
-			var node = options[type](arg);
+		if (!node && type) {
+			node = options[type](arg);
+			
 			if (cache && cache[type]) {
+				console.log("adding to cache");
 				if (!cache[type][arg])
 					cache[type][arg] = [];
-				cache[type][arg].push({node:node, used:false});
+				cache[type][arg].push({node:node, used:true});
 			}
 		}
 		

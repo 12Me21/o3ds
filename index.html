@@ -10,8 +10,8 @@
 <link rel="image_src" href="fav-big.png?b"> <!-- large 3 -->
 
 <!--START-->
-<link rel="stylesheet" href="style.css?v">
-<link rel="stylesheet" href="markup.css?h">
+<link rel="stylesheet" href="style.css?w">
+<link rel="stylesheet" href="markup.css?i">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
@@ -22,11 +22,11 @@
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
-<script src="parse.js?o"></script>
+<script src="parse.js?p"></script>
 
-<script src="render.js?s"></script>
+<script src="render.js?t"></script>
 <script src="view.js?m"></script>
-<script src="main.js?C"></script>
+<script src="main.js?D"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 THere is a lot of repeated stuff
@@ -126,7 +126,7 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 			<div class="editorTextarea">
 				<textarea id="$editorTextarea"></textarea>
 			</div>
-			<div class="editorPreview"><div class="markup-root" id="$editorPreview"></div></div>
+			<div class="editorPreview" id="$editorPreview"><div class="markup-root" ></div></div>
 		</div>
 		
 		<div class="homeMode homePane paneGrow">
@@ -182,3 +182,8 @@ perhaps make the main page have a min height of like 600px and the viewport scro
 		<button id="$chatSend">Send</button>
 	</div>
 </body>
+
+<template style="display:none;" id="$elementCache">
+	
+</template>
+	

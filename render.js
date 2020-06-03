@@ -235,15 +235,15 @@ function timeAgo(date) {
 	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
 }
 
-function renderPageContents(page, element, pre) {
+function renderPageContents(page, element, cache) {
 	if (page.values) {
 		var parser = Parse.lang[page.values.markupLang];
 	}
 	parser = parser || Parse.fallback;
 	if (element) {
-		setChild(element, parser(page.content, pre));
+		setChild(element, parser(page.content, false, cache));
 	} else {
-		return parser(page.content, pre);
+		return parser(page.content, false, cache);
 	}
 }
 

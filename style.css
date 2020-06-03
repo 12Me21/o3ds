@@ -523,3 +523,7 @@ img.item {
 .iframe {
 	border: 1px solid red;
 }
+
+.bottomSpacer {
+	border-top: 1px solid gray;
+}
