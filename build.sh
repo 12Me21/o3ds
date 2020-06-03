@@ -3,7 +3,7 @@ echo "" > build.html
 sed '/<!--START-->/Q' index.html >> build.html
 
 echo "<style>" >> build.html
-cat style.css markup.css code.css >> build.html
+cat fonts.css style.css markup.css code.css >> build.html
 echo "</style>" >> build.html
 
 echo "<script>" >> build.html
