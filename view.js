@@ -2,6 +2,8 @@ var uploadedAvatar;
 
 // clean up stuff whenever switching pages
 function cleanUp() {
+	flag('myUserPage');
+	$messageList.innerHTML = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
@@ -115,6 +117,7 @@ function generateEditorView(id, query, callback) {
 }
 
 function generateHomeView(idk, callback) {
+	cleanUp();
 	$main.className = "homeMode";
 	generateAuthorBox();
 	generatePath();
@@ -162,7 +165,6 @@ function generatePageView(id, callback) {
 }
 
 function megaAggregate(activity, ca, contents) {
-	console.log("mega", arguments);
 	var contentMap = {};
 	contents.forEach(function(x){
 		contentMap[x.id] = x;
@@ -215,7 +217,8 @@ function generateUserView(id, callback) {
 			$pageEditButton.removeAttribute('href');
 		}
 		if (user) {
-			console.log("activity",activity);
+			if (user.id == me.uid)
+				flag('myUserPage', true);
 			setTitle(user.username);
 			if (page) {
 				renderPageContents(page, $userPageContents)
@@ -369,11 +372,11 @@ function generateActivityView(idk, callback) {
 				}
 			});
 		}
-		console.log(activity, pages, users);
 	});
 }
 
 function generateRegisterView(idk, callback) {
+	cleanUp();
 	$main.className = "registerMode";
 	generateAuthorBox();
 	generatePath();

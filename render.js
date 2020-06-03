@@ -50,7 +50,7 @@ function renderUserLink(user, nameFirst) {
 	if (user) {
 		a.href = "#user/"+user.id;
 		var name = textItem(user.username);
-		name.className = "username textItem"
+		name.className = "username textItem pre"
 		var avatar = userAvatar(user, 'item');
 		if (nameFirst)
 			a.appendChild(name)
@@ -58,7 +58,7 @@ function renderUserLink(user, nameFirst) {
 		if (!nameFirst)
 			a.appendChild(name)
 	} else {
-		a.textContent = "MISSINGNO."
+		a.textContent = "MISSINGNO. "
 	}
 	return a;
 }
@@ -77,7 +77,7 @@ function renderAuthorBox(page, users, element) {
 	element.innerHTML = "";
 	if (!page)
 		return;
-	element.appendChild(textItem("Author: "));
+	/*element.appendChild(textItem("Author: "));*/
 	element.appendChild(renderUserLink(users[page.createUserId], true));
 	element.appendChild(renderTimeAgo(page.createDate));
 	// page was edited by other user
@@ -98,20 +98,14 @@ function renderCategoryPage(page, users) {
 	var user = users[page.createUserId];
 	var div = document.createElement('a');
 	div.href = "#pages/"+page.id;
-	div.className = "pre categoryPage bar";
+	div.className = "pre categoryPage bar rem2-3";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle textItem";
 	title.textContent = "\uD83D\uDCC4 " + page.name;
 	div.appendChild(title);
 	if (user) {
-		var right = document.createElement('a');
-		right.href = "#user/"+user.id;
-		right.className = "rightAlign textItem pageCreate";
-		var name = document.createElement('span');
-		name.textContent = user.username;
-		name.className = "textItem pageAuthorName";
-		right.appendChild(name);
-		right.appendChild(userAvatar(user, 'item'));
+		var right = renderUserLink(user, true);
+		right.className += ' rightAlign';
 		div.appendChild(right);
 	}
 	return div;
@@ -205,7 +199,7 @@ function renderUserBlock(user, date) {
 function renderCategory(cat, users) {
 	var div = document.createElement('a');
 	div.href = "#categories/"+cat.id;
-	div.className = "pre categoryPage bar";
+	div.className = "pre categoryPage rem2-3 bar";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle item";
 	title.textContent = "\uD83D\uDCC1 "+cat.name;
@@ -282,7 +276,7 @@ function renderActivityItem(activity, page, user) {
 		text = "Unknown action";
 	}
 	var div = document.createElement('a');
-	div.className = "listItem bar";
+	div.className = "listItem bar rem1-5";
 	var action = document.createElement('span');
 	action.className = "textItem";
 	action.textContent = text;
@@ -317,7 +311,7 @@ function renderActivityItem(activity, page, user) {
 
 function renderMemberListUser(user) {
 	var div = renderUserLink(user)
-	div.className = "member userLink";
+	div.className = "member userLink rem2-3";
 	return div;
 }
 

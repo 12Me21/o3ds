@@ -201,7 +201,6 @@ html.f-loggedIn .loggedOut {
  ** Title Pane **
  ****************/
 .titlePane {
-	min-height: 2.3rem;
 	background-color: #DDD;
 	padding: 0 0.5rem;
 }
@@ -210,15 +209,8 @@ html.f-loggedIn .loggedOut {
 	margin: 0 0.7ch;
 }
 
-.titlePane .item {
-	height: 2.3rem;
-}
 /* .item's are things like the site logo, user avatar, etc.*/
 /* .textItem is similar, but is allowd to wrap */
-.titlePane .textItem {
-	min-height: 2.3rem;
-	line-height: 2.3rem;
-}
 
 .editingLabel {
 	padding-left: 0.3rem;
@@ -262,23 +254,42 @@ html.f-loggedIn .loggedOut {
 .categoryPage {
 	font-weight: bold;
 	background-color: #EEE;
-	min-height: 2.3rem;
+	padding-left: 0.4rem;
 }
 .categoryPage, .categoryDescription, .member {
 	border-bottom: 1px solid gray;
 }
-.categoryPageTitle {
-	padding: 0 0.5rem;
+.categoryPage .username {
+	padding: 0 0.4rem;
 }
-.categoryPage .textItem {
+
+.rem1-5 {
+	min-height: 1.7rem;
+}
+.rem1-5 .item {
+	height: 1.7rem;
+	line-height: 1.7rem;
+}
+.rem1-5 .textItem {
+	min-height: 1.7rem;
+	line-height: 1.7rem;
+}
+.rem1-5 .avatar {
+	width: 1.7rem;
+}
+
+.rem2-3 {
 	min-height: 2.3rem;
-	line-height: 2.3rem;
 }
-.categoryPage .item {
+.rem2-3 .item {
 	height: 2.3rem;
 	line-height: 2.3rem;
 }
-.categoryPage .avatar {
+.rem2-3 .textItem {
+	min-height: 2.3rem;
+	line-height: 2.3rem;
+}
+.rem2-3 .avatar {
 	width: 2.3rem;
 }
 
@@ -294,10 +305,6 @@ html.f-loggedIn .loggedOut {
  *******************/
 .userlist {
 	background-color: #EEE;
-	min-height: 2.3rem;
-}
-.userlist > * {
-	height: 2.3rem;
 }
 
 /***********************
@@ -416,13 +423,6 @@ html.f-loggedIn .loggedOut {
 	background-color: #EEE;
 }
 
-.member .item {
-	height: 2.3rem;
-}
-.member .textItem {
-	min-height: 2.3rem;
-	line-height: 2.3rem;
-}
 .memberName {
 	padding: 0 0.5rem;
 }
@@ -434,7 +434,6 @@ html.f-loggedIn .loggedOut {
 
 .listItem {
 	background-color: #EEE;
-	min-height: 1.5rem;
 	border-top: 1px solid gray;
 	padding: 0 0.2rem;
 }
@@ -443,28 +442,12 @@ html.f-loggedIn .loggedOut {
 	font-weight: bold;
 }
 
-.listItem .textItem {
-	max-height: 2rem;
-	line-height: 2rem;
-}
-
-.listItem .item {
-	height: 2rem;
-}
-
 .userPageBox {
 	display: flex;
 	flex-direction: row;
 	max-height: 40vh;
+	overflow: auto;
 	/* todo: make this outside of scroller and have activity list scroll separately*/
-}
-
-.titlePane .avatar {
-	width: 2.3rem;
-}
-
-.member .avatar {
-	width: 2.3rem;
 }
 
 .userPageBox .userPageAvatar {
@@ -475,20 +458,11 @@ html.f-loggedIn .loggedOut {
 }
 
 .userPageBox .pageContents {
-	width: 10rem;
+	/*width: 10rem;*/
 }
 
-.categoryNav .textItem {
-	min-height: 1.5rem;
-	line-height: 1.5rem;
-	
-}
 .categoryNav {
 	flex-shrink: 0;
-}
-
-.categoryNav .item {
-	height: 1.5rem;
 }
 
 .loginField {
@@ -572,7 +546,13 @@ html:not(.f-sidebar) .sideBar {
 	margin-left: -30vw;
 }
 
+html:not(.f-myUserPage) .myUserPage {
+	display: none;
+}
+
+/* for devices with small screens */
 @media (max-width: 700px) {
+	/* make sidebar fill screen */
 	.sideBar {
 		width: 100%;
 		height: 100%;
@@ -587,5 +567,22 @@ html:not(.f-sidebar) .sideBar {
 	}
 	.m {
 		width: 100%;
+	}
+
+	/* make the entire page scroll */
+	/* todo: make chat mode work better here */
+	body {
+		position: static;
+		min-height: 100vh;
+	}
+	main {
+		height: auto !important;
+	}
+	html {
+		background-color: transparent;
+	}
+	/* smaller editor text area */
+	.editorTextarea textarea {
+		height: 20vh;
 	}
 }

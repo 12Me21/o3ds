@@ -1,6 +1,10 @@
 //bug: when going back from another site, page is loaded from cache, and
 // certain things are not reloaded
 
+// idea: 'protected' mode, during page editing
+// gives warning before navigation
+// or: just save editing page contents lol
+
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
 var scroller;
@@ -170,32 +174,44 @@ function ready() {
 
 	hashChange(true);
 	//console.log = debugMessage;
-	$reload.onclick = function(){
+	/*$reload.onclick = function(){
 		hashChange();
-	}
+	}*/
 
-	$closeSidebar.onclick=function() {
-		flag('sidebar');
-	}
-	$openSidebar.onclick=function() {
-		flag('sidebar', true);
-	}
-
+	$openSidebar.onclick = $closeSidebar.onclick = toggleSidebar;
 }
 
+function toggleSidebar() {
+	flag('sidebar', !flags.sidebar);
+}
+
+var currentPath = null;
+
+// todo: add a "force" flag
 function hashChange(first) {
 	var fragment = getPath();
-	navigateTo(fragment[0], first, function() {
-		if (fragment[1]) {
-			var n = document.getElementsByName("_anchor_"+fragment[1]);
-			if (n[0])
-				n[0].scrollIntoView();
-		}
-	});
+	if (currentPath == fragment[0]) {
+		scrollTo(fragment[1])
+	} else {
+		currentPath = fragment[0];
+		navigateTo(fragment[0], first, function() {
+			scrollTo(fragment[1])
+		});
+	}
 	
 }
 
+function scrollTo(name) {
+	if (name) {
+		var n = document.getElementsByName("_anchor_"+name);
+		if (n[0])
+			n[0].scrollIntoView();
+	}
+}
+
 window.onhashchange = function() {
+	// todo: when a link which has the same path but a different fragment is clicked,
+	// page should not reload, instead just scroll to fragment
 	hashChange(false);
 }
 
@@ -350,33 +366,6 @@ function deletePage() {
 			});
 		}
 	}
-}
-
-function replaceTree(root, tree) {
-	var c1 = root.childNodes;
-	var c2 = tree.childNodes;
-	var cc2=[],cc1=[];
-	for (var i=0;i<c2.length;i++)
-		cc2[i]=c2[i];
-	for (var i=0;i<c1.length;i++)
-		cc1[i]=c1[i];
-	for (var i=0;i<cc1.length;i++) {
-		if (!cc1[i].isEqualNode(cc2[i])) {
-			if (cc2[i])
-				if (shallowCompare(cc2[i], cc1[i]))
-					replaceTree(cc1[i], cc2[i]);
-				else
-					root.replaceChild(cc2[i], cc1[i]);
-			else
-				root.removeChild(cc1[i]);
-		}
-	}
-	for (;i<cc2.length;i++) 
-		root.appendChild(cc2[i]);
-}
-
-function shallowCompare(node1, node2) {
-	return node1.cloneNode(false).isEqualNode(node2.cloneNode(false));
 }
 
 var editorCache = {video:{},audio:{},youtube:{}};

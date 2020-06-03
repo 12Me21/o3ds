@@ -192,7 +192,6 @@ Parse.lang['12y'] = function(code, preview, cache) {
 	// then maybe after a delay of no typing, call it with preview off,
 	// to generate any new videos
 	// or don't use preview at all! maybe it's fine!
-	console.log("PARSE CACHE:",cache);
 	if (cache)
 		markCacheUnused();
 	
@@ -749,7 +748,6 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		if (cache && type && cache[type]) {
 			var item = findUnusedCached(type, arg);
 			if (item) {
-				console.log("got item from cache");
 				item.used = true;
 				node = item.node;
 			}
@@ -758,7 +756,6 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			node = options[type](arg);
 			
 			if (cache && cache[type]) {
-				console.log("adding to cache");
 				if (!cache[type][arg])
 					cache[type][arg] = [];
 				cache[type][arg].push({node:node, used:true});
