@@ -221,7 +221,7 @@ function generateUserView(id, callback) {
 		$main.className = 'userMode';
 		// todo: change edit box to "Joined: <date>" and "page edited: <date>"
 		generateAuthorBox(user && page, userMap);
-		generatePath([["#users","Users"], ["#user/"+id, user.username]]);
+		
 		$userPageAvatar.src = "";
 		$userActivity.innerHTML = "";
 		if (page) {
@@ -233,6 +233,7 @@ function generateUserView(id, callback) {
 			$pageEditButton.removeAttribute('href');
 		}
 		if (user) {
+			generatePath([["#users","Users"], ["#user/"+id, user.username]]);
 			if (user.id == me.uid)
 				flag('myUserPage', true);
 			setTitle(user.username);
@@ -256,7 +257,8 @@ function generateUserView(id, callback) {
 				}
 			});
 		} else {
-			$main.className += " errorMode";
+			generatePath([["#users","Users"], undefined]);
+			$main.className = "errorMode";
 			setTitle("User Not Found");
 		}
 		callback();
