@@ -462,6 +462,7 @@ html.f-loggedIn .loggedOut {
 }
 
 .userPageBox {
+	align-items: flex-start;
 	display: -webkit-flex;
 	display: flex;
 	-webkit-flex-direction: row;
@@ -481,6 +482,7 @@ html.f-loggedIn .loggedOut {
 
 .userPageBox .pageContents {
 	/*width: 10rem;*/
+	/*flex-basis: 0;*/
 }
 
 .categoryNav {
@@ -616,5 +618,9 @@ html:not(.f-myUserPage) .myUserPage {
 	/* smaller editor text area */
 	.editorTextarea textarea {
 		height: 20vh;
+	}
+	.userPageBox {
+		flex-direction: column;
+		max-height: none;
 	}
 }
