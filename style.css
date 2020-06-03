@@ -266,7 +266,7 @@ html.f-loggedIn .loggedOut {
 	padding-left: 0.4rem;
 }
 .categoryPage, .categoryDescription, .member {
-	border-bottom: 1px solid gray;
+	border-top: 1px solid gray;
 }
 .categoryPage .username {
 	padding: 0 0.4rem;
