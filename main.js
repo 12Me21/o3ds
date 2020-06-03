@@ -173,6 +173,14 @@ function ready() {
 	$reload.onclick = function(){
 		hashChange();
 	}
+
+	$closeSidebar.onclick=function() {
+		flag('sidebar');
+	}
+	$openSidebar.onclick=function() {
+		flag('sidebar', true);
+	}
+
 }
 
 function hashChange(first) {
