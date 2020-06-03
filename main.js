@@ -47,13 +47,13 @@ function ready() {
 	}
 
 	$editorTextarea.oninput = function() {
-		updateEditorPreview();
+		updateEditorPreview(true);
 	}
 	$markupSelect.onchange = function() {
-		updateEditorPreview();
+		updateEditorPreview(true);
 	}
 	$markupUpdate.onclick = function() {
-		updateEditorPreview();
+		updateEditorPreview(false);
 	}
 
 	$submitEdit.onclick = submitEdit;
@@ -372,13 +372,13 @@ function replaceTree(root, tree) {
 	}
 }
 
-function updateEditorPreview() {
+function updateEditorPreview(preview) {
 	replaceTree($editorPreview, renderPageContents({
 		values: {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
-	}));
+	}, undefined, preview));
 }
 
 function generateAuthorBox(page, users) {

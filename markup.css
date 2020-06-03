@@ -80,3 +80,9 @@
 .markup-root iframe {
 	display: block;
 }
+
+.markup-root .preview {
+	background-color: black;
+	color: white;
+	width: 320px;
+}

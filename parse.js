@@ -25,6 +25,18 @@ Parse.options = {
 		child.parentNode.removeChild(child);
 	},
 
+	preview: {
+		video: function(url) {
+			
+		},
+		youtube: function(url) {
+			
+		},
+		audio: function(url) {
+			
+		}
+	},
+	
 	//========================
 	// nodes without children:
 	text: function(text) {
@@ -45,19 +57,37 @@ Parse.options = {
 		node.textContent = code;
 		return node;
 	},
-	audio: function(url) {
+	audio: function(url, preview) {
+		if (preview) {
+			var node = create('div');
+			node.className = "audioPreview preview";
+			node.textContent = "[audio preview]\n";
+			return node;
+		}
 		var node = create('audio');
 		node.setAttribute('controls', "");
 		node.setAttribute('src', url);
 		return node;
 	},
-	video: function(url) {
+	video: function(url, preview) {
+		if (preview) {
+			var node = create('div');
+			node.className = "videoPreview preview";
+			node.textContent = "[video preview]\n";
+			return node;
+		}
 		var node = create('video');
 		node.setAttribute('controls', "");
 		node.setAttribute('src', url);
 		return node;
 	},
-	youtube: function(url) {
+	youtube: function(url, preview) {
+		if (preview) {
+			var node = create('div');
+			node.className = "videoPreview preview";
+			node.textContent = "[youtube preview]\n";
+			return node;
+		}
 		var node = create('iframe');
 		var protocol = "https:";
 		if (window.location && window.location.protocol == "http:")
@@ -145,7 +175,7 @@ Parse.options = {
 	}
 }
 
-Parse.lang['12y'] = function(code) {
+Parse.lang['12y'] = function(code, preview) {
 	var options = Parse.options;
 	var output = options.root();
 	var curr = output;
@@ -291,7 +321,7 @@ Parse.lang['12y'] = function(code) {
 					var start = i;
 					if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
 						var url = readUrl();
-						startBlock(embed ? urlType(url) : 'link', {}, url);
+						startBlock(embed ? urlType(url) : 'link', {}, url, preview);
 						if (eatChar("["))
 							stack.top().inBrackets = true;
 						else {
@@ -481,7 +511,7 @@ Parse.lang['12y'] = function(code) {
 				else if (eatChar("["))
 					part2 = true;
 			}
-			startBlock(embed ? urlType(url) : 'link', {big: true}, url);
+			startBlock(embed ? urlType(url) : 'link', {big: true}, url, preview);
 			if (part2)
 				stack.top().inBrackets = true;
 			else {
@@ -668,7 +698,7 @@ Parse.lang['12y'] = function(code) {
 		return top && top.type == type;
 	}
 	
-	function startBlock(type, data, arg) {
+	function startBlock(type, data, arg, arg2) {
 		if (displayBlock[type]) {
 			/*if (lastLineBreak) {
 				options.remove(lastLineBreak);
@@ -677,7 +707,7 @@ Parse.lang['12y'] = function(code) {
 		}
 		data.type = type;
 		if (type) {
-			data.node = options[type](arg);
+			data.node = options[type](arg, arg2);
 			flushText();
 			options.append(curr, data.node);
 			curr = data.node;
@@ -730,7 +760,7 @@ Parse.lang['12y'] = function(code) {
 	}
 }
 
-Parse.lang.bbcode = function(code) {
+Parse.lang.bbcode = function(code, preview) {
 	var options = Parse.options;
 	var output = options.root();
 	var curr = output;
@@ -778,7 +808,7 @@ Parse.lang.bbcode = function(code) {
 			return options.code(contents, lang);
 		},
 		youtube: function(arg, args, contents) {
-			return options.youtube(contents);
+			return options.youtube(contents, preview);
 		},
 		img: function(arg, args, contents) {
 			return options.image(contents);
