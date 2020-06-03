@@ -386,7 +386,7 @@ function updateEditorPreview(preview) {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
-	}, $editorPreview, editorCache, );
+	}, $editorPreview, editorCache);
 }
 
 // "generate" functions operate implicitly on specific html elements, and should be in view.js
