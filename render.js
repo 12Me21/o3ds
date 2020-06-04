@@ -35,10 +35,12 @@ function userAvatar(user, cls, big) {
 	return img;
 }
 
-function textItem(text) {
+function textItem(text, cls) {
 	var s = document.createElement('span');
 	s.textContent = text;
 	s.className = 'textItem';
+	if (cls)
+		s.className += " "+cls;
 	return s;
 }
 
@@ -466,4 +468,20 @@ AutoScroller.prototype.embed = function(node) {
 	this.lastUidBlock = null;
 	if (s)
 		this.autoScroll();
+}
+
+function renderKeyInfo(key, data, element) {
+	element = element || document.createElement('span');
+	element.innerHTML = "";
+	
+	var icon = document.createElement('img');
+	icon.src = protocol()+"//sbapi.me/get/"+data.path+"/META/icon";
+	icon.className = "metaIcon";
+
+	element.appendChild(icon);
+	
+	element.appendChild(textItem(data.filename, "pre metaTitle"));
+	
+	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
+	return element;
 }

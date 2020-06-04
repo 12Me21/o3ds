@@ -365,7 +365,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					var row = top.row;
 					var table = top.row.table;
 					scan();
-					eatChar("\n");
+					var eaten = eatChar("\n");
 					//--------------
 					// | | next row
 					if (eatChar("|")) {
@@ -394,6 +394,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 								endBlock();
 							if (top_is('table')) //always
 								endBlock();
+							if (eaten)
+								addLineBreak();
 						} else { // next cell
 							endBlock();
 							startBlock('cell', {row:row}, row.header);
@@ -435,14 +437,14 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						while (c && c!="\n" && c!="`")
 							scan();
 						var language = code.substring(start, i).trim().toLowerCase();
-						eatChar("\n");
+						var eaten = eatChar("\n");
 						start = i;
 						i = code.indexOf("```", i);
 						addBlock(options.code(
 							code.substring(start, i!=-1 ? i : code.length),
 							language
 						));
-						skipNextLineBreak = true;
+						skipNextLineBreak = eaten;
 						if (i != -1) {
 							i += 2;
 							scan();
@@ -802,11 +804,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		}
 	}
 	function endBlock() {
-		flushText();
 		var node = stack.pop();
 		if (displayBlock[node.type]) {
 			skipNextLineBreak = true;
 		}
+		flushText();
 		var i=stack.length-1;
 		// this skips {} fake nodes
 		// it will always find at least the root <div> element I hope

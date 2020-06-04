@@ -23,6 +23,7 @@ function cleanUp() {
 	flag('myUserPage');
 	$messageList.innerHTML = "";
 	$authorBox.innerHTML = "";
+	$sbapiInfo.innerHTML = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
@@ -91,7 +92,8 @@ function fillEditorFields(page) {
 	$keywords.value = page.keywords.join(" ");
 	$permissions.value = JSON.stringify(page.permissions);
 	$editPageType.value = page.type;
-	generatePath(makeCategoryPath(me.categoryTree, page.parentId, page.name ? page : undefined));
+	
+	generatePagePath(page, me.userCache); //usercache is hack lol
 }
 
 function readEditorFields(page) {
@@ -151,6 +153,18 @@ function attr(element, attr, value) {
 		element.setAttribute(attr, value);
 }
 
+function generatePagePath(page, users) {
+	// user page (at root)
+	if (page.type == "@user.page" && !page.parentId) {
+		var creator = users[page.createUserId];
+		generatePath([["#users","Users"], ["#user/"+creator.id, creator.username], ["#pages/"+page.id, page.name]]);
+	} else if (page.id) {
+		generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
+	} else {
+		generatePath(makeCategoryPath(me.categoryTree, page.parentId));
+	}
+}
+
 function generatePageView(id, callback) {
 	loadStart();
 	me.getPage(id, function(page, users, comments){
@@ -159,8 +173,8 @@ function generatePageView(id, callback) {
 		generateAuthorBox(page, users);
 		visible($pageEditButton, page);
 		if (page) {
+			generatePagePath(page, users);
 			currentPage = page.id;
-			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 			setTitle("\uD83D\uDCC4 " + page.name);
 			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
@@ -173,6 +187,34 @@ function generatePageView(id, callback) {
 				window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
 				attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "" : undefined);
 			});
+
+			var photos = page.values.photos;
+			visible($gallery, photos);
+			if (photos) {
+				photos = photos.split(",").map(function(x){return +x});
+				$galleryImage.src = me.fileUrl(photos[0]);
+			}
+			var keyinfo = parseJSON(page.values.keyinfo);
+			var key = page.values.key;
+			var supported = parseJSON(page.values.supported);
+			flag('hasKey', !!key);
+			
+			if (key) {
+				$metaKey.textContent = key;
+				$metaKey.className = "metaKey textItem";
+				
+				sbapi(key, function(data) {
+					if (!data) {
+						$metaKey.className += " invalidKey";
+					} else if (!data.available) {
+						$metaKey.className += " brokenKey";
+					}
+					renderKeyInfo(key, data, $sbapiInfo)
+				})
+			} else {
+				$metaKey.textContent = "";
+				$sbapiInfo.innerHTML = "";
+			}
 		} else {
 			currentPage = null;
 			setTitle("Page not found");
@@ -181,6 +223,22 @@ function generatePageView(id, callback) {
 		}
 		callback();
 	});
+}
+
+function protocol() {
+	if (window.location.protocol == "http:")
+		return "http:";
+	return "https:";
+}
+
+function parseJSON(json) {
+	if (!json)
+		return undefined;
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		return null;
+	}
 }
 
 function megaAggregate(activity, ca, contents) {
@@ -269,9 +327,11 @@ function generateUserView(id, callback) {
 }
 
 function generateChatView(id, callback) {
+	cleanUp();
 	// todo: make this work when logged out
 	// use a normal request at first and then switch on the long poller IF logged in
 	lp.callback = function(comments, listeners, userMap, page) {
+		console.log("got callback", comments, listeners, userMap, page);
 		if (page && page.id == id) {
 			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 			generateAuthorBox(page, userMap);
@@ -302,7 +362,7 @@ function generateChatView(id, callback) {
 			scroller.autoScroll(true);
 		}
 	}
-	lp.addRoom(id);
+	lp.addRoom(+id);
 }
 
 function displayMessage(c, user) {
@@ -407,4 +467,27 @@ function generateRegisterView(idk, callback) {
 	generatePath();
 	$pageTitle.textContent = "Create an account";
 	callback();
+}
+
+function sbapi(key, callback) {
+	var x = new XMLHttpRequest();
+	x.open('GET', protocol()+"//sbapi.me/get/"+key+"/info?json=1");
+	x.onload = function() {
+		var code = x.status;
+		if (code == 200) {
+			var resp = null;
+			try {
+				resp = JSON.parse(x.responseText);
+			} catch(e) {
+			}
+			callback(resp);
+		} else {
+			callback(null);
+		}
+	}
+	x.onerror = function() {
+		callback(null);
+	}
+	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
+	x.send();
 }

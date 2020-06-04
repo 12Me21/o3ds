@@ -150,19 +150,16 @@ function ready() {
 			}
 		});
 	}
-
-	$settingsAvatarUpload.onchange = function() {
-		var reader = new FileReader();
-		uploadedAvatar = new FormData();
-		uploadedAvatar.append('file', this.files[0]);
-	};
-
+	
 	//todo: when avatar changes, update internal cache and whatever
 	// need to especially change the avatar in the corner of the screen
 	// aaaaaaa eventssss
 	$settingsAvatarSubmit.onclick = function() {
-		if (uploadedAvatar) {
-			me.uploadFile(uploadedAvatar, function(e, resp) {
+		if ($settingsAvatarUpload.files.length) {
+			var reader = new FileReader();
+			var form = new FormData();
+			form.append('file', $settingsAvatarUpload.files[0], "test.png");
+			me.uploadFile(form, function(e, resp) {
 				if (!e) {
 					me.setBasic({avatar:resp.id},console.log);
 				}

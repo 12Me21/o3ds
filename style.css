@@ -281,6 +281,17 @@ main {
 	width: 2.3rem;
 }
 
+.px40 {
+}
+.px40 .item {
+	height: 40px;
+	line-height: 40px;
+}
+.px40 .textItem {
+	min-height: 40px;
+	line-height: 40px;
+}
+
 /***************
  ** Page Pane **
  ***************/
@@ -395,7 +406,7 @@ main {
 	flex-grow: 1;
 	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
-	overflow-y: scroll;
+	overflow-y: auto;
 	-webkit-flex-basis: 0;
 	flex-basis: 0;
 	min-height: 10rem;
@@ -610,4 +621,55 @@ html:not(.f-myUserPage) .myUserPage {
 	.userPageBox {
 		max-height: none;
 	}
+}
+
+.pageInfoPane {
+	background-color: #EEE;
+	overflow: auto;
+}
+
+.pageMetaIcon {
+	width: 40px;
+	height: 40px;
+}
+
+.html:not(.f-hasKey) .hasKey {
+	display: none;
+}
+
+.metaKey.brokenKey .metaKey.invalidKey {
+	text-decoration: line-through;
+}
+
+.metaKey {
+	font-family: consolas;
+	font-weight: bold;
+	font-size: 1.3rem;
+	margin: 0 0.5rem;
+}
+
+.metaTitle {
+	font-family: consolas;
+	margin: 0 0.3rem;
+}
+
+.gallery {
+	width: 20rem;
+	height: 10rem;
+	display: inline-block;
+	float: left;
+}
+
+.gallery img {
+	max-height: 100%;
+	max-width: 16rem;
+}
+
+.gallery button {
+	height: 100%;
+	width: 2rem;
+}
+
+.metaInfo {
+	display: inline;
 }
