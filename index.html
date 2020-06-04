@@ -2,12 +2,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="icon" sizes="16x16" href="favicon.ico?a"> <!-- compatibility -->
-<link rel="shortcut icon" sizes="16x16" href="favicon.png?a"> <!-- firefox -->
-<link rel="icon" sizes="32x32" href="icon32.png?a"> <!-- chrome -->
-<link rel="icon" sizes="192x192" href="fav-big.png?b"> <!-- large -->
-<link rel="apple-touch-icon" href="fav-big.png?b"> <!-- large 2 -->
-<link rel="image_src" href="fav-big.png?b"> <!-- large 3 -->
+<link rel="icon" sizes="16x16" href="images/icon16.ico?a"> <!-- compatibility -->
+<link rel="shortcut icon" sizes="16x16" href="images/icon16.png?a"> <!-- firefox -->
+<link rel="icon" sizes="32x32" href="images/icon32.png?a"> <!-- chrome -->
+<link rel="icon" sizes="192x192" href="images/iconbig.png?a"> <!-- large -->
+<link rel="apple-touch-icon" href="images/iconbig.png?a"> <!-- large 2 -->
+<link rel="image_src" href="images/iconbig.png?a"> <!-- large 3 -->
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
@@ -57,7 +57,7 @@
 		<span id="$navPane" class="path textItem"></span>
 
 		<span class="rightAlign textItem">
-			<button id="$openSidebar" class="item">|||</button><!--<button id="$reload" class="item">Reload</button>--><!--<input id="$search" placeholder="Search" class="item">--><div class="loggedIn textItem" id="$loggedIn"><a class="textItem userLink" id="$myUserLink"><span class="myName username textItem" id="$myName" class="item"></span><img class="myAvatar item avatar" id="$myAvatar"></a></div>
+			<button id="$openSidebar" class="item">|||</button><!--<button id="$reload" class="item">Reload</button>--><!--<input id="$search" placeholder="Search" class="item">--><div class="loggedIn textItem" id="$loggedIn"><a class="item userLink" id="$myUserLink"><span class="myName username textItem" id="$myName" class="item"></span><img class="myAvatar item avatar" id="$myAvatar"></a></div>
 		</span>
 	</nav>
 
@@ -124,7 +124,12 @@
 
 				<div class="userActivity userMode" id="$userActivity"></div>
 
-				<div class="pageInfoPane pageChatMode" id="$pageInfoPane">
+				<div class="pageInfoPane pageMode px40" id="$pageInfoPane">
+					<span id="$gallery" class="gallery" style="display:none;"><button id="$galleryPrev" class="galleryButton">&lt;</button><img id="$galleryImage"><button id="$galleryNext" class="galleryButton rightAlign">&gt;</button></span>
+					<span class="metaInfo">
+						<span id="$metaKey" class="textItem"></span>
+						<span id="$sbapiInfo" class="textItem"></span>
+					</span>
 					<!-- here we can put
 						  tags, type, sb key info, etc.
 					  -->
