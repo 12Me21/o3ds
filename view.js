@@ -433,9 +433,9 @@ function displayMessage(c, user) {
 function generateCategoryView(id, callback) {
 	var users2;
 	function handlePinned(pinned) {
-		console.log("Got pinned",pinned);
+		$categoryPinned.innerHTML = "";
 		pinned.forEach(function(content) {
-			$categoryCategories.appendChild(renderCategoryPage(content, users2, true));
+			$categoryPinned.appendChild(renderCategoryPage(content, users2, true));
 		});
 	}
 	
@@ -447,6 +447,7 @@ function generateCategoryView(id, callback) {
 		$categoryPages.innerHTML = "";
 		$categoryCategories.innerHTML = "";
 		$categoryDescription.textContent = "";
+		$categoryPinned.innerHTML = "";
 		flag('canEdit', !!category);
 		if (category) {
 			$editButton.href = "#categories/edit/"+category.id;
@@ -465,6 +466,14 @@ function generateCategoryView(id, callback) {
 			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
 			if (pinned)
 				handlePinned(pinned);
+			else if (category.values.pinned) {
+				category.values.pinned.split(",").forEach(function(x) {
+					$categoryPinned.appendChild(renderCategoryPage({
+						id: +x,
+						name: ""
+					}, users, true));
+				});
+			}
 		} else {
 			generatePath();
 			$categoryCreatePage.href = ""

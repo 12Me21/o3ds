@@ -404,6 +404,7 @@ Myself.prototype.getCategories = function(callback) {
 var rootCategory = {
 	name: "[root]",
 	id: 0,
+	values: {},
 }
 
 // get the pages in a category
@@ -460,8 +461,9 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 					category = cat;
 			});
 			var pages = resp.content;
-			if (req2) {
-				var values = $.categoryTree.map[id].values;
+			//if (req2) {
+			if (id) {
+				var values = category.values;
 				if (values.pinned) {
 					pinned = values.pinned.split(",").map(function(x){return +x});
 					$.readSimple("Content"+queryString({ids: pinned}), 'content', function(e, resp) {
@@ -470,7 +472,9 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 						}
 					});
 				}
-			} else if (pinned) {
+			}
+			//}
+			if (pinned) {
 				var pinnedPages = [];
 				var real = [];
 				pages.forEach(function(page) {
@@ -480,8 +484,17 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 						real.push(page);
 					}
 				});
-				pages = real;
+				//pages = real;
 			}
+			if (req2)
+				pinnedPages = null; //nO
+			// so here's an idea.
+			// with the first request, we get some pages, right
+			// our pinned pages MAY be included in there, depending on
+			// what info we knew, and if any were in the search.
+			// so, even if we couldn't specifically request the pinned pages,
+			// we still might get some! and can return that info, perhaps..
+			
 			if (id==0) {
 				$.cb(callback, rootCategory, childs, pages, resp.userMap, pinnedPages);
 			} else if (category)
@@ -714,7 +727,6 @@ Myself.prototype.getUserPage = function(id, callback) {
 	], {
 	}, function(e, resp) {
 		if (!e) {
-			console.log("user page",resp);
 			var user = resp.userMap[id];
 			// ugh need to make
 			// content map now
@@ -737,7 +749,7 @@ Myself.prototype.getUserPage = function(id, callback) {
 }
 
 function buildCategoryTree(categories) {
-	var root = {childs: [], id: 0, name: "[root]"};
+	var root = {childs: [], id: 0, name: "[root]", values: {}};
 	var orphans = [];
 	var map = {
 		'0': root
