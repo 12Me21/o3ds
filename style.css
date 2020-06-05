@@ -94,10 +94,6 @@ body {
 	background-color: white;
 }
 
-body > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
-	border-top: 1px solid gray;
-}
-
 /* most elements will be fixed-height, and should never shrink */
 body > * {
 	-webkit-flex-shrink: 0;
@@ -192,6 +188,7 @@ html.f-loggedIn .loggedOut {
 .titlePane {
 	background-color: #DDD;
 	padding: 0 0.5rem;
+	border-bottom: 1px solid gray;
 }
 
 .titlePane .userLink img {
@@ -250,7 +247,7 @@ main {
 	padding-left: 0.4rem;
 }
 .categoryPage, .categoryDescription, .member {
-	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 }
 .categoryPage .username {
 	padding: 0 0.4rem;
@@ -414,7 +411,7 @@ main {
 	overflow-y: auto;
 	-webkit-flex-basis: 0;
 	flex-basis: 0;
-	min-height: 10rem;
+	min-height: 4rem;
 }
 
 .editorTextarea > textarea {
@@ -445,7 +442,7 @@ main {
 
 .listItem {
 	background-color: #EEE;
-	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 	padding: 0 0.2rem;
 }
 
@@ -461,6 +458,7 @@ main {
 	flex-direction: row;
 	max-height: 40vh;
 	overflow: auto;
+	border-bottom: 1px solid gray;
 	/* todo: make this outside of scroller and have activity list scroll separately*/
 }
 
@@ -531,10 +529,6 @@ img.item {
 
 .iframe {
 	border: 1px solid red;
-}
-
-.bottomSpacer {
-	border-top: 1px solid gray;
 }
 
 .sideBarContainer {
@@ -622,6 +616,7 @@ html:not(.f-myUserPage) .myUserPage {
 	/* smaller editor text area */
 	.editorTextarea textarea {
 		height: 20vh;
+
 	}
 	.userPageBox {
 		max-height: none;
@@ -677,4 +672,12 @@ html:not(.f-myUserPage) .myUserPage {
 
 .metaInfo {
 	display: inline;
+}
+
+.categoryNav {
+	border-top: 1px solid gray;
+}
+
+.memberNav {
+	border-bottom: 1px solid gray;
 }
