@@ -96,14 +96,17 @@ function renderAuthorBox(page, users, element) {
 	}
 }
 
-function renderCategoryPage(page, users) {
+function renderCategoryPage(page, users, pinned) {
 	var user = users[page.createUserId];
 	var div = document.createElement('a');
 	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage bar rem2-3";
 	var title = document.createElement('span');
 	title.className = "categoryPageTitle textItem";
-	title.textContent = "\uD83D\uDCC4 " + page.name;
+	if (pinned)
+		title.textContent = "\uD83D\uDCCC " + page.name;
+	else
+		title.textContent = "\uD83D\uDCC4 " + page.name;
 	div.appendChild(title);
 	if (user) {
 		var right = renderUserLink(user, true);

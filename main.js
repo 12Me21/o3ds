@@ -62,6 +62,7 @@ function ready() {
 	}
 
 	$submitEdit.onclick = submitEdit;
+	$cateditSubmit.onclick = cateditSubmit;
 	$deletePage.onclick = deletePage;
 	
 	$chatSend.onclick = function() {
@@ -250,8 +251,7 @@ function navigateTo(path, first, callback) {
 		if (path[1] == "edit") {
 			first && ($main.className = 'editMode');
 			if (path[2]) {
-				path[2] = path[2].split(/[&?]/g);
-				id = +(path[2][0]);
+				id = +(path[2]);
 			} else {
 				id = undefined;
 			}
@@ -261,8 +261,18 @@ function navigateTo(path, first, callback) {
 			generatePageView(id, callback);
 		}
 	} else if (type == "categories") {
-		first && ($main.className = 'categoryMode');
-		generateCategoryView(id, callback);
+		if (path[1] == 'edit') {
+			first && ($main.className = 'cateditMode');
+			if (path[2]) {
+				id = +(path[2]);
+			} else {
+				id = undefined;
+			}
+			generateCateditView(id, queryVars, callback);
+		} else {
+			first && ($main.className = 'categoryMode');
+			generateCategoryView(id, callback);
+		}
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
 		generateUserView(id, callback);
@@ -332,6 +342,17 @@ function submitEdit() {
 			alert("ERROR");
 		} else {
 			window.location.hash = "#pages/"+resp.id;
+		}
+	});
+}
+
+function cateditSubmit() {
+	readCateditFields(editingCategory);
+	me.postCategory(editingCategory, function(e, resp) {
+		if (e) {
+			alert("ERROR");
+		} else {
+			window.location.hash = "#categories/"+resp.id;
 		}
 	});
 }

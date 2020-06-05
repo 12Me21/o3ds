@@ -21,6 +21,7 @@ var uploadedAvatar;
 // clean up stuff whenever switching pages
 function cleanUp() {
 	flag('myUserPage');
+	flag('canEdit');
 	$messageList.innerHTML = "";
 	$authorBox.innerHTML = "";
 	$sbapiInfo.innerHTML = "";
@@ -92,6 +93,7 @@ function fillEditorFields(page) {
 	$keywords.value = page.keywords.join(" ");
 	$permissions.value = JSON.stringify(page.permissions);
 	$editPageType.value = page.type;
+	$editPageCategory.value = page.parentId;
 	
 	generatePagePath(page, me.userCache); //usercache is hack lol
 }
@@ -103,6 +105,7 @@ function readEditorFields(page) {
 	page.permissions = JSON.parse($permissions.value);
 	page.type = $editPageType.value;
 	page.content = $editorTextarea.value;
+	page.parentId = +$editPageCategory.value;
 }
 
 // call this function with no `id` to create a new page
@@ -135,6 +138,53 @@ function generateEditorView(id, query, callback) {
 		fillEditorFields(editingPage);
 		callback();
 	}
+}
+
+function newCategory(query) {
+	return {
+		parentId: +query.cid || 0,
+		name: "untitled",
+		values: {},
+		permissions: {
+			0: "cr"
+		},
+		description: ""
+	};
+}
+
+function fillCateditFields(cat) {
+	$cateditTitle.value = cat.name;
+	var pinned = cat.values.pinned || "";
+	$cateditPinned.value = pinned;
+	$cateditCategory.value = cat.parentId;
+	$cateditPermissions.value = JSON.stringify(cat.permissions);
+	$cateditDescription.value = cat.description;
+	generatePath(makeCategoryPath(me.categoryTree, cat.id));
+}
+
+function readCateditFields(cat) {
+	cat.name = $cateditTitle.value;
+	cat.values.pinned = $cateditPinned.value;
+	cat.parentId = +$cateditCategory.value;
+	cat.permissions = parseJSON($cateditPermissions.value);
+	cat.description = $cateditDescription.value;
+}
+
+var editingCategory;
+function generateCateditView(id, query, callback) {
+	me.getCategoryForEditing(id, function(cat) {
+		cleanUp();
+		$main.className = 'cateditMode';
+		if (cat) {
+			setTitle("Editing Category:");
+			editingCategory = cat;
+		} else {
+			setTitle("Creating Category:");
+			editingCategory = newCategory(query);
+		}
+		fillCateditFields(editingCategory);
+		callback();
+	});
 }
 
 function generateHomeView(idk, callback) {
@@ -171,7 +221,7 @@ function generatePageView(id, callback) {
 		cleanUp();
 		$main.className = "pageMode";
 		generateAuthorBox(page, users);
-		visible($pageEditButton, page);
+		flag('canEdit', !!page);
 		if (page) {
 			generatePagePath(page, users);
 			currentPage = page.id;
@@ -179,7 +229,7 @@ function generatePageView(id, callback) {
 			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
 			renderPageContents(page, $pageContents)
-			$pageEditButton.href = "#pages/edit/"+page.id;
+			$editButton.href = "#pages/edit/"+page.id;
 			$voteCount_b.textContent = page.about.votes.b.count;
 			$voteCount_o.textContent = page.about.votes.o.count;
 			$voteCount_g.textContent = page.about.votes.g.count;
@@ -286,12 +336,11 @@ function generateUserView(id, callback) {
 		$userPageAvatar.src = "";
 		$userActivity.innerHTML = "";
 		if (page) {
-			$pageEditButton.href = "#pages/edit/"+page.id;
+			$editButton.href = "#pages/edit/"+page.id;
+			flag('canEdit', true);
 		} else if (id == me.uid) {
-			$pageEditButton.href = "#pages/edit?type=@user.page&name=User Page";
-		} else {
-			//todo: hide
-			$pageEditButton.removeAttribute('href');
+			$editButton.href = "#pages/edit?type=@user.page&name=User Page";
+			flag('canEdit', true);
 		}
 		if (user) {
 			generatePath([["#users","Users"], ["#user/"+id, user.username]]);
@@ -382,14 +431,25 @@ function displayMessage(c, user) {
 }
 
 function generateCategoryView(id, callback) {
-	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
+	var users2;
+	function handlePinned(pinned) {
+		console.log("Got pinned",pinned);
+		pinned.forEach(function(content) {
+			$categoryCategories.appendChild(renderCategoryPage(content, users2, true));
+		});
+	}
+	
+	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users, pinned) {
+		users2 = users;
 		cleanUp();
 		$main.className = 'categoryMode';
 		
 		$categoryPages.innerHTML = "";
 		$categoryCategories.innerHTML = "";
 		$categoryDescription.textContent = "";
+		flag('canEdit', !!category);
 		if (category) {
+			$editButton.href = "#categories/edit/"+category.id;
 			contentz.reverse();
 			generatePath(makeCategoryPath(me.categoryTree, category.id));
 			setTitle("\uD83D\uDCC1 "+category.name);
@@ -403,6 +463,8 @@ function generateCategoryView(id, callback) {
 			});
 			$categoryPages.style.display="";
 			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
+			if (pinned)
+				handlePinned(pinned);
 		} else {
 			generatePath();
 			$categoryCreatePage.href = ""
@@ -410,7 +472,7 @@ function generateCategoryView(id, callback) {
 			setTitle("Category not found");
 		}
 		callback();
-	});
+	}, handlePinned);
 }
 
 function generateMembersView(idk, callback) {
@@ -441,8 +503,10 @@ function generateActivityView(query, callback) {
 			var last = {};
 			$activity.innerHTML = "";
 			megaAggregate(activity, ca, pages).forEach(function(activity){
-				if (activity.type != "content") //idk, category?
+				if (activity.type != "content") {//idk, category?
+					console.log("non-content", activity);
 					return;
+				}
 				if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
 					if (activity.content) {
 						if (activity.userId instanceof Array)

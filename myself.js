@@ -407,7 +407,7 @@ var rootCategory = {
 }
 
 // get the pages in a category
-Myself.prototype.getCategory = function(id, count, start, sort, reverse, callback) {
+Myself.prototype.getCategory = function(id, count, start, sort, reverse, callback, pinnedCallback) {
 	id=+id;
 	var $=this;
 	var search = {
@@ -424,14 +424,30 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 		var childCategorysFilter = {parentIds: [id]};
 	else
 		childCategorysFilter = {};
-	$.read([
+	var reading = [
 		{content: search},
 		{category: {ids: [id]}},
 		{category: childCategorysFilter},
 		"user.0createUserId"
-	], {
+	];
+	
+	var pinned, req2;
+	if (id) {
+		if ($.categoryTree) {
+			var values = $.categoryTree.map[id].values;
+			if (values.pinned) {
+				pinned = values.pinned.split(",").map(function(x){return +x});
+				reading[3] = {content: {ids: pinned}};
+				reading[4] = "user.0createUserId.3createUserId";
+			}
+		} else {
+			req2 = true;
+		}
+	}
+	
+	$.read(reading, {
 		content: "id,name,parentId,createUserId,editDate",
-		category: "id,name,description,parentId",
+		/*category: "id,name,description,parentId,values",*/
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
@@ -443,12 +459,35 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 				if (cat.id == id)
 					category = cat;
 			});
+			var pages = resp.content;
+			if (req2) {
+				var values = $.categoryTree.map[id].values;
+				if (values.pinned) {
+					pinned = values.pinned.split(",").map(function(x){return +x});
+					$.readSimple("Content"+queryString({ids: pinned}), 'content', function(e, resp) {
+						if (!e) {
+							pinnedCallback(resp)
+						}
+					});
+				}
+			} else if (pinned) {
+				var pinnedPages = [];
+				var real = [];
+				pages.forEach(function(page) {
+					if (pinned.indexOf(page.id)!=-1)
+						pinnedPages.push(page);
+					else {
+						real.push(page);
+					}
+				});
+				pages = real;
+			}
 			if (id==0) {
-				$.cb(callback, rootCategory, childs, resp.content, resp.userMap);
+				$.cb(callback, rootCategory, childs, pages, resp.userMap, pinnedPages);
 			} else if (category)
-				$.cb(callback, category, childs, resp.content, resp.userMap);
+				$.cb(callback, category, childs, pages, resp.userMap, pinnedPages);
 			else
-				$.cb(callback, null, childs, resp.content, resp.userMap);
+				$.cb(callback, null, childs, pages, resp.userMap, pinnedPages);
 		}
 	});
 }
@@ -469,6 +508,34 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 					$.cb(callback, page, resp.userMap);
 				else
 					$.cb(callback, null, {});
+			}
+		});
+	} else {
+		if ($.categoryTree) {
+			$.cb(callback, null, {});
+		} else {
+			this.readSimple("Category", 'category', function(e, resp) {
+				$.categoryTree = buildCategoryTree(resp);
+				$.cb(callback, null, {});
+			});
+		}
+	}
+}
+
+Myself.prototype.getCategoryForEditing = function(id, callback) {
+	var $=this;
+	if (id) {
+		id = +id;
+		$.read([
+			{category: {ids: [id]}},
+		], {
+		}, function(e, resp) {
+			if (!e) {
+				var cat = resp.category[0];
+				if (cat)
+					$.cb(callback, cat);
+				else
+					$.cb(callback, null);
 			}
 		});
 	} else {
@@ -509,6 +576,14 @@ Myself.prototype.postPage = function(page, callback) {
 		this.request("Content/"+page.id, 'PUT', callback, page);
 	} else {
 		this.request("Content", 'POST', callback, page);
+	}
+}
+
+Myself.prototype.postCategory = function(cat, callback) {
+	if (cat.id) {
+		this.request("Category/"+cat.id, 'PUT', callback, cat);
+	} else {
+		this.request("Category", 'POST', callback, cat);
 	}
 }
 
@@ -606,15 +681,17 @@ Myself.prototype.getActivity = function(page, callback) {
 	var $=this;
 	var day = 1000*60*60*24
 	var start = new Date(Date.now() - day*(page+1)).toISOString();
+	// "except no that won't work if site dies lol"
 	var end = new Date(Date.now() - day*page).toISOString();
-	$.read([
-		//todo: this should just get an entire day??
-		// except no that won't work if site dies lol
+	var reading = [
 		{activity: {createStart: start, createEnd: end}},
 		{commentaggregate: {createStart: start, createEnd: end}},
 		"content.0contentId.1id",
 		"user.0userId.1userIds"
-	], {
+	]
+	/*if ($.categoryTree)
+		reading.push("category.0contentId");*/
+	$.read(reading, {
 		content: "name,id"
 	},function(e, resp) {
 		if (!e) {
@@ -666,12 +743,13 @@ function buildCategoryTree(categories) {
 		'0': root
 	};
 	root.map = map;
-	categories.forEach(function(cat) {
-		cat.childs = [];
-		map[cat.id] = cat;
+	categories = categories.map(function(cat) {
+		var n = Object.assign({}, cat); //copy
+		n.childs = [];
+		map[n.id] = n;
+		return n
 	});
 	categories.forEach(function(cat) {
-		//cat = Object.assign({}, cat); //copy
 		if (cat.parentId < 0)
 			cat.parentId = 0;
 		var parent = map[cat.parentId];

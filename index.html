@@ -11,23 +11,23 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?I">
+<link rel="stylesheet" href="style.css?J">
 <link rel="stylesheet" href="markup.css?k">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?y"></script>
+<script src="myself.js?z"></script>
 
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?s"></script>
 
-<script src="render.js?w"></script>
-<script src="view.js?s"></script>
-<script src="main.js?K"></script>
+<script src="render.js?x"></script>
+<script src="view.js?t"></script>
+<script src="main.js?L"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 	  THere is a lot of repeated stuff
@@ -46,7 +46,7 @@
 	  perhaps make the main page have a min height of like 600px and the viewport scrolls inside that? idk
   -->
 <!--END-->
-<title>DAVE'S SHIT HOLE</title>
+<title>title</title>
 
 <body class="pageMode" id="$main">
 	<!--
@@ -65,8 +65,12 @@
 		<h1 class="pageTitle textItem pre" id="$pageTitle"></h1>
 		<a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><button id="$logout" class="textItem loggedIn myUserPage">Log Out</button>
 		<input class="item editorMode" id="$titleInput" placeholder="Page Title" required>
+		<input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required>
 		<span class="editorMode textItem">
 			<button id="$submitEdit" class="item">Submit</button><div class="textItem"></div>
+		</span>
+		<span class="cateditMode textItem">
+			<button id="$cateditSubmit" class="item">Submit</button><div class="textItem"></div>
 		</span>
 		<span class="textItem pageMode" id="$voteBox"><button id="$voteButton_b" class="item voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button><button id="$voteButton_o" class="item voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button><button id="$voteButton_g" class="item voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></span>
 		<label for="$watchCheck" class="textItem pageMode">Watching:</label>
@@ -74,7 +78,7 @@
 
 		<div class="pageCreate textItem rightAlign">
 			<button id="$deletePage" class="item editorMode">DELETE</button>
-			<a class="textItem pageUserMode" id="$pageEditButton"><button class="item" tabindex="-1">Edit</button></a>
+			<a class="textItem canEdit" id="$editButton"><button class="item" tabindex="-1">Edit</button></a>
 			<span class="textItem" id="$authorBox"></span>
 		</div>
 	</header>
@@ -86,6 +90,7 @@
 			<div class="infoPane editorMode">
 				<label for="$keywords">Keywords:</label><input placeholder="(space separated, optional)" id="$keywords"><br>
 				<label for="$editPageType">Type:</label><input placeholder="@" id="$editPageType"><br>
+				<label for="$editPageCategory">Category id:</label><input type="number" placeholder="id" id="$editPageCategory"><br>
 				<label for="$permissions">Permissions:</label><input id="$permissions"><br>
 				<label for="$markupSelect">Markup language:</label>
 				<select id="$markupSelect">
@@ -114,6 +119,13 @@
 			  -->
 			
 			<main>
+				<div class="cateditMode">
+					<label for="$cateditPinned">Pinned pages:</label><input id="$cateditPinned"><br>
+					<label for="$cateditCategory">Parent category:</label><input id="$cateditCategory" type="number"><br>
+					<label for="$cateditPermissions">Permissions:</label><input id="$cateditPermissions"><br>
+					<textarea id="$cateditDescription"></textarea><br>
+				</div>
+				
 				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div class="categoryMode categoryNav">

@@ -115,6 +115,7 @@ body:not(.membersMode) .membersMode,
 body:not(.registerMode) .registerMode,
 body:not(.settingsMode) .settingsMode,
 body:not(.activityMode) .activityMode,
+body:not(.cateditMode) .cateditMode,
 body:not(.userMode):not(.pageMode) .pageUserMode,
 body:not(.chatMode):not(.pageMode) .pageChatMode,
 body:not(.homeMode) .homeMode {
@@ -131,6 +132,10 @@ body:not(.homeMode) .homeMode {
 
 html.f-loading .headerPane {
 	background-color: #008;
+}
+
+html:not(.f-canEdit) .canEdit {
+	display: none;
 }
 
 html.f-error .headerPane {
