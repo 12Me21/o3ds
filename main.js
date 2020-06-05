@@ -180,9 +180,17 @@ function ready() {
 	$openSidebar.onclick = $closeSidebar.onclick = toggleSidebar;
 }
 
+function isSmallScreen() {
+	
+}
+
 function toggleSidebar() {
-	flag('sidebar', !flags.sidebar);
-	localStorage.setItem('sbs-sidebar', flags.sidebar);
+	if (window.matchMedia("(max-width: 700px)").matches) {
+		flag('mobileSidebar', !flags.mobileSidebar);
+	} else {
+		flag('sidebar', !flags.sidebar);
+		localStorage.setItem('sbs-sidebar', flags.sidebar);
+	}
 }
 
 var currentPath = null;

@@ -449,12 +449,17 @@ function generateCategoryView(id, callback) {
 		$categoryDescription.textContent = "";
 		$categoryPinned.innerHTML = "";
 		flag('canEdit', !!category);
+		visible($categoryDescription, category && category.id);
 		if (category) {
 			$editButton.href = "#categories/edit/"+category.id;
 			contentz.reverse();
 			generatePath(makeCategoryPath(me.categoryTree, category.id));
 			setTitle("\uD83D\uDCC1 "+category.name);
-			$categoryDescription.textContent = category.description;
+			if (category.id)
+				renderPageContents({
+					content: category.description,
+					values: category.values
+				}, $categoryDescription);
 			childs.forEach(function(cat) {
 				$categoryCategories.appendChild(renderCategory(cat, users));
 			});

@@ -83,3 +83,27 @@
 	width: 320px;
 	max-height: none;
 }
+
+.cell[data-bgcolor="red"] {
+	background-color: #FCC;
+}
+
+.cell[data-bgcolor="green"] {
+	background-color: #CFC;
+}
+
+.cell[data-bgcolor="yellow"] {
+	background-color: #FFC;
+}
+
+.cell[data-bgcolor="orange"] {
+	background-color: #FEC;
+}
+
+.cell[data-bgcolor="blue"] {
+	background-color: #DEF;
+}
+
+.cell[data-bgcolor="gray"] {
+	background-color: #DDD;
+}

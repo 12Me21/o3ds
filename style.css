@@ -478,6 +478,12 @@ main {
 .categoryNav {
 	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
+	border-bottom: 1px solid gray;
+	background-color: #333;
+}
+
+.categoryNav > span {
+	color: white;
 }
 
 .loginField {
@@ -580,9 +586,8 @@ html:not(.f-myUserPage) .myUserPage {
 	}
 }*/
 
-/* for devices with small screens */
-@media (max-width: 700px), (max-height: 500px) {
-	/* make sidebar fill screen */
+/* narrow screen: fullscreen sidebar */
+@media (max-width: 700px) {
 	.sideBar {
 		width: 100%;
 		height: 100%;
@@ -591,13 +596,19 @@ html:not(.f-myUserPage) .myUserPage {
 		right: 0;
 		left: 0;
 		border-left: none;
+		transform: none;
 	}
-	html:not(.f-sidebar) .sideBar {
-		margin-left: 0;
+	html:not(.f-mobileSidebar) .sideBar {
+		-webkit-transform: translateX(100%);
+		transform: translateX(100%);
 	}
 	.m {
 		width: 100%;
 	}
+}
+
+/* for devices with small screens */
+@media (max-width: 700px), (max-height: 500px) {
 
 	/* make the entire page scroll */
 	/* todo: make chat mode work better here */
@@ -675,7 +686,7 @@ html:not(.f-myUserPage) .myUserPage {
 }
 
 .categoryNav {
-	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 }
 
 .memberNav {

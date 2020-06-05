@@ -11,8 +11,8 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?K">
-<link rel="stylesheet" href="markup.css?k">
+<link rel="stylesheet" href="style.css?L">
+<link rel="stylesheet" href="markup.css?l">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="event.js?a"></script>
@@ -23,11 +23,11 @@
 <script src="lp.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
-<script src="parse.js?s"></script>
+<script src="parse.js?t"></script>
 
 <script src="render.js?x"></script>
-<script src="view.js?u"></script>
-<script src="main.js?L"></script>
+<script src="view.js?v"></script>
+<script src="main.js?M"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 	  THere is a lot of repeated stuff
@@ -100,7 +100,7 @@
 				</select><button id="$markupUpdate">Update Preview</button>
 			</div>
 
-			<div class="activityMode categoryNav">
+			<div class="activityMode categoryNav rem1-7">
 				<span class="textItem"><a id="$activityPagePrev"><button class="item">&lt;</button></a><a id="$activityPageNext"><button class="item">&gt;</button></a><span class="textItem" id="$activityPageNumber"></span></span>
 			</div>
 			
@@ -129,7 +129,7 @@
 				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div id="$categoryPinned" class="categoryMode"></div>
-				<div class="categoryMode categoryNav">
+				<div class="categoryMode categoryNav rem1-7">
 					<span class="textItem"><button id="$categoryPagesPrev" class="item">&lt;</button><button id="$categoryPagesNext" class="item">&gt;</button></span>
 					<a class="textItem" id="$categoryCreatePage"><button class="item">Create Page</button></a>
 				</div>
@@ -211,7 +211,7 @@
 			</div>
 		</div>
 		
-		<div class="sideBar">
+		<div class="sideBar" id="$sidebar">
 			<button id="$closeSidebar">Close Sidebar</button><br>
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
