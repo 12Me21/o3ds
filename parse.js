@@ -146,10 +146,21 @@ Parse.options = {
 	},
 	table: creator('table'),
 	row: creator('tr'),
-	cell: function (header) {
-		return header ?
+	cell: function (opt) {
+		var node = opt.header ?
 			create('th') :
-			create('td');
+			 create('td');
+		if (opt.rowspan)
+			node.rowSpan = opt.rowspan;
+		if (opt.colspan)
+			node.colSpan = opt.colspan;
+		if (opt.bgcolor) {
+			if (opt.bgcolor[0] == "#")
+				node.style.backgroundColor = opt.bgcolor;
+			node.setAttribute("data-bgcolor", opt.bgcolor);
+		}
+		node.className = "cell";
+		return node;
 	},
 	image: function(url) {
 		var node = create('img');
@@ -371,12 +382,19 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					if (eatChar("|")) {
 						if (table.columns == null)
 							table.columns = row.cells;
-						endBlock();
+						endBlock(); //cell
 						if (top_is('row')) //always
 							endBlock();
-						var row = startBlock('row', {table:table, cells:0});
+						var cells = 0
+						table.rowspans = table.rowspans.map(function(span){
+							cells++;
+							return span-1;
+						}).filter(function(span){return span > 0});
+						var row = startBlock('row', {table:table, cells:cells});
 						row.header = eatChar("*");
-						startBlock('cell', {row:row}, row.header);
+						var props = {header: row.header};
+						readCellProps(row, props);
+						startBlock('cell', {row:row}, props);
 						while (eatChar(" "))
 							;
 						//--------------------------
@@ -398,7 +416,9 @@ Parse.lang['12y'] = function(code, preview, cache) {
 								addLineBreak();
 						} else { // next cell
 							endBlock();
-							startBlock('cell', {row:row}, row.header);
+							var props = {header: row.header};
+							readCellProps(row, props);
+							startBlock('cell', {row:row}, props);
 							while (c == " ")
 								scan();
 						}
@@ -407,16 +427,17 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				} else if (startOfLine) {
 					scan();
 					table = startBlock('table', {
-						columns: null
+						columns: null,
+						rowspans: []
 					});
 					row = startBlock('row', {
 						table: table,
 						cells: 0
 					});
 					row.header = eatChar("*");
-					startBlock('cell', {
-						row: row
-					}, row.header);
+					var props = {header: row.header};
+					readCellProps(row, props);
+					startBlock('cell', {row:row}, props);
 					while (eatChar(" "))
 						;
 				} else {
@@ -544,6 +565,47 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		}
 	}
 
+	function readCellProps(row, cellp) {
+		if (eatChar("#")) {
+			var props = readProps();
+			if (props.v) {
+				row.table.rowspans.push(props.v-1);
+				cellp.rowspan = props.v;
+			}
+			if (props.h) {
+				row.cells += props.h-1;
+				cellp.colspan = props.h;
+			}
+			if (props.c) {
+				cellp.bgcolor = props.c;
+			}
+		}
+	}
+
+	function split1(string, sep) {
+		var n = string.indexOf(sep);
+		if (n == -1)
+			return [string, null];
+		else
+			return [string.substr(0,n), string.substr(n+sep.length)];
+	}
+	
+	function readProps() {
+		var start = i;
+		var end = code.indexOf(" ", i);
+		if (end < 0)
+			end = code.length;
+		i = end-1;
+		scan();
+		var propst = code.substring(start, end);
+		var props = {};
+		propst.split(",").forEach(function(x){
+			var pair = split1(x, "=");
+			props[pair[0]] = pair[1];
+		});
+		return props;
+	}
+	
 	function addMulti(text, count) {
 		while (count --> 0)
 			addText(text);
