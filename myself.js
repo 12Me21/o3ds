@@ -222,7 +222,7 @@ Myself.prototype.listen = function(requests, filters, callback, cancel) {
 	
 	$.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
 		if (!e)
-			$.handle(e, resp.chain);
+			$.handle(e, resp.chains);
 		$.cb(callback, e, resp);
 	}, undefined, cancel);
 };
@@ -571,15 +571,17 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback
 		{actions: {
 			parentIds: ids,
 			lastId: lastId,
-			chain: ["comment.0id","user.1createUserId"]
+			firstId: firstId,
+			chains: ["comment.0id-"+JSON.stringify({parentIds:ids}),"user.1createUserId"]
 		}},
 	], {
 		user: "id,username,avatar"
 	}, function(e, resp) {
+		console.log("C");
 		if (e)
 			$.cb(callback, e, resp);
 		else {
-			$.cb(callback, e, resp.chain.comment, resp.listeners, resp.chain.userMap);
+			$.cb(callback, e, resp.chains.comment, resp.listeners, resp.chains.userMap);
 		}
 	}, cancel);
 }
