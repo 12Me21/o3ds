@@ -1,3 +1,21 @@
+// ok so
+// logging in/out
+// the big important things are
+// - content permissions (when logged in, you can view hidden content, and edit/delete permissions apply)
+// - long polling (must be logged in)
+// so, when logging in, need to re-request permissions
+
+// long poller plans:
+// when viewing a page, you temporarily join that room
+// you can then add that room to your list of currrent rooms in the sidebar (or just watch it, for notifications only)
+//
+// need to handle logging in/out though
+// on login (or page load + logged in already),
+// start long poller,
+// on log out, stop long poller
+// but keep list of joined rooms uh, somewhere I guess.
+// user variable I suppose
+
 function sbs2Request(url, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
@@ -197,12 +215,12 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 		query[filter] = filters[filter];
 	var needCategorys = !$.categoryTree && query.requests.length<5;
 	if (needCategorys) {
-		query.requests.push('category');
+		query.requests.push('category~tree');
 	}
 	
 	$.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
 		if (needCategorys) {
-			$.categoryTree = buildCategoryTree(resp.category);
+			$.categoryTree = buildCategoryTree(resp.tree);
 		}
 		$.handle(e, resp);
 		$.cb(callback, e, resp);
@@ -408,19 +426,15 @@ var rootCategory = {
 }
 
 // get the pages in a category
-Myself.prototype.getCategory = function(id, count, start, sort, reverse, callback, pinnedCallback) {
+Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 	id=+id;
 	var $=this;
 	var search = {
 		parentIds: [id],
-		limit: +count,
+		limit: 10,
+		skip: page*10,
+		sort: 'editDate',
 	}
-	if (start)
-		search.skip = +start;
-	if (sort)
-		search.sort = sort;
-	if (reverse)
-		search.reverse = reverse;
 	if (id)
 		var childCategorysFilter = {parentIds: [id]};
 	else
@@ -569,15 +583,12 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback
 		lastId = undefined;
 	$.listen([
 		{actions: {
-			parentIds: ids,
 			lastId: lastId,
 			firstId: firstId,
-			chains: ["comment.0id-"+JSON.stringify({parentIds:ids}),"user.1createUserId"]
+			chains: ["comment.0id","user.1createUserId"]
 		}},
 	], {
-		user: "id,username,avatar"
 	}, function(e, resp) {
-		console.log("C");
 		if (e)
 			$.cb(callback, e, resp);
 		else {

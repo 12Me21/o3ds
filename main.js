@@ -80,25 +80,35 @@ function ready() {
 	};
 
 	var voteBtns = [$voteButton_b, $voteButton_o, $voteButton_g];
-	// todo: this breaks when clicking things INSIDE the button
-	//wtf
+	var voteCounts = [$voteCount_b, $voteCount_o, $voteCount_g];
 	// todo: update counts when changing
-	$voteBox.addEventListener('click', function(e){
-		var btn = e.target;
-		if (voteBtns.indexOf(btn) == -1)
-			return;
-		var selected = e.target.getAttribute('data-selected');
-		voteBtns.forEach(function(btn) {
-			btn.removeAttribute('data-selected');
-		});
-		if (selected)
-			e.target.removeAttribute('data-selected');
-		else
-			e.target.setAttribute('data-selected', "true");
-		var vote = !selected ? e.target.getAttribute('data-vote') : null;
-		me.setVote(currentPage, vote, function(e){
-		});
-	},true);
+	var voteBlock;
+	voteBtns.forEach(function(button, buttoni) {
+		button.onclick = function(e) {
+			if (voteBlock)
+				return;
+			var selected = button.getAttribute('data-selected');
+			var vote = !selected ? button.getAttribute('data-vote') : null;
+			voteBlock = true;
+			me.setVote(currentPage, vote, function(e, resp){
+				voteBlock = false;
+				voteBtns.forEach(function(btn, i) {
+					if (btn != button || selected) {
+						if (btn.getAttribute('data-selected') != null) {
+							voteCounts[i].textContent = +voteCounts[i].textContent - 1;
+						}
+						btn.removeAttribute('data-selected');
+					}
+				});
+				//todo: update vote counts here;
+				if (!selected) {
+					button.setAttribute('data-selected', "true");
+					voteCounts[buttoni].textContent = +voteCounts[buttoni].textContent + 1;
+					//increment
+				}
+			});
+		}
+	})
 	
 	$watchCheck.onchange = function() {
 		me.setWatch(currentPage, $watchCheck.checked, function(){});
@@ -252,7 +262,7 @@ function navigateTo(path, first, callback) {
 		});
 	}
 	path = path[0].split("/").filter(function(x){return x;});
-	
+
 	var type = path[0];
 	var id = +(path[1]) || 0;
 	if (type == "pages") {
@@ -279,7 +289,7 @@ function navigateTo(path, first, callback) {
 			generateCateditView(id, queryVars, callback);
 		} else {
 			first && ($main.className = 'categoryMode');
-			generateCategoryView(id, callback);
+			generateCategoryView(id, queryVars, callback);
 		}
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
@@ -290,9 +300,6 @@ function navigateTo(path, first, callback) {
 	} else if (type == "discussions") {
 		first && ($main.className = 'chatMode');
 		generateChatView(id, callback);
-	} else if (typeof type == 'undefined') { //home
-		first && ($main.className = 'homeMode');
-		generateHomeView(null, callback);
 	} else if (type == 'register') {
 		first && ($main.className = 'registerMode');
 		generateRegisterView(null, callback);
@@ -302,6 +309,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == 'activity') {
 		first && ($main.className = 'activityMode');
 		generateActivityView(queryVars, callback);
+	} else if (typeof type == 'undefined') { //home
+		first && ($main.className = 'homeMode');
+		generateHomeView(null, callback);
 	} else {
 		$main.className = "errorMode";
 		generateAuthorBox();

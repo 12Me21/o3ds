@@ -1,5 +1,5 @@
-//todo: make sidebar easier to close
-// don't auto-open on mobile
+// this file contains code for rendering stuff direclty to the screen
+// none of it is "reusable" etc.
 
 var flags = {};
 function flag(flag, state) {
@@ -16,8 +16,6 @@ function flag(flag, state) {
 	}
 }
 
-var uploadedAvatar;
-
 // clean up stuff whenever switching pages
 function cleanUp() {
 	flag('myUserPage');
@@ -33,6 +31,7 @@ function cleanUp() {
 
 function setTitle(text) {
 	$pageTitle.textContent = text;
+	document.title = text;
 }
 
 function generateSettingsView(n, callback) {
@@ -430,16 +429,27 @@ function displayMessage(c, user) {
 	}
 }
 
-function generateCategoryView(id, callback) {
+function generateCategoryView(id, query, callback) {
 	var users2;
 	function handlePinned(pinned) {
+		console.log(pinned,"pinned");
 		$categoryPinned.innerHTML = "";
 		pinned.forEach(function(content) {
 			$categoryPinned.appendChild(renderCategoryPage(content, users2, true));
 		});
 	}
-	
-	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users, pinned) {
+
+	var page = +query.page || 0
+	me.getCategory(id, page, function(category, childs, contentz, users, pinned) {
+		//todo: make these only load the pages, not pinned etc. too;
+		$categoryPageNumber.textContent = " "+page;
+		$categoryPagesPrev.onclick = function() {
+			window.location.hash = "#categories/"+id+"?page="+(page-1);
+		}
+		$categoryPagesNext.onclick = function() {
+			window.location.hash = "#categories/"+id+"?page="+(page+1);
+		}
+		
 		users2 = users;
 		cleanUp();
 		$main.className = 'categoryMode';
@@ -543,7 +553,7 @@ function generateRegisterView(idk, callback) {
 	$main.className = "registerMode";
 	generateAuthorBox();
 	generatePath();
-	$pageTitle.textContent = "Create an account";
+	setTitle("Create an account");
 	callback();
 }
 

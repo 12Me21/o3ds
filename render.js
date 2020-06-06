@@ -48,7 +48,7 @@ function textItem(text, cls) {
 // <a><figure><img><figcaption>
 function renderUserLink(user, nameFirst) {
 	var a = document.createElement('a');
-	a.className = 'item userLink';
+	a.className = 'textItem userLink ib';
 	if (user) {
 		a.href = "#user/"+user.id;
 		var name = textItem(user.username);
@@ -294,15 +294,7 @@ function renderActivityItem(activity, page, user) {
 	link.textContent = " "+page.name+" ";
 	
 	user.forEach(function(user){
-		var usr = document.createElement('a');
-		usr.className = 'item';
-		usr.href = "#user/"+user.id;
-		
-		var name = document.createElement('span');
-		name.textContent = user.username;
-		name.className = "textItem";
-		usr.appendChild(userAvatar(user, 'item'));
-		usr.appendChild(name);
+		var usr = renderUserLink(user);
 		div.appendChild(usr);
 		div.appendChild(document.createTextNode(" "));
 	});

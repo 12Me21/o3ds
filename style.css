@@ -20,9 +20,15 @@ html {
 	white-space: pre-wrap;
 }
 
-a:visited {
-	color: #00A;
+a {
+	
 }
+
+/*a:visited {
+	color: #00A;
+	color: inherit;
+}*/
+/* heck all this blue text */
 
 .time {
 	color: #333;
@@ -446,6 +452,10 @@ main {
 	padding: 0 0.2rem;
 }
 
+.listItem > *:first-child {
+	margin-left: -0.2rem;
+}
+
 .listItem a {
 	font-weight: bold;
 }
@@ -516,14 +526,9 @@ img.item {
 	flex-shrink: 0;
 }
 
-.listItem span {
-	color: black;
-}
-
 .listItem .avatar {
 	margin-right: 0.3ch;
 }
-
 
 .username {
 	font-weight: bold;
@@ -601,6 +606,9 @@ html:not(.f-myUserPage) .myUserPage {
 	html:not(.f-mobileSidebar) .sideBar {
 		-webkit-transform: translateX(100%);
 		transform: translateX(100%);
+	}
+	html:not(.f-sidebar) .sideBar {
+		margin-left: 0;
 	}
 	.m {
 		width: 100%;
@@ -691,4 +699,38 @@ html:not(.f-myUserPage) .myUserPage {
 
 .memberNav {
 	border-bottom: 1px solid gray;
+}
+
+.buttonContainer {
+	padding: 1px;
+	display: inline-block;
+}
+
+.buttonContainer button {
+	margin: 0;
+	padding: 0 0.5rem;
+	background-color: #EEE;
+	border: 2px solid gray;
+	height: 100%;
+	overflow-y: hidden;
+	border-style: outset;
+	border-radius: 2px;
+}
+
+.buttonContainer > a {
+	width: 100%;
+	height: 100%;
+	display: inline-block;
+}
+
+.buttonContainer button:hover {
+	border-color: #59E;
+}
+
+.buttonContainer button:active {
+	border-style: inset;
+}
+
+.ib {
+	display: inline-block;
 }
