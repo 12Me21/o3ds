@@ -591,6 +591,18 @@ function sbapi(key, callback) {
 	x.send();
 }
 
+function readFileFields(file) {
+	file.name = $fileName.value;
+	file.permissions = parseJSON($filePermissions.value);
+	file.values = parseJSON($fileValues.value);
+}
+
+function fillFileFields(file) {
+	$fileName.value = file.name;
+	$filePermissions.value = JSON.stringify(file.permissions);
+	$fileValues.value = JSON.stringify(file.values);
+}
+
 function renderFileThumbnail(file) {
 	var div = document.createElement('div');
 	div.className = "fileThumbnail";
@@ -603,11 +615,15 @@ function renderFileThumbnail(file) {
 	return div;
 }
 
+function saveFileSettings() {
+}
+
 var selectedFile;
 function selectFile(file) {
 	selectedFile = null;
+	fillFileFields(file);
 	$fileView.src = me.imageURL(file.id);
-	$fileView.onload = function() {
+	$fileView.onload = $fileView.onerror =  function() {
 		selectedFile = file;
 		flag('fileSelected', true);
 	}
@@ -617,7 +633,7 @@ function selectFile(file) {
 function selectUploadedFile(file) {
 	selectedFile = null;
 	var url = URL.createObjectURL(file);
-	URL.revokeObjectURL($fileView.src);
+	URL.revokeObjectURL($fileView.src); //should probably only do this when it's actually a blob url lol
 	$fileView.src = url;
 	$fileView.onload = function() {
 		selectedFile = file;

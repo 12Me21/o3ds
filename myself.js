@@ -753,6 +753,10 @@ Myself.prototype.imageURL = function(id) {
 	return this.server+"/File/raw/"+id;
 }
 
+Myself.prototype.putFile = function(file, callback) {
+	this.request("File/"+file.id, 'PUT', callback, file);
+}
+
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;

@@ -18,7 +18,7 @@
 <script src="event.js?a"></script>
 <script src="storage.js?a"></script>
 
-<script src="myself.js?D"></script>
+<script src="myself.js?E"></script>
 
 <script src="lp.js?b"></script>
 
@@ -26,8 +26,8 @@
 <script src="parse.js?t"></script>
 
 <script src="render.js?A"></script>
-<script src="view.js?y"></script>
-<script src="main.js?P"></script>
+<script src="view.js?z"></script>
+<script src="main.js?Q"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 	  THere is a lot of repeated stuff
@@ -92,8 +92,15 @@
 			<div class="fileMode fileBox" id="$fileBox">
 			</div>
 
-			<div class="fileMode"><div class="buttonContainer fileSelected loggedIn"><button id="$setAvatarButton">Use As Avatar</button></div>
-				<div class="buttonContainer fileUploading"><button id="$fileUploadButton">Upload Image!</button></div><br>
+			<div class="fileMode">
+				<div class="buttonContainer fileUploading"><button id="$fileUploadButton">Upload Image!</button></div>
+				<div class="fileSelected">
+					<div class="buttonContainer loggedIn"><button id="$setAvatarButton">Use As Avatar</button></div><br class="loggedIn">
+					Name:<input id="$fileName"><br>
+					Permissions:<input id="$filePermissions"><br>
+					Values:<input id="$fileValues"><br>
+					<div class="buttonContainer loggedIn"><button id="$fileUpdateButton">Save Settings</button></div>
+				</div>
 			</div>
 			
 			
@@ -165,12 +172,6 @@
 					Pages: <a href="#categories/0">here</a><br>
 					Activity: <a href="#activity">here</a><br>
 					Files: <a href="#files">here</a><br>
-					<hr>
-					<blockquote>
-						why is this so fast<br>
-						what the fuck
-						<footer>- snail_</footer>
-					</blockquote>
 				</div>
 				<div class="membersMode memberPane">
 					<div id="$memberList"></div>

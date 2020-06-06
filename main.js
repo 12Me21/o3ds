@@ -199,6 +199,15 @@ function ready() {
 			selectUploadedFile(file);
 		}
 	}
+
+	$fileUpdateButton.onclick = function() {
+		if (selectedFile && selectedFile.id) {
+			readFileFields(selectedFile);
+			me.putFile(selectedFile, function(e, resp) {
+				console.log(e, resp);
+			});
+		}
+	}
 }
 
 function updateAvatar(id) {
