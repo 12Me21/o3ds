@@ -1,3 +1,15 @@
+function renderContentName(name, icon) {
+	var span = document.createElement('span');
+	span.className = "textItem";
+	if (icon) {
+		var img = document.createElement('span');
+		img.className = "item iconBg iconBg-"+icon;
+		span.appendChild(img);
+	}
+	span.appendChild(textItem(name));
+	return span;
+}
+
 function renderPath(element, list) {
 	element.innerHTML = "";
 	if (!list)
@@ -101,13 +113,16 @@ function renderCategoryPage(page, users, pinned) {
 	var div = document.createElement('a');
 	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage bar rem2-3";
-	var title = document.createElement('span');
+
+	var title = renderContentName(page.name, pinned?'pin':'page');
+	/*var title = document.createElement('span');
 	title.className = "categoryPageTitle textItem";
 	if (pinned)
-		title.textContent = "\uD83D\uDCCC " + page.name;
+		title.textContent = "\uE801 " + page.name;
 	else
-		title.textContent = "\uD83D\uDCC4 " + page.name;
+		title.textContent = "\uF04A " + page.name;*/
 	div.appendChild(title);
+	
 	if (user) {
 		var right = renderUserLink(user, true);
 		right.className += ' rightAlign';
@@ -205,9 +220,9 @@ function renderCategory(cat, users) {
 	var div = document.createElement('a');
 	div.href = "#categories/"+cat.id;
 	div.className = "pre categoryPage rem2-3 bar";
-	var title = document.createElement('span');
-	title.className = "categoryPageTitle item";
-	title.textContent = "\uD83D\uDCC1 "+cat.name;
+
+	var title = renderContentName(cat.name, "category");
+	
 	div.appendChild(title);
 	return div;
 }

@@ -360,6 +360,7 @@ function submitEdit() {
 			alert("ERROR");
 		} else {
 			window.location.hash = "#pages/"+resp.id;
+			cleanUpEditor();
 		}
 	});
 }

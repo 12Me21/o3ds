@@ -29,9 +29,15 @@ function cleanUp() {
 	}
 }
 
-function setTitle(text) {
+function setTitle(text, icon) {
 	$pageTitle.textContent = text;
 	document.title = text;
+	if (icon) {
+		$pageTitleIcon.className = "item iconBg iconBg-"+icon;
+	} else {
+		$pageTitleIcon.className = "";
+	}
+	
 }
 
 function generateSettingsView(n, callback) {
@@ -63,6 +69,10 @@ function generateSettingsView(n, callback) {
 
 var editingPage;
 var editorCache = {};
+
+function cleanUpEditor() {
+	$editorTextarea.value = "";
+}
 
 function newPage(query) {
 	return {
@@ -174,7 +184,9 @@ function generateCateditView(id, query, callback) {
 	me.getCategoryForEditing(id, function(cat) {
 		cleanUp();
 		$main.className = 'cateditMode';
+		console.log(cat);
 		if (cat) {
+			visible($cateditSubmit, /u/.test(cat.myPerms));
 			setTitle("Editing Category:");
 			editingCategory = cat;
 		} else {
@@ -224,7 +236,7 @@ function generatePageView(id, callback) {
 		if (page) {
 			generatePagePath(page, users);
 			currentPage = page.id;
-			setTitle("\uD83D\uDCC4 " + page.name);
+			setTitle(page.name, "page");
 			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
 			renderPageContents(page, $pageContents)
@@ -464,8 +476,8 @@ function generateCategoryView(id, query, callback) {
 			$editButton.href = "#categories/edit/"+category.id;
 			contentz.reverse();
 			generatePath(makeCategoryPath(me.categoryTree, category.id));
-			setTitle("\uD83D\uDCC1 "+category.name);
-			if (category.id)
+			setTitle(category.name, 'category');
+			if (category.id && category.description)
 				renderPageContents({
 					content: category.description,
 					values: category.values

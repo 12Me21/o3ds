@@ -12,7 +12,7 @@
 
 html {
 	background-color: red;
-	font-family: roboto, sans-serif;
+	font-family: roboto, fontello, sans-serif;
 }
 
 /* all elements with user content, where whitespace should be preserved */
@@ -194,7 +194,7 @@ html.f-loggedIn .loggedOut {
 .titlePane {
 	background-color: #DDD;
 	padding: 0 0.5rem;
-	border-bottom: 1px solid gray;
+	border-bottom: 2px solid black;
 }
 
 .titlePane .userLink img {
@@ -287,6 +287,9 @@ main {
 }
 .rem2-3 .avatar {
 	width: 2.3rem;
+}
+.rem2-3 .iconBg {
+	width: 1.5rem;
 }
 
 .px40 {
@@ -733,4 +736,25 @@ html:not(.f-myUserPage) .myUserPage {
 
 .ib {
 	display: inline-block;
+}
+
+.iconBg {
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	margin-right: 0.2rem;
+}
+
+.titlePane .iconBg {
+	width: 2rem;
+}
+
+.iconBg-page {
+	background-image: url("icons/page.png");
+}
+.iconBg-pin {
+	background-image: url("icons/pin.png");
+}
+.iconBg-category {
+	background-image: url("icons/folder.png");
 }
