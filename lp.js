@@ -96,10 +96,11 @@ DiscussionLongPoller.prototype.stop = function() {
 DiscussionLongPoller.prototype.loop = function() {
 	var $=this;
 	$.myself.listenChat($.idList, $.firstId, $.lastId, $.listeners, function(e, comments, listeners, userMap){
+		console.log("GOT COMMENTS", comments);
 		if (!e) {
 			comments = comments || [];
 			comments.forEach(function(comment) {
-				if (comment.id > $.lastIds[comment.parentId]) {
+				if (!$.lastIds[comment.parentId] || comment.id > $.lastIds[comment.parentId]) {
 					$.lastIds[comment.parentId] = comment.id;
 				}
 			});
