@@ -695,8 +695,11 @@ Myself.prototype.fileUrl = function(id) {
 	return this.server+"/File/raw/"+id;
 }
 
-Myself.prototype.uploadFile = function(data, callback) {
-	this.request("File", 'POST', callback, data);
+Myself.prototype.uploadFile = function(file, callback) {
+	console.log(file);
+	var form = new FormData();
+	form.append('file', file);
+	this.request("File", 'POST', callback, form);
 }
 
 Myself.prototype.setBasic = function(data, callback) {
@@ -726,6 +729,28 @@ Myself.prototype.getActivity = function(page, callback) {
 			$.cb(callback, null, null, null, {});
 		}
 	});
+}
+
+Myself.prototype.getFiles = function(query, page, callback) {
+	var $=this;
+	query.limit = 20;
+	query.skip = page*query.limit;
+	query.reverse = true;
+	$.readSimple("File"+queryString(query), 'file', function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp)
+		} else {
+			$.cb(callback, null)
+		}
+	});
+}
+
+Myself.prototype.thumbnailURL = function(id) {
+	return this.server+"/File/raw/"+id+"?size=50";
+}
+
+Myself.prototype.imageURL = function(id) {
+	return this.server+"/File/raw/"+id;
 }
 
 Myself.prototype.getUserPage = function(id, callback) {

@@ -162,23 +162,6 @@ function ready() {
 		});
 	}
 	
-	//todo: when avatar changes, update internal cache and whatever
-	// need to especially change the avatar in the corner of the screen
-	// aaaaaaa eventssss
-	$settingsAvatarSubmit.onclick = function() {
-		if ($settingsAvatarUpload.files.length) {
-			var reader = new FileReader();
-			var form = new FormData();
-			form.append('file', $settingsAvatarUpload.files[0], "test.png");
-			me.uploadFile(form, function(e, resp) {
-				if (!e) {
-					me.setBasic({avatar:resp.id},console.log);
-				}
-			});
-			uploadedAvatar = null;
-		}
-	}
-	
 	scroller = new AutoScroller($messageList);
 
 	hashChange(true);
@@ -188,10 +171,38 @@ function ready() {
 	}*/
 
 	$openSidebar.onclick = $closeSidebar.onclick = toggleSidebar;
+	
+	$setAvatarButton.onclick = function() {
+		if (selectedFile && selectedFile.id) {
+			me.setBasic({avatar: selectedFile.id}, function(e) {
+				if (!e) {
+					updateAvatar(selectedFile);
+				}
+			});
+		}
+	}
+
+	$fileUploadButton.onclick = function() {
+		if (selectedFile instanceof File) {
+			me.uploadFile(selectedFile, function(e, resp) {
+				console.log(e, resp);
+				if (!e) {
+					selectFile(resp);
+				}
+			});
+		}
+	}
+	
+	$fileUpload.onchange = function(e) {
+		var file = this.files[0]
+		if (file) {
+			selectUploadedFile(file);
+		}
+	}
 }
 
-function isSmallScreen() {
-	
+function updateAvatar(id) {
+	//todo;
 }
 
 function toggleSidebar() {
@@ -309,6 +320,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == 'activity') {
 		first && ($main.className = 'activityMode');
 		generateActivityView(queryVars, callback);
+	} else if (type == 'files') {
+		first && ($main.className = 'fileMode');
+		generateFileView(queryVars, callback);
 	} else if (typeof type == 'undefined') { //home
 		first && ($main.className = 'homeMode');
 		generateHomeView(null, callback);

@@ -23,6 +23,8 @@ function cleanUp() {
 	$messageList.innerHTML = "";
 	$authorBox.innerHTML = "";
 	$sbapiInfo.innerHTML = "";
+	$fileBox.innerHTML = "";
+	$fileView.src = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
@@ -184,7 +186,6 @@ function generateCateditView(id, query, callback) {
 	me.getCategoryForEditing(id, function(cat) {
 		cleanUp();
 		$main.className = 'cateditMode';
-		console.log(cat);
 		if (cat) {
 			visible($cateditSubmit, /u/.test(cat.myPerms));
 			setTitle("Editing Category:");
@@ -318,11 +319,16 @@ function megaAggregate(activity, ca, contents) {
 			type: 'content',
 		}
 	}));
-	allAct.forEach(function(x) {
+	allAct = allAct.filter(function(x) {
 		if (x.action == 'd')
 			x.content = {name: x.extra, id: x.contentId, deleted: true};
-		else
+		else if (x.type == "content")
 			x.content = contentMap[x.contentId];
+		else if (x.type == "category" && me.categoryTree)
+			x.content = me.categoryTree.map[x.contentId];
+		else
+			return; //some weird activity type
+		return x;
 	});
 	allAct.sort(function(a, b) {
 		return a.date < b.date;
@@ -367,8 +373,6 @@ function generateUserView(id, callback) {
 			$userPageAvatarLink.href = user.rawAvatarURL;
 			var lastId, lastAction;
 			megaAggregate(activity, ca, pages).forEach(function(activity){
-				if (activity.type != "content") //idk, category?
-					return;
 				if (activity.contentId != lastId || activity.action != lastAction) {
 					if (activity.content) {
 						$userActivity.appendChild(renderActivityItem(activity, activity.content));
@@ -391,7 +395,6 @@ function generateChatView(id, callback) {
 	// todo: make this work when logged out
 	// use a normal request at first and then switch on the long poller IF logged in
 	lp.callback = function(comments, listeners, userMap, page) {
-		console.log("got callback", comments, listeners, userMap, page);
 		if (page && page.id == id) {
 			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 			generateAuthorBox(page, userMap);
@@ -444,7 +447,6 @@ function displayMessage(c, user) {
 function generateCategoryView(id, query, callback) {
 	var users2;
 	function handlePinned(pinned) {
-		console.log(pinned,"pinned");
 		$categoryPinned.innerHTML = "";
 		pinned.forEach(function(content) {
 			$categoryPinned.appendChild(renderCategoryPage(content, users2, true));
@@ -528,21 +530,18 @@ function generateMembersView(idk, callback) {
 function generateActivityView(query, callback) {
 	var page = +query.page || 0;
 	me.getActivity(page, function(activity, ca, pages, users) {
+		cleanUp();
+		$main.className = 'activityMode';
 		$activityPageNumber.textContent = " "+page+" days ago";
 		$activityPagePrev.href = "#activity?page="+(page-1);
 		$activityPageNext.href = "#activity?page="+(page+1);
-		cleanUp();
-		$main.className = 'activityMode';
 		renderActivityPath($navPane);
 		if (activity) {
 			setTitle("Activity");
 			var last = {};
 			$activity.innerHTML = "";
+			
 			megaAggregate(activity, ca, pages).forEach(function(activity){
-				if (activity.type != "content") {//idk, category?
-					console.log("non-content", activity);
-					return;
-				}
 				if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
 					if (activity.content) {
 						if (activity.userId instanceof Array)
@@ -590,4 +589,62 @@ function sbapi(key, callback) {
 	}
 	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
 	x.send();
+}
+
+function renderFileThumbnail(file) {
+	var div = document.createElement('div');
+	div.className = "fileThumbnail";
+	div.onclick = function() {
+		selectFile(file);
+	}
+	var img = document.createElement('img');
+	img.src = me.thumbnailURL(file.id);
+	div.appendChild(img);
+	return div;
+}
+
+var selectedFile;
+function selectFile(file) {
+	selectedFile = null;
+	$fileView.src = me.imageURL(file.id);
+	$fileView.onload = function() {
+		selectedFile = file;
+		flag('fileSelected', true);
+	}
+	flag('fileUploading');
+}
+
+function selectUploadedFile(file) {
+	selectedFile = null;
+	var url = URL.createObjectURL(file);
+	URL.revokeObjectURL($fileView.src);
+	$fileView.src = url;
+	$fileView.onload = function() {
+		selectedFile = file;
+		flag('fileUploading', true);
+	}
+	flag('fileSelected');
+}
+
+function generateFileView(query, callback) {
+	var page = +query.page || 0
+	selectedFile = null;
+	flag('fileSelected');
+	flag('fileUploading');
+	me.getFiles({}, page, function(files) {
+		cleanUp();
+		$main.className = "fileMode";
+		$filePageNumber.textContent = " page "+page;
+		$filePrev.href = "#files?page="+(page-1);
+		$fileNext.href = "#files?page="+(page+1);
+		generateAuthorBox();
+		generatePath([["#files","Files"], undefined]);
+		setTitle("Files");
+		if (files) {
+			files.forEach(function(file) {
+				$fileBox.appendChild(renderFileThumbnail(file));
+			});
+		}
+		callback();
+	});
 }

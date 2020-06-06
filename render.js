@@ -1,8 +1,10 @@
 function renderContentName(name, icon) {
 	var span = document.createElement('span');
-	span.className = "textItem";
+	span.className = "textItem pageName";
 	if (icon) {
 		var img = document.createElement('span');
+		img.setAttribute('role', 'img');
+		img.setAttribute('aria-label', icon);
 		img.className = "item iconBg iconBg-"+icon;
 		span.appendChild(img);
 	}
@@ -285,28 +287,32 @@ function renderActivityItem(activity, page, user) {
 
 	switch(activity.action) {
 	case "c":
-		var text = "Created";
+		var text = "created";
 		break;case "u":
-		text = "Edited";
+		text = "edited";
 		break;case "d":
-		text = "Deleted";
+		text = "deleted";
 		break;case "p":
-		text = "Posted on";
+		text = "posted on";
 		break;default:
-		text = "Unknown action";
+		text = "unknown action";
 	}
 	var div = document.createElement('a');
 	div.className = "listItem bar rem1-7";
 	var action = document.createElement('span');
-	action.className = "textItem";
-	action.textContent = text;
-	var link = document.createElement('b');
-	link.className = "textItem pre";
-	if (activity.action =="p")
+	action.className = "textItem noColor";
+	action.textContent = text+" ";
+	
+	if (activity.action =="p") {
 		div.href = "#discussions/"+activity.contentId;
-	else
+		var name = renderContentName(page.name, 'page')
+	} else if (activity.type == 'content') {
 		div.href = "#pages/"+activity.contentId;
-	link.textContent = " "+page.name+" ";
+		var name = renderContentName(page.name, 'page')
+	} else if (activity.type == 'category') {
+		div.href = "#categories/"+activity.contentId;
+		var name = renderContentName(page.name, 'category')
+	}
 	
 	user.forEach(function(user){
 		var usr = renderUserLink(user);
@@ -314,7 +320,7 @@ function renderActivityItem(activity, page, user) {
 		div.appendChild(document.createTextNode(" "));
 	});
 	div.appendChild(action);
-	div.appendChild(link);
+	div.appendChild(name);
 	var time = renderTimeAgo(activity.date);
 	time.className += " rightAlign";
 	div.appendChild(time);
