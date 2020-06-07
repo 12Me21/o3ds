@@ -20,6 +20,7 @@ function flag(flag, state) {
 function cleanUp() {
 	flag('myUserPage');
 	flag('canEdit');
+	flag('page');
 	$messageList.innerHTML = "";
 	$authorBox.innerHTML = "";
 	$sbapiInfo.innerHTML = "";
@@ -40,6 +41,15 @@ function setTitle(text, icon) {
 		$pageTitleIcon.className = "";
 	}
 	
+}
+
+function submitUserSettings() {
+	me.setSensitive({
+		oldPassword: $settingsOldPassword.value,
+		username: $settingsUsername.value || undefined,
+		newPassword: $settingsNewPassword.value || undefined,
+		newEmail: $settingsEmail.value || undefined
+	}, function(){});
 }
 
 function generateSettingsView(n, callback) {
@@ -230,6 +240,7 @@ function generatePageView(id, callback) {
 		generateAuthorBox(page, users);
 		flag('canEdit', !!page);
 		if (page) {
+			flag('page', true);
 			generatePagePath(page, users);
 			currentPage = page.id;
 			setTitle(page.name, "page");
@@ -338,7 +349,8 @@ function generatePath(path) {
 }
 // function generatePagePath - category tree paths
 
-function generateUserView(id, callback) {
+function generateUserView(id, query, callback) {
+	id = +id;
 	me.getUserPage(id, function(user, page, activity, ca, pages, userMap) {
 		cleanUp();
 		$main.className = 'userMode';
@@ -391,9 +403,12 @@ function generateChatView(id, callback) {
 	// use a normal request at first and then switch on the long poller IF logged in
 	lp.callback = function(comments, listeners, userMap, page) {
 		if (page && page.id == id) {
+			flag('page', true);
 			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
+			currentPage = page.id;
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
+			currentPage = page.id;
 			$main.className = "chatMode";
 			scroller.switchRoom(id);
 			setTitle(page.name);

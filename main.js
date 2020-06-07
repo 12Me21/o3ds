@@ -208,6 +208,8 @@ function ready() {
 			});
 		}
 	}
+
+	$submitUserSettings.onclick = submitUserSettings;
 }
 
 function updateAvatar(id) {
@@ -313,7 +315,7 @@ function navigateTo(path, first, callback) {
 		}
 	} else if (type == "user") {
 		first && ($main.className = 'userMode');
-		generateUserView(id, callback);
+		generateUserView(id, queryVars, callback);
 	} else if (type == "users") {
 		first && ($main.className = 'membersMode');
 		generateMembersView(null, callback);

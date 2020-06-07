@@ -831,3 +831,7 @@ html:not(.f-fileUploading) .fileUploading {
 .closeSidebar button {
 	width: 100%;
 }
+
+.html:not(.f-page) .pageItem {
+	display: none;
+}
