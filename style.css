@@ -654,7 +654,7 @@ html:not(.f-myUserPage) .myUserPage {
 		max-height: none;
 	}
 	.inputPane textArea {
-		font-size: 1.5em;
+		font-size: 1rem;
 	}
 }
 
