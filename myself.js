@@ -586,7 +586,7 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback
 		{actions: {
 			lastId: lastId,
 			firstId: firstId,
-			chains: ["comment.0id","user.1createUserId"]
+			chains: ["comment.0id-"+JSON.stringify({parentIds:ids}),"user.1createUserId"]
 		}},
 	], {
 	}, function(e, resp) {
@@ -650,6 +650,10 @@ Myself.prototype.register = function(username, password, email, callback) {
 		password: password,
 		email: email
 	});
+}
+
+Myself.prototype.setSensitive = function(data, callback) {
+	this.request("User/sensitive", 'POST', callback, data);
 }
 
 Myself.prototype.sendEmail = function(email, callback) {

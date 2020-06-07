@@ -28,14 +28,11 @@ DiscussionLongPoller.prototype.addRoom = function(id) {
 	// and then when they BOTH finish, reload the long poller
 	$.myself.getDiscussion(id, function(page, comments, userMap) {
 		if (page) {
+			console.log("GOT COMMENTS INITIAL", comments);
 			$.callback.call($, comments, null, userMap, page);
 			$.cancel[0]();
 			$.listeners[id] = [0];
-			if (comments.length) {
-				$.firstIds[id] = comments[0].id;
-				$.lastIds[id] = comments[comments.length-1].id;
-			}
-			$.updateIdRange();
+			$.updateIdRange(comments);
 			$.idList.push(id);
 			$.running = true;
 			$.loop();
@@ -45,7 +42,15 @@ DiscussionLongPoller.prototype.addRoom = function(id) {
 	})
 }
 
-DiscussionLongPoller.prototype.updateIdRange = function() {
+DiscussionLongPoller.prototype.updateIdRange = function(comments) {
+	var $=this
+	if (comments) {
+		comments.forEach(function(comment) {
+			if (!$.lastIds[comment.parentId] || comment.id > $.lastIds[comment.parentId]) {
+				$.lastIds[comment.parentId] = comment.id;
+			}
+		});
+	}
 	this.firstId = Infinity;
 	this.lastId = -Infinity;
 	for (id in this.lastIds) {
@@ -99,12 +104,7 @@ DiscussionLongPoller.prototype.loop = function() {
 		console.log("GOT COMMENTS", comments);
 		if (!e) {
 			comments = comments || [];
-			comments.forEach(function(comment) {
-				if (!$.lastIds[comment.parentId] || comment.id > $.lastIds[comment.parentId]) {
-					$.lastIds[comment.parentId] = comment.id;
-				}
-			});
-			$.updateIdRange();
+			$.updateIdRange(comments);
 			$.listeners = listeners || {};
 			$.callback.call($, comments, listeners, userMap, null);
 		}
