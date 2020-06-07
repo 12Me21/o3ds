@@ -110,3 +110,41 @@
 .cell[data-bgcolor="gray"] {
 	background-color: #DDD;
 }
+
+.spoilerButton {
+	padding: 0 0.3rem;
+	background-color: #EEE;
+	border: 2px solid gray;
+	border-style: outset;
+	border-radius: 2px;
+	margin-left: 0.2rem;
+	margin-right: 0.2rem;
+	margin-top: 1px;
+	display: inline-block;
+}
+
+.spoilerButton:hover {
+	border-color: #59E;
+}
+
+spoilerButton:active {
+	border-style: inset;
+}
+
+.spoiler {
+	padding: 0.5rem;
+	border: 1px solid gray;
+	background-color: #EEE;
+}
+
+input:not(:checked) + label + .spoiler {
+	display: none;
+}
+
+input:not(:checked) + .spoilerButton:before {
+	content: "Show ";
+}
+
+input:checked + .spoilerButton:before {
+	content: "Hide ";
+}

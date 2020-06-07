@@ -406,6 +406,7 @@ function generateChatView(id, callback) {
 			flag('page', true);
 			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 			currentPage = page.id;
+			$watchCheck.checked = page.about.watching;
 			generateAuthorBox(page, userMap);
 			$messageList.innerHTML = ""
 			currentPage = page.id;

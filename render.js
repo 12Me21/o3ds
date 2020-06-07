@@ -334,32 +334,30 @@ function renderMemberListUser(user) {
 }
 
 function renderMessagePart(comment, sizedOnload){
-	var c = comment.content;
-	var t, m;
-	try {
-		c = JSON.parse(c);
-		if (c.t)
-			t = c.t;
+	var content = comment.content;
+	var text, markup;
+	if (content[0] == "{") {
+		var j = parseJSON(content);
+		if (j) {
+			text = j.t;
+			markup = j.m;
+		} else
+			text = content;
+	} else {
+		var i = content.indexOf("\n");
+		if (i<0)
+			text = content;
 		else
-			t = c;
-		m = c.m;
-	} catch (e) {
-		t = c;
+			text = content.substr(i+1);
 	}
-	/*if (m == '12y') {
-		//todo: update for parser aaaa
-		element = parse(t);
-		var x = element.getElementsByTagName('img');
-		for (var i=0;i<x.length;i++) {
-			x[i].onload = sizedOnload;
-		}
-	} else {*/
-		element = document.createElement('div');
-		element.appendChild(document.createTextNode(t));
-	//}
+	element = parser(markup)(text);
 	element.className += ' messagePart';
 	//document.title=comment.username+":"+t;
 	return element;
+}
+
+function parser(markup) {
+	return Parse.lang[markup] || Parse.fallback;
 }
 
 function hide(element) {

@@ -67,7 +67,7 @@ function ready() {
 	
 	$chatSend.onclick = function() {
 		if ($chatTextarea.value) {
-			me.postComment(lp.idList[0], $chatTextarea.value, "plaintext", function(){});
+			me.postComment(lp.idList[0], $chatTextarea.value, "", function(){});
 			$chatTextarea.value = "";
 		}
 	}
@@ -109,9 +109,15 @@ function ready() {
 			});
 		}
 	})
-	
+
+	var blockWatch
 	$watchCheck.onchange = function() {
-		me.setWatch(currentPage, $watchCheck.checked, function(){});
+		if (blockWatch)
+			return;
+		blockWatch = true;
+		me.setWatch(currentPage, $watchCheck.checked, function(){
+			blockWatch = false;
+		});
 	}
 	
 	$registerForm.$register.onclick = function(e) {

@@ -100,13 +100,14 @@ DiscussionLongPoller.prototype.stop = function() {
 
 DiscussionLongPoller.prototype.loop = function() {
 	var $=this;
-	$.myself.listenChat($.idList, $.firstId, $.lastId, $.listeners, function(e, comments, listeners, userMap){
+	$.myself.listenChat($.idList, $.firstId, $.lastId, function(e, comments, lastId, userMap){
 		console.log("GOT COMMENTS", comments);
 		if (!e) {
 			comments = comments || [];
 			$.updateIdRange(comments);
-			$.listeners = listeners || {};
-			$.callback.call($, comments, listeners, userMap, null);
+			$.callback.call($, comments, {}, userMap, null);
+			console.log("real last id", $.lastId,lastId);
+			$.lastId = lastId;
 		}
 		if (!e || e=='timeout') {
 			$.running = true;
@@ -123,3 +124,7 @@ DiscussionLongPoller.prototype.loop = function() {
 		}
 	}, $.cancel);
 }
+
+// so lastid, what we have to do is
+// normally, just pass the id from the prev. response
+// except, when joining a new roo

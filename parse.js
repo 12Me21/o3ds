@@ -1,5 +1,6 @@
 var Parse = {
-	lang:{}
+	lang:{},
+	id: 0
 };
 
 var create = function(x) {
@@ -16,7 +17,16 @@ var creator = function (tag) {
 
 Parse.options = {
 	append: function (parent, child) {
-		parent.appendChild(child);
+		if (parent.isSpoiler) {
+			parent = parent.branch;
+		}
+		if (child.isSpoiler) {
+			child.nodes.forEach(function(x){
+				parent.appendChild(x)
+			});
+		} else {
+			parent.appendChild(child);
+		}
 	},
 	parent: function (child) { // unused currently
 		return child.parent;
@@ -186,6 +196,27 @@ Parse.options = {
 		var node = create('a');
 		node.name = "_anchor_"+name;
 		return node;
+	},
+	spoiler: function(name, args) {
+		var checkbox = create('input');
+		checkbox.type = 'checkbox';
+		checkbox.style.display = 'none';
+		Parse.id++;
+		checkbox.id = "spoiler-"+Parse.id;
+
+		var label = create('label');
+		label.setAttribute('for', checkbox.id);
+		label.className = "spoilerButton";
+		label.textContent = name;
+		
+		var box = create('div');
+		box.className = "spoiler";
+
+		return {
+			isSpoiler: true,
+			nodes: [checkbox, label, box],
+			branch: box
+		}
 	}
 }
 
@@ -341,51 +372,29 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						addText("]");
 				} else
 					endBlock();
-			//================
-			// https?:// link
-			} else if (c == "h" || c == "!") { //lol this is silly
-				var embed = eatChar("!");
-				if (embed && eatChar("[")) {
-					readBracketedLink(embed) || addText("[");
-					// handled
-				} else {
-					var start = i;
-					if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
-						var url = readUrl();
-						startBlock(embed ? urlType(url) : 'link', {}, url, preview);
-						if (eatChar("["))
-							stack.top().inBrackets = true;
-						else {
-							addText(url);
-							endBlock();
-						}
-					} else {
-						if (embed)
-							addText("!");
-						else {
-							scan();
-							addText("h");
-						}
-					}
-				}
 			//============
 			// |... table
-			} else if (c == "|") {
+			} else if (eatChar("|")) {
 				var top = stack.top();
 				// continuation
 				if (top.type == 'cell') {
 					var row = top.row;
 					var table = top.row.table;
-					scan();
 					var eaten = eatChar("\n");
 					//--------------
 					// | | next row
 					if (eatChar("|")) {
+						// number of cells in first row
+						// determines number of columns in table
 						if (table.columns == null)
 							table.columns = row.cells;
+						// end blocks
 						endBlock(); //cell
 						if (top_is('row')) //always
 							endBlock();
+						// start row
+						// calculate number of cells in row which will be
+						// already filled due to previous row-spanning cells
 						var cells = 0
 						table.rowspans = table.rowspans.map(function(span){
 							cells++;
@@ -393,11 +402,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						}).filter(function(span){return span > 0});
 						var row = startBlock('row', {table:table, cells:cells});
 						row.header = eatChar("*");
-						var props = {h: row.header};
-						readCellProps(row, props);
-						startBlock('cell', {row:row}, props);
-						while (eatChar(" "))
-							;
+						// start cell
+						startCell(row);
 						//--------------------------
 						// | next cell or table end
 					} else {
@@ -410,23 +416,18 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						if (table.columns != null && row.cells > table.columns) {
 							endBlock(); //end cell
 							if (top_is('row')) //always
-								endBlock();
+								endBlock(); //row
 							if (top_is('table')) //always
-								endBlock();
+								endBlock(); //table
 							if (eaten)
 								addLineBreak();
 						} else { // next cell
-							endBlock();
-							var props = {h: row.header};
-							readCellProps(row, props);
-							startBlock('cell', {row:row}, props);
-							while (c == " ")
-								scan();
+							endBlock(); //cell
+							startCell(row);
 						}
 					}
 					// start of new table (must be at beginning of line)
 				} else if (startOfLine) {
-					scan();
 					table = startBlock('table', {
 						columns: null,
 						rowspans: []
@@ -436,13 +437,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						cells: 0
 					});
 					row.header = eatChar("*");
-					var props = {h: row.header};
-					readCellProps(row, props);
-					startBlock('cell', {row:row}, props);
-					while (eatChar(" "))
-						;
+					startCell(row);
 				} else {
-					scan();
 					addText("|");
 				}
 				//===========
@@ -458,6 +454,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						start = i;
 						while (c && c!="\n" && c!="`")
 							scan();
+						//todo: protect against ```why won't this work``` ?
 						var language = code.substring(start, i).trim().toLowerCase();
 						var eaten = eatChar("\n");
 						start = i;
@@ -500,10 +497,9 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					scan();
 				}
 			//
-			//=============
-			// [[url link
-			} else if (eatChar("[")) {
-				readBracketedLink() || addText("[");
+			//================
+			// link
+			} else if (readLink()) {
 			//
 			//=============
 			// normal char
@@ -512,9 +508,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				scan();
 			}
 		}
+		// END
 		flushText();
 		closeAll(true);
 		return output;
+		
 	} catch (e) {
 		try {
 			flushText();
@@ -531,7 +529,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		}
 	}
 	
-	// ######################
+	// ###################################
 	
 	function eatChar(chr) {
 		if (c == chr) {
@@ -541,42 +539,52 @@ Parse.lang['12y'] = function(code, preview, cache) {
 	}
 	
 	function readBracketedLink(embed) {
-		if (c != "[") {
-			return false;
-		} else {
-			scan();
-			// read url:
-			var start = i;
-			var part2 = false;
-			var url = readUrl(true);
-			if (eatChar("]")) {
-				if (eatChar("]"))
-					;
-				else if (eatChar("["))
-					part2 = true;
+		if (eatChar("[")) {
+			if (eatChar("[")) {
+				// read url:
+				var start = i;
+				var part2 = false;
+				var url = readUrl(true);
+				if (eatChar("]")) {
+					if (eatChar("]"))
+						;
+					else if (eatChar("["))
+						part2 = true;
+				}
+				startBlock(embed ? urlType(url) : 'link', {big: true}, url, preview);
+				if (part2)
+					stack.top().inBrackets = true;
+				else {
+					addText(url);
+					endBlock();
+				}
+				return true;
+			} else {
+				addText("[");
 			}
-			startBlock(embed ? urlType(url) : 'link', {big: true}, url, preview);
-			if (part2)
-				stack.top().inBrackets = true;
-			else {
-				addText(url);
-				endBlock();
-			}
-			return true;
 		}
+		return false;
 	}
 
-	function readCellProps(row, cellp) {
+	// read table cell properties and start cell block, and eat whitespace
+	// assumed to be called when pointing to char after |
+	function startCell(row) {
 		if (eatChar("#")) {
 			var props = readProps();
-			Object.assign(cellp, props);
 			if (props.rs)
 				row.table.rowspans.push(props.rs-1);
 			if (props.cs)
 				row.cells += props.cs-1;
+		} else {
+			props = {};
 		}
+		props.h = row.header;
+		startBlock('cell', {row: row}, props);
+		while (eatChar(" "))
+			;
 	}
 
+	// split string on first occurance
 	function split1(string, sep) {
 		var n = string.indexOf(sep);
 		if (n == -1)
@@ -584,7 +592,9 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		else
 			return [string.substr(0,n), string.substr(n+sep.length)];
 	}
-	
+
+	// read properties key=value,key=value... ended by a space
+	// =value is optional and defaults to `true`
 	function readProps() {
 		var start = i;
 		var end = code.indexOf(" ", i);
@@ -600,12 +610,44 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		});
 		return props;
 	}
-	
+
+	// string.repeat doesn't exist
 	function addMulti(text, count) {
 		while (count --> 0)
 			addText(text);
 	}
 
+	
+	function readLink() {
+		var embed = eatChar("!");
+		if (readBracketedLink(embed) || readPlainLink(embed))
+			return true;
+		else if (embed) {
+			addText("!");
+			return true;
+			//lesson: if anything is eaten, you must return true if it's in the top level if switch block
+		}
+	}
+
+	function readPlainLink(embed) {
+		if (matchNext("http://") || matchNext("https://") || matchNext("sbs:")) {
+			var url = readUrl();
+			var after = eatChar("[");
+			startBlock(embed ? urlType(url) : 'link', {
+				inBrackets: after
+			}, url, preview);
+			if (!after) {
+				addText(url);
+				endBlock();
+			}
+			return true;
+		}
+	}
+	
+	function matchNext(str) {
+		return code.substr(i, str.length) == str;
+	}
+		
 	// read a url
 	// if `allow` is true, url is only ended by end of file or ]] or ][ (TODO)
 	function readUrl(allow) {
@@ -639,7 +681,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			endBlock();
 		}
 	}
-	
+
+	// called at the end of a line (unescaped newline)
 	function endLine() {
 		while (1) {
 			var top = stack.top();
@@ -654,14 +697,12 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				// OPTION 1:
 				// no next item; end list
 				if (c != "-") {
-					while (top_is('list')) {//should ALWAYS happen at least once
+					while (top_is('list')) //should ALWAYS happen at least once
 						endBlock();
-					}
 					addMulti(" ", indent);
 				} else {
 					scan();
-					while (eatChar(" "))
-						;
+					while (eatChar(" ")) {}
 					// OPTION 2:
 					// next item has same indent level; add item to list
 					if (indent == top.level) {
@@ -702,7 +743,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		}
 	}
 
-	// audio, video, image, youtube (todo)
+	// audio, video, image, youtube
+	//todo: improve this lol
 	function urlType(url) {
 		if (/(\.mp3(?!\w)|\.ogg(?!\w)|\.wav(?!\w)|#audio$)/.test(url))
 			return "audio";
@@ -896,7 +938,6 @@ Parse.lang.bbcode = function(code, preview) {
 		table: options.table,
 		tr: options.row,
 		td: function(arg, opt){
-			console.log(opt);
 			return options.cell(Object.assign({h:false}, opt))
 		},
 		th: function(arg, opt){
@@ -964,6 +1005,11 @@ Parse.lang.bbcode = function(code, preview) {
 					}
 					if (name == stack.top().type) {
 						endBlock(point);
+						// eat whitespace between table cells
+						if (name == 'td' || name == 'th') {
+							while(eatChar(' ')||eatChar('\n')){
+							}
+						}
 					} else {
 						cancel();
 					}
@@ -995,6 +1041,10 @@ Parse.lang.bbcode = function(code, preview) {
 					}
 					if (eatChar("]")) {
 						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
+							// eat first linebreak in blocks
+							if (name == "youtube" || name=="img" || (name=="code" && arg != "inline"))
+								eatChar("\n");
+							
 							var endTag = "[/"+name+"]";
 							var end = code.indexOf(endTag, i);
 							if (end < 0)
@@ -1135,9 +1185,9 @@ Parse.lang.bbcode = function(code, preview) {
 	function endBlock(index) {
 		flushText();
 		var item = stack.pop();
-		if (displayBlock[item.type]) {
+		if (displayBlock[item.type])
 			skipNextLineBreak = true;
-		}
+		
 		if (stack.length)
 			curr = stack.top().node;
 		else
@@ -1146,9 +1196,9 @@ Parse.lang.bbcode = function(code, preview) {
 	
 	function startBlock(type, arg, args, index) {
 		if (displayBlock[type]) {
-			if (eatChar("\n")) //hack
-				index++;
-			else
+			//if (eatChar("\n")) //hack
+			//	index++;
+			//else
 				skipNextLineBreak = true;
 		}
 		var node = blocks[type](arg, args);

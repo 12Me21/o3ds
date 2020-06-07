@@ -578,7 +578,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
-Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback, cancel) {
+Myself.prototype.listenChat = function(ids, firstId, lastId, callback, cancel) {
 	var $=this;
 	if (lastId == -Infinity)
 		lastId = undefined;
@@ -590,10 +590,11 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback
 		}},
 	], {
 	}, function(e, resp) {
+		console.log("LISTEN RESP", resp);
 		if (e)
 			$.cb(callback, e, resp);
 		else {
-			$.cb(callback, e, resp.chains.comment, resp.listeners, resp.chains.userMap);
+			$.cb(callback, e, resp.chains.comment, resp.lastId, resp.chains.userMap);
 		}
 	}, cancel);
 }
@@ -618,10 +619,10 @@ Myself.prototype.deletePage = function(id, callback) {
 	this.request("Content/"+id+"/delete", 'POST', callback);
 }
 
-Myself.prototype.postComment = function(id, message, markup, callback) {
+Myself.prototype.postComment = function(id, message, f, callback) {
 	this.request("Comment", 'POST', callback, {
 		parentId: id,
-		content: JSON.stringify({t: message, m: markup})
+		content: f+"\n"+message,//JSON.stringify({t: message, m: markup})
 	});
 };
 

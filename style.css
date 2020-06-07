@@ -373,7 +373,7 @@ main {
 	vertical-align: top;
 	overflow: auto;
 }
-.messagePart {
+.messagePart.markup-root {
 	margin: .2rem;
 }
 .messagePart img {
@@ -832,6 +832,6 @@ html:not(.f-fileUploading) .fileUploading {
 	width: 100%;
 }
 
-.html:not(.f-page) .pageItem {
+html:not(.f-page) .pageItem {
 	display: none;
 }
