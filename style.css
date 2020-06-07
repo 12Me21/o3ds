@@ -653,6 +653,9 @@ html:not(.f-myUserPage) .myUserPage {
 	.userPageBox {
 		max-height: none;
 	}
+	.inputPane textArea {
+		font-size: 1.5em;
+	}
 }
 
 .pageInfoPane {
