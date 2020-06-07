@@ -434,6 +434,7 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 		limit: 10,
 		skip: page*10,
 		sort: 'editDate',
+		reverse: true
 	}
 	if (id)
 		var childCategorysFilter = {parentIds: [id]};

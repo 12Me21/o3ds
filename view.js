@@ -199,6 +199,7 @@ function generateHomeView(idk, callback) {
 	generateAuthorBox();
 	generatePath();
 	setTitle("Welcome to smilebnasic source! 2");
+	
 	callback();
 }
 
@@ -482,6 +483,7 @@ function generateCategoryView(id, query, callback) {
 				$categoryCategories.appendChild(renderCategory(cat, users));
 			});
 			$categoryPages.style.display="none";
+			contentz.reverse();
 			contentz.forEach(function(content) {
 				$categoryPages.appendChild(renderCategoryPage(content, users));
 			});
