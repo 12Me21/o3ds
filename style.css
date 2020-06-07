@@ -593,15 +593,16 @@ html:not(.f-myUserPage) .myUserPage {
 	display: none;
 }
 
-/*@media (max-width: 700px) {
+@media (max-width: 700px) {
 	.userPageBox {
 		flex-direction: column;
 		max-height: none;
 	}
-	.userPageContents {
+	.userPageBox .userPageContents {
 		width: 100%;
+		flex-basis: auto;
 	}
-}*/
+}
 
 /* narrow screen: fullscreen sidebar */
 @media (max-width: 700px) {

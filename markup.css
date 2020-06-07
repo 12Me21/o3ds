@@ -79,6 +79,7 @@
 
 .markup-root audio, .markup-root video, .markup-root .youtube {
 	display: block;
+	max-width: 100%;
 }
 
 .markup-root .youtube {

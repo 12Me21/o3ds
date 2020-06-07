@@ -53,12 +53,6 @@ function generateSettingsView(n, callback) {
 			generatePath([["#usersettings","Settings"]]);
 			if (user) {
 				setTitle("User Settings: " + user.username);
-				userAvatar(user, $settingsAvatar);
-				if (page) {
-					$userPageLink.href = "#pages/edit/"+page.id;
-				} else {
-					$userPageLink.href = "#pages/edit?type=@user.page&name=User Page";
-				}
 			}
 			callback();
 		});
@@ -204,7 +198,7 @@ function generateHomeView(idk, callback) {
 	$main.className = "homeMode";
 	generateAuthorBox();
 	generatePath();
-	setTitle("Welcome to smilebnasic soruce! 2");
+	setTitle("Welcome to smilebnasic source! 2");
 	callback();
 }
 
