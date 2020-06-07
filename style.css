@@ -823,3 +823,11 @@ html:not(.f-fileUploading) .fileUploading {
 .fileBox {
 	border-bottom: 1px solid gray;
 }
+
+.closeSidebar {
+	width: 100%;
+}
+
+.closeSidebar button {
+	width: 100%;
+}

@@ -11,7 +11,7 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?S">
+<link rel="stylesheet" href="style.css?T">
 <link rel="stylesheet" href="markup.css?n">
 <link rel="stylesheet" href="code.css?a">
 
@@ -209,13 +209,13 @@
 			  -->
 			<div class="inputPane chatMode">
 				<textarea id="$chatTextarea"></textarea>
-				<button id="$chatSend">Send</button>
+				<div class="buttonContainer"><button id="$chatSend">Send</button></div>
 			</div>
 
 		</div>
 		
 		<div class="sideBar" id="$sidebar">
-			<button id="$closeSidebar">Close Sidebar</button><br>
+			<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div><br>
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
 				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>			
