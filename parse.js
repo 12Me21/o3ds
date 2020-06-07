@@ -147,17 +147,17 @@ Parse.options = {
 	table: creator('table'),
 	row: creator('tr'),
 	cell: function (opt) {
-		var node = opt.header ?
+		var node = opt.h ?
 			create('th') :
 			 create('td');
-		if (opt.rowspan)
-			node.rowSpan = opt.rowspan;
-		if (opt.colspan)
-			node.colSpan = opt.colspan;
-		if (opt.bgcolor) {
-			if (opt.bgcolor[0] == "#")
-				node.style.backgroundColor = opt.bgcolor;
-			node.setAttribute("data-bgcolor", opt.bgcolor);
+		if (opt.rs)
+			node.rowSpan = opt.rs;
+		if (opt.cs)
+			node.colSpan = opt.cs;
+		if (opt.c) {
+			if (opt.c[0] == "#")
+				node.style.backgroundColor = opt.c;
+			node.setAttribute("data-bgcolor", opt.c);
 		}
 		node.className = "cell";
 		return node;
@@ -252,6 +252,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				// { group start (why did I call these "groups"?)
 			} else if (eatChar("{")) {
 				startBlock(null, {});
+				//if (eatChar("#")){} TAGS PLEASE
 				lineStart();
 			//=============
 			// } group end
@@ -392,7 +393,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						}).filter(function(span){return span > 0});
 						var row = startBlock('row', {table:table, cells:cells});
 						row.header = eatChar("*");
-						var props = {header: row.header};
+						var props = {h: row.header};
 						readCellProps(row, props);
 						startBlock('cell', {row:row}, props);
 						while (eatChar(" "))
@@ -416,7 +417,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 								addLineBreak();
 						} else { // next cell
 							endBlock();
-							var props = {header: row.header};
+							var props = {h: row.header};
 							readCellProps(row, props);
 							startBlock('cell', {row:row}, props);
 							while (c == " ")
@@ -435,7 +436,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						cells: 0
 					});
 					row.header = eatChar("*");
-					var props = {header: row.header};
+					var props = {h: row.header};
 					readCellProps(row, props);
 					startBlock('cell', {row:row}, props);
 					while (eatChar(" "))
@@ -568,17 +569,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 	function readCellProps(row, cellp) {
 		if (eatChar("#")) {
 			var props = readProps();
-			if (props.v) {
-				row.table.rowspans.push(props.v-1);
-				cellp.rowspan = props.v;
-			}
-			if (props.h) {
-				row.cells += props.h-1;
-				cellp.colspan = props.h;
-			}
-			if (props.c) {
-				cellp.bgcolor = props.c;
-			}
+			Object.assign(cellp, props);
+			if (props.rs)
+				row.table.rowspans.push(props.rs-1);
+			if (props.cs)
+				row.cells += props.cs-1;
 		}
 	}
 
@@ -601,7 +596,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		var props = {};
 		propst.split(",").forEach(function(x){
 			var pair = split1(x, "=");
-			props[pair[0]] = pair[1];
+			props[pair[0]] = pair[1] || true;
 		});
 		return props;
 	}
@@ -900,8 +895,13 @@ Parse.lang.bbcode = function(code, preview) {
 		h3: function(){return options.heading(3)},
 		table: options.table,
 		tr: options.row,
-		td: function(){return options.cell(false)},
-		th: function(){return options.cell(true)},
+		td: function(arg, opt){
+			console.log(opt);
+			return options.cell(Object.assign({h:false}, opt))
+		},
+		th: function(arg, opt){
+			return options.cell(Object.assign({h:true}, opt))
+		},
 		code: true, 
 		align: options.align,
 		url: options.link,//+<VERY special case> (only hardcode when no argument)
