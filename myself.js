@@ -578,7 +578,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
-Myself.prototype.listenChat = function(ids, firstId, lastId, callback, cancel) {
+Myself.prototype.listenChat = function(ids, firstId, lastId, statuses, listeners, callback, cancel) {
 	var $=this;
 	if (lastId == -Infinity)
 		lastId = undefined;
@@ -586,15 +586,19 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, callback, cancel) {
 		{actions: {
 			lastId: lastId,
 			firstId: firstId,
+			statuses: statuses,
 			chains: ["comment.0id-"+JSON.stringify({parentIds:ids}),"user.1createUserId"]
 		}},
+		{listeners: {
+			lastListeners: listeners,
+			chains: ["user.0listeners"]
+		}}
 	], {
 	}, function(e, resp) {
-		console.log("LISTEN RESP", resp);
 		if (e)
 			$.cb(callback, e, resp);
 		else {
-			$.cb(callback, e, resp.chains.comment, resp.lastId, resp.chains.userMap);
+			$.cb(callback, e, resp.chains.comment, resp.lastId, resp.listeners, resp.chains.userMap);
 		}
 	}, cancel);
 }
@@ -702,7 +706,6 @@ Myself.prototype.fileUrl = function(id) {
 }
 
 Myself.prototype.uploadFile = function(file, callback) {
-	console.log(file);
 	var form = new FormData();
 	form.append('file', file);
 	this.request("File", 'POST', callback, form);

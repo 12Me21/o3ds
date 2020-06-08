@@ -430,7 +430,7 @@ function generateChatView(id, callback) {
 					displayMessage(comment, userMap[comment.createUserId]);
 			});
 		}
-		if (listeners)
+		if (listeners && listeners[id])
 			updateUserlist(listeners[id], userMap);
 		if (page) {
 			scroller.autoScroll(true);

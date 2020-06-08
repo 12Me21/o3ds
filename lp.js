@@ -9,7 +9,8 @@ function DiscussionLongPoller(myself, callback) {
 	this.firstIds = {}; //first id per room
 	this.lastIds = {}; //last id per room
 	this.listeners = {}; //userlist per room
-	
+	this.statuses = {};
+
 	this.cancel = [function(){}];
 	this.callback = callback;
 }
@@ -31,7 +32,10 @@ DiscussionLongPoller.prototype.addRoom = function(id) {
 			console.log("GOT COMMENTS INITIAL", comments);
 			$.callback.call($, comments, null, userMap, page);
 			$.cancel[0]();
-			$.listeners[id] = [0];
+			$.listeners[id] = {};
+			$.listeners[id]['0'] = "";
+			
+			$.statuses[id] = "active";
 			$.updateIdRange(comments);
 			$.idList.push(id);
 			$.running = true;
@@ -71,6 +75,7 @@ DiscussionLongPoller.prototype.reset = function() {
 	this.firstIds = {};
 	this.lastIds = {};
 	this.listeners = {};
+	this.statuses = {};
 	
 	this.cancel = [function(){}];
 }
@@ -83,6 +88,7 @@ DiscussionLongPoller.prototype.removeRoom = function(id) {
 		delete this.listeners[id];
 		delete this.firstIds[id];
 		delete this.lastIds[id];
+		delete this.statuses[id];
 		var i = this.idList.indexOf(id);
 		if (i >= 0)
 			this.idList.splice(i, 1);
@@ -100,13 +106,31 @@ DiscussionLongPoller.prototype.stop = function() {
 
 DiscussionLongPoller.prototype.loop = function() {
 	var $=this;
-	$.myself.listenChat($.idList, $.firstId, $.lastId, function(e, comments, lastId, userMap){
+	$.myself.listenChat($.idList, $.firstId, $.lastId, $.statuses, $.listeners, function(e, comments, lastId, listeners, userMap){
 		console.log("GOT COMMENTS", comments);
 		if (!e) {
 			comments = comments || [];
+
+			// if listeners is not set, then we don't have new listeners data
+			// so we pass the old listeners list to the next LP req
+			// but DON'T pass this old list to the callback
+			// since we don't have associated users anymore !
+			if (listeners) {
+				for (room in listeners) {
+					var r = listeners[room]
+					var rl = {};
+					for (key in r) {
+						rl[(key+"").match(/\d+/)[0]] = r[key];
+					}
+					listeners[room] = rl;
+				}
+
+				$.listeners = listeners;
+			}
+
 			$.updateIdRange(comments);
-			$.callback.call($, comments, {}, userMap, null);
-			console.log("real last id", $.lastId,lastId);
+			
+			$.callback.call($, comments, listeners, userMap, null);
 			$.lastId = lastId;
 		}
 		if (!e || e=='timeout') {

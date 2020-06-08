@@ -440,10 +440,16 @@ function generateAuthorBox(page, users) {
 	renderAuthorBox(page, users, $authorBox);
 }
 
+function forDict(dict, func) {
+	for (key in dict)
+		func(dict[key], key, dict);
+}
+
 function updateUserlist(listeners, userMap) {
 	$chatUserlist.innerHTML = "";
-	listeners && listeners.forEach(function(l) {
-		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
+	listeners && forDict(listeners, function(status, user) {
+		user = user.match(/\d+/)[0];
+		$chatUserlist.appendChild(renderUserListAvatar(userMap[user]));
 	})
 }
 
