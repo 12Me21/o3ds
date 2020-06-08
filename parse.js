@@ -204,10 +204,16 @@ Parse.options = {
 				url = hash;
 				node.onclick = function(e) {
 					//todo: set doc fragment too
-					var n = document.getElementsByName("_anchor_"+name);
-					if (n[0])
-						n[0].scrollIntoView();
-					e.preventDefault();
+					
+					console.log("SETTING", window.location.hash, hash);
+					if (window.location.hash == hash) {
+						var n = document.getElementsByName("_anchor_"+name);
+						if (n[0])
+							n[0].scrollIntoView();
+						e.preventDefault();
+					} else {
+						window.location.hash = hash;
+					}
 				}
 			} else {
 				// urls without protocol get https:// or http:// added
