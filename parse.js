@@ -22,6 +22,11 @@ function findUnusedCached(cache, type, arg) {
 	return null;
 }
 
+function getPath() {
+	var hash = decodeURIComponent(location.hash.substr(1));
+	return hash.split("#");
+}
+
 // try to get a node from cache.
 // will get nodes where `type` and `arg` matches
 // if not found, returns make(), and adds to cache
@@ -198,15 +203,13 @@ Parse.options = {
 			
 		} else if (!protocol) {
 			if (url[0] == "#") {
-				var hash = window.location.hash.substr(1);
+				var hash1 = getPath();
 				var name = url.substr(1)
-				hash = "#"+hash.replace(/(#.*)?$/, "#"+name)
+				hash = "#"+hash1[0]+"#"+name;
 				url = hash;
 				node.onclick = function(e) {
-					//todo: set doc fragment too
-					
-					console.log("SETTING", window.location.hash, hash);
-					if (window.location.hash == hash) {
+					var hash2 = getPath();
+					if (hash1[0]==hash2[0] && hash1[1]==hash2[1]) {
 						var n = document.getElementsByName("_anchor_"+name);
 						if (n[0])
 							n[0].scrollIntoView();
