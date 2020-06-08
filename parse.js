@@ -3,6 +3,48 @@ var Parse = {
 	id: 0
 };
 
+function markCacheUnused(cache) {
+	for (type in cache)
+		for (arg in cache[type])
+			cache[type][arg].forEach(function(x){
+				x.used = false;
+			});
+}
+
+function findUnusedCached(cache, type, arg) {
+	var list = cache[type][arg]
+	if (!list)
+		return null;
+	for (var i=0;i<list.length;i++) {
+		if (!list[i].used)
+			return list[i];
+	}
+	return null;
+}
+
+// try to get a node from cache.
+// will get nodes where `type` and `arg` matches
+// if not found, returns make(), and adds to cache
+function tryGetCached(cache, type, arg, make) {
+	var node;
+	if (cache && type && cache[type]) {
+		var item = findUnusedCached(cache, type, arg);
+		if (item) {
+			item.used = true;
+			node = item.node;
+		}
+	}
+	if (!node && type) {
+		node = make();
+		if (cache && cache[type]) {
+			if (!cache[type][arg])
+				cache[type][arg] = [];
+			cache[type][arg].push({node:node, used:true});
+		}
+	}
+	return node;
+}
+
 var create = function(x) {
 	return document.createElement(x);
 }
@@ -75,7 +117,7 @@ Parse.options = {
 		node.textContent = text;
 		return node;
 	},
-	audio: function(url, preview) {
+	audio: function(args, preview) {
 		if (preview) {
 			var node = create('div');
 			node.className = "audioPreview preview";
@@ -84,7 +126,7 @@ Parse.options = {
 		}
 		var node = create('audio');
 		node.setAttribute('controls', "");
-		node.setAttribute('src', url);
+		node.setAttribute('src', args[""]);
 		return node;
 	},
 	video: function(url, preview) {
@@ -140,7 +182,8 @@ Parse.options = {
 	},
 	list: creator('ul'),
 	item: creator('li'), // (list item)
-	link: function(url) {
+	link: function(args) {
+		var url = args[""];
 		// important, do not remove, prevents script injection
 		if (/^ *javascript:/i.test(url))
 			url = "";
@@ -263,7 +306,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 	// to generate any new videos
 	// or don't use preview at all! maybe it's fine!
 	if (cache)
-		markCacheUnused();
+		markCacheUnused(cache);
 	
 	var options = Parse.options;
 	var output = options.root();
@@ -580,7 +623,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					else if (eatChar("["))
 						part2 = true;
 				}
-				startBlock(embed ? urlType(url) : 'link', {big: true}, url, preview);
+				startBlock(embed ? urlType(url) : 'link', {big: true}, {"":url}, preview);
 				if (part2)
 					stack.top().inBrackets = true;
 				else {
@@ -703,7 +746,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			var after = eatChar("[");
 			startBlock(embed ? urlType(url) : 'link', {
 				inBrackets: after
-			}, url, preview);
+			}, {"":url}, preview);
 			if (!after) {
 				addText(url);
 				endBlock();
@@ -888,25 +931,6 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		return top && top.type == type;
 	}
 
-	function markCacheUnused() {
-		for (type in cache)
-			for (arg in cache[type])
-				cache[type][arg].forEach(function(x){
-					x.used = false;
-				});
-	}
-	
-	function findUnusedCached(type, arg) {
-		var list = cache[type][arg]
-		if (!list)
-			return null;
-		for (var i=0;i<list.length;i++) {
-			if (!list[i].used)
-				return list[i];
-		}
-		return null;
-	}
-	
 	function startBlock(type, data, arg) {
 		if (displayBlock[type]) {
 			/*if (lastLineBreak) {
@@ -914,23 +938,9 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			}*/
 			skipNextLineBreak = true;
 		}
-		var node;
-		if (cache && type && cache[type]) {
-			var item = findUnusedCached(type, arg);
-			if (item) {
-				item.used = true;
-				node = item.node;
-			}
-		}
-		if (!node && type) {
-			node = options[type](arg);
-			
-			if (cache && cache[type]) {
-				if (!cache[type][arg])
-					cache[type][arg] = [];
-				cache[type][arg].push({node:node, used:true});
-			}
-		}
+		var node = tryGetCached(cache, type, arg, function() {
+			return options[type](arg);
+		});
 		
 		data.type = type;
 		if (type) {
@@ -987,12 +997,15 @@ Parse.lang['12y'] = function(code, preview, cache) {
 	}
 }
 
-Parse.lang.bbcode = function(code, preview) {
+Parse.lang.bbcode = function(code, preview, cache) {
+	if (cache)
+		markCacheUnused(cache);
+
 	var options = Parse.options;
 	var output = options.root();
 	var curr = output;
 	var displayBlock = {
-		h1:true,h2:true,h3:true,align:true,list:true,spoiler:true,youtube:true,quote:true,table:true,tr:true,img:true
+		h1:true,h2:true,h3:true,align:true,list:true,spoiler:true,youtube:true,quote:true,table:true,tr:true,img:true,video:true,audio:true
 	};
 	var noNesting = {
 		spoiler:true
@@ -1019,6 +1032,8 @@ Parse.lang.bbcode = function(code, preview) {
 		align: options.align,
 		url: options.link,//+<VERY special case> (only hardcode when no argument)
 		youtube: true, //<special case>,
+		audio: true,
+		video: true,
 		img: true, //<special case>,
 		list: options.list,
 		spoiler: options.spoiler,
@@ -1027,10 +1042,11 @@ Parse.lang.bbcode = function(code, preview) {
 			return options.anchor(args[""]);
 		},
 		item: options.item,
+		audio: options.audio,
 	};
 	var specialBlock = {
 		url: function(args, contents){
-			var node = options.link(contents);
+			var node = options.link({"":contents});
 			node.textContent = contents;
 			return node;
 		},
@@ -1046,8 +1062,16 @@ Parse.lang.bbcode = function(code, preview) {
 		},
 		img: function(args, contents) {
 			return options.image(contents);
+		},
+		audio: function(args, contents) {
+			return options.audio({"":contents});
+		},
+		video: function(args, contents) {
+			return options.video({"":contents});
 		}
 	};
+
+	
 	
 	var skipNextLineBreak;
 	var lastLineBreak;
@@ -1113,9 +1137,10 @@ Parse.lang.bbcode = function(code, preview) {
 					}
 					args[""] = arg;
 					if (eatChar("]")) {
-						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
+						if (specialBlock[name] && !(name == "url" && arg!=true)) {
 							// eat first linebreak in blocks
-							if (name == "youtube" || name=="img" || (name=="code" && arg != "inline"))
+							var isBlock = (name=="code" && arg != "inline") || displayBlock[name]
+							if (isBlock)
 								eatChar("\n");
 							
 							var endTag = "[/"+name+"]";
@@ -1125,8 +1150,15 @@ Parse.lang.bbcode = function(code, preview) {
 							else {
 								var contents = code.substring(i, end);
 								restore(end + endTag.length);
-								addBlock(specialBlock[name](args, contents));
-								if (name == "youtube" || name=="img" || (name=="code" && arg != "inline"))
+
+								// todo: this can't handle args with caching currently
+								var node = tryGetCached(cache, name, contents, function() {
+									return specialBlock[name](args, contents);
+								});
+								
+								addBlock(node);
+								
+								if (isBlock)
 									skipNextLineBreak = true;
 							}
 						} else if (blocks[name] && !(noNesting[name] && stackContains(name))) {
@@ -1138,6 +1170,7 @@ Parse.lang.bbcode = function(code, preview) {
 					}
 				}
 			}
+		} else if (readPlainLink()) {
 		} else if (eatChar('\n')) {
 			addLineBreak();
 		} else {
@@ -1152,6 +1185,41 @@ Parse.lang.bbcode = function(code, preview) {
 	
 	function cancel() {
 		addText(code.substring(point, i));
+	}
+
+	function readPlainLink() {
+		if (matchNext("http://") || matchNext("https://") || matchNext("sbs:")) {
+			var url = readUrl();
+			addBlock(specialBlock.url({},url));
+			return true;
+		}
+	}
+
+	function matchNext(str) {
+		return code.substr(i, str.length) == str;
+	}
+
+	// read a url
+	// if `allow` is true, url is only ended by end of file or ]] or ][ (TODO)
+	function readUrl(allow) {
+		var start = i;
+		if (allow)
+			while (c && c!="]" && c!="[")
+				scan();
+		else
+			while (isUrlChar(c))
+				scan();
+		return code.substring(start, i);
+	}
+	
+	// ew regex
+	function isUrlChar(c) {
+		return c && (/[-\w\$\.+!*'(),;/\?:@=&#%]/).test(c);
+	}
+	
+	function restore(pos) {
+		i = pos-1;
+		scan();
 	}
 
 	function stackContains(type) {
@@ -1282,6 +1350,7 @@ Parse.lang.bbcode = function(code, preview) {
 				skipNextLineBreak = true;
 		}
 		var node = blocks[type](args);
+	
 		stack.push({
 			type: type,
 			node: node,
@@ -1294,11 +1363,26 @@ Parse.lang.bbcode = function(code, preview) {
 	}
 }
 
+// "plain text" (with autolinker)
 Parse.fallback = function(text) {
 	var options = Parse.options;
 	var root = options.root();
-	var text = options.text(text);
-	options.append(root, text);
-	//todo: autolinker
+	
+	var linkRegex = /\b(?:https?:\/\/|sbs:)[-\w\$\.+!*'(),;/\?:@=&#%]*/g;
+	var result;
+	var out = "", last = 0;
+	while (result = linkRegex.exec(text)) {
+		// text before link
+		options.append(root, options.text(text.substr(last, result.index)));
+		// generate link
+		var link = options.link({"": result[0]});
+		options.append(link, options.text(result[0]));
+		options.append(root, link);
+		
+		last = result.index + result[0].length;
+	}
+	// text after last link (or entire message if no links were found)
+	options.append(root, options.text(text.substr(last)));
+	
 	return root;
 }
