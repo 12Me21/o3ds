@@ -8,7 +8,7 @@
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
 var scroller;
-var lp = new DiscussionLongPoller(me, null);
+var lp = new LongPoller(me, null);
 var currentPage;
 flag('sidebar', localStorage.getItem('sbs-sidebar') == 'true');
 
@@ -33,13 +33,9 @@ function ready() {
 		onLogin(me);
 	else
 		onLogout();
-	
-	me.on('login', function(gotUser) {
-		onLogin(me);
-	});
-	me.on('logout', function() {
-		onLogout(me);
-	});
+
+	me.onLogin = onLogin;
+	me.onLogout = onLogout;
 	
 	$loggedOut.$login.onclick = function() {
 		event.preventDefault();
@@ -236,7 +232,9 @@ var currentPath = null;
 // todo: add a "force" flag
 function hashChange(first) {
 	var fragment = getPath();
+	console.log(currentPath, fragment[0]);
 	if (currentPath == fragment[0]) {
+		console.log("FOUND ANCHOR FRAGMNET", fragment[1]);
 		scrollTo(fragment[1])
 	} else {
 		currentPath = fragment[0];
@@ -247,7 +245,14 @@ function hashChange(first) {
 	
 }
 
+function scrollToAuto() {
+	var fragment = getPath();
+	if (fragment[1])
+		scrollTo(fragment[1]);
+}
+
 function scrollTo(name) {
+	//todo: this needs to happen after all images load etc. somehow...
 	if (name) {
 		var n = document.getElementsByName("_anchor_"+name);
 		if (n[0])
@@ -372,14 +377,11 @@ function makeCategoryPath(tree, id, leaf) {
 function loadStart(lp) {
 	if (!lp)
 		flag('loading', true);
-	/*if (window.$titlePane)
-		window.$titlePane.style.backgroundColor = "#48F";*/
 }
 function loadEnd(lp, e) {
 	if (!lp) {
 		flag('loading');
 	}
-	/*$titlePane.style.backgroundColor = "";*/
 }
 
 //maybe turn the title <h1> into an input box
@@ -438,11 +440,6 @@ function updateEditorPreview(preview) {
 // I feel like the names are backwards, sorry...
 function generateAuthorBox(page, users) {
 	renderAuthorBox(page, users, $authorBox);
-}
-
-function forDict(dict, func) {
-	for (key in dict)
-		func(dict[key], key, dict);
 }
 
 function updateUserlist(listeners, userMap) {

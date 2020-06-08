@@ -1,3 +1,19 @@
+function renderKeyInfo(key, data, element) {
+	element = element || document.createElement('span');
+	element.innerHTML = "";
+	
+	var icon = document.createElement('img');
+	icon.src = protocol()+"//sbapi.me/get/"+data.path+"/META/icon";
+	icon.className = "metaIcon";
+
+	element.appendChild(icon);
+	
+	element.appendChild(textItem(data.filename, "pre metaTitle"));
+	
+	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
+	return element;
+}
+
 function renderContentName(name, icon) {
 	var span = document.createElement('span');
 	span.className = "textItem pageName";
@@ -45,7 +61,7 @@ function userAvatar(user, cls, big) {
 		img.src = user.bigAvatarURL;
 	else
 		img.src = user.avatarURL;
-	img.alt = "";//user.username;
+	img.alt = "";
 	return img;
 }
 
@@ -93,7 +109,7 @@ function renderAuthorBox(page, users, element) {
 	element.innerHTML = "";
 	if (!page)
 		return;
-	/*element.appendChild(textItem("Author: "));*/
+	element.appendChild(textItem("Author: "));
 	element.appendChild(renderUserLink(users[page.createUserId], true));
 	element.appendChild(renderTimeAgo(page.createDate));
 	// page was edited by other user
@@ -110,8 +126,8 @@ function renderAuthorBox(page, users, element) {
 	}
 }
 
+// Page in the list displayed on a category view
 function renderCategoryPage(page, users, pinned) {
-	var user = users[page.createUserId];
 	var div = document.createElement('a');
 	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage bar rem2-3";
@@ -121,15 +137,9 @@ function renderCategoryPage(page, users, pinned) {
 		icon = "pin";
 	if (!hasPerm(page.permissions, 0, 'r'))
 		icon = "hiddenpage";
-	var title = renderContentName(page.name, icon);
-	/*var title = document.createElement('span');
-	title.className = "categoryPageTitle textItem";
-	if (pinned)
-		title.textContent = "\uE801 " + page.name;
-	else
-		title.textContent = "\uF04A " + page.name;*/
-	div.appendChild(title);
-	
+	div.appendChild(renderContentName(page.name, icon));
+
+	var user = users[page.createUserId];
 	if (user) {
 		var right = renderUserLink(user, true);
 		right.className += ' rightAlign';
@@ -138,49 +148,7 @@ function renderCategoryPage(page, users, pinned) {
 	return div;
 }
 
-function insertFirst(node, child) {
-	if (node.firstChild)
-		node.insertBefore(child, node.firstChild);
-	else
-		node.appendChild(child);
-}
-
-function renderUserPath(element, user) {
-	element.innerHTML = "";
-	var link = document.createElement('a');
-	link.href = "#users"
-	link.textContent = "Users";
-	link.className = "textItem";
-	element.appendChild(link);
-	
-	var slash = document.createElement('span');
-	slash.textContent = "/";
-	slash.className = "pathSeparator textItem";
-	element.appendChild(slash);
-	
-	if (user) {
-		link = document.createElement('a');
-		link.href = "#user/"+user.id
-		link.textContent = user.username;
-		link.className = "textItem";
-		element.appendChild(link);	
-	}
-}
-
-function renderActivityPath(element) {
-	element.innerHTML = "";
-	var link = document.createElement('a');
-	link.href = "#activity"
-	link.textContent = "Activity";
-	link.className = "textItem";
-	element.appendChild(link);
-	
-	var slash = document.createElement('span');
-	slash.textContent = "/";
-	slash.className = "pathSeparator textItem";
-	element.appendChild(slash);
-}
-
+// HH:MM AM/PM
 function timeString(date) {
 	var hours = date.getHours();
 	var minutes = date.getMinutes();
@@ -201,6 +169,7 @@ function renderUserListAvatar(user) {
 	return a;
 }
 
+// chat message block
 function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
@@ -253,7 +222,6 @@ function timeAgo(date) {
 	if (seconds < 0)
 		return " IN THE FUTURE?";
 	return Math.round(seconds) + " seconds ago";
-	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
 }
 
 function renderPageContents(page, element, cache) {
@@ -266,11 +234,6 @@ function renderPageContents(page, element, cache) {
 	} else {
 		return parser(page.content, false, cache);
 	}
-}
-
-function setChild(element, child) {
-	element.innerHTML = "";
-	element.appendChild(child);
 }
 
 // as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
@@ -336,11 +299,6 @@ function renderActivityItem(activity, page, user) {
 	return div;
 }
 
-function hasPerm(perms, id, perm) {
-	console.log(perms, id, perm);
-	return perms && perms[id] && perms[id].indexOf(perm) != -1
-}
-
 function renderMemberListUser(user) {
 	var div = renderUserLink(user)
 	div.className = "member userLink rem2-3";
@@ -366,24 +324,13 @@ function renderMessagePart(comment, sizedOnload){
 	}
 	element = parser(markup)(text);
 	element.className += ' messagePart';
-	//document.title=comment.username+":"+t;
+	element.setAttribute('data-id', comment.id);
+	//document.title=comment.username+":"+text;
 	return element;
 }
 
 function parser(markup) {
 	return Parse.lang[markup] || Parse.fallback;
-}
-
-function hide(element) {
-	element.style.display = 'none';
-}
-
-function show(element) {
-	element.style.display = '';
-}
-
-function visible(element, state) {
-	element.style.display = state ? '' : 'none';
 }
 
 // Based on sbs chat autoscroller
@@ -496,20 +443,4 @@ AutoScroller.prototype.embed = function(node) {
 	this.lastUidBlock = null;
 	if (s)
 		this.autoScroll();
-}
-
-function renderKeyInfo(key, data, element) {
-	element = element || document.createElement('span');
-	element.innerHTML = "";
-	
-	var icon = document.createElement('img');
-	icon.src = protocol()+"//sbapi.me/get/"+data.path+"/META/icon";
-	icon.className = "metaIcon";
-
-	element.appendChild(icon);
-	
-	element.appendChild(textItem(data.filename, "pre metaTitle"));
-	
-	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
-	return element;
 }

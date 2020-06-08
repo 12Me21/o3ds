@@ -119,18 +119,11 @@ function queryString(obj) {
 }
 
 function Myself(isDev) {
-	EventEmitter.call(this);
 	this.userCache={};
 	this.userRequests={};
 	this.selectServer(isDev);
 	this.openRequests = 0;
 }
-Myself.prototype = Object.create(EventEmitter.prototype);
-Object.defineProperty(Myself.prototype, 'constructor', {
-	value: Myself,
-	enumerable: false,
-	writable: true
-});
 
 function https() {
 	if (window.location.protocol=="http:")
@@ -302,7 +295,8 @@ Myself.prototype.logOut = function(soft) {
 		if (!soft) {
 			localStorage.removeItem(this.lsKey);
 		}
-		this.emit('logout');
+		if (this.onLogout)
+			this.onLogout();
 	}
 }
 
@@ -312,7 +306,8 @@ Myself.prototype.setAuth = function(auth) {
 	this.auth = auth;
 	var x = JSON.parse(atob(auth.split(".")[1]));
 	this.uid = +x.uid;
-	this.emit('login');
+	if (this.onLogin)
+		this.onLogin();
 }
 
 // run callback function
@@ -457,7 +452,7 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 			var values = $.categoryTree.map[id].values;
 			if (values.pinned) {
 				pinned = values.pinned.split(",").map(function(x){return +x});
-				reading[3] = {content: {ids: pinned}};
+				reading[3] = {"content~pinned": {ids: pinned}};
 				reading[4] = "user.0createUserId.3createUserId";
 			}
 		} else {
@@ -493,18 +488,8 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 				}
 			}
 			//}
-			if (pinned) {
-				var pinnedPages = [];
-				var real = [];
-				pages.forEach(function(page) {
-					if (pinned.indexOf(page.id)!=-1)
-						pinnedPages.push(page);
-					else {
-						real.push(page);
-					}
-				});
-				//pages = real;
-			}
+			if (pinned)
+				var pinnedPages = resp.pinned;
 			if (req2)
 				pinnedPages = null; //nO
 			// so here's an idea.
@@ -830,3 +815,12 @@ function buildCategoryTree(categories) {
 	});
 	return root;
 }
+
+// so if I was a Good Programmer I would
+// make Classes for every data type
+// and either
+// - have functions to convert to/from the native format
+// - or store the raw data separately from extra data (better)
+// but none of this will ever really work because
+// field filtering, etc.
+// nothing   is real

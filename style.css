@@ -6,14 +6,6 @@
 	vertical-align: top;
 }
 
-sup {
-	vertical-align: super;
-}
-
-sub {
-	vertical-align: sub;
-}
-
 /* html.loading * {
 	cursor: progress !important;
 }*/
@@ -64,6 +56,10 @@ textarea {
 	font-size: 1em; /* prevent zoom in on iphone */
 }
 
+sup {vertical-align: super;}
+
+sub {vertical-align: sub;}
+
 .spacer {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
@@ -91,6 +87,9 @@ textarea {
 	max-width: 100%;
 	/* set height */
 }
+
+@keyframes colorPulse{ 0% {background-color: #a1cfef} 100% {background-color: #a0f4df}}
+
 
 /****************************
  ** Main Container Element **
@@ -202,7 +201,7 @@ html.f-loggedIn .loggedOut {
  ****************/
 .titlePane {
 	background-color: #DDD;
-	padding: 0 0.5rem;
+	padding: 0 0.1rem;
 	border-bottom: 2px solid black;
 }
 
@@ -460,6 +459,7 @@ main {
 	padding: 0 0.5rem;
 }
 
+/* do we even need this */
 .bottomSpacer {
 	-webkit-flex-shrink: 0;
 	flex-shrink: 0;

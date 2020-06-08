@@ -1,4 +1,4 @@
-function DiscussionLongPoller(myself, callback) {
+function LongPoller(myself, callback) {
 	this.myself = myself;
 	
 	this.firstId = 0; // minimum id for all rooms
@@ -19,7 +19,7 @@ function DiscussionLongPoller(myself, callback) {
 // 1: get info for the new room (room page contents, listeners, comments)
 // 2: cancel the current longpoll
 // 3: start a new longpoll with the updated info
-DiscussionLongPoller.prototype.addRoom = function(id) {
+LongPoller.prototype.addRoom = function(id) {
 	if (this.lastIds[id])
 		return;
 	var $=this;
@@ -46,7 +46,7 @@ DiscussionLongPoller.prototype.addRoom = function(id) {
 	})
 }
 
-DiscussionLongPoller.prototype.updateIdRange = function(comments) {
+LongPoller.prototype.updateIdRange = function(comments) {
 	var $=this
 	if (comments) {
 		comments.forEach(function(comment) {
@@ -65,7 +65,7 @@ DiscussionLongPoller.prototype.updateIdRange = function(comments) {
 	}
 }
 
-DiscussionLongPoller.prototype.reset = function() {
+LongPoller.prototype.reset = function() {
 	this.stop();
 	this.firstId = 0;
 	this.lastId = 0;
@@ -80,7 +80,7 @@ DiscussionLongPoller.prototype.reset = function() {
 	this.cancel = [function(){}];
 }
 
-DiscussionLongPoller.prototype.removeRoom = function(id) {
+LongPoller.prototype.removeRoom = function(id) {
 	if (this.lastIds[id]) {
 		// stop long poller
 		this.cancel[0]();
@@ -99,15 +99,14 @@ DiscussionLongPoller.prototype.removeRoom = function(id) {
 	}
 }
 
-DiscussionLongPoller.prototype.stop = function() {
+LongPoller.prototype.stop = function() {
 	this.running = false;
 	this.cancel[0]();
 }
 
-DiscussionLongPoller.prototype.loop = function() {
+LongPoller.prototype.loop = function() {
 	var $=this;
 	$.myself.listenChat($.idList, $.firstId, $.lastId, $.statuses, $.listeners, function(e, comments, lastId, listeners, userMap){
-		console.log("GOT COMMENTS", comments);
 		if (!e) {
 			comments = comments || [];
 

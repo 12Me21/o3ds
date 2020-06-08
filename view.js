@@ -1,21 +1,6 @@
 // this file contains code for rendering stuff direclty to the screen
 // none of it is "reusable" etc.
 
-var flags = {};
-function flag(flag, state) {
-	if (!flags[flag] != !state) {
-		if (state)
-			flags[flag] = true;
-		else
-			delete flags[flag];
-		var cls = "";
-		for (flag in flags) {
-			cls += " f-"+flag;
-		}
-		document.documentElement.className = cls;
-	}
-}
-
 // clean up stuff whenever switching pages
 function cleanUp() {
 	flag('myUserPage');
@@ -255,6 +240,7 @@ function generatePageView(id, callback) {
 			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
 			renderPageContents(page, $pageContents)
+			handleLoads($pageContents);
 			$editButton.href = "#pages/edit/"+page.id;
 			$voteCount_b.textContent = page.about.votes.b.count;
 			$voteCount_o.textContent = page.about.votes.o.count;
@@ -299,22 +285,6 @@ function generatePageView(id, callback) {
 		}
 		callback();
 	});
-}
-
-function protocol() {
-	if (window.location.protocol == "http:")
-		return "http:";
-	return "https:";
-}
-
-function parseJSON(json) {
-	if (!json)
-		return undefined;
-	try {
-		return JSON.parse(json);
-	} catch (e) {
-		return null;
-	}
 }
 
 function megaAggregate(activity, ca, contents) {
@@ -410,6 +380,8 @@ function generateChatView(id, callback) {
 	// todo: make this work when logged out
 	// use a normal request at first and then switch on the long poller IF logged in
 	lp.callback = function(comments, listeners, userMap, page) {
+		var now = new Date();
+		//$longPollStatus.textContent = "Last response: "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()
 		if (page && page.id == id) {
 			flag('page', true);
 			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
@@ -538,7 +510,7 @@ function generateMembersView(idk, callback) {
 		cleanUp();
 		$main.className = 'membersMode';
 		$memberList.innerHTML = "";
-		renderUserPath($navPane);
+		generatePath([["#users","Users"],undefined]);
 		setTitle("Users");
 		users.forEach(function(user) {
 			$memberList.appendChild(renderMemberListUser(user));
@@ -555,7 +527,7 @@ function generateActivityView(query, callback) {
 		$activityPageNumber.textContent = " "+page+" days ago";
 		$activityPagePrev.href = "#activity?page="+(page-1);
 		$activityPageNext.href = "#activity?page="+(page+1);
-		renderActivityPath($navPane);
+		generatePath([["#activity","Activity"], undefined]);
 		if (activity) {
 			setTitle("Activity");
 			var last = {};
@@ -683,4 +655,16 @@ function generateFileView(query, callback) {
 		}
 		callback();
 	});
+}
+
+function handleLoads(element) {
+	var imgs = element.querySelectorAll('video, img, iframe');
+	console.log(imgs);
+	for (var i=0; i<imgs.length; i++) {
+		console.log("image load event add");
+		imgs[i].onload = function() {
+			console.log("image loaded");
+			scrollToAuto();
+		}
+	}
 }
