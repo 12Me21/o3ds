@@ -1,7 +1,7 @@
 .markup-root {
 	white-space: pre-wrap;
 	overflow-x: auto;
-	display: table;
+	/*display: table;*/
 	vertical-align: baseline;
 }
 
@@ -158,6 +158,11 @@
 
 .markup-root .invalid {
 	background-color: pink;
+}
+
+.markup-root .tableContainer {
+	overflow-x: auto;
+	max-width: 100%;
 }
 
 /*.markup-root th.cell {

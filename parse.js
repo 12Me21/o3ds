@@ -163,10 +163,17 @@ Parse.options = {
 		return node;
 	},
 	table: function(opts) {
+		var container = create('div');
+		container.className = "tableContainer"
 		var node = create('table');
 		if (opts.align)
 			node.style.textAlign = opts.align;
-		return node;
+		container.appendChild(node);
+		return {
+			isSpoiler: true,
+			nodes: [container],
+			branch: node
+		}
 	},
 	row: creator('tr'),
 	cell: function (opt) {
