@@ -1,5 +1,8 @@
 .markup-root {
 	white-space: pre-wrap;
+	overflow-x: auto;
+	display: table;
+	vertical-align: baseline;
 }
 
 .markup-root table, .markup-root td, .markup-root th {
@@ -15,9 +18,9 @@
 	margin: 0.25rem 0;
 }
 
-.markup-root * {
+/*.markup-root * {
 	vertical-align: baseline;
-}
+}*/
 
 .markup-root h2, .markup-root h3 {
 	border-bottom: 1px solid #eaecef;
@@ -87,31 +90,35 @@
 	max-height: none;
 }
 
-.cell[data-bgcolor="red"] {
+.markup-root .cell {
+	background-color: white;
+}
+
+.markup-root .cell[data-bgcolor="red"] {
 	background-color: #FCC;
 }
 
-.cell[data-bgcolor="green"] {
+.markup-root .cell[data-bgcolor="green"] {
 	background-color: #CFC;
 }
 
-.cell[data-bgcolor="yellow"] {
+.markup-root .cell[data-bgcolor="yellow"] {
 	background-color: #FFC;
 }
 
-.cell[data-bgcolor="orange"] {
+.markup-root .cell[data-bgcolor="orange"] {
 	background-color: #FEC;
 }
 
-.cell[data-bgcolor="blue"] {
+.markup-root .cell[data-bgcolor="blue"] {
 	background-color: #DEF;
 }
 
-.cell[data-bgcolor="gray"] {
+.markup-root .cell[data-bgcolor="gray"] {
 	background-color: #DDD;
 }
 
-.spoilerButton {
+.markup-root .spoilerButton {
 	padding: 0 0.3rem;
 	background-color: #EEE;
 	border: 2px solid gray;
@@ -123,28 +130,38 @@
 	display: inline-block;
 }
 
-.spoilerButton:hover {
+.markup-root .spoilerButton:hover {
 	border-color: #59E;
 }
 
-spoilerButton:active {
+.markup-root spoilerButton:active {
 	border-style: inset;
 }
 
-.spoiler {
+.markup-root .spoiler {
 	padding: 0.5rem;
 	border: 1px solid gray;
-	background-color: #EEE;
+	background-color: #F8F8F8;
 }
 
-input:not(:checked) + label + .spoiler {
+.markup-root input:not(:checked) + label + .spoiler {
 	display: none;
 }
 
-input:not(:checked) + .spoilerButton:before {
+.markup-root input:not(:checked) + .spoilerButton:before {
 	content: "Show ";
 }
 
-input:checked + .spoilerButton:before {
+.markup-root input:checked + .spoilerButton:before {
 	content: "Hide ";
 }
+
+.markup-root .invalid {
+	background-color: pink;
+}
+
+/*.markup-root th.cell {
+	background-color: #222;
+	color: white;
+	border-color: white;
+}*/

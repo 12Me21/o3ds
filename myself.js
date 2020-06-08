@@ -42,6 +42,10 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			// basically this is treated as an error condition,
 			// except during long polling, where it's a normal occurance
 			callback('timeout', resp);
+		} else if (code == 429) { // rate limit
+			window.setTimeout(function() {
+				callback('timeout', resp);
+			}, 100);
 		} else if (code==401) {
 			console.log(x);
 			callback('auth', resp);
@@ -462,7 +466,7 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 	}
 	
 	$.read(reading, {
-		content: "id,name,parentId,createUserId,editDate",
+		content: "id,name,parentId,createUserId,editDate,permissions",
 		/*category: "id,name,description,parentId,values",*/
 		user: "id,username,avatar"
 	}, function(e, resp) {
@@ -598,6 +602,7 @@ Myself.prototype.listenChat = function(ids, firstId, lastId, statuses, listeners
 		if (e)
 			$.cb(callback, e, resp);
 		else {
+			console.log("LISTEN", resp);
 			$.cb(callback, e, resp.chains.comment, resp.lastId, resp.listeners, resp.chains.userMap);
 		}
 	}, cancel);
@@ -730,7 +735,7 @@ Myself.prototype.getActivity = function(page, callback) {
 	/*if ($.categoryTree)
 		reading.push("category.0contentId");*/
 	$.read(reading, {
-		content: "name,id"
+		content: "name,id,permissions"
 	},function(e, resp) {
 		if (!e) {
 			$.cb(callback, resp.activity, resp.commentaggregate, resp.content, resp.userMap)

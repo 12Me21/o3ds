@@ -6,6 +6,14 @@
 	vertical-align: top;
 }
 
+sup {
+	vertical-align: super;
+}
+
+sub {
+	vertical-align: sub;
+}
+
 /* html.loading * {
 	cursor: progress !important;
 }*/
@@ -593,6 +601,13 @@ html:not(.f-myUserPage) .myUserPage {
 	display: none;
 }
 
+html.f-sidebar .m {
+	width: 70vw;
+	-webkit-transition: width 0.25s ease,
+	transition: width 0.25s ease,
+	
+}
+
 @media (max-width: 700px) {
 	.userPageBox {
 		flex-direction: column;
@@ -770,6 +785,9 @@ html:not(.f-myUserPage) .myUserPage {
 }
 .iconBg-category {
 	background-image: url("icons/folder.png");
+}
+.iconBg-hiddenpage {
+	background-image: url("icons/hiddenpage.png");
 }
 
 .pageName {

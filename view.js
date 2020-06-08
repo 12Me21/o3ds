@@ -135,15 +135,20 @@ function generateEditorView(id, query, callback) {
 	function go(page, users) {
 		cleanUp();
 		$main.className = "editorMode";
-		generateAuthorBox(page, users);
+		//todo: detect create perm properly (on category)
+		// annoying thing is, when logging in to a page,
+		// would need to re-request myperms hmm
+		// maybe just have proper error handling?
+		var canEdit = (!page && me.auth) || /u/.test(page.myPerms)
 		visible($deletePage, page && /d/.test(page.myPerms));
-		visible($submitEdit, !page || /u/.test(page.myPerms));
+		visible($submitEdit, canEdit);
+		generateAuthorBox(page, users);
 		//todo: set buttons to "disabled" instead maybe
 		// and add explanation of permissions?
 		//make it more clear when you can't modify page, especially
 		
 		if (page) {
-			setTitle("Editing:");
+			setTitle(canEdit ? "Editing:" : "Viewing Source:");
 			editingPage = page;
 		} else {
 			setTitle("Creating:");
@@ -243,7 +248,10 @@ function generatePageView(id, callback) {
 			flag('page', true);
 			generatePagePath(page, users);
 			currentPage = page.id;
-			setTitle(page.name, "page");
+			var icon = "page";
+			if (!hasPerm(page.permissions, 0, 'r'))
+				icon = "hiddenpage"
+			setTitle(page.name, icon);
 			$watchCheck.checked = page.about.watching;
 			// todo: handle showing/hiding the vote box when logged in/out
 			renderPageContents(page, $pageContents)

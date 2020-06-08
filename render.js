@@ -116,7 +116,12 @@ function renderCategoryPage(page, users, pinned) {
 	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage bar rem2-3";
 
-	var title = renderContentName(page.name, pinned?'pin':'page');
+	var icon = "page";
+	if (pinned)
+		icon = "pin";
+	if (!hasPerm(page.permissions, 0, 'r'))
+		icon = "hiddenpage";
+	var title = renderContentName(page.name, icon);
 	/*var title = document.createElement('span');
 	title.className = "categoryPageTitle textItem";
 	if (pinned)
@@ -303,12 +308,16 @@ function renderActivityItem(activity, page, user) {
 	action.className = "textItem noColor";
 	action.textContent = text+" ";
 	
-	if (activity.action =="p") {
-		div.href = "#discussions/"+activity.contentId;
-		var name = renderContentName(page.name, 'page')
-	} else if (activity.type == 'content') {
-		div.href = "#pages/"+activity.contentId;
-		var name = renderContentName(page.name, 'page')
+	if (activity.type == 'content') {
+		if (activity.action == "p")
+			div.href = "#discussions/"+activity.contentId;
+		else
+			div.href = "#pages/"+activity.contentId;
+
+		var icon = "page";
+		if (!hasPerm(page.permissions, 0, 'r'))
+			icon = "hiddenpage";
+		var name = renderContentName(page.name, icon)
 	} else if (activity.type == 'category') {
 		div.href = "#categories/"+activity.contentId;
 		var name = renderContentName(page.name, 'category')
@@ -325,6 +334,11 @@ function renderActivityItem(activity, page, user) {
 	time.className += " rightAlign";
 	div.appendChild(time);
 	return div;
+}
+
+function hasPerm(perms, id, perm) {
+	console.log(perms, id, perm);
+	return perms && perms[id] && perms[id].indexOf(perm) != -1
 }
 
 function renderMemberListUser(user) {

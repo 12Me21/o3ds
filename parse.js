@@ -55,16 +55,24 @@ Parse.options = {
 	lineBreak: creator('br'),
 	line: creator('hr'),
 	// code block
-	code: function(code, language) {
+	code: function(args, contents) {
 		var node = create('pre');
+		var language = args[""];
 		node.setAttribute('data-lang', language);
-		node.innerHTML = highlightSB(code, language);
+		node.innerHTML = highlightSB(contents, language);
 		return node;
 	},
 	// inline code
 	icode: function(code) {
 		var node = create('code');
 		node.textContent = code;
+		return node;
+	},
+	invalid: function(text, reason) {
+		var node = create('span');
+		node.className = 'invalid';
+		node.title = reason;
+		node.textContent = text;
 		return node;
 	},
 	audio: function(url, preview) {
@@ -154,7 +162,12 @@ Parse.options = {
 		node.setAttribute('href', url);
 		return node;
 	},
-	table: creator('table'),
+	table: function(opts) {
+		var node = create('table');
+		if (opts.align)
+			node.style.textAlign = opts.align;
+		return node;
+	},
 	row: creator('tr'),
 	cell: function (opt) {
 		var node = opt.h ?
@@ -168,6 +181,9 @@ Parse.options = {
 			if (opt.c[0] == "#")
 				node.style.backgroundColor = opt.c;
 			node.setAttribute("data-bgcolor", opt.c);
+		}
+		if (opt.a) {
+			node.style.textAlign = opt.a;
 		}
 		node.className = "cell";
 		return node;
@@ -184,8 +200,9 @@ Parse.options = {
 		node.textContent = "Error";
 		return node;
 	},
-	align: function(arg) {
+	align: function(args) {
 		var node = create('div');
+		var arg = args[""];
 		if (arg == 'left' || arg == 'right' || arg == 'center')
 			node.style.textAlign = arg;
 		return node;
@@ -197,7 +214,7 @@ Parse.options = {
 		node.name = "_anchor_"+name;
 		return node;
 	},
-	spoiler: function(name, args) {
+	spoiler: function(args) {
 		var checkbox = create('input');
 		checkbox.type = 'checkbox';
 		checkbox.style.display = 'none';
@@ -207,6 +224,10 @@ Parse.options = {
 		var label = create('label');
 		label.setAttribute('for', checkbox.id);
 		label.className = "spoilerButton";
+		
+		var name = args[""];
+		if (name == true)
+			name = "spoiler";
 		label.textContent = name;
 		
 		var box = create('div');
@@ -244,6 +265,13 @@ Parse.lang['12y'] = function(code, preview, cache) {
 	var displayBlock = {
 		code:true,audio:true,video:true,heading:true,quote:true,
 		list:true,item:true,table:true,image:true,line:true,youtube:true,
+		spoiler:true,align:true,
+	};
+	var tags = {
+		spoiler: "spoiler",
+		align: "align",
+		sub: "subscript",
+		sup: "superscript",
 	};
 	var skipNextLineBreak;
 	
@@ -259,14 +287,9 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		var startOfLine = true;
 		var leadingSpaces = 0;
 		var lastWasBlock;
-		// todo:
-		// so, the way to prevent extra linebreaks (without just ignoring them all) is
-		// to ignore linebreaks around blocks. (before and after, as well as inside, ignore 1 leading/trailing linebreak)
-		// idea:
-		
-		var i = -1;
-		var c;
-		scan();
+
+		var i,c;
+		restore(0);
 		
 		while (c) {
 			if (eatChar("\n")) {
@@ -281,10 +304,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				scan();
 				//===============
 				// { group start (why did I call these "groups"?)
-			} else if (eatChar("{")) {
-				startBlock(null, {});
-				//if (eatChar("#")){} TAGS PLEASE
-				lineStart();
+			} else if (c == "{") {
+				readEnv();
 			//=============
 			// } group end
 			} else if (eatChar("}")) {
@@ -374,10 +395,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					endBlock();
 			//============
 			// |... table
-			} else if (eatChar("|")) {
+			} else if (c == "|") {
 				var top = stack.top();
 				// continuation
 				if (top.type == 'cell') {
+					scan();
 					var row = top.row;
 					var table = top.row.table;
 					var eaten = eatChar("\n");
@@ -428,10 +450,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					}
 					// start of new table (must be at beginning of line)
 				} else if (startOfLine) {
+					scan();
 					table = startBlock('table', {
 						columns: null,
 						rowspans: []
-					});
+					}, {});
 					row = startBlock('row', {
 						table: table,
 						cells: 0
@@ -439,6 +462,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					row.header = eatChar("*");
 					startCell(row);
 				} else {
+					scan();
 					addText("|");
 				}
 				//===========
@@ -460,16 +484,14 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						start = i;
 						i = code.indexOf("```", i);
 						addBlock(options.code(
-							code.substring(start, i!=-1 ? i : code.length),
-							language
+							{"": language},
+							code.substring(start, i!=-1 ? i : code.length)
 						));
 						skipNextLineBreak = eaten;
 						if (i != -1) {
-							i += 2;
-							scan();
+							restore(i + 3);
 						} else {
-							i = code.length;
-							scan();
+							restore(code.length);
 						}
 					//------------
 					// `` invalid
@@ -565,20 +587,46 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		}
 		return false;
 	}
-
+	
+	function readEnv() {
+		if (!eatChar("{"))
+			return false;
+		startBlock(null, {});
+		lineStart();
+		
+		var start = i;
+		if (eatChar("#")){
+			var name = readTagName();
+			var props = readProps();
+			// todo: make this better lol
+			var func = tags[name]
+			if (func && !(name=="spoiler" && stackContains("spoiler"))) {
+				startBlock(name, {}, props);
+			} else {
+				addBlock(options.invalid(code.substring(start, i), "invalid tag"))
+			}
+			if (displayBlock[name])
+				skipNextLineBreak = true;
+		}
+		lineStart();
+		return true;
+	}
+	
 	// read table cell properties and start cell block, and eat whitespace
 	// assumed to be called when pointing to char after |
 	function startCell(row) {
-		if (eatChar("#")) {
-			var props = readProps();
-			if (props.rs)
-				row.table.rowspans.push(props.rs-1);
-			if (props.cs)
-				row.cells += props.cs-1;
-		} else {
-			props = {};
-		}
-		props.h = row.header;
+		var props = {}
+		if (eatChar("#"))
+			Object.assign(props, readProps());
+		
+		if (props.rs)
+			row.table.rowspans.push(props.rs-1);
+		if (props.cs)
+			row.cells += props.cs-1;
+		
+		if (row.header)
+			props.h = true;
+		
 		startBlock('cell', {row: row}, props);
 		while (eatChar(" "))
 			;
@@ -593,6 +641,15 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			return [string.substr(0,n), string.substr(n+sep.length)];
 	}
 
+	function readTagName() {
+		var start = i;
+		while (c>="a" && c<="z") {
+			scan();
+		}
+		if (i > start)
+			return code.substring(start, i);
+	}
+	
 	// read properties key=value,key=value... ended by a space
 	// =value is optional and defaults to `true`
 	function readProps() {
@@ -600,13 +657,17 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		var end = code.indexOf(" ", i);
 		if (end < 0)
 			end = code.length;
-		i = end-1;
-		scan();
+		var end2 = code.indexOf("\n", i);
+		if (end2 >= 0 && end2 < end)
+			end = end2;
+		restore(end+1);
 		var propst = code.substring(start, end);
 		var props = {};
 		propst.split(",").forEach(function(x){
 			var pair = split1(x, "=");
-			props[pair[0]] = pair[1] || true;
+			if (pair[1] == null)
+				pair[1] = true;
+			props[pair[0]] = pair[1];
 		});
 		return props;
 	}
@@ -754,6 +815,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			return "youtube";
 		return "image";
 	}
+
+	function restore(pos) {
+		i = pos-1;
+		scan();
+	}
 	
 	// common code for all text styling tags (bold etc.)
 	function doMarkup(type, create) {
@@ -802,10 +868,6 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		c = code.charAt(i);
 	}
 
-	// um like
-	// don't use 'null' as a type name probably
-	// In THis House
-	// We use ==         ,
 	function stackContains(type) {
 		for (var i=0; i<stack.length; i++) {
 			if (stack[i].type == type) {
@@ -925,6 +987,9 @@ Parse.lang.bbcode = function(code, preview) {
 	var displayBlock = {
 		h1:true,h2:true,h3:true,align:true,list:true,spoiler:true,youtube:true,quote:true,table:true,tr:true,img:true
 	};
+	var noNesting = {
+		spoiler:true
+	};
 	var blocks = {
 		b: options.bold,
 		i: options.italic,
@@ -951,28 +1016,28 @@ Parse.lang.bbcode = function(code, preview) {
 		list: options.list,
 		spoiler: options.spoiler,
 		quote: options.quote,
-		anchor: function(arg){
-			return options.anchor(arg);
+		anchor: function(args){
+			return options.anchor(args[""]);
 		},
 		item: options.item,
 	};
 	var specialBlock = {
-		url: function(arg, args, contents){
+		url: function(args, contents){
 			var node = options.link(contents);
 			node.textContent = contents;
 			return node;
 		},
-		code: function(arg, args, contents) {
-			if (args)
-				var lang = args.lang;
-			if (arg == 'inline')
-				return options.icode(contents, lang);
-			return options.code(contents, lang);
+		code: function(args, contents) {
+			var inline = args[""] == 'inline';
+			args[""] = args.lang;
+			if (inline)
+				return options.icode(args, contents);
+			return options.code(args, contents);
 		},
-		youtube: function(arg, args, contents) {
+		youtube: function(args, contents) {
 			return options.youtube(contents, preview);
 		},
-		img: function(arg, args, contents) {
+		img: function(args, contents) {
 			return options.image(contents);
 		}
 	};
@@ -1011,7 +1076,7 @@ Parse.lang.bbcode = function(code, preview) {
 							}
 						}
 					} else {
-						cancel();
+						addBlock(options.invalid(code.substring(point, i), "unexpected closing tag"));
 					}
 				}
 			} else {
@@ -1028,7 +1093,7 @@ Parse.lang.bbcode = function(code, preview) {
 				} else {
 					
 					// [tag=...
-					var arg = null, args = null;
+					var arg = true, args = {};
 					if (eatChar("=")) {
 						var start=i;
 						while (c && c!="]" && c!=" ")
@@ -1039,6 +1104,7 @@ Parse.lang.bbcode = function(code, preview) {
 					if (eatChar(" ")) {
 						args = readArgList();
 					}
+					args[""] = arg;
 					if (eatChar("]")) {
 						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
 							// eat first linebreak in blocks
@@ -1051,17 +1117,15 @@ Parse.lang.bbcode = function(code, preview) {
 								cancel();
 							else {
 								var contents = code.substring(i, end);
-								i = end + endTag.length;
-								i--;
-								scan();
-								addBlock(specialBlock[name](arg,args,contents));
+								restore(end + endTag.length);
+								addBlock(specialBlock[name](args, contents));
 								if (name == "youtube" || name=="img" || (name=="code" && arg != "inline"))
 									skipNextLineBreak = true;
 							}
-						} else if (blocks[name]) {
-							startBlock(name, arg, args, i);
+						} else if (blocks[name] && !(noNesting[name] && stackContains(name))) {
+							startBlock(name, args, i);
 						} else
-							cancel();
+							addBlock(options.invalid(code.substring(point, i), "invalid tag"));
 					} else {
 						cancel();
 					}
@@ -1083,6 +1147,15 @@ Parse.lang.bbcode = function(code, preview) {
 		addText(code.substring(point, i));
 	}
 
+	function stackContains(type) {
+		for (var i=0; i<stack.length; i++) {
+			if (stack[i].type == type) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	function readArgList() {
 		var args = {};
 		while (1) {
@@ -1194,14 +1267,14 @@ Parse.lang.bbcode = function(code, preview) {
 			curr = null;
 	}
 	
-	function startBlock(type, arg, args, index) {
+	function startBlock(type, args, index) {
 		if (displayBlock[type]) {
 			//if (eatChar("\n")) //hack
 			//	index++;
 			//else
 				skipNextLineBreak = true;
 		}
-		var node = blocks[type](arg, args);
+		var node = blocks[type](args);
 		stack.push({
 			type: type,
 			node: node,

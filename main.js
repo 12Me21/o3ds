@@ -448,7 +448,6 @@ function forDict(dict, func) {
 function updateUserlist(listeners, userMap) {
 	$chatUserlist.innerHTML = "";
 	listeners && forDict(listeners, function(status, user) {
-		user = user.match(/\d+/)[0];
 		$chatUserlist.appendChild(renderUserListAvatar(userMap[user]));
 	})
 }
