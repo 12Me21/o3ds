@@ -63,7 +63,7 @@
 	<header class="titlePane bar rem2-3" id="$titlePane">
 		<span id="$pageTitleIcon"></span><h1 class="pageTitle textItem pre" id="$pageTitle"></h1><a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><div class="buttonContainer item loggedIn myUserPage"><button id="$logout">Log Out</button></div><input class="item editorMode" id="$titleInput" placeholder="Page Title" required><input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required><div class="buttonContainer item editorMode"><button id="$submitEdit" >Submit</button></div><span class="cateditMode textItem"><div class="buttonContainer item"><button id="$cateditSubmit">Submit</button></div></span><span class="textItem pageMode" id="$voteBox"><div class="buttonContainer item"><button id="$voteButton_b" class="voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_o" class="voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_g" class="voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></div></span>
 		<label for="$watchCheck" class="textItem pageItem loggedIn">Watching:</label>
-		<input type="checkbox" id="$watchCheck" class="item pageItem">
+		<input type="checkbox" id="$watchCheck" class="item pageItem loggedIn">
 
 		<div class="pageCreate textItem rightAlign">
 			<span class="textItem" id="$authorBox"></span><div class="buttonContainer editorMode item"><button id="$deletePage">DELETE</button></div><div class="buttonContainer item canEdit"><a id="$editButton"><button tabindex="-1">Edit</button></a></div>
