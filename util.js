@@ -55,3 +55,9 @@ function forDict(dict, func) {
 function hasPerm(perms, id, perm) {
 	return perms && perms[id] && perms[id].indexOf(perm) != -1
 }
+
+Object.assign = function(a, b) {
+	for (key in b) {
+		a[key] = b[key]
+	}
+}
