@@ -129,7 +129,8 @@ Parse.options = {
 		node.setAttribute('src', args[""]);
 		return node;
 	},
-	video: function(url, preview) {
+	video: function(args, preview) {
+		var url = args[""];
 		if (preview) {
 			var node = create('div');
 			node.className = "videoPreview preview";
@@ -141,7 +142,8 @@ Parse.options = {
 		node.setAttribute('src', url);
 		return node;
 	},
-	youtube: function(url, preview) {
+	youtube: function(args, preview) {
+		var url = args[""];
 		var protocol = "https:";
 		if (window.location && window.location.protocol == "http:")
 			protocol = "http:"
@@ -187,6 +189,7 @@ Parse.options = {
 		// important, do not remove, prevents script injection
 		if (/^ *javascript:/i.test(url))
 			url = "";
+		var node = create('a');
 		
 		var protocol = url.match(/^([-\w]+:)([^]*)$/);
 		if (protocol && protocol[1].toLowerCase() == "sbs:") {
@@ -194,14 +197,28 @@ Parse.options = {
 			url = "#"+protocol[2];
 			
 		} else if (!protocol) {
-			// urls without protocol get https:// or http:// added
-			var protocol = "https:";
-			if (window.location && window.location.protocol == "http:")
-				protocol = "http:";
-			url = protocol+"//"+url;
+			if (url[0] == "#") {
+				var hash = window.location.hash.substr(1);
+				var name = url.substr(1)
+				hash = "#"+hash.replace(/(#.*)?$/, "#"+name)
+				url = hash;
+				node.onclick = function(e) {
+					//todo: set doc fragment too
+					var n = document.getElementsByName("_anchor_"+name);
+					if (n[0])
+						n[0].scrollIntoView();
+					e.preventDefault();
+				}
+			} else {
+				// urls without protocol get https:// or http:// added
+				var protocol = "https:";
+				if (window.location && window.location.protocol == "http:")
+					protocol = "http:";
+				url = protocol+"//"+url;
+			}
 		}
 		
-		var node = create('a');
+		
 		node.setAttribute('href', url);
 		return node;
 	},
@@ -238,10 +255,15 @@ Parse.options = {
 		node.className = "cell";
 		return node;
 	},
-	image: function(url) {
+	image: function(args) {
+		var url = args[""];
 		var node = create('img');
 		node.setAttribute('src', url);
 		node.setAttribute('tabindex', "-1");
+		/*node.onload = function() {
+			if (window.scrollToAuto)
+				scrollToAuto();
+		}*/
 		return node;
 	},
 	error: function() {
@@ -259,7 +281,8 @@ Parse.options = {
 	},
 	sup: creator('sup'),
 	sub: creator('sub'),
-	anchor: function(name) {
+	anchor: function(args) {
+		var name = args[""];
 		var node = create('a');
 		node.name = "_anchor_"+name;
 		return node;
@@ -322,6 +345,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		align: "align",
 		sub: "subscript",
 		sup: "superscript",
+		anchor: "anchor",
 	};
 	var skipNextLineBreak;
 	
@@ -1058,10 +1082,10 @@ Parse.lang.bbcode = function(code, preview, cache) {
 			return options.code(args, contents);
 		},
 		youtube: function(args, contents) {
-			return options.youtube(contents, preview);
+			return options.youtube({"":contents}, preview);
 		},
 		img: function(args, contents) {
-			return options.image(contents);
+			return options.image({"":contents});
 		},
 		audio: function(args, contents) {
 			return options.audio({"":contents});
