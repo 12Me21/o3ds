@@ -226,7 +226,7 @@ function updateAvatar(id) {
 }
 
 function toggleSidebar() {
-	if (window.matchMedia("(max-width: 700px)").matches) {
+	if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches) {
 		flag('mobileSidebar', !flags.mobileSidebar);
 	} else {
 		flag('sidebar', !flags.sidebar);
