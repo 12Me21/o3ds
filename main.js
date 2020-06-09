@@ -208,6 +208,17 @@ function ready() {
 	}
 
 	$submitUserSettings.onclick = submitUserSettings;
+
+	$testButton.onclick = function() {
+		var c = $testTextarea.value;
+		$testOut.textContent="Starting..."
+		try {
+			var res = eval(c);
+			$testOut.textContent="Finished:\n"+res;
+		} catch(e) {
+			$testOut.textContent="Error:\n"+res;
+		}
+	}
 }
 
 function updateAvatar(id) {
@@ -339,6 +350,9 @@ function navigateTo(path, first, callback) {
 	} else if (type == 'files') {
 		first && ($main.className = 'fileMode');
 		generateFileView(queryVars, callback);
+	} else if (type == 'test') {
+		first && ($main.className = 'testMode');
+		generateTestView(queryVars, callback);
 	} else if (typeof type == 'undefined') { //home
 		first && ($main.className = 'homeMode');
 		generateHomeView(null, callback);

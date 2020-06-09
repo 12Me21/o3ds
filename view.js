@@ -669,3 +669,9 @@ function handleLoads(element) {
 		}
 	}
 }
+
+function generateTestView() {
+	cleanUp();
+	setTitle("Testing");
+	$main.className = "testMode";
+}

@@ -11,7 +11,7 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?X">
+<link rel="stylesheet" href="style.css?Y">
 <link rel="stylesheet" href="markup.css?q">
 <link rel="stylesheet" href="code.css?a">
 
@@ -27,8 +27,8 @@
 <script src="parse.js?B"></script>
 
 <script src="render.js?D"></script>
-<script src="view.js?I"></script>
-<script src="main.js?X"></script>
+<script src="view.js?J"></script>
+<script src="main.js?Y"></script>
 
 <!-- NEXT TASK: Clean up html/css !
 	  THere is a lot of repeated stuff
@@ -173,6 +173,7 @@
 					<a class="categoryPage bar rem2-3" href="#categories/0"><span class="textItem">Pages</span></a>
 					<a class="categoryPage bar rem2-3" href="#users"><span class="textItem">Users</span></a>
 					<a class="categoryPage bar rem2-3" href="#files"><span class="textItem">Images</span></a>
+					<a class="categoryPage bar rem2-3" href="#test"><span class="textItem">Test</span></a>
 				</div>
 				<div class="membersMode memberPane">
 					<div id="$memberList"></div>
@@ -207,6 +208,12 @@
 					<img id="$fileView" class="fileView">
 				</div>
 
+				<div class="testMode">
+					<textarea id="$testTextarea"></textarea><br>
+					<button id="$testButton">Run</button><br>
+					<div id="$testOut" class="pre"></div>
+				</div>
+				
 				<div class="bottomSpacer"></div>
 			</main>
 			
