@@ -1,3 +1,8 @@
+body.chatMode main {
+	height: 90vh;
+	display: block;
+}
+
 * {
 	margin: 0;
 	box-sizing: border-box;
@@ -251,11 +256,6 @@ main {
 	
 	/*min-height: 300px;
 	height: 300px;*/
-}
-
-body.chatMode main {
-	overflow-y: scroll;
-	height: 90vh;
 }
 
 /*******************
