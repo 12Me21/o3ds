@@ -144,15 +144,15 @@
 	background-color: #F8F8F8;
 }
 
-.markup-root input:not(:checked) + label + .spoiler {
+.spoilerButton:not([data-show]) + .spoiler {
 	display: none;
 }
 
-.markup-root input:not(:checked) + .spoilerButton:before {
+.markup-root .spoilerButton:not([data-show]):before {
 	content: "Show ";
 }
 
-.markup-root input:checked + .spoilerButton:before {
+.markup-root .spoilerButton[data-show]:before {
 	content: "Hide ";
 }
 

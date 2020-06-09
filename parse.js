@@ -297,7 +297,20 @@ Parse.options = {
 		return node;
 	},
 	spoiler: function(args) {
-		var checkbox = create('input');
+		var button = create('button');
+		button.onclick = function() {
+			if (this.getAttribute('data-show') == null)
+				this.setAttribute('data-show',"");
+			else
+				this.removeAttribute('data-show');
+		}
+		button.className = 'spoilerButton';
+		var name = args[""];
+		if (name == true)
+			name = "spoiler";
+		button.textContent = name;
+		
+		/*var checkbox = create('input');
 		checkbox.type = 'checkbox';
 		checkbox.style.display = 'none';
 		Parse.id++;
@@ -310,14 +323,14 @@ Parse.options = {
 		var name = args[""];
 		if (name == true)
 			name = "spoiler";
-		label.textContent = name;
+		label.textContent = name;*/
 		
 		var box = create('div');
 		box.className = "spoiler";
-
+		
 		return {
 			isSpoiler: true,
-			nodes: [checkbox, label, box],
+			nodes: [button, box],
 			branch: box
 		}
 	}
