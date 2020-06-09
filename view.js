@@ -314,9 +314,9 @@ function megaAggregate(activity, ca, contents) {
 			return; //some weird activity type
 		return x;
 	});
-	allAct.sort(function(a, b) {
+	/*allAct = allAct.sort(function(a, b) {
 		return a.date < b.date;
-	});
+	});*/
 	//todo: trim all trailing of same type because that's when the other runs out
 	// also we can optimize merging of 2 sorted arrays here!
 	return allAct;
@@ -659,11 +659,8 @@ function generateFileView(query, callback) {
 
 function handleLoads(element) {
 	var imgs = element.querySelectorAll('video, img, iframe');
-	console.log(imgs);
 	for (var i=0; i<imgs.length; i++) {
-		console.log("image load event add");
 		imgs[i].onload = function() {
-			console.log("image loaded");
 			scrollToAuto();
 		}
 	}

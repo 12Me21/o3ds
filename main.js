@@ -121,7 +121,6 @@ function ready() {
 		$registerError.textContent = "";
 		var email = $registerForm.email.value;
 		me.register($registerForm.username.value, $registerForm.password.value, email, function(e, resp) {
-			console.log(e, resp, resp.errors);
 			if (e == 'error' && resp) {
 				var errors = ["Registration failed:"];
 				if (resp.errors) {
@@ -167,7 +166,6 @@ function ready() {
 	scroller = new AutoScroller($messageList);
 
 	hashChange(true);
-	//console.log = debugMessage;
 	/*$reload.onclick = function(){
 		hashChange();
 	}*/
@@ -187,7 +185,6 @@ function ready() {
 	$fileUploadButton.onclick = function() {
 		if (selectedFile instanceof File) {
 			me.uploadFile(selectedFile, function(e, resp) {
-				console.log(e, resp);
 				if (!e) {
 					selectFile(resp);
 				}
@@ -206,7 +203,6 @@ function ready() {
 		if (selectedFile && selectedFile.id) {
 			readFileFields(selectedFile);
 			me.putFile(selectedFile, function(e, resp) {
-				console.log(e, resp);
 			});
 		}
 	}
@@ -232,9 +228,7 @@ var currentPath = null;
 // todo: add a "force" flag
 function hashChange(first) {
 	var fragment = getPath();
-	console.log(currentPath, fragment[0]);
 	if (currentPath == fragment[0]) {
-		console.log("FOUND ANCHOR FRAGMNET", fragment[1]);
 		scrollTo(fragment[1])
 	} else {
 		currentPath = fragment[0];

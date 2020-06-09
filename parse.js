@@ -209,7 +209,6 @@ Parse.options = {
 				url = hash;
 				node.onclick = function(e) {
 					var hash2 = getPath();
-					console.log("clicked,",hash1,hash2);
 					if (hash1[0]==hash2[0] && hash1[1]==name) {
 						var n = document.getElementsByName("_anchor_"+name);
 						if (n[0])
