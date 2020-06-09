@@ -632,12 +632,13 @@ html.f-sidebar .m {
 		border-left: none;
 		transform: none;
 	}
+	html:not(.f-sidebar) .sideBar {
+		margin-left: 0;
+		transform: translateX(0);
+	}
 	html:not(.f-mobileSidebar) .sideBar {
 		-webkit-transform: translateX(100%);
 		transform: translateX(100%);
-	}
-	html:not(.f-sidebar) .sideBar {
-		margin-left: 0;
 	}
 	.m {
 		width: 100%;
