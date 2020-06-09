@@ -663,14 +663,15 @@ html.f-sidebar .m {
 	}
 	body:not(.chatMode) main {
 		height: auto !important;
+		-webkit-flex-basis: auto;
 		flex-basis: auto;
 	}
 	html {
 		background-color: transparent;
 	}
-	/* smaller editor text area */
-	.editorTextarea textarea {
-		height: 20vh;
+	.editorPreview {
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
 	}
 	.userPageBox {
 		max-height: none;
