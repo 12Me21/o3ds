@@ -449,6 +449,7 @@ body.chatMode main {
 	resize: vertical;
 	width: 100%;
 	height: 40vh;
+	min-height: 5rem;
 	box-sizing: border-box;
 }
 
