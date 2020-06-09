@@ -648,7 +648,10 @@ html.f-sidebar .m {
 
 /* for devices with small screens */
 @media (max-width: 700px), (max-height: 500px) {
-
+	body.chatMode main {
+		max-height: 100vh; /*for when no flex :( */
+	}
+	
 	/* make the entire page scroll */
 	/* todo: make chat mode work better here */
 	body:not(.chatMode) {
