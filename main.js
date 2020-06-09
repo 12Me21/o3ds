@@ -435,12 +435,19 @@ function deletePage() {
 
 var editorCache = {video:{},audio:{},youtube:{}};
 function updateEditorPreview(preview) {
+	var parent = $editorPreview;
+	var shouldScroll = parent.scrollHeight-parent.clientHeight-parent.scrollTop < 10
+	console.log("should?",shouldScroll);
 	renderPageContents({
 		values: {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
 	}, $editorPreview, editorCache);
+	// auto scroll down when adding new lines to the end (presumably)
+	if (shouldScroll) {
+		parent.scrollTop = parent.scrollHeight-parent.clientHeight;
+	}
 }
 
 // "generate" functions operate implicitly on specific html elements, and should be in view.js
