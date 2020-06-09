@@ -255,7 +255,7 @@ main {
 
 body.chatMode main {
 	overflow-y: scroll;
-	max-height: 90vh;
+	height: 90vh;
 }
 
 /*******************
