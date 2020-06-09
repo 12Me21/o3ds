@@ -253,6 +253,11 @@ main {
 	height: 300px;*/
 }
 
+body.chatMode main {
+	overflow-y: scroll;
+	max-height: 90vh;
+}
+
 /*******************
  ** Category Pane **
  *******************/
@@ -644,10 +649,6 @@ html.f-sidebar .m {
 	.m {
 		width: 100%;
 	}
-}
-
-body.chatMode main {
-	max-height: 100vh; /*for when no flex :( */
 }
 
 /* for devices with small screens */
