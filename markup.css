@@ -127,7 +127,7 @@
 	margin-left: 0.2rem;
 	margin-right: 0.2rem;
 	margin-top: 1px;
-	display: inline-block;
+	display: table;
 }
 
 .markup-root .spoilerButton:hover {

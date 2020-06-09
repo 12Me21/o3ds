@@ -450,6 +450,7 @@ function updateUserlist(listeners, userMap) {
 }
 
 function onLogin(me) {
+	//var me = this;
 	me.whenUser(me.uid, function(user) {
 		userAvatar(user, $myAvatar);
 		$myName.textContent = user.username;

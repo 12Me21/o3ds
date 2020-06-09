@@ -296,7 +296,7 @@ Myself.prototype.logOut = function(soft) {
 			localStorage.removeItem(this.lsKey);
 		}
 		if (this.onLogout)
-			this.onLogout();
+			this.onLogout(this);
 	}
 }
 
@@ -307,7 +307,7 @@ Myself.prototype.setAuth = function(auth) {
 	var x = JSON.parse(atob(auth.split(".")[1]));
 	this.uid = +x.uid;
 	if (this.onLogin)
-		this.onLogin();
+		this.onLogin(this);
 }
 
 // run callback function
