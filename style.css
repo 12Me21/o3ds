@@ -634,6 +634,7 @@ html.f-sidebar .m {
 	}
 	html:not(.f-sidebar) .sideBar {
 		margin-left: 0;
+		-webkit-transform: translateX(0);
 		transform: translateX(0);
 	}
 	html:not(.f-mobileSidebar) .sideBar {
