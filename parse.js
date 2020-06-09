@@ -110,7 +110,7 @@ Parse.options = {
 		return node;
 	},
 	// inline code
-	icode: function(code) {
+	icode: function(args, code) {
 		var node = create('code');
 		node.textContent = code;
 		return node;
@@ -209,7 +209,8 @@ Parse.options = {
 				url = hash;
 				node.onclick = function(e) {
 					var hash2 = getPath();
-					if (hash1[0]==hash2[0] && hash1[1]==hash2[1]) {
+					console.log("clicked,",hash1,hash2);
+					if (hash1[0]==hash2[0] && hash1[1]==name) {
 						var n = document.getElementsByName("_anchor_"+name);
 						if (n[0])
 							n[0].scrollIntoView();
@@ -288,8 +289,8 @@ Parse.options = {
 			node.style.textAlign = arg;
 		return node;
 	},
-	sup: creator('sup'),
-	sub: creator('sub'),
+	superscript: creator('sup'),
+	subscript: creator('sub'),
 	anchor: function(args) {
 		var name = args[""];
 		var node = create('a');
@@ -598,7 +599,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						codeText += c;
 						scan();
 					}
-					addBlock(options.icode(codeText));
+					addBlock(options.icode({},codeText));
 					scan();
 				}
 			//
@@ -682,9 +683,9 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			var name = readTagName();
 			var props = readProps();
 			// todo: make this better lol
-			var func = tags[name]
+			var func = tags[name];
 			if (func && !(name=="spoiler" && stackContains("spoiler"))) {
-				startBlock(name, {}, props);
+				startBlock(func, {}, props);
 			} else {
 				addBlock(options.invalid(code.substring(start, i), "invalid tag"))
 			}
@@ -733,7 +734,7 @@ Parse.lang['12y'] = function(code, preview, cache) {
 			return code.substring(start, i);
 	}
 	
-	// read properties key=value,key=value... ended by a space
+	// read properties key=value,key=value... ended by a space or \n or } or {
 	// =value is optional and defaults to `true`
 	function readProps() {
 		var start = i;
@@ -743,7 +744,17 @@ Parse.lang['12y'] = function(code, preview, cache) {
 		var end2 = code.indexOf("\n", i);
 		if (end2 >= 0 && end2 < end)
 			end = end2;
-		restore(end+1);
+		end2 = code.indexOf("}", i);
+		if (end2 >= 0 && end2 < end)
+			end = end2;
+		end2 = code.indexOf("{", i);
+		if (end2 >= 0 && end2 < end)
+			end = end2;
+
+
+		restore(end);
+		eatChar(" ");
+
 		var propst = code.substring(start, end);
 		var props = {};
 		propst.split(",").forEach(function(x){
@@ -1071,11 +1082,8 @@ Parse.lang.bbcode = function(code, preview, cache) {
 		list: options.list,
 		spoiler: options.spoiler,
 		quote: options.quote,
-		anchor: function(args){
-			return options.anchor(args[""]);
-		},
+		anchor: options.anchor,
 		item: options.item,
-		audio: options.audio,
 	};
 	var specialBlock = {
 		url: function(args, contents){
@@ -1166,7 +1174,7 @@ Parse.lang.bbcode = function(code, preview, cache) {
 							arg = code.substring(start, i);
 					}
 					if (eatChar(" ")) {
-						args = readArgList();
+						args = readArgList() || {};
 					}
 					args[""] = arg;
 					if (eatChar("]")) {
@@ -1194,7 +1202,7 @@ Parse.lang.bbcode = function(code, preview, cache) {
 								if (isBlock)
 									skipNextLineBreak = true;
 							}
-						} else if (blocks[name] && !(noNesting[name] && stackContains(name))) {
+						} else if (name!="item" && blocks[name] && !(noNesting[name] && stackContains(name))) {
 							startBlock(name, args, i);
 						} else
 							addBlock(options.invalid(code.substring(point, i), "invalid tag"));
