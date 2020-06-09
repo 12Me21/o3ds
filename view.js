@@ -314,9 +314,13 @@ function megaAggregate(activity, ca, contents) {
 			return; //some weird activity type
 		return x;
 	});
-	/*allAct = allAct.sort(function(a, b) {
-		return a.date < b.date;
-	});*/
+	allAct = allAct.sort(function(a, b) {
+		if (a.date > b.date)
+			return -1;
+		if (a.date < b.date)
+			return 1;
+		return 0;
+	});
 	//todo: trim all trailing of same type because that's when the other runs out
 	// also we can optimize merging of 2 sorted arrays here!
 	return allAct;
