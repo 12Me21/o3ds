@@ -70,6 +70,7 @@
 	display: block;
 	-webkit-transition: all 0.25s ease;
 	transition: all 0.25s ease;
+	margin: 0 1px;
 }
 
 .markup-root img:focus {
@@ -142,6 +143,7 @@
 	padding: 0.5rem;
 	border: 1px solid gray;
 	background-color: #F8F8F8;
+	margin-bottom: 1px;
 }
 
 .spoilerButton:not([data-show]) + .spoiler {
@@ -150,6 +152,10 @@
 
 .markup-root .spoilerButton:not([data-show]):before {
 	content: "Show ";
+}
+
+.spoilerButton[data-show] {
+	border-bottom: none;
 }
 
 .markup-root .spoilerButton[data-show]:before {
@@ -170,3 +176,20 @@
 	color: white;
 	border-color: white;
 }*/
+
+.markup-root blockquote {
+	padding: 0.5rem;
+	padding-left: 1.5rem;
+	border: 1px solid gray;
+	background-color: #eee;
+	margin: 1px 0;
+}
+
+.markup-root blockquote[cite]::before {
+	content: attr(cite) ":\A";
+	white-space: pre;
+	font-weight: bold;
+	margin-left: -1rem;
+	display: block;
+	margin-bottom: 0.2em;
+}
