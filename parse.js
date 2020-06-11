@@ -346,7 +346,6 @@ var Parse = {
     ** stack **
     ***********/
 	function stackContains(type) {
-		console.log('checking stack contains');
 		for (var i=0; i<stack.length; i++) {
 			if (stack[i].type == type) {
 				return true;
@@ -1189,7 +1188,6 @@ var Parse = {
 							args = readArgList() || {};
 						}
 						args[""] = arg;
-						console.log("read",name,noNesting[name],blocks[name])
 						if (eatChar("]")) {
 							if (specialBlock[name] && !(name == "url" && arg!=true)) {
 								var endTag = "[/"+name+"]";
@@ -1262,7 +1260,6 @@ var Parse = {
 					// key="...
 					if (eatChar('"')) {
 						start = i;
-						console.log("quoted");
 						while (c && c!='"' && c!="\n")
 							scan();
 						if (eatChar('"'))
