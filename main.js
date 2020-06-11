@@ -81,26 +81,28 @@ function ready() {
 	var voteBlock;
 	voteBtns.forEach(function(button, buttoni) {
 		button.onclick = function(e) {
-			if (voteBlock)
+			if (voteBlock || !me.auth)
 				return;
 			var selected = button.getAttribute('data-selected');
 			var vote = !selected ? button.getAttribute('data-vote') : null;
 			voteBlock = true;
 			me.setVote(currentPage, vote, function(e, resp){
 				voteBlock = false;
-				voteBtns.forEach(function(btn, i) {
-					if (btn != button || selected) {
-						if (btn.getAttribute('data-selected') != null) {
-							voteCounts[i].textContent = +voteCounts[i].textContent - 1;
+				if (!e) {
+					voteBtns.forEach(function(btn, i) {
+						if (btn != button || selected) {
+							if (btn.getAttribute('data-selected') != null) {
+								voteCounts[i].textContent = +voteCounts[i].textContent - 1;
+							}
+							btn.removeAttribute('data-selected');
 						}
-						btn.removeAttribute('data-selected');
+					});
+					//todo: update vote counts here;
+					if (!selected) {
+						button.setAttribute('data-selected', "true");
+						voteCounts[buttoni].textContent = +voteCounts[buttoni].textContent + 1;
+						//increment
 					}
-				});
-				//todo: update vote counts here;
-				if (!selected) {
-					button.setAttribute('data-selected', "true");
-					voteCounts[buttoni].textContent = +voteCounts[buttoni].textContent + 1;
-					//increment
 				}
 			});
 		}
@@ -472,6 +474,7 @@ function onLogin(me) {
 		$myUserLink.href = "#user/"+user.id;
 	});
 	flag("loggedIn",true);
+	/*hashChange(false);*/
 }
 
 function onLogout() {
