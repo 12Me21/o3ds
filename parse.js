@@ -180,7 +180,7 @@ var Parse = {
 			return {
 				block: true,
 				nodes: [container],
-				//branch: node
+				branch: node
 			}
 		},
 		row: creator('tr'),
