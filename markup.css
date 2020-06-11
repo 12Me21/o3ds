@@ -166,6 +166,13 @@
 	background-color: pink;
 }
 
+.markup-root .error {
+	background-color: red;
+	border: 1px solid black;
+	padding: 0.2rem;
+}
+
+
 .markup-root .tableContainer {
 	overflow-x: auto;
 	max-width: 100%;

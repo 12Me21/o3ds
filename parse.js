@@ -180,7 +180,7 @@ var Parse = {
 			return {
 				block: true,
 				nodes: [container],
-				branch: node
+				//branch: node
 			}
 		},
 		row: creator('tr'),
@@ -214,10 +214,10 @@ var Parse = {
 			  }*/
 			return {node:node, block:true};
 		},
-		error: function() {
+		error: function(e) {
 			var node = create('div');
-			node.className = "parse-error";
-			node.textContent = "Error";
+			node.className = "error";
+			node.textContent = "Error while parsing:\n'"+e+"'\nPlease report this";
 			return {node:node, block:true};
 		},
 		align: function(args) {
@@ -477,18 +477,6 @@ var Parse = {
 		}
 		return node;
 	}
-
-	var create = function(x) {
-		return document.createElement(x);
-	}
-	var createText = function(x) {
-		return document.createTextNode(x);
-	}
-	var creator = function (tag) {
-		return function() {
-			return create(tag);
-		}
-	};
 
 	var options = Parse.options;
 	
@@ -1308,6 +1296,9 @@ var Parse = {
 	Parse.fallback = function(text) {
 		var options = Parse.options;
 		var root = options.root();
+		i = 0;
+		code = text;
+		output = root;
 		
 		var linkRegex = /\b(?:https?:\/\/|sbs:)[-\w\$\.+!*'(),;/\?:@=&#%]*/g;
 		var result;
@@ -1328,4 +1319,20 @@ var Parse = {
 		return root.node;
 	}
 
+	Parse.parseLang = function(text, lang) {
+		i=0;
+		code = text;
+		try {
+			var parser = Parse.lang[lang] || Parse.fallback;
+			return parser(text);
+		} catch(e) {
+			try {
+				options.append(output, options.error(e));
+				options.append(output, options.text(code.substr(i)));
+				return output.node
+			} catch (e) {
+				alert("Unrecoverable parser error! please report this!\n"+e);
+			}
+		}
+	}
 })();

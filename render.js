@@ -226,14 +226,13 @@ function timeAgo(date) {
 
 function renderPageContents(page, element, cache) {
 	if (page.values) {
-		var parser = Parse.lang[page.values.markupLang];
+		var lang = page.values.markupLang;
 	}
-	parser = parser || Parse.fallback;
-	if (element) {
-		setChild(element, parser(page.content, false, cache));
-	} else {
-		return parser(page.content, false, cache);
-	}
+	var out = Parse.parseLang(page.content, lang);
+	if (element)
+		setChild(element, out);
+	
+	return out
 }
 
 // as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
