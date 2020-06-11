@@ -642,7 +642,7 @@ var Parse = {
 					var eaten = eatChar("\n");
 					//--------------
 					// | | next row
-					if (eatChar("|")) {
+					if (eaten && eatChar("|")) {
 						// number of cells in first row
 						// determines number of columns in table
 						if (table.columns == null)
