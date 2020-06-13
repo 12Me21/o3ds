@@ -58,7 +58,8 @@ textarea {
 	border: 2px solid #00C8B4;
 	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
 	max-width: 100%;
-	font-size: 1em; /* prevent zoom in on iphone */
+	font-family: roboto, sans-serif;
+	font-size: 0.8em;
 }
 
 sup {vertical-align: super;}
@@ -661,6 +662,9 @@ html.f-sidebar .m {
 		min-height: 100vh;
 		font-size: 0.9em;
 	}
+	textarea {
+		font-size: 1em; /* prevent zoom in on iphone */
+	}
 	body:not(.chatMode) main {
 		height: auto !important;
 		-webkit-flex-basis: auto;
@@ -861,4 +865,8 @@ html:not(.f-fileUploading) .fileUploading {
 
 html:not(.f-page) .pageItem {
 	display: none;
+}
+
+.userPageBox .pageContents {
+	max-height: 100%;
 }
