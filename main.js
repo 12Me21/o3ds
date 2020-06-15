@@ -254,7 +254,7 @@ function hashChange(first) {
 	// append # to the end of fragment links,
 	// and it will be removed, so every time you clikc the link it will scroll
 	if (fragment[2] == "") {
-		slientSetFragment(location.hash.slice(0,-1));
+		silentSetFragment(location.hash.slice(0,-1));
 	}
 	if (currentPath == fragment[0]) {
 		scrollTo(fragment[1])
