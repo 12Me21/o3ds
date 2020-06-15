@@ -151,7 +151,7 @@ var Parse = {
 					url = hash;
 					node.onclick = function(e) {
 						var hash2 = getPath();
-						if (hash1[0]==hash2[0] && hash1[1]==name) {
+						if (hash1[0]==hash2[0] && hash2[1]==name) {
 							var n = document.getElementsByName("_anchor_"+name);
 							if (n[0])
 								n[0].scrollIntoView();
