@@ -25,6 +25,15 @@
 .markup-root h2, .markup-root h3 {
 	border-bottom: 1px solid #eaecef;
 	margin-bottom: 0.2rem;
+	/*display: inline;*/
+}
+
+.markup-root h4 {
+	/*display: inline;*/
+}
+
+.markup-root > :first-child {
+	margin-top: 0;
 }
 
 .markup-root h2 {

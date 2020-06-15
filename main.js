@@ -221,6 +221,10 @@ function ready() {
 			$testOut.textContent="Error:\n"+res;
 		}
 	}
+
+/*	document.body.onclick = function(e) {
+		console.log(e.target)
+	}*/
 }
 
 function updateAvatar(id) {
@@ -238,16 +242,27 @@ function toggleSidebar() {
 
 var currentPath = null;
 
+function silentSetFragment(fragment) {
+	cancelhashchange = true;
+	location.hash = fragment;
+	cancelhashchange = false;
+}
+
 // todo: add a "force" flag
 function hashChange(first) {
 	var fragment = getPath();
+	// append # to the end of fragment links,
+	// and it will be removed, so every time you clikc the link it will scroll
+	if (fragment[2] == "") {
+		slientSetFragment(location.hash.slice(0,-1));
+	}
 	if (currentPath == fragment[0]) {
 		scrollTo(fragment[1])
 	} else {
 		currentPath = fragment[0];
 		navigateTo(fragment[0], first, function() {
 			scrollTo(fragment[1])
-		});
+		}, fragment[1]);
 	}
 	
 }
@@ -260,14 +275,21 @@ function scrollToAuto() {
 
 function scrollTo(name) {
 	//todo: this needs to happen after all images load etc. somehow...
+	console.log("doing scrollTo", name);
 	if (name) {
-		var n = document.getElementsByName("_anchor_"+name);
-		if (n[0])
-			n[0].scrollIntoView();
+		var n = document.getElementsByName("_anchor_"+name)[0] || document.getElementById("_anchor_"+name);
+		if (n)
+			n.scrollIntoView();
 	}
 }
 
+var cancelhashchange
 window.onhashchange = function() {
+	if (cancelhashchange) {
+		cancelhashchange = false;
+		return;
+	}
+	
 	// todo: when a link which has the same path but a different fragment is clicked,
 	// page should not reload, instead just scroll to fragment
 	hashChange(false);
@@ -287,12 +309,12 @@ function split1(string, sep) {
 }
 
 var cancel;
-function navigateTo(path, first, callback) {
+function navigateTo(path, first, callback, hash) {
 	if (cancel)
 		cancel();
 	path = split1(path, "?");
 	var query = path[1];
-	var queryVars = {};
+	var queryVars = {"#":hash};
 	if (query) {
 		query.split("&").forEach(function(item) {
 			item = split1(item, "=");
@@ -419,10 +441,45 @@ function onLogin(me) {
 	});
 	flag("loggedIn",true);
 	/*hashChange(false);*/
+	lp.onMessages = function(messages, users, pages) {
+		messages.forEach(function(comment) {
+			var user = users[comment.createUserId];
+			addSidebarItem(pages[comment.parentId],user,comment.content.split("\n").slice(1));
+		})
+	}
+	lp.onActivity = function(activity, users, pages) {
+		activity.forEach(function(activity) {
+			var user = users[activity.userId];
+			if (activity.type == "content") {
+				var page = pages[activity.contentId]
+				var action = {
+					u: "edited",
+					c: "created",
+					d: "deleted"
+				}[activity.action];
+				if (!page) {
+					page = {
+						name: activity.extra,
+						id: activity.contentId
+					}
+				}
+				addSidebarItem(page,user,action);
+			}
+		});
+	}
+	lp.start();
 }
 
 function onLogout() {
+	lp.cancel[0]();
 	$myAvatar.src = "";
 	$myName.textContent = "";
 	flag("loggedIn");
 }
+
+// maybe at bottom of sidebar (or top?)
+// put list of active pages
+//
+// also still need to deal with
+// old message deletion and old room clearing
+// ugh

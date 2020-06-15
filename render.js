@@ -14,6 +14,14 @@ function renderKeyInfo(key, data, element) {
 	return element;
 }
 
+function renderSidebarItem(page, user, comment) {
+	var d = document.createElement('a');
+	d.href = "#pages/"+page.id+"#comment-"+comment.id;
+	d.className = "pre";
+	d.textContent = page.name+"\n"+user.username+": "+comment.content;
+	return d;
+}
+
 function renderContentName(name, icon) {
 	var span = document.createElement('span');
 	span.className = "textItem pageName";
@@ -151,10 +159,15 @@ function renderCategoryPage(page, users, pinned) {
 
 // HH:MM AM/PM
 function timeString(date) {
+	console.log(date, new Date()-date)
+	var prefix = ""
+	if (new Date()-date > 1000*60*60*12) {
+		prefix = (["January","February","March","April","May","June","July","August","September","October","November","December"][date.getMonth()])+" "+date.getDate()+", "+date.getFullYear()+"  ";
+	}
 	var hours = date.getHours();
 	var minutes = date.getMinutes();
 	var twelve = hours % 12 || 12;
-	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+	return prefix+twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
 }
 
 function renderSystemMessage(text) {
@@ -273,10 +286,10 @@ function renderActivityItem(activity, page, user) {
 	var action = document.createElement('span');
 	action.className = "textItem noColor";
 	action.textContent = text+" ";
-	
+
 	if (activity.type == 'content') {
 		if (activity.action == "p")
-			div.href = "#discussions/"+activity.contentId;
+			div.href = "#pages/"+activity.contentId+"#comment-"+activity.id; //todo: comment link
 		else
 			div.href = "#pages/"+activity.contentId;
 
@@ -308,6 +321,12 @@ function renderMemberListUser(user) {
 	return div;
 }
 
+function renderMessageGap() {
+	var div = document.createElement('div');
+	div.className = "messageGap";
+	return div;
+}
+
 function renderMessagePart(comment, sizedOnload){
 	var content = comment.content;
 	var text, markup;
@@ -327,7 +346,7 @@ function renderMessagePart(comment, sizedOnload){
 	}
 	element = parser(markup)(text);
 	element.className += ' messagePart';
-	element.setAttribute('data-id', comment.id);
+	element.id = "_anchor_comment-"+comment.id;
 	//document.title=comment.username+":"+text;
 	return element;
 }
@@ -400,22 +419,28 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 }
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
-	// replace an existing message (we assume uid doesn't change)
-	if (this.nodes[id]) {
-		this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
-	// insert a new line to the last block
-	} else if (uid && this.lastUid == uid) {
-		this.lastUidBlock.appendChild(node);
-	// create a new block
+	if (id == null) {
+		this.element.appendChild(node);
+		this.lastUid = undefined;
+		this.lastUidBlock = undefined;
 	} else {
-		var b = makeBlock();
-		b[1].appendChild(node);
-		this.element.appendChild(b[0]);
-		
-		this.lastUidBlock = b[1];
-		this.lastUid = uid;
+		// replace an existing message (we assume uid doesn't change)
+		if (this.nodes[id]) {
+			this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
+			// insert a new line to the last block
+		} else if (uid && this.lastUid == uid) {
+			this.lastUidBlock.appendChild(node);
+			// create a new block
+		} else {
+			var b = makeBlock();
+			b[1].appendChild(node);
+			this.element.appendChild(b[0]);
+			
+			this.lastUidBlock = b[1];
+			this.lastUid = uid;
+		}
+		this.nodes[id] = node;
 	}
-	this.nodes[id] = node;
 	if (s)
 		this.autoScroll();
 }

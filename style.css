@@ -822,11 +822,20 @@ html.f-sidebar .m {
 	color: black;
 }
 
-body.chatMode .bottomSpacer {
+body.pageMode .bottomSpacer {
 	display: none;
 }
 body.fileMode .bottomSpacer {
 	display: none;
+}
+
+.messagePart[data-linked] {
+	background-color: rgba(255,255,0,0.3);
+}
+
+.messageGap {
+	border: 1px dashed gray;
+	margin: 0.3rem 0;
 }
 
 .fileThumbnail {
@@ -885,4 +894,22 @@ html:not(.f-page) .pageItem {
 header :first-child {
 	min-width: 0.3rem;
 	display: inline-block;
+}
+
+.sideBar {
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebarScroller {
+	flex-grow: 1;
+	overflow-y: scroll;
+	flex-basis: 0;
+	border-top: 1px solid gray;
+}
+
+.sidebarScroller > * {
+	display: block;
+	padding: 0.2rem;
+	border-bottom: 1px solid gray;
 }

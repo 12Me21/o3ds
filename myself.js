@@ -357,22 +357,36 @@ Myself.prototype.loadCachedAuth = function(callback) {
 	return false;
 }
 
-Myself.prototype.getPage = function(id, callback) {
+Myself.prototype.getPage = function(id, linked, callback) {
 	var $=this;
 	id = +id;
-	return $.read([
+	var query = [
 		{content: {ids: [id]}},
-		{comment: {parentIds: [id], limit: 50}},
+		{comment: {parentIds: [id], limit: 50, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
-	], {
+	]
+	//todo: instead of loading these here, which is messy
+	// just make a "get old comments(id)" function, which gets an old comment given the id (and +- a certain amount using minidmaxidlimitreverse)
+	// and make that request when loading the page
+	// as well as when linking to old comments without a page reload
+	// as well as a similar function for "get next 10 oldest/newest" for the (show more) buttons
+	if (linked) {
+		query = [
+			{content: {ids: [id]}},
+			{"comment~old": {parentIds: [id], minId: linked-10, maxId: linked+10}},
+			{comment: {parentIds: [id], limit: 50, reverse: true}},
+			"user.0createUserId.0editUserId.1createUserId.1editUserId.2createUserId.2editUserId",
+		]
+	}
+	return $.read(query, {
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
 			var page = resp.content[0];
 			if (page)
-				$.cb(callback, page, resp.userMap, resp.comment);
+				$.cb(callback, page, resp.userMap, resp.comment, resp.old);
 			else
-				$.cb(callback, null, {}, []);
+				$.cb(callback, null, {}, [], []);
 		}
 	});
 }
@@ -589,14 +603,21 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
-Myself.prototype.doListen = function(lastId, statuses, lastListeners, chain, cancel, callback) {
+Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotifs, cancel, callback) {
 	var $=this;
+	var actions = {
+		lastId: lastId,
+		statuses: statuses,
+		chains: [
+			"comment.0id","activity.0id","watch.0id", //new stuff
+			"content.1parentId.2contentId.3contentId", //pages
+			"user.1createUserId.2userId" //users for comment and activity
+		]
+	}
+	if (clearNotifs)
+		actions.clearNotifictions = clearNotifs;
 	var req = [
-		{actions: {
-			lastId: lastId,
-			statuses: statuses,
-			chains: chain
-		}}
+		{actions: actions}
 	];
 	if (Object.keys(lastListeners).length) {
 		req.push({listeners: {
@@ -605,6 +626,7 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, chain, can
 		}});
 	}
 	return $.listen(req, {
+		content: "id,createUserId,name"
 	}, callback, cancel);
 }
 // todo:

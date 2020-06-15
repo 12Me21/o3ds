@@ -3,9 +3,6 @@
 
 // clean up stuff whenever switching pages
 function cleanUp(type) {
-	if (type != "discussions") //hack
-		lp.setVisiting();
-
 	flag('myUserPage');
 	flag('canEdit');
 	flag('page');
@@ -89,6 +86,11 @@ function readEditorFields(page) {
 	page.type = $editPageType.value;
 	page.content = $editorTextarea.value;
 	page.parentId = +$editPageCategory.value;
+}
+
+function addSidebarItem(page, user, comment) {
+	var x = renderSidebarItem(page, user, comment);
+	$sidebarScroller.insertBefore(x, $sidebarScroller.firstChild);
 }
 
 function newCategory(query) {
@@ -208,6 +210,10 @@ function displayMessage(c, user) {
 			return b;
 		});
 	}
+}
+
+function displayGap() {
+	scroller.insert(null, renderMessageGap());
 }
 
 function handlePinned(pinned) {
@@ -479,47 +485,6 @@ var views = {
 			}
 		}
 	},
-	discussions: {
-		start: function(id, query, callback) {
-			id = +id;
-			lp.setVisiting(id, "active");
-			if (!lp.running)
-				lp.start();
-			lp.onMessages = function(messages, users) {
-				messages.forEach(function(comment) {
-					displayMessage(comment, users[comment.createUserId]);
-				})
-			}
-			lp.onListeners = function(lists, users) {
-				updateUserlist(lists[id], users)
-			}
-			return me.getDiscussion(id, function(page, comments, users) {
-				callback(page, comments, users);
-			})
-		},
-		render: function(page, comments, users) {
-			$main.className = "chatMode";
-			if (page) {
-				var id = page.id;
-				generatePagePath(page, users);
-				currentChatRoom = page.id;
-				var icon = "page";
-				if (!hasPerm(page.permissions, 0, 'r'))
-					icon = "hiddenpage"
-				setTitle(page.name, icon);
-				$watchCheck.checked = page.about.watching;
-				scroller.switchRoom(id);
-				renderPageContents(page, $pageContents);
-				comments && comments.forEach(function(comment) {
-					displayMessage(comment, users[comment.createUserId]);
-				});
-				scroller.autoScroll(true);
-			} else {
-				lp.setVisiting();
-				setTitle("Page not found");
-			}
-		}
-	},
 	user: {
 		start: function(id, query, render) {
 			id = +id;
@@ -572,18 +537,38 @@ var views = {
 	},
 	pages: {
 		start: function(id, query, callback) {
-			return me.getPage(id, function(page, users, comments){
-				callback(page, users, comments);
+			lp.onListeners = function(lists, users) {
+				updateUserlist(lists[id], users)
+			}
+			lp.onMessages = function(messages, users, pages) {
+				messages.forEach(function(comment) {
+					var user = users[comment.createUserId];
+					if (comment.parentId == id)
+						displayMessage(comment, user);
+					addSidebarItem(pages[comment.parentId],user,comment);
+				})
+			}
+			var linked = query["#"];
+			if (linked && /^comment-/.test(linked)) {
+				linked=+linked.substr(8);
+			} else {
+				linked = null;
+			}
+			console.log(linked);
+			return me.getPage(id, linked, function(page, users, comments, old){
+				callback(page, users, comments, old, query);
 			});
 		},
-		render: function(page, users, comments) {
+		render: function(page, users, comments, old, query) {
 			$main.className = "pageMode";
 			generateAuthorBox(page, users);
 			flag('canEdit', !!page);
 			if (page) {
 				flag('page', true);
+				scroller.switchRoom(page.id);
 				generatePagePath(page, users);
 				currentPage = page.id;
+				currentChatRoom = page.id;
 				var icon = "page";
 				if (!hasPerm(page.permissions, 0, 'r'))
 					icon = "hiddenpage"
@@ -592,6 +577,18 @@ var views = {
 				// todo: handle showing/hiding the vote box when logged in/out
 				renderPageContents(page, $pageContents)
 				handleLoads($pageContents);
+				if (old && old.length) {
+					displayGap()
+					old.forEach(function(comment) {
+						if (comment.parentId == page.id)
+							displayMessage(comment, users[comment.createUserId]);
+					});
+					displayGap()
+				}
+				comments && comments.reverse().forEach(function(comment) {
+					if (comment.parentId == page.id)
+						displayMessage(comment, users[comment.createUserId]);
+				});
 				$editButton.href = "#pages/edit/"+page.id;
 				$voteCount_b.textContent = page.about.votes.b.count;
 				$voteCount_o.textContent = page.about.votes.o.count;
@@ -627,6 +624,14 @@ var views = {
 				} else {
 					$metaKey.textContent = "";
 					$sbapiInfo.innerHTML = "";
+				}
+				if (query["#"]) {
+					var comment=document.getElementById("_anchor_"+query["#"])
+					console.log(comment, query)
+					if (comment) {
+						comment.scrollIntoView()
+						comment.setAttribute("data-linked", "");
+					}
 				}
 			} else {
 				currentPage = null;
