@@ -1,13 +1,13 @@
 function LongPoller(myself) {
 	this.myself = myself;
 	this.cancel = [function(){}];
-	this.statuses = {};
 	this.lastListeners = {};
-	this.rooms = [];
 	this.lastId = -1;
 	this.setState("Not running yet", false);
-	this.extraRoom;
-	this.realRooms = [];
+
+	this.rooms = {};
+	this.leaving = {};
+	this.visiting = null;
 	// problem:
 	// now ideally, we'd have this.rooms be a map of room id to all data for
 	// that room (status, listeners, etc)
@@ -17,6 +17,38 @@ function LongPoller(myself) {
 	// - keep the data in server format
 	// - have data in both formats
 	// - keep data in a good format, and convert it when making a request
+	var $=this;
+}
+
+LongPoller.prototype.leaveAll = function() {
+	console.log("leaving all");
+	for (id in this.rooms) {
+		this.leaving[id] = true;
+	}
+	this.rooms = {};
+	this.lastListeners = {};
+	this.refresh();
+}
+
+LongPoller.prototype.getStatuses = function() {
+	var statuses = {};
+	for (var id in this.rooms) {
+		var room = this.rooms[id];
+		if (room.status != null)
+			statuses[id] = room.status;
+	}
+	//for (var id in this.leaving)
+	//	statuses[id] = "";
+	this.leaving = {};
+	return statuses;
+}
+
+LongPoller.prototype.getRoomIds = function() {
+	var ids = [];
+	for (var id in this.rooms) {
+		ids.push(+id);
+	}
+	return ids;
 }
 
 LongPoller.prototype.setState = function(text, state) {
@@ -35,37 +67,39 @@ LongPoller.prototype.start = function() {
 	}
 }
 
+// change your status in a room
 LongPoller.prototype.setStatus = function(id, status) {
-	this.statuses[id] = status;
+	if (status != null)
+		this.rooms[id].status = status;
+	else
+		delete this.rooms[id].status;
 	this.refresh();
 }
 
-LongPoller.prototype.addRoom = function(id, status) {
-	if (this.rooms.indexOf(id) != -1)
+// join a room
+LongPoller.prototype.joinRoom = function(id, status) {
+	if (this.rooms[id])
 		return;
-	console.log("LP: adding room: ", id);
-	this.rooms.push(id);
 	this.lastListeners[id] = {"0": ""};
-	//if (status)
-		//this.statuses[id] = status;
-	this.refresh();
+	this.rooms[id] = {};
+	if (status != null)
+		this.rooms[id].status = status;
+	console.log("joining room", id);
+	return true;
 }
 
 // stop listening to a room
 // this will set your status to ""
 // so that frontends can see you've left immediately
 // the server will remove you from the list entirely after a few seconds
-// todo: have a way to add/remove multiple rooms without needing a reload
-LongPoller.prototype.removeRoom = function(id) {
-	var i = this.rooms.indexOf(id);
-	if (i < 0)
+LongPoller.prototype.leaveRoom = function(id) {
+	if (!this.rooms[id])
 		return;
-	console.log("LP: removing room: ", id);
-	this.rooms.splice(i, 1);
 	delete this.lastListeners[id];
-	//this.statuses[id] = "";
-	this.refresh();
-	delete this.statuses[id];
+	delete this.rooms[id];
+	this.leaving[id] = true;
+	console.log("leaving room", id);
+	return true;
 }
 
 // cancel the current request and start a new one
@@ -80,29 +114,48 @@ LongPoller.prototype.refresh = function() {
 	}
 }
 
-// this is the room you are currently viewing
-// the `rooms` list is for rooms you're listening to but not actively viewing
-// extraroom may or may not be in the rooms list,
-// todo: make this actually work
-// so there are 2 types of rooms you can be listening to
-// first, the real rooms, which are added/removed with one set of functions
-// next, the extra room, which is the room you're currently viewing,
-// there will only be one of these at a time, and it gets replaced.
-// but otherwise is treated normally, I guess
-// this is for viewing a page and aaa brb
-LongPoller.prototype.setExtraRoom = function(id, status) {
-	if (this.extraRoom)
-		this.removeRoom(this.extraRoom);
-	this.extraRoom = id;
-	if (this.extraRoom)
-		this.addRoom(this.extraRoom, status);
+LongPoller.prototype.setVisiting = function(id, status) {
+	var change
+	if (this.visiting) {
+		// leave old visiting room
+		change = this.leaveRoom(this.visiting);
+		this.visiting = null;
+	}
+	if (id) {
+		// joining a new room
+		if (!this.rooms[id]) {
+			this.visiting = id;
+			this.joinRoom(this.visiting, status);
+			change = true;
+		}
+	}
+	change && this.refresh();
+}
+
+LongPoller.prototype.addRoom = function(id, status) {
+	if (this.rooms[id]) {
+		// if adding the visiting room, remove the visiting status
+		if (this.visiting == id)
+			this.visiting = null;
+	} else {
+		this.joinRoom(id, status);
+		this.refresh();
+	}
+}
+
+LongPoller.prototype.removeRoom = function(id) {
+	if (!this.rooms[id])
+		return;
+	// don't leave if the room is also being visited
+	if (this.visiting != id)
+		this.leaveRoom(id);
 }
 
 LongPoller.prototype.loop = function() {
 	var $=this;
 	$.setState("Waiting for response", true);//idle
-	var chain = ["comment.0id~messages-"+JSON.stringify({parentIds: $.rooms.concat(0)}), "user.1createUserId"];
-	$.myself.doListen($.lastId, $.statuses, $.lastListeners, chain, this.cancel, function(e, resp) {
+	var chain = ["comment.0id~messages-"+JSON.stringify({parentIds: $.getRoomIds().concat(0)}), "user.1createUserId"];
+	$.myself.doListen($.lastId, $.getStatuses(), $.lastListeners, chain, this.cancel, function(e, resp) {
 		$.setState("Handling response", false);
 		if (!e) {
 			$.lastId = resp.lastId;
@@ -128,3 +181,4 @@ LongPoller.prototype.loop = function() {
 		}
 	});
 }
+

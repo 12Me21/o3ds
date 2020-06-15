@@ -19,7 +19,7 @@
 function sbs2Request(url, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
-		cancel[0] = function() {x.abort();};
+		cancel[0] = function() {x.abort();console.log("aborted")};
 	x.open(method, url);
 
 	var start = Date.now();
@@ -44,7 +44,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('timeout', resp);
 		} else if (code == 429) { // rate limit
 			window.setTimeout(function() {
-				callback('timeout', resp);
+				callback('rate', resp);
 			}, 100);
 		} else if (code==401) {
 			console.log(x);
@@ -88,6 +88,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 	} else {
 		x.send();
 	}
+	return x;
 }
 
 function queryString(obj) {
@@ -149,7 +150,7 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
 	$.openRequests++;
 	$.loadStart(!!cancel);
-	sbs2Request($.server+"/"+url, method, function(e, resp) {
+	return sbs2Request($.server+"/"+url, method, function(e, resp) {
 		$.openRequests--;
 		$.loadEnd(!!cancel, e);
 		/*if (e=='auth') {
@@ -169,8 +170,10 @@ Myself.prototype.loadEnd = function(lp, e) {
 		this.cb(this.onLoadEnd, lp, e);
 }
 
-Myself.prototype.getUsers = function(query, callback) {
+Myself.prototype.getUsers = function(query, page, callback) {
 	var $=this;
+	query.limit = 20;
+	query.skip = page * query.limit;
 	$.readSimple("User"+queryString(query), 'user', function(e, resp){
 		if (!e){
 			$.cb(callback, resp);
@@ -184,7 +187,7 @@ Myself.prototype.getUsers = function(query, callback) {
 // the response is always an array of objects of the specified type
 Myself.prototype.readSimple = function(url, type, callback) {
 	var $=this;
-	$.request(url, 'GET', function(e, resp) {
+	return $.request(url, 'GET', function(e, resp) {
 		if (!e) {
 			var obj = {};
 			resp instanceof Array || (resp = [resp]);
@@ -215,7 +218,7 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 		query.requests.push('category~tree');
 	}
 	
-	$.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
+	return $.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
 		if (needCategorys) {
 			$.categoryTree = buildCategoryTree(resp.tree);
 		}
@@ -235,7 +238,7 @@ Myself.prototype.listen = function(requests, filters, callback, cancel) {
 	for (var filter in filters)
 		query[filter] = filters[filter];
 	
-	$.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
+	return $.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
 		if (!e)
 			$.handle(e, resp.chains);
 		$.cb(callback, e, resp);
@@ -244,7 +247,7 @@ Myself.prototype.listen = function(requests, filters, callback, cancel) {
 
 Myself.prototype.getUser = function(id, callback) {
 	var $=this;
-	$.readSimple("User"+queryString(id), 'user', function(e, resp) {
+	return $.readSimple("User"+queryString(id), 'user', function(e, resp) {
 		if (!e) {
 			$.cb(callback, resp[0]);
 		} else {
@@ -316,12 +319,14 @@ Myself.prototype.setAuth = function(auth) {
 Myself.prototype.cb = function(func) {
 	if (func)
 		func.apply(this, Array.prototype.slice.call(arguments, 1));
+	else
+		console.warn("Unbound callback", arguments);
 }
 
 // request auth token from username+password
 Myself.prototype.logIn = function(username, password, callback) {
 	var $=this;
-	$.request("User/authenticate", 'POST', function(e, resp) {
+	return $.request("User/authenticate", 'POST', function(e, resp) {
 		if (!e) {
 			$.setAuth(resp);
 			localStorage.setItem($.lsKey, resp);
@@ -355,7 +360,7 @@ Myself.prototype.loadCachedAuth = function(callback) {
 Myself.prototype.getPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	return $.read([
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 50}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
@@ -375,7 +380,7 @@ Myself.prototype.getPage = function(id, callback) {
 Myself.prototype.getDiscussion = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	return $.read([
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 30, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
@@ -406,7 +411,7 @@ Myself.prototype.whenUser = function(id, callback) {
 
 Myself.prototype.getCategories = function(callback) {
 	var $=this;
-	$.read([
+	return $.read([
 		'category'
 	], {
 		category: "id,name,description,parentId"
@@ -460,7 +465,7 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 		}
 	}
 	
-	$.read(reading, {
+	return $.read(reading, {
 		content: "id,name,parentId,createUserId,editDate,permissions",
 		/*category: "id,name,description,parentId,values",*/
 		user: "id,username,avatar"
@@ -509,11 +514,28 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 	});
 }
 
+Myself.prototype.getNotifications = function(callback) {
+	var $=this;
+	return $.read([
+		{activityaggregate: {contentLimit: {watches: true}}},
+		{commentaggregate: {contentLimit: {watches: true}}},
+		"watch",
+		"content.0id.1id.2contentId",
+		"user.0userIds.1userIds.3createUserId.2userId"
+	],{
+		content: "id,name,parentId,createUserId",
+		watch: "contentId,lastNotificationId,id",
+		user: "id,avatar,super,special,username"
+	}, function(e, resp) {
+		$.cb(callback, e, resp);
+	});
+}
+
 Myself.prototype.getPageForEditing = function(id, callback) {
 	var $=this;
 	if (id) {
 		id = +id;
-		$.read([
+		return $.read([
 			{content: {ids: [id]}},
 			"user.0createUserId.0editUserId",
 		], {
@@ -531,7 +553,7 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 		if ($.categoryTree) {
 			$.cb(callback, null, {});
 		} else {
-			this.readSimple("Category", 'category', function(e, resp) {
+			return $.readSimple("Category", 'category', function(e, resp) {
 				$.categoryTree = buildCategoryTree(resp);
 				$.cb(callback, null, {});
 			});
@@ -543,7 +565,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	var $=this;
 	if (id) {
 		id = +id;
-		$.read([
+		return $.read([
 			{category: {ids: [id]}},
 		], {
 		}, function(e, resp) {
@@ -559,7 +581,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 		if ($.categoryTree) {
 			$.cb(callback, null, {});
 		} else {
-			this.readSimple("Category", 'category', function(e, resp) {
+			return $.readSimple("Category", 'category', function(e, resp) {
 				$.categoryTree = buildCategoryTree(resp);
 				$.cb(callback, null, {});
 			});
@@ -567,31 +589,29 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
-Myself.prototype.listenChat = function(ids, firstId, lastId, statuses, listeners, callback, cancel) {
+Myself.prototype.doListen = function(lastId, statuses, lastListeners, chain, cancel, callback) {
 	var $=this;
-	if (lastId == -Infinity)
-		lastId = undefined;
-	$.listen([
+	var req = [
 		{actions: {
 			lastId: lastId,
-			firstId: firstId,
 			statuses: statuses,
-			chains: ["comment.0id-"+JSON.stringify({parentIds:ids}),"user.1createUserId"]
-		}},
-		{listeners: {
-			lastListeners: listeners,
-			chains: ["user.0listeners"]
+			chains: chain
 		}}
-	], {
-	}, function(e, resp) {
-		if (e)
-			$.cb(callback, e, resp);
-		else {
-			console.log("LISTEN", resp);
-			$.cb(callback, e, resp.chains.comment, resp.lastId, resp.listeners, resp.chains.userMap);
-		}
-	}, cancel);
+	];
+	if (Object.keys(lastListeners).length) {
+		req.push({listeners: {
+			lastListeners, lastListeners,
+			chains: ["user.0listeners"]
+		}});
+	}
+	return $.listen(req, {
+	}, callback, cancel);
 }
+// todo:
+// when logging in on a page, re-request the page data (along with your own user data)
+// make a function for this
+// it needs to handle all page types, hmm
+
 
 Myself.prototype.postPage = function(page, callback) {
 	if (page.id) {
@@ -616,7 +636,7 @@ Myself.prototype.deletePage = function(id, callback) {
 Myself.prototype.postComment = function(id, message, f, callback) {
 	this.request("Comment", 'POST', callback, {
 		parentId: id,
-		content: f+"\n"+message,//JSON.stringify({t: message, m: markup})
+		content: f+"\n"+message,
 	});
 };
 
@@ -628,15 +648,15 @@ Myself.prototype.setWatch = function(id, state, callback) {
 };
 
 Myself.prototype.getWatch = function(query, callback) {
-	this.request("Watch"+queryString(query), 'GET', callback);
+	return this.request("Watch"+queryString(query), 'GET', callback);
 }
 
 Myself.prototype.setVote = function(id, state, callback) {
-	this.request("Vote/"+id+"/"+(state||"delete"), 'POST', callback);
+	return this.request("Vote/"+id+"/"+(state||"delete"), 'POST', callback);
 }
 
 Myself.prototype.getVote = function(query, callback) {
-	this.request("Vote"+queryString(query), 'GET', callback);
+	return this.request("Vote"+queryString(query), 'GET', callback);
 }
 
 Myself.prototype.register = function(username, password, email, callback) {
@@ -659,7 +679,7 @@ Myself.prototype.sendEmail = function(email, callback) {
 
 Myself.prototype.confirmRegister = function(key, callback) {
 	var $=this;
-	$.request("User/register/confirm", 'POST', function(e, resp) {
+	return $.request("User/register/confirm", 'POST', function(e, resp) {
 		if (!e) {
 			$.setAuth(resp);
 			localStorage.setItem($.lsKey, resp);
@@ -674,7 +694,7 @@ Myself.prototype.confirmRegister = function(key, callback) {
 Myself.prototype.getSettings = function(callback) {
 	var $=this;
 	if (me.auth) {
-		$.read([
+		return $.read([
 			{user: {ids: [$.uid]}},
 			{content: {createUserIds: [$.uid], type: '@user.page', limit: 1}},
 		], {
@@ -719,7 +739,7 @@ Myself.prototype.getActivity = function(page, callback) {
 	]
 	/*if ($.categoryTree)
 		reading.push("category.0contentId");*/
-	$.read(reading, {
+	return $.read(reading, {
 		content: "name,id,permissions"
 	},function(e, resp) {
 		if (!e) {
@@ -735,7 +755,7 @@ Myself.prototype.getFiles = function(query, page, callback) {
 	query.limit = 20;
 	query.skip = page*query.limit;
 	query.reverse = true;
-	$.readSimple("File"+queryString(query), 'file', function(e, resp) {
+	return $.readSimple("File"+queryString(query), 'file', function(e, resp) {
 		if (!e) {
 			$.cb(callback, resp)
 		} else {
@@ -753,13 +773,13 @@ Myself.prototype.imageURL = function(id) {
 }
 
 Myself.prototype.putFile = function(file, callback) {
-	this.request("File/"+file.id, 'PUT', callback, file);
+	return this.request("File/"+file.id, 'PUT', callback, file);
 }
 
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	return $.read([
 		{user: {userIds: [id]}},
 		{content: {createUserIds: [id], type: '@user.page', limit: 1}}, //page
 		{activity: {userIds: [id], limit: 20, reverse: true}},

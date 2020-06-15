@@ -8,6 +8,9 @@ body.chatMode main {
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	overflow-wrap: break-word;
+}
+/* may need more things here */
+.textItem, .item, .buttonContainer button {
 	vertical-align: top;
 }
 
@@ -81,8 +84,16 @@ sub {vertical-align: sub;}
 	overflow: hidden;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
+	/*padding: 0 0.5rem !important;*/
 	/* set min-height */
 }
+/*.bar > img:first-child, .bar > .iconBg:first-child {
+	margin-left: -0.5rem !important;
+}
+.bar > img:last-child, .bar > .iconBg:last-child {
+	margin-right: -0.5rem !important;
+}*/
+
 .textItem { /* basically anything within a .bar */
 	max-width: 100%;
 	display: inline;
@@ -869,4 +880,9 @@ html:not(.f-page) .pageItem {
 
 .userPageBox .pageContents {
 	max-height: 100%;
+}
+
+header :first-child {
+	min-width: 0.3rem;
+	display: inline-block;
 }

@@ -109,7 +109,8 @@ function renderAuthorBox(page, users, element) {
 	element.innerHTML = "";
 	if (!page)
 		return;
-	element.appendChild(textItem("Author: "));
+	element.appendChild(textItem("Author:"));
+	element.appendChild(document.createTextNode(" "));
 	element.appendChild(renderUserLink(users[page.createUserId], true));
 	element.appendChild(renderTimeAgo(page.createDate));
 	// page was edited by other user
@@ -164,8 +165,11 @@ function renderSystemMessage(text) {
 }
 
 function renderUserListAvatar(user) {
-	var a = userAvatar(user, "userListAvatar");
+	var a = document.createElement('a');
+	a.appendChild(userAvatar(user,""));
 	a.title = user.username;
+	a.className = "item";
+	a.href = "#user/"+user.id;
 	return a;
 }
 

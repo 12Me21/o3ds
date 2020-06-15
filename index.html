@@ -11,35 +11,27 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?av">
-<link rel="stylesheet" href="markup.css?t">
+<link rel="stylesheet" href="style.css?aw">
+<link rel="stylesheet" href="markup.css?v">
 <link rel="stylesheet" href="code.css?a">
 
 <script src="util.js?a"></script>
 
 <script src="storage.js?a"></script>
 
-<script src="myself.js?L"></script>
+<script src="myself.js?N"></script>
 
-<script src="lp.js?f"></script>
+<script src="lp3.js?a"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?G"></script>
 
-<script src="render.js?E"></script>
-<script src="view.js?J"></script>
-<script src="main.js?ab"></script>
+<script src="render.js?F"></script>
+<script src="view.js?L"></script>
+<script src="main.js?ad"></script>
 
-<!-- NEXT TASK: Clean up html/css !
-	  THere is a lot of repeated stuff
-	  item/textitem are good -- improve them!
-	  there is an issue: max-width: 100%; is not a sustainable solution
-	  consider switching to display: inline; and then using padding on the container? or something.
-	  this allows the float: right elements to be mixed in with the text which is nice, 
-	  though honestly INLINE might be too limiting. but either way, we need a better solution than max-width: 100%;
-  -->
 <!--END-->
-<body class="pageMode" id="$main">
+<body class="" id="$main">
 	<!--
 		 
 	  -->
@@ -99,11 +91,28 @@
 			
 			
 			<div class="activityMode categoryNav rem1-7 nav bar">
-				<span class="textItem"><div class="buttonContainer item"><a id="$activityPagePrev"><button>&lt;</button></a></div><div class="buttonContainer item"><a id="$activityPageNext"><button>&gt;</button></a></div><span class="textItem" id="$activityPageNumber"></span></span>
+				<span class="textItem">
+					<div class="buttonContainer item">
+						<a id="$activityPagePrev"><button>&lt;</button></a>
+					</div><div class="buttonContainer item">
+						<a id="$activityPageNext"><button>&gt;</button></a>
+					</div><span class="textItem" id="$activityPageNumber"></span>
+				</span>
 			</div>
 			
 			<div class="membersMode memberNav nav">
-				<span class="textItem"><button id="$membersPrev" class="item">&lt;</button><button id="membersNext" class="item">&gt;</button></span>
+
+				<span class="textItem">
+					<div class="buttonContainer item">
+						<a id="$membersPrev">
+							<button>&lt;</button>
+						</a>
+					</div><div class="buttonContainer item">
+						<a id="$membersNext">
+							<button>&gt;</button>
+						</a>
+					</div>
+				</span>
 			</div>
 
 
@@ -130,9 +139,13 @@
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div id="$categoryPinned" class="categoryMode"></div>
 				<div class="categoryMode categoryNav rem1-7">
-					<span class="textItem"><button id="$categoryPagesPrev" class="item">&lt;</button><button id="$categoryPagesNext" class="item">&gt;</button></span>
+					<span class="buttonContainer item">
+						<button id="$categoryPagesPrev">&lt;</button>
+					</span><span class="buttonContainer item">
+						<button id="$categoryPagesNext">&gt;</button>
+					</span>
 					<span class="textItem" id="$categoryPageNumber"></span>
-					<a class="textItem" id="$categoryCreatePage"><button class="item">Create Page</button></a>
+					<span class="buttonContainer item"><a id="$categoryCreatePage"><button>Create Page</button></a></span>
 				</div>
 				<div id="$categoryPages" class="categoryPages categoryMode"></div>
 
@@ -190,6 +203,8 @@
 					<label for="$settingsNewPassword">New Password (Optional): </label><input type="password" id="$settingsNewPassword"><br>
 					<label for="$settingsEmail">New Email (Optional): </label><input type="email" id="$settingsEmail"><br>
 					<button id="$submitUserSettings">Save</button>
+					<br>
+					<a href="#files">Change your avatar here</a>
 				</div>
 
 				<div class="activityMode" id="$activity">

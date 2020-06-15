@@ -62,8 +62,8 @@ function ready() {
 	$deletePage.onclick = deletePage;
 	
 	$chatSend.onclick = function() {
-		if ($chatTextarea.value) {
-			me.postComment(lp.idList[0], $chatTextarea.value, "", function(){});
+		if ($chatTextarea.value && currentChatRoom) {
+			me.postComment(currentChatRoom, $chatTextarea.value, "", function(){});
 			$chatTextarea.value = "";
 		}
 	}
@@ -286,8 +286,10 @@ function split1(string, sep) {
 		return [string.substr(0,n), string.substr(n+sep.length)];
 }
 
+var cancel;
 function navigateTo(path, first, callback) {
-	lp.reset();
+	if (cancel)
+		cancel();
 	path = split1(path, "?");
 	var query = path[1];
 	var queryVars = {};
@@ -303,69 +305,18 @@ function navigateTo(path, first, callback) {
 	}
 	path = path[0].split("/").filter(function(x){return x;});
 
-	var type = path[0];
+	var type = path[0] || "";
 	var id = +(path[1]) || 0;
-	if (type == "pages") {
-		if (path[1] == "edit") {
-			first && ($main.className = 'editMode');
-			if (path[2]) {
-				id = +(path[2]);
-			} else {
-				id = undefined;
-			}
-			generateEditorView(id, queryVars, callback);
-		} else {
-			first && ($main.className = 'pageMode');
-			generatePageView(id, callback);
-		}
-	} else if (type == "categories") {
-		if (path[1] == 'edit') {
-			first && ($main.className = 'cateditMode');
-			if (path[2]) {
-				id = +(path[2]);
-			} else {
-				id = undefined;
-			}
-			generateCateditView(id, queryVars, callback);
-		} else {
-			first && ($main.className = 'categoryMode');
-			generateCategoryView(id, queryVars, callback);
-		}
-	} else if (type == "user") {
-		first && ($main.className = 'userMode');
-		generateUserView(id, queryVars, callback);
-	} else if (type == "users") {
-		first && ($main.className = 'membersMode');
-		generateMembersView(null, callback);
-	} else if (type == "discussions") {
-		first && ($main.className = 'chatMode');
-		generateChatView(id, callback);
-	} else if (type == 'register') {
-		first && ($main.className = 'registerMode');
-		generateRegisterView(null, callback);
-	} else if (type == 'usersettings') {
-		first && ($main.className = 'settingsMode');
-		generateSettingsView(null, callback);
-	} else if (type == 'activity') {
-		first && ($main.className = 'activityMode');
-		generateActivityView(queryVars, callback);
-	} else if (type == 'files') {
-		first && ($main.className = 'fileMode');
-		generateFileView(queryVars, callback);
-	} else if (type == 'test') {
-		first && ($main.className = 'testMode');
-		generateTestView(queryVars, callback);
-	} else if (typeof type == 'undefined') { //home
-		first && ($main.className = 'homeMode');
-		generateHomeView(null, callback);
-	} else {
-		$main.className = "errorMode";
-		generateAuthorBox();
-		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
-		renderPath($navPane);
-		$pageContents.textContent = "";
-		callback();
+	var name;	
+	if (path[1] == 'edit') {
+		id = path[2]!=undefined && +path[2];
+		type = type + "/" + path[1];
 	}
+	cancel = doView(type, id, queryVars, callback);
+}
+
+function doPage(mode, func, id, query, callback, first) {
+	func(id, query, callback);
 }
 
 function makeCategoryPath(tree, id, leaf) {
@@ -457,13 +408,6 @@ function updateEditorPreview(preview) {
 // I feel like the names are backwards, sorry...
 function generateAuthorBox(page, users) {
 	renderAuthorBox(page, users, $authorBox);
-}
-
-function updateUserlist(listeners, userMap) {
-	$chatUserlist.innerHTML = "";
-	listeners && forDict(listeners, function(status, user) {
-		$chatUserlist.appendChild(renderUserListAvatar(userMap[user]));
-	})
 }
 
 function onLogin(me) {
