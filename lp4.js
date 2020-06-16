@@ -12,14 +12,14 @@ LongPoller.prototype.start = function() {
 
 LongPoller.prototype.setState = function(text, state) {
 	this.running = state;
+	this.onStatus.call(this, text);
 }
 
 LongPoller.prototype.loop = function() {
 	var $=this;
-	$.setState("Waiting for response", true);//idle
+	$.setState("Idle (waiting)", true);//idle
 	$.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
 		$.setState("Handling response", false);
-		console.log("resp", resp);
 		if (!e) {
 			$.lastId = resp.lastId;
 			if (resp.listeners) {
@@ -36,6 +36,7 @@ LongPoller.prototype.loop = function() {
 			if (resp.chains && resp.chains.activity) {
 				$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
 			}
+			//$.onBoth.call(this, resp);
 		}
 		if (!e || e=='timeout') {
 			$.setState("Queueing next request", true);
@@ -61,8 +62,12 @@ LongPoller.prototype.refresh = function() {
 }
 
 LongPoller.prototype.setViewing = function(id) {
-	if (this.viewing)
+	if (this.viewing) {
 		delete this.lastListeners[this.viewing];
-	this.lastListeners[id] = {"0":{}};
+		delete this.statuses[this.viewing];
+	}
+	this.lastListeners[id] = {"0":""};
+	this.statuses[id] = "active";
+	this.viewing = id;
 	this.refresh();
 }

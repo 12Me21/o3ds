@@ -1,4 +1,4 @@
-body.chatMode main {
+body.pageMode main {
 	height: 90vh;
 	display: block;
 }
@@ -132,7 +132,7 @@ body > * {
 
 /* visibility control */
 body:not(.pageMode) .pageMode,
-body:not(.chatMode) .chatMode,
+body:not(.pageMode) .pageChatMode,
 body:not(.editorMode) .editorMode,
 body:not(.categoryMode) .categoryMode,
 body:not(.navMode) .navMode,
@@ -143,7 +143,6 @@ body:not(.settingsMode) .settingsMode,
 body:not(.activityMode) .activityMode,
 body:not(.cateditMode) .cateditMode,
 body:not(.userMode):not(.pageMode) .pageUserMode,
-body:not(.chatMode):not(.pageMode) .pageChatMode,
 body:not(.homeMode) .homeMode,
 body:not(.testMode) .testMode,
 body:not(.fileMode) .fileMode {
@@ -153,20 +152,24 @@ body:not(.fileMode) .fileMode {
 /*************
  ** Top Bar **
  *************/
-.headerPane {
+.navPane {
 	min-height: 1.5rem;
 	background-color: #333;
 }
 
-html.f-loading .headerPane {
+.navPane a {
+	color: #BCF;
+}
+
+.navPane a:hover {
+	color: #9AF;
+}
+
+html.f-loading .navPane {
 	background-color: #008;
 }
 
-html:not(.f-canEdit) .canEdit {
-	display: none;
-}
-
-html.f-error .headerPane {
+html.f-error .navPane {
 	background-color: #800;
 }
 
@@ -175,15 +178,11 @@ html.f-loggedIn .loggedOut {
 	display: none;
 }
 
-.headerRight {
-	float: right;
-}
-
-.headerPane .item {
+.navPane .item {
 	height: 1.5rem;
 }
 
-.headerPane .textItem{
+.navPane .textItem{
 	min-height: 1.5rem;
 	line-height: 1.5rem;
 }
@@ -202,14 +201,6 @@ html.f-loggedIn .loggedOut {
 	color: white;
 }
 
-.headerPane a {
-	color: #BCF;
-}
-
-.headerPane a:hover {
-	color: #9AF;
-}
-
 .pathSeparator {
 	padding: 0 0.2rem;
 }
@@ -223,12 +214,13 @@ html.f-loggedIn .loggedOut {
 	border-bottom: 2px solid black;
 }
 
+.titlePane .iconBg {
+	width: 2rem;
+}
+
 .titlePane .userLink img {
 	margin: 0 0.7ch;
 }
-
-/* .item's are things like the site logo, user avatar, etc.*/
-/* .textItem is similar, but is allowd to wrap */
 
 .editingLabel {
 	padding-left: 0.3rem;
@@ -240,13 +232,68 @@ html.f-loggedIn .loggedOut {
 	font-size: 1.6rem;
 }
 
+html:not(.f-canEdit) .canEdit {
+	display: none;
+}
+
 .errorMode .titlePane {
 	background-color: pink;
 	color: maroon;
 	font-family: monospace;
 }
 
-/*******************
+/*******************************
+ ** content+sidebar container **
+ *******************************/
+.sideBarContainer {
+	display: flex;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	-webkit-flex-shrink: 1;
+	flex-shrink: 1;
+	overflow-x: hidden;
+}
+
+.m {
+	width:100%;
+
+	-webkit-flex-grow: 0;
+	flex-grow: 0;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+
+.sideBar {
+	-webkit-flex: 1 0 0;
+	flex: 1 0 0;
+	background-color: rgba(204, 221, 238, 0.9);
+	border-left: 2px solid black;
+	/*-webkit-transition: margin-left 0.25s ease, transform 0.25s ease;
+	transition: margin-left 0.25s ease, transform 0.25s ease;*/
+	overflow: auto;
+}
+
+html:not(.f-sidebar) .sideBar {
+	-webkit-transform: translateX(100%);
+	transform: translateX(100%);
+}
+
+html:not(.f-sidebar) .m {
+	width: 100% !important;
+}
+
+html.f-sidebar .m {
+	resize: horizontal;
+	width: 70vw;
+	overflow:auto;
+}
+
+/**********
  ** main **
  **********/
 main {
@@ -390,6 +437,13 @@ main {
 	margin-right: 0.5rem;
 	float: left;
 }
+.message .username {
+	margin-left: 4rem;
+	display: block;
+	/*white-space: pre;
+	overflow: hidden;
+	text-overflow: ellipsis;*/
+}
 .messageUsername {
 	display: inline-block;
 }
@@ -468,7 +522,6 @@ main {
 /***************
  ** User Page **
  ***************/
-
 .member {
 	display: block;
 	background-color: #EEE;
@@ -577,54 +630,8 @@ img.item {
 	margin-right: 0.7ch;
 }
 
-.iframe {
-	border: 1px solid red;
-}
-
-.sideBarContainer {
-	display: flex;
-	display: -webkit-flex;
-	-webkit-flex-direction: row;
-	flex-direction: row;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	overflow-x: hidden;
-}
-
-.m {
-	width:100%;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-}
-
-.sideBar {
-	-webkit-flex: 0 0 30vw;
-	flex: 0 0 30vw;
-	background-color: rgba(204, 221, 238, 0.9);
-	border-left: 2px solid black;
-	-webkit-transition: margin-left 0.25s ease, transform 0.25s ease;
-	transition: margin-left 0.25s ease, transform 0.25s ease;
-}
-
-html:not(.f-sidebar) .sideBar {
-	-webkit-transform: translateX(100%);
-	transform: translateX(100%);
-	margin-left: -30vw;
-}
-
 html:not(.f-myUserPage) .myUserPage {
 	display: none;
-}
-
-html.f-sidebar .m {
-	width: 70vw;
-	-webkit-transition: width 0.25s ease,
-	transition: width 0.25s ease,
-	
 }
 
 @media (max-width: 700px) {
@@ -649,6 +656,10 @@ html.f-sidebar .m {
 		left: 0;
 		border-left: none;
 		transform: none;
+		-webkit-transition: -webkit-transform 0.2s ease;
+		-webkit-transition: transform 0.2s ease;
+		transition: -webkit-transform 0.2s ease;
+		transition: transform 0.2s ease;
 	}
 	html:not(.f-sidebar) .sideBar {
 		margin-left: 0;
@@ -660,7 +671,7 @@ html.f-sidebar .m {
 		transform: translateX(100%);
 	}
 	.m {
-		width: 100%;
+		width: 100% !important;
 	}
 }
 
@@ -668,7 +679,7 @@ html.f-sidebar .m {
 @media (max-width: 700px), (max-height: 500px) {
 	/* make the entire page scroll */
 	/* todo: make chat mode work better here */
-	body:not(.chatMode) {
+	body:not(.pageMode) {
 		position: static;
 		min-height: 100vh;
 		font-size: 0.9em;
@@ -676,7 +687,7 @@ html.f-sidebar .m {
 	textarea {
 		font-size: 1em; /* prevent zoom in on iphone */
 	}
-	body:not(.chatMode) main {
+	body:not(.pageMode) main {
 		height: auto !important;
 		-webkit-flex-basis: auto;
 		flex-basis: auto;
@@ -795,10 +806,6 @@ html.f-sidebar .m {
 	background-size: contain;
 	background-position: center;
 	margin-right: 0.3rem;
-}
-
-.titlePane .iconBg {
-	width: 2rem;
 }
 
 .iconBg-page {

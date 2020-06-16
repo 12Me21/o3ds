@@ -275,7 +275,6 @@ function scrollToAuto() {
 
 function scrollTo(name) {
 	//todo: this needs to happen after all images load etc. somehow...
-	console.log("doing scrollTo", name);
 	if (name) {
 		var n = document.getElementsByName("_anchor_"+name)[0] || document.getElementById("_anchor_"+name);
 		if (n)
@@ -375,7 +374,7 @@ function submitEdit() {
 		if (e) {
 			alert("ERROR");
 		} else {
-			window.location.hash = "#pages/"+resp.id;
+			//window.location.hash = "#pages/"+resp.id;
 			cleanUpEditor();
 		}
 	});
@@ -412,7 +411,6 @@ var editorCache = {video:{},audio:{},youtube:{}};
 function updateEditorPreview(preview) {
 	var parent = $editorPreview;
 	var shouldScroll = parent.scrollHeight-parent.clientHeight-parent.scrollTop < 10
-	console.log("should?",shouldScroll);
 	renderPageContents({
 		values: {
 			markupLang: $markupSelect.value
@@ -448,6 +446,7 @@ function onLogin(me) {
 		})
 	}
 	lp.onActivity = function(activity, users, pages) {
+		console.log("GOT ACTIVITY");
 		activity.forEach(function(activity) {
 			var user = users[activity.userId];
 			if (activity.type == "content") {
@@ -467,7 +466,47 @@ function onLogin(me) {
 			}
 		});
 	}
-	lp.start();
+	
+	lp.onStatus = function(text) {
+		$longPollStatus.textContent = text;
+	}
+	me.doListenInitial(function(e, resp){
+		if (!e) {
+			var lastId = -1
+			resp.comment.forEach(function(comment) {
+				if (comment.id > lastId)
+					lastId = comment.id;
+			});
+			resp.activity.forEach(function(comment) {
+				if (comment.id > lastId)
+					lastId = comment.id;
+			});
+			sbm(resp);
+			lp.lastId = lastId
+			lp.start();
+		}
+	})
+}
+
+function sbm(resp) {
+	var users = resp.userMap
+	var last = {};
+	$sidebarScroller.innerHTML = "";
+	var all = megaAggregate(resp.activity, resp.comment, resp.content);
+	all.forEach(function(activity){
+		if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
+			if (activity.content) {
+				if (activity.userId instanceof Array)
+					var user = activity.userId.map(function(x){
+						return users[x];
+					})
+				else
+					user = users[activity.userId]
+				$sidebarScroller.appendChild(renderActivityItem(activity, activity.content, user));
+				last = activity;
+			}
+		}
+	});
 }
 
 function onLogout() {

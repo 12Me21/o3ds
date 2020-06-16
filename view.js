@@ -150,6 +150,16 @@ function megaAggregate(activity, ca, contents) {
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
+		if (x.createDate) {
+			return {
+				action: "p",
+				contentId: x.parentId,
+				date: x.createDate,
+				id: x.id,
+				userId: x.createUserId,
+				type: 'content'
+			}
+		}
 		return {
 			action: "p",
 			contentId: x.id,
@@ -285,7 +295,6 @@ function selectFile(file) {
 		doSelect = false
 		selectedFile = file;
 		flag('fileSelected', true);
-		console.log('flagging fileselected');
 		
 	}
 	flag('fileUploading');
@@ -548,18 +557,18 @@ var views = {
 					addSidebarItem(pages[comment.parentId],user,comment);
 				})
 			}
+			lp.setViewing(id);
 			var linked = query["#"];
 			if (linked && /^comment-/.test(linked)) {
 				linked=+linked.substr(8);
 			} else {
 				linked = null;
 			}
-			console.log(linked);
-			return me.getPage(id, linked, function(page, users, comments, old){
-				callback(page, users, comments, old, query);
+			return me.getPage(id, function(page, users, comments){
+				callback(page, users, comments, query);
 			});
 		},
-		render: function(page, users, comments, old, query) {
+		render: function(page, users, comments, query) {
 			$main.className = "pageMode";
 			generateAuthorBox(page, users);
 			flag('canEdit', !!page);
@@ -577,14 +586,7 @@ var views = {
 				// todo: handle showing/hiding the vote box when logged in/out
 				renderPageContents(page, $pageContents)
 				handleLoads($pageContents);
-				if (old && old.length) {
-					displayGap()
-					old.forEach(function(comment) {
-						if (comment.parentId == page.id)
-							displayMessage(comment, users[comment.createUserId]);
-					});
-					displayGap()
-				}
+				displayGap();
 				comments && comments.reverse().forEach(function(comment) {
 					if (comment.parentId == page.id)
 						displayMessage(comment, users[comment.createUserId]);
@@ -627,7 +629,6 @@ var views = {
 				}
 				if (query["#"]) {
 					var comment=document.getElementById("_anchor_"+query["#"])
-					console.log(comment, query)
 					if (comment) {
 						comment.scrollIntoView()
 						comment.setAttribute("data-linked", "");

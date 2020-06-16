@@ -1,3 +1,9 @@
+//todo: make href-setting function
+// which processes links automatically
+// to add trailing # to fragment links
+// OR some other way to solve the issue of
+// fragment links not working when clicked again
+
 function renderKeyInfo(key, data, element) {
 	element = element || document.createElement('span');
 	element.innerHTML = "";
@@ -15,6 +21,9 @@ function renderKeyInfo(key, data, element) {
 }
 
 function renderSidebarItem(page, user, comment) {
+	if (!page) {
+		page = {};
+	}
 	var d = document.createElement('a');
 	d.href = "#pages/"+page.id+"#comment-"+comment.id;
 	d.className = "pre";
@@ -159,15 +168,12 @@ function renderCategoryPage(page, users, pinned) {
 
 // HH:MM AM/PM
 function timeString(date) {
-	console.log(date, new Date()-date)
-	var prefix = ""
 	if (new Date()-date > 1000*60*60*12) {
-		prefix = (["January","February","March","April","May","June","July","August","September","October","November","December"][date.getMonth()])+" "+date.getDate()+", "+date.getFullYear()+"  ";
+		var options = {year:'numeric',month:'long',day:'numeric',hour:'2-digit', minute:'2-digit'}
+	} else {
+		options = {hour:'2-digit', minute:'2-digit'}
 	}
-	var hours = date.getHours();
-	var minutes = date.getMinutes();
-	var twelve = hours % 12 || 12;
-	return prefix+twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+	return date.toLocaleString([], options);
 }
 
 function renderSystemMessage(text) {
@@ -191,17 +197,17 @@ function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
 
-	div.appendChild(userAvatar(user, 'avatar'));
-	
-	var name = document.createElement('span');
-	name.className = 'username';
-	name.textContent = user.username+":";
-	div.appendChild(name);
-	
 	var time = document.createElement('span');
 	time.textContent = timeString(date);
 	time.className = 'messageTime'
 	div.appendChild(time);
+
+	div.appendChild(userAvatar(user, 'avatar'));
+
+	var name = document.createElement('span');
+	name.className = 'username';
+	name.textContent = user.username+":";
+	div.appendChild(name);
 	
 	var contentBox = document.createElement('div');
 	contentBox.className = 'messageContents';

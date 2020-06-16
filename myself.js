@@ -37,7 +37,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		}
 		if (code==200) {
 			callback(null, resp);
-		} else if (code==408 || code==204) {
+		} else if (code==408 || code==204 || code==524) {
 			// record says server uses 408, testing showed only 204
 			// basically this is treated as an error condition,
 			// except during long polling, where it's a normal occurance
@@ -357,28 +357,14 @@ Myself.prototype.loadCachedAuth = function(callback) {
 	return false;
 }
 
-Myself.prototype.getPage = function(id, linked, callback) {
+Myself.prototype.getPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	var query = [
+	return $.read([
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 50, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
-	]
-	//todo: instead of loading these here, which is messy
-	// just make a "get old comments(id)" function, which gets an old comment given the id (and +- a certain amount using minidmaxidlimitreverse)
-	// and make that request when loading the page
-	// as well as when linking to old comments without a page reload
-	// as well as a similar function for "get next 10 oldest/newest" for the (show more) buttons
-	if (linked) {
-		query = [
-			{content: {ids: [id]}},
-			{"comment~old": {parentIds: [id], minId: linked-10, maxId: linked+10}},
-			{comment: {parentIds: [id], limit: 50, reverse: true}},
-			"user.0createUserId.0editUserId.1createUserId.1editUserId.2createUserId.2editUserId",
-		]
-	}
-	return $.read(query, {
+	], {
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
@@ -603,6 +589,16 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
+Myself.prototype.doListenInitial = function(callback) {
+	var $=this;
+	return $.read([
+		{comment:{reverse:true,limit:10}},
+		{activity:{reverse:true,limit:10}},
+		"content.0parentId.1contentId", //pages
+		"user.0createUserId.1userId" //users for comment and activity
+	],{content:"id,createUserId,name"},callback);
+}
+
 Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotifs, cancel, callback) {
 	var $=this;
 	var actions = {
@@ -784,6 +780,57 @@ Myself.prototype.getFiles = function(query, page, callback) {
 			$.cb(callback, null)
 		}
 	});
+}
+
+// load next 10 comments older than `start`
+Myself.prototype.loadCommentsBefore = function(id, start, callback) {
+	var $=this;
+	return $.read([
+		{comment: {parentIds: [id], maxId: id-1, reverse: true, limit: 10}},
+		"user.0createUserId"
+	], {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		}
+	})
+}
+
+// load next 10 comments newer than `start`
+Myself.prototype.loadCommentsAfter = function(id, start, callback) {
+	var $=this;
+	return $.read([
+		{comment: {parentIds: [id], minId: id+1, limit: 10}},
+		"user.0createUserId"
+	], {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		}
+	})
+}
+
+// load comments between min and max, and 10 on either side
+Myself.prototype.loadCommentsNear = function(id, min, max, callback) {
+	var $=this;
+	var query;
+	if (max != min) {
+		query = [
+			{comment: {parentIds: [id], minId: min, maxId: max}},
+			{comment: {parentIds: [id], maxId: min-1, reverse: true, limit: 10}},
+			{comment: {parentIds: [id], minId: max+1, limit: 10}},
+			"user.0createUserId.1createUserId.2createUserId"
+		]
+	} else  {
+		query = [
+			{comment: {parentIds: [id], maxId: min-1, reverse: true, limit: 10}},
+			{comment: {parentIds: [id], minId: max, limit: 11}},
+			"user.0createUserId.1createUserId"
+		]
+	}
+	return $.read(query, {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		}
+	})
 }
 
 Myself.prototype.thumbnailURL = function(id) {
