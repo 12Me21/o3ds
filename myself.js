@@ -589,6 +589,19 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
+Myself.prototype.setVar = function(name, value, callback) {
+	$.request("Variable/"+name, 'POST', callback, value);
+}
+
+Myself.prototype.getVar = function(name, callback) {
+	$.request("Variable/"+name, 'GET', function(e, resp){
+		if (!e)
+			return resp
+		else
+			return null;
+	}, value);
+}
+
 Myself.prototype.doListenInitial = function(callback) {
 	var $=this;
 	return $.read([
@@ -617,7 +630,7 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotif
 	];
 	if (Object.keys(lastListeners).length) {
 		req.push({listeners: {
-			lastListeners, lastListeners,
+			lastListeners: lastListeners,
 			chains: ["user.0listeners"]
 		}});
 	}
