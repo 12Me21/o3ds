@@ -50,6 +50,7 @@
 	color: white;
 	background-color: black;
 	white-space: pre-wrap;
+	word-break: break-all;
 }
 
 .markup-root code {
@@ -86,7 +87,7 @@
 	max-height: 75vh;
 }
 
-.markup-root ul {
+.markup-root ol {
 	padding-left: 1.1em;
 }
 
@@ -176,11 +177,28 @@
 }
 
 .markup-root .error {
-	background-color: red;
+	background-color: #F55;
 	border: 1px solid black;
 	padding: 0.2rem;
+	border-radius: 5px;
 }
 
+ol {
+	list-style-position: inside;
+}
+
+li {
+	text-align: right;
+}
+
+ol > tr > span {
+	display: table-cell;
+}
+
+.li:before {
+	content: counter(x, upper-roman);
+	text-align: right;
+}
 
 .markup-root .tableContainer {
 	overflow-x: auto;
@@ -201,11 +219,15 @@
 	margin: 1px 0;
 }
 
-.markup-root blockquote[cite]::before {
+.markup-root blockquote > cite {
+	margin-left: -1rem;
+}
+
+/*.markup-root blockquote[cite]::before {
 	content: attr(cite) ":\A";
 	white-space: pre;
 	font-weight: bold;
 	margin-left: -1rem;
 	display: block;
 	margin-bottom: 0.2em;
-}
+}*/

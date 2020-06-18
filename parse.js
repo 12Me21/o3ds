@@ -2,13 +2,22 @@ var Parse = {
 	lang:{}
 };
 
-// maybe store, in .options, whether each thing is a block element
-// YEAH
-// have the functions return it
-// - node list
-// - branch point
-// - is block
+// parser options
+// this can be easily changed
+// to control the output
 
+// most functions should return an object containing:
+//   .node or .nodes - the node(s) to insert
+//   .branch - (optional if .node was specified) which node to insert children into
+//   .block - `true` if the element is display: block or similar.
+
+// most functions take input in the form of either
+// (args) (or (args, contents) for things where the contents are plain text)
+// (code blocks, [img], etc.)
+// the unnamed argument uses a key of ""
+// args without a value are set to true
+// for example, `[tag=test key=value option]` would pass
+// {"":"test", key:"value", option:true}
 (function() {
 	function create(x) {
 		return document.createElement(x);
@@ -21,6 +30,32 @@ var Parse = {
 			return {node:create(tag)};
 		}
 	}
+	function defaultProtocol() {
+		if (window.location.protocol == 'http:')
+			return 'http:';
+		else
+			return 'https:';
+	}
+	function getYoutubeID(url) {
+		var match = url.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
+		if (match)
+			return match[1];
+		return null;
+	}
+	// returns [protocol, rest of url] or [null, url]
+	function urlProtocol(url) {
+		var match = url.match(/^([-\w]+:)([^]*)$/);
+		if (match)
+			return [match[1].toLowercase(), match[2]];
+		return [null, url];
+	}
+
+	// so normally our path structure will look like
+	// url#path?query#fragment
+	// with #s in the path and query escaped with %
+	// however, some browsers escape duplicate #s automatically, so this has to be dealt with somehow
+	// I'm not sure of a good way which still allows # to be used in the path+query, though
+	// may need to use a different character...
 	function getPath() {
 		var hash = decodeURIComponent(location.hash.substr(1));
 		return hash.split("#");
@@ -29,7 +64,7 @@ var Parse = {
 	Parse.options = {
 		append: function (parent, child) {
 			parent = parent.branch || parent.node;
-			
+
 			if (child.nodes)
 				child.nodes.forEach(function(x){
 					parent.appendChild(x)
@@ -37,34 +72,16 @@ var Parse = {
 			else
 				parent.appendChild(child.node);
 		},
-		remove: function(child) {
-			child.parentNode.removeChild(child);
-		},
 		
 		//========================
 		// nodes without children:
 		text: function(text) {
-			return {node:createText(text)};
+			return {node: createText(text)};
 		},
 		lineBreak: creator('br'),
 		line: creator('hr'),
-		// code block
-		code: function(args, contents) {
-			var node = create('pre');
-			var language = args[""];
-			node.setAttribute('data-lang', language);
-			node.innerHTML = highlightSB(contents, language);
-			return {
-				block: true,
-				node: node
-			}
-		},
-		// inline code
-		icode: function(args, code) {
-			var node = create('code');
-			node.textContent = code;
-			return {node:node};
-		},
+		// used for displaying invalid markup
+		// reason is currently unused
 		invalid: function(text, reason) {
 			var node = create('span');
 			node.className = 'invalid';
@@ -72,46 +89,58 @@ var Parse = {
 			node.textContent = text;
 			return {node:node};
 		},
+		// code block
+		code: function(args, contents) {
+			var language = args[""];
+			var node = create('pre');
+			node.setAttribute('data-lang', language);
+			node.innerHTML = highlightSB(contents, language);
+			return {block:true, node:node}
+		},
+		// inline code
+		icode: function(args, contents) {
+			var node = create('code');
+			node.textContent = contents;
+			return {node:node};
+		},
 		audio: function(args) {
 			var node = create('audio');
 			node.setAttribute('controls', "");
 			node.setAttribute('src', args[""]);
-			return {block:true,node:node};
+			return {block:true, node:node};
 		},
 		video: function(args) {
 			var url = args[""];
 			var node = create('video');
 			node.setAttribute('controls', "");
 			node.setAttribute('src', url);
-			return {block:true,node:node};
+			return {block:true, node:node};
 		},
-		youtube: function(args, preview) {
+		youtube: function(args) {
 			var url = args[""];
-			var protocol = "https:";
-			if (window.location && window.location.protocol == "http:")
-				protocol = "http:"
-			var match = url.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
-			
+			var protocol = defaultProtocol();
+			var match = getYoutubeID(url);
 			if (true) {
 				var node = create('img');
 				node.className = "youtube";
 				if (match)
-					node.src = protocol+"//i.ytimg.com/vi/"+match[1]+"/mqdefault.jpg";
-				return {block:true,node:node};
+					node.src = protocol+"//i.ytimg.com/vi/"+match+"/mqdefault.jpg";
+				return {block:true, node:node};
+			} else {
+				var node = create('iframe');
+				node.className = "youtube";
+				if (match)
+					node.src = protocol+"//www.youtube-nocookie.com/embed/"+match;
+				return {block:true, node:node};
 			}
-			var node = create('iframe');
-			node.className = "youtube";
-			if (match)
-				node.src = protocol+"//www.youtube-nocookie.com/embed/"+match[1];
-			return {block:true,node:node};
 		},
 		
 		//=====================
 		// nodes with children
 		root: function() {
 			var node = create('div');
-			node.className = "markup-root";
-			return {block:true,node:node};
+			node.className = 'markup-root';
+			return {block:true, node:node};
 		},
 		bold: creator('b'),
 		italic: creator('i'),
@@ -119,32 +148,59 @@ var Parse = {
 		strikethrough: creator('s'),
 		heading: function(level) { // input: 1, 2, or 3
 			// output: h2-h4
-			return {block:true,node:create('h'+(level+1))};
+			return {block:true, node:create('h'+(level+1))};
 		},
+		
 		quote: function(args) {
-			var user = args[""];
+			// <blockquote><cite> arg </cite><br> ... </blockquote>
+			var name = args[""];
 			var node = create('blockquote');
-			node.setAttribute('cite', user);
-			return {block:true,node:node};
+			if (name) {
+				var cite = create('cite');
+				cite.textContent = name;
+				node.appendChild(cite);
+				node.appendChild(create('br'));
+			}
+			return {block:true, node:node};
 		},
-		list: function() {
-			return {block:true, node:create('ul')};
+		list: function(args) {
+			// <ul> ... </ul>
+			var list = create('ol');
+			if (args[""])
+				list.style.listStyleType = args[""];
+			return {block:true, node:list};
 		},
-		item: creator('li'), // (list item)
+		item: function(index) {
+			var row = create('tr');
+			var con = create('span');
+			var li = create('span')
+			li.className = "li";
+			li.style.counterReset = "x "+index;
+			con.appendChild(li);
+			row.appendChild(con);
+			var item = create('span');
+			item.setAttribute('role', "listitem");
+			row.appendChild(item);
+			return {block:true, node:row, branch:item};
+		},
+		//creator('li'), // (list item)
+		
 		link: function(args) {
+			// <a href= url> ... </a>
 			var url = args[""];
 			// important, do not remove, prevents script injection
 			if (/^ *javascript:/i.test(url))
 				url = "";
+			
 			var node = create('a');
 			
-			var protocol = url.match(/^([-\w]+:)([^]*)$/);
-			if (protocol && protocol[1].toLowerCase() == "sbs:") {
+			var protocol = urlProtocol(url);
+			if (protocol[0] == "sbs:") {
 				// put your custom local url handling code here
-				url = "#"+protocol[2];
-				
-			} else if (!protocol) {
+				url = "#"+protocol[1];
+			} else if (!protocol[0]) {
 				if (url[0] == "#") {
+					// put your fragment link handling code here
 					var hash1 = getPath();
 					var name = url.substr(1)
 					hash = "#"+hash1[0]+"#"+name;
@@ -162,29 +218,30 @@ var Parse = {
 					}
 				} else {
 					// urls without protocol get https:// or http:// added
-					var protocol = "https:";
-					if (window.location && window.location.protocol == "http:")
-						protocol = "http:";
-					url = protocol+"//"+url;
+					url = defaultProtocol()+"//"+url;
 				}
 			}
-			
 			node.setAttribute('href', url);
 			return {node:node};
 		},
+		
 		table: function(opts) {
+			// <div class="tableContainer"><table> ... </table></div>
 			var container = create('div');
 			container.className = "tableContainer"
 			var node = create('table');
 			container.appendChild(node);
 			return {
 				block: true,
-				nodes: [container],
+				node: container,
 				branch: node
 			}
 		},
+		
 		row: creator('tr'),
+		
 		cell: function (opt) {
+			// <td> ... </td> etc.
 			var node = opt.h ?
 				 create('th') :
 				 create('td');
@@ -203,7 +260,9 @@ var Parse = {
 			node.className = "cell";
 			return {node:node};
 		},
+		
 		image: function(args) {
+			// <img src= arg tabindex="-1">
 			var url = args[""];
 			var node = create('img');
 			node.setAttribute('src', url);
@@ -214,12 +273,25 @@ var Parse = {
 			  }*/
 			return {node:node, block:true};
 		},
-		error: function(e) {
+		
+		// parser error message
+		error: function(e, stack) {
+			// <div class="error">Error while parsing:<pre> stack trace </pre>Please report this</div>
 			var node = create('div');
 			node.className = "error";
-			node.textContent = "Error while parsing:\n'"+e+"'\nPlease report this";
+			node.appendChild(createText("Markup parsing error: "));
+			var err = create('code')
+			err.textContent = e;
+			node.appendChild(err);
+			node.appendChild(createText("\nPlease report this!"));
+			if (stack) {
+				var pre = create('pre');
+				pre.textContent = stack;
+				node.appendChild(pre);
+			}
 			return {node:node, block:true};
 		},
+		
 		align: function(args) {
 			var node = create('div');
 			var arg = args[""];
@@ -232,10 +304,17 @@ var Parse = {
 		anchor: function(args) {
 			var name = args[""];
 			var node = create('a');
+			// put your anchor name handler here
+			// I prefix the names to avoid collision with node ids
+			// which use the same namespace as name
 			node.name = "_anchor_"+name;
 			return {node:node, block:true};
 		},
 		spoiler: function(args) {
+			// <button> arg </button><div class="spoiler"> ... </div>
+			// I'd use <summary>/<details> but it's not widely supported
+			// and impossible to style with css
+			// this probably needs some aria attribute or whatever
 			var button = create('button');
 			button.onclick = function() {
 				if (this.getAttribute('data-show') == null)
@@ -316,7 +395,7 @@ var Parse = {
 			return true;
 		}
 	}
-	
+
 	function matchNext(str) {
 		return code.substr(i, str.length) == str;
 	}
@@ -414,7 +493,14 @@ var Parse = {
 			skipNextLineBreak = false;
 		}
 	}
-
+	
+	// call at end of parsing to flush output
+	function endAll() {
+		flushText();
+		while (stack.length)
+			endBlock();
+	}
+	
 	/*****************
     ** cache stuff **
     *****************/
@@ -600,8 +686,8 @@ var Parse = {
 					//------------
 					// - ... list
 				} else if (eatChar(" ")) {
-					startBlock('list', {level:leadingSpaces});
-					startBlock('item', {level:leadingSpaces});
+					startBlock('list', {level:leadingSpaces, listIndex: 1});
+					startBlock('item', {level:leadingSpaces}, 1);
 					//---------------
 					// - normal char
 				} else
@@ -755,8 +841,7 @@ var Parse = {
 			}
 		}
 		// END
-		flushText();
-		closeAll(true);
+		endAll();
 		return output.node;
 		
 		
@@ -961,8 +1046,8 @@ var Parse = {
 							// OPTION 3:
 							// next item has larger indent; start nested list	
 						} else if (indent > top.level) {
-							startBlock('list', {level: indent});
-							startBlock('item', {level: indent}); // then made the first item of the new list
+							startBlock('list', {level: indent, listIndex: 1});
+							startBlock('item', {level: indent}, 1); // then made the first item of the new list
 							// OPTION 4:
 							// next item has less indent; try to exist 1 or more layers of nested lists
 							// if this fails, fall back to just creating a new item in the current list
@@ -979,11 +1064,11 @@ var Parse = {
 								} else {
 									// no suitable list was found :(
 									// so just create a new one
-									startBlock('list', {level: indent});
+									startBlock('list', {level: indent, listIndex: 1});
 									break;
 								}
 							}
-							startBlock('item', {level: indent});
+							startBlock('item', {level: indent}, 0);
 						}
 						break; //really?
 					}
@@ -1060,9 +1145,7 @@ var Parse = {
 			h3: function(){return options.heading(3)},
 			table: options.table,
 			tr: options.row,
-			td: function(arg, opt){
-				return options.cell(Object.assign({h:false}, opt))
-			},
+			td: options.cell,
 			th: function(arg, opt){
 				return options.cell(Object.assign({h:true}, opt))
 			},
@@ -1121,14 +1204,17 @@ var Parse = {
 			// [... tag?
 			if (eatChar("[")) {
 				point = i-1;
+				// [/... end tag?
 				if(eatChar("/")) {
 					var name = readTagName();
+					// invalid end tag
 					if (!eatChar("]") || !name) {
 						cancel();
+					// valid end tag
 					} else {
-						if (name == "list" && stack.top().type == "item") {
+						// end last item in lists
+						if (name == "list" && stack.top().type == "item")
 							endBlock(point);
-						}
 						if (name == stack.top().type) {
 							endBlock(point);
 							// eat whitespace between table cells
@@ -1140,19 +1226,25 @@ var Parse = {
 							addBlock(options.invalid(code.substring(point, i), "unexpected closing tag"));
 						}
 					}
+				// [... start tag?
 				} else {
 					var name = readTagName();
 					if (!name || !blocks[name]) {
+						// special case [*] list item
 						if (eatChar("*") && eatChar("]")) {
-							if (stack.top().type == "item") {
+							if (stack.top().type == "item")
 								endBlock(point);
+							var top = stack.top()
+							if (top.type == "list") {
+								startBlock("item", {}, top.listIndex);
+								top.listIndex++;
 							}
-							startBlock("item", {}, {});
+							else
+								cancel();
 						} else {
 							cancel();
 						}
 					} else {
-						
 						// [tag=...
 						var arg = true, args = {};
 						if (eatChar("=")) {
@@ -1200,7 +1292,10 @@ var Parse = {
 									while(eatChar(' ')||eatChar('\n')){
 									}
 								}
-								startBlock(name, {}, args);
+								if (name == 'list')
+									startBlock(name, {listIndex: 1}, args);
+								else
+									startBlock(name, {}, args);
 							} else
 								addBlock(options.invalid(code.substring(point, i), "invalid tag"));
 						} else {
@@ -1216,9 +1311,7 @@ var Parse = {
 				scan();
 			}
 		}
-		while (stack.length) {
-			endBlock();
-		}
+		endAll();
 		return output.node;
 		
 		function cancel() {
@@ -1318,7 +1411,7 @@ var Parse = {
 		
 		return root.node;
 	}
-
+	
 	Parse.parseLang = function(text, lang) {
 		i=0;
 		code = text;
@@ -1327,7 +1420,7 @@ var Parse = {
 			return parser(text);
 		} catch(e) {
 			try {
-				options.append(output, options.error(e));
+				options.append(output, options.error(e,e.stack));
 				options.append(output, options.text(code.substr(i)));
 				return output.node
 			} catch (e) {
