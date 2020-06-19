@@ -44,11 +44,9 @@
 @font-face{font-family:roboto mono;font-weight:400;font-style:italic;src:url(/fonts/roboto_mono/400i.woff2) format('woff2'),url(/fonts/roboto_mono/400i.woff) format('woff')}
 @font-face{font-family:roboto mono;font-weight:700;font-style:normal;src:url(/fonts/roboto_mono/700.woff2) format('woff2'),url(/fonts/roboto_mono/700.woff) format('woff')}
 @font-face{font-family:roboto mono;font-weight:700;font-style:italic;src:url(/fonts/roboto_mono/700i.woff2) format('woff2'),url(/fonts/roboto_mono/700i.woff) format('woff')}*/
-body.pageMode main {
-	height: 90vh;
-	display: block;
-}
-
+/****************
+ ** All Things **
+ ****************/
 * {
 	margin: 0;
 	box-sizing: border-box;
@@ -59,16 +57,6 @@ body.pageMode main {
 .textItem, .item, .buttonContainer button {
 	vertical-align: top;
 }
-
-/* html.loading * {
-	cursor: progress !important;
-}*/
-
-html {
-	background-color: red;
-	font-family: roboto, fontello, sans-serif;
-}
-
 /* all elements with user content, where whitespace should be preserved */
 .pre {
 	white-space: pre-wrap;
@@ -76,29 +64,8 @@ html {
 }
 
 a {
-	
-}
-
-/*a:visited {
-	color: #00A;
-	color: inherit;
-}*/
-/* heck all this blue text */
-
-.time {
-	color: #333;
-	font-size: 0.9em;
-	vertical-align: baseline;
-}
-
-.avatar {
-	border: 1px solid white;
-}
-
-a {
 	text-decoration: none;
 }
-
 a:hover {
 	color: #06F;
 }
@@ -113,16 +80,71 @@ textarea {
 }
 
 sup {vertical-align: super;}
-
 sub {vertical-align: sub;}
 
+.avatar {
+	border: 1px solid white;
+}
 .spacer {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
-
+.time {
+	color: #333;
+	font-size: 0.9em;
+	vertical-align: baseline;
+}
 .rightAlign {
 	float: right;
+}
+.ib {
+	display: inline-block;
+}
+
+.categoryNav {
+	border-bottom: 1px solid gray;
+}
+
+.memberNav {
+	border-bottom: 1px solid gray;
+}
+
+
+.pageName {
+	font-weight: bold;
+}
+
+.noColor {
+	color: black;
+}
+
+body.pageMode .bottomSpacer {
+	display: none;
+}
+body.fileMode .bottomSpacer {
+	display: none;
+}
+.username {
+	font-weight: bold;
+	unicode-bidi: embed;
+	white-space: pre-wrap;
+}
+
+.member .avatar {
+	margin-right: 0.7ch;
+}
+
+input {
+	font-size: 0.8em;
+}
+body.pageMode main {
+	height: 90vh;
+	display: block;
+}
+
+html {
+	background-color: red;
+	font-family: roboto, fontello, sans-serif;
 }
 
 /* These 3 classes handle like 90% of the layout lol */
@@ -152,29 +174,56 @@ sub {vertical-align: sub;}
 	/* set height */
 }
 
-@keyframes colorPulse{ 0% {background-color: #a1cfef} 100% {background-color: #a0f4df}}
-
-
-/****************************
- ** Main Container Element **
- ****************************/
-body {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: white;
+.fill {
+	width: 100%;
+	height: 100%;
 }
 
-/* most elements will be fixed-height, and should never shrink */
-body > * {
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
+.loginField {
+	width: 5rem;
+}
+
+.listItem .avatar {
+	margin-right: 0.3ch;
+}
+
+.tableGrow {
+	width: 100%;
+}
+
+/**********************
+ ** Button Container **
+ **********************/
+button {
+	line-height: normal !important;
+	font-size: 0.8em;
+	cursor: pointer;
+}
+.buttonContainer {
+	padding: 1px;
+	display: inline-block;
+}
+.buttonContainer button {
+	margin: 0;
+	padding: 0 0.5rem;
+	background-color: #EEE;
+	border: 2px solid gray;
+	height: 100%;
+	overflow-y: hidden;
+	border-style: outset;
+	border-radius: 2px;
+}
+.buttonContainer > a {
+	width: 100%;
+	height: 100%;
+	display: inline-block;
+}
+.buttonContainer button:hover {
+	border-color: #59E;
+}
+
+.buttonContainer button:active {
+	border-style: inset;
 }
 
 /* visibility control */
@@ -196,10 +245,27 @@ body:not(.fileMode) .fileMode {
 	display: none;
 }
 
+body {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+
+	height: 100vh; /* @@@ */
+}
+
 /*************
  ** Top Bar **
  *************/
 .navPane {
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
 	min-height: 1.5rem;
 	background-color: #333;
 	-webkit-transition: background-color 0.1s ease;
@@ -258,6 +324,8 @@ html.f-loggedIn .loggedOut {
  ** Title Pane **
  ****************/
 .titlePane {
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
 	background-color: #DDD;
 	padding: 0 0.1rem;
 	border-bottom: 2px solid black;
@@ -291,6 +359,11 @@ html:not(.f-canEdit) .canEdit {
 	font-family: monospace;
 }
 
+header :first-child {
+	min-width: 0.3rem;
+	display: inline-block;
+}
+
 /*******************************
  ** content+sidebar container **
  *******************************/
@@ -304,32 +377,38 @@ html:not(.f-canEdit) .canEdit {
 	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
 	overflow-x: hidden;
+
+	flex-basis: 10000px; /* @@@ */
 }
 
 .m {
 	width:100%;
-
 	-webkit-flex-grow: 0;
 	flex-grow: 0;
 	display: -webkit-flex;
 	display: flex;
 	-webkit-flex-direction: column;
 	flex-direction: column;
+	overflow-y: hidden; /* mmm */
 }
 
-.sideBar {
-	-webkit-flex: 1 0 0;
-	flex: 1 0 0;
+#\$sidebar {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	flex-shrink: 0;
+	flex-basis: 0;
 	background-color: rgba(204, 221, 238, 0.9);
 	border-left: 2px solid black;
 	/*-webkit-transition: margin-left 0.25s ease, transform 0.25s ease;
 	transition: margin-left 0.25s ease, transform 0.25s ease;*/
-	overflow: auto;
+	overflow:auto;
 }
 
-html:not(.f-sidebar) .sideBar {
+html:not(.f-sidebar) #\$sidebar {
 	-webkit-transform: translateX(100%);
 	transform: translateX(100%);
+	display: none;
 }
 
 html:not(.f-sidebar) .m {
@@ -337,7 +416,7 @@ html:not(.f-sidebar) .m {
 }
 
 html.f-sidebar .m {
-	resize: horizontal;
+	max-width: 90vw;
 	width: 70vw;
 	overflow:auto;
 }
@@ -428,9 +507,16 @@ main {
 	line-height: 40px;
 }
 
-/***************
- ** Page Pane **
- ***************/
+.nav {
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
+	border-bottom: 1px solid gray;
+	background-color: #333;
+}
+
+.nav > span {
+	color: white;
+}
 
 /*******************
  ** Chat Userlist **
@@ -509,28 +595,45 @@ main {
 	max-height: 10vh;
 	border: 1px solid silver;
 }
+.messagePart[data-linked] {
+	background-color: rgba(255,255,0,0.3);
+}
+.messageGap {
+	border: 1px dashed gray;
+	margin: 0.3rem 0;
+}
+
+html.f-deleteComment .messagePart:hover {
+	background-color: red;
+}
+
 /****************
  ** Chat Input **
  ****************/
 .inputPane {
 	height: 3.25rem;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	flex-direction: row;
-}
-.inputPane > * {
-	height: 100%;
-}
-.inputPane > textarea {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	resize: none;
-	min-width: 0;
 }
 
-.inputPane > button {
-	width: 3.25rem;
+#\$chatTextarea {
+	width: 100%;
+	height: 100%;
+	resize: none;
+}
+
+.chatSend {
+	height: 100%;
+}
+
+.inputPane > table {
+	width: 100%;
+	height: 100%;
+	border-collapse: collapse;
+}
+
+.inputPane > table td {
+	padding: 0;
+	margin: 0;
+	height: 100%;
 }
 
 /**********************
@@ -597,6 +700,13 @@ main {
 	margin-left: -0.2rem;
 }
 
+.activityCommentText {
+	color: black;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: pre;
+}
+
 .listItem a {
 	font-weight: bold;
 }
@@ -626,30 +736,6 @@ main {
 	flex-basis: 0;
 }
 
-.nav {
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
-	border-bottom: 1px solid gray;
-	background-color: #333;
-}
-
-.nav > span {
-	color: white;
-}
-
-.loginField {
-	width: 5rem;
-}
-
-button {
-	line-height: normal !important;
-	font-size: 0.8em;
-	cursor: pointer;
-}
-input {
-	font-size: 0.8em;
-}
-
 table.form td:first-child {
 	text-align:right;
 }
@@ -661,40 +747,12 @@ table.form th {
 	text-align:right;
 }
 
-img.item {
-	vertical-align: top;
-}
-
 .userPageContents {
-	
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
-
-.voteButton[data-selected] {
-	background-color: lime;
-}
-
-/* hecko yo */
-.pageContents {
-	max-width:100%;
-	overflow-x:auto;
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
-}
-
-.listItem .avatar {
-	margin-right: 0.3ch;
-}
-
-.username {
-	font-weight: bold;
-	unicode-bidi: embed;
-	white-space: pre-wrap;
-}
-
-.member .avatar {
-	margin-right: 0.7ch;
+.userPageBox .pageContents {
+	max-height: 100%;
 }
 
 html:not(.f-myUserPage) .myUserPage {
@@ -712,66 +770,19 @@ html:not(.f-myUserPage) .myUserPage {
 	}
 }
 
-/* narrow screen: fullscreen sidebar */
-@media (max-width: 700px) {
-	.sideBar {
-		width: 100%;
-		height: 100%;
-		position: fixed;
-		bottom: 0;
-		right: 0;
-		left: 0;
-		border-left: none;
-		transform: none;
-		-webkit-transition: -webkit-transform 0.2s ease;
-		-webkit-transition: transform 0.2s ease;
-		transition: -webkit-transform 0.2s ease;
-		transition: transform 0.2s ease;
-	}
-	html:not(.f-sidebar) .sideBar {
-		margin-left: 0;
-		-webkit-transform: translateX(0);
-		transform: translateX(0);
-	}
-	html:not(.f-mobileSidebar) .sideBar {
-		-webkit-transform: translateX(100%);
-		transform: translateX(100%);
-	}
-	.m {
-		width: 100% !important;
-	}
+/**********
+ ** Page **
+ **********/
+.voteButton[data-selected] {
+	background-color: lime;
 }
 
-/* for devices with small screens */
-@media (max-width: 700px), (max-height: 500px) {
-	/* make the entire page scroll */
-	/* todo: make chat mode work better here */
-	body:not(.pageMode) {
-		position: static;
-		min-height: 100vh;
-		font-size: 0.9em;
-	}
-	textarea {
-		font-size: 1em; /* prevent zoom in on iphone */
-	}
-	body:not(.pageMode) main {
-		height: auto !important;
-		-webkit-flex-basis: auto;
-		flex-basis: auto;
-	}
-	html {
-		background-color: transparent;
-	}
-	.editorPreview {
-		-webkit-flex-basis: auto;
-		flex-basis: auto;
-	}
-	.userPageBox {
-		max-height: none;
-	}
-	.inputPane textArea {
-		font-size: 1rem;
-	}
+/* hecko yo */
+.pageContents {
+	max-width:100%;
+	overflow-x:auto;
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
 }
 
 .pageInfoPane {
@@ -825,92 +836,13 @@ html:not(.f-myUserPage) .myUserPage {
 .metaInfo {
 	display: inline;
 }
-
-.categoryNav {
-	border-bottom: 1px solid gray;
-}
-
-.memberNav {
-	border-bottom: 1px solid gray;
-}
-
-.buttonContainer {
-	padding: 1px;
-	display: inline-block;
-}
-
-.buttonContainer button {
-	margin: 0;
-	padding: 0 0.5rem;
-	background-color: #EEE;
-	border: 2px solid gray;
-	height: 100%;
-	overflow-y: hidden;
-	border-style: outset;
-	border-radius: 2px;
-}
-
-.buttonContainer > a {
-	width: 100%;
-	height: 100%;
-	display: inline-block;
-}
-
-.buttonContainer button:hover {
-	border-color: #59E;
-}
-
-.buttonContainer button:active {
-	border-style: inset;
-}
-
-.ib {
-	display: inline-block;
-}
-
-.iconBg {
-	background-repeat: no-repeat;
-	background-size: contain;
-	background-position: center;
-	margin-right: 0.3rem;
-}
-
-.iconBg-page {
-	background-image: url("icons/page.png");
-}
-.iconBg-pin {
-	background-image: url("icons/pin.png");
-}
-.iconBg-category {
-	background-image: url("icons/folder.png");
-}
-.iconBg-hiddenpage {
-	background-image: url("icons/hiddenpage.png");
-}
-
-.pageName {
-	font-weight: bold;
-}
-
-.noColor {
-	color: black;
-}
-
-body.pageMode .bottomSpacer {
-	display: none;
-}
-body.fileMode .bottomSpacer {
+html:not(.f-page) .pageItem {
 	display: none;
 }
 
-.messagePart[data-linked] {
-	background-color: rgba(255,255,0,0.3);
-}
-
-.messageGap {
-	border: 1px dashed gray;
-	margin: 0.3rem 0;
-}
+/***********
+ ** Files **
+ ***********/
 
 .fileThumbnail {
 	display: inline-block;
@@ -950,30 +882,53 @@ html:not(.f-fileUploading) .fileUploading {
 	border-bottom: 1px solid gray;
 }
 
+/***********
+ ** Icons **
+ ***********/
+.iconBg {
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	margin-right: 0.3rem;
+}
+
+.iconBg-page {
+	background-image: url("icons/page.png");
+}
+.iconBg-pin {
+	background-image: url("icons/pin.png");
+}
+.iconBg-category {
+	background-image: url("icons/folder.png");
+}
+.iconBg-hiddenpage {
+	background-image: url("icons/hiddenpage.png");
+}
+
+/*************
+ ** Sidebar **
+ *************/
+.resize {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: grab;
+}
+
+#\$sidebarPinnedResize {
+	display: inline-block;
+	background-color: white;
+}
+
 .closeSidebar {
-	width: 100%;
+	display: none;
 }
 
 .closeSidebar button {
 	width: 100%;
-}
-
-html:not(.f-page) .pageItem {
-	display: none;
-}
-
-.userPageBox .pageContents {
-	max-height: 100%;
-}
-
-header :first-child {
-	min-width: 0.3rem;
-	display: inline-block;
-}
-
-.sideBar {
-	display: flex;
-	flex-direction: column;
 }
 
 .sidebarScroller {
@@ -990,12 +945,79 @@ header :first-child {
 	border-bottom: 1px solid gray;
 }
 
-.sidebarScroller .bar > :first-child {
+.sidebarScroller .bar > .userLink:first-child {
 	margin-left: -0.2rem;
 }
 
 .sidebarScroller .bar > :last-child {
 	margin-right: -0.2rem;
+}
+
+/* narrow screen: fullscreen sidebar */
+@media (max-width: 700px) {
+	.closeSidebar {
+		display: block;
+	}
+	#\$sidebar {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		border-left: none;
+		transform: none;
+		-webkit-transition: -webkit-transform 0.2s ease;
+		-webkit-transition: transform 0.2s ease;
+		transition: -webkit-transform 0.2s ease;
+		transition: transform 0.2s ease;
+	}
+	html:not(.f-sidebar) #\$sidebar {
+		margin-left: 0;
+		-webkit-transform: translateX(0);
+		transform: translateX(0);
+	}
+	html:not(.f-mobileSidebar) #\$sidebar {
+		-webkit-transform: translateX(100%);
+		transform: translateX(100%);
+	}
+	.m {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+}
+
+
+/* for devices with small screens */
+@media (max-width: 700px), (max-height: 500px) {
+	/* make the entire page scroll */
+	/* todo: make chat mode work better here */
+	body:not(.pageMode) {
+		position: static;
+		min-height: 100vh;
+		font-size: 0.9em;
+	}
+	textarea {
+		font-size: 1em; /* prevent zoom in on iphone */
+	}
+	body:not(.pageMode) main {
+		height: auto !important;
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
+	}
+	html {
+		background-color: transparent;
+	}
+	.editorPreview {
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
+	}
+	.userPageBox {
+		max-height: none;
+	}
+	.inputPane textArea {
+		font-size: 1rem;
+	}
 }
 .markup-root {
 	white-space: pre-wrap;
@@ -1418,14 +1440,17 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('timeout', resp);
 		} else if (code == 429) { // rate limit
 			window.setTimeout(function() {
-				callback('rate', resp);
+				callback('timeout', resp);
 			}, 100);
 		} else if (code==401) {
 			console.log(x);
 			callback('auth', resp);
 		} else if (code==404) {
-			console.log("got 404");
+			console.warn("got 404");
 			callback('404', resp);
+		} else if (code==500 && /^System.InvalidOperationException\b/.test(x.responseText)) {
+			console.warn("server page edit error");
+			callback('timeout', resp);
 		} else {
 			alert("Request failed! "+code+" "+url);
 			//console.log("sbs2Request: request failed! "+code);
@@ -2050,6 +2075,9 @@ Myself.prototype.postComment = function(id, message, f, callback) {
 		content: f+"\n"+message,
 	});
 };
+Myself.prototype.deleteComment = function(id, callback) {
+	this.request("Comment/"+id, 'DELETE', callback);
+}
 
 Myself.prototype.setWatch = function(id, state, callback) {
 	if (state)
@@ -2342,16 +2370,20 @@ LongPoller.prototype.loop = function() {
 				$.onListeners.call(this, resp.listeners, resp.chains.userMap);
 			}
 			var pageMap = {};
-			resp.chains.content && resp.chains.content.forEach(function(page) {
-				pageMap[page.id] = page;
-			});
-			if (resp.chains && resp.chains.comment) {
-				$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+			if (resp.chains) {
+				resp.chains.content && resp.chains.content.forEach(function(page) {
+					pageMap[page.id] = page;
+				});
+				if (resp.chains.comment) {
+					$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+				}
+				if (resp.chains.activity) {
+					$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
+				}
+				if (resp.chains.commentdelete)
+					$.onDelete.call(this, resp.chains.commentdelete);
+				$.onBoth.call(this, resp);
 			}
-			if (resp.chains && resp.chains.activity) {
-				$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
-			}
-			$.onBoth.call(this, resp);
 		}
 		if (!e || e=='timeout') {
 			$.setState("Queueing next request", true);
@@ -3054,9 +3086,11 @@ var Parse = {
 			var node = create('a');
 			
 			var protocol = urlProtocol(url);
+			node.setAttribute('target', "_blank");
 			if (protocol[0] == "sbs:") {
 				// put your custom local url handling code here
 				url = "#"+protocol[1];
+				node.removeAttribute('target');
 			} else if (!protocol[0]) {
 				if (url[0] == "#") {
 					// put your fragment link handling code here
@@ -3079,6 +3113,7 @@ var Parse = {
 					// urls without protocol get https:// or http:// added
 					url = defaultProtocol()+"//"+url;
 				}
+				
 			}
 			node.setAttribute('href', url);
 			return {node:node};
@@ -4490,6 +4525,7 @@ function renderUserListAvatar(user) {
 function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
+	div.setAttribute('data-uid', user.id);
 
 	var time = document.createElement('span');
 	time.textContent = timeString(date);
@@ -4563,24 +4599,19 @@ function parseDate(str) {
 	return new Date(0);
 }
 
-function renderActivityItem(activity, page, user, noTime) {
+function renderActivityItem(activity, page, user, noTime,comment) {
 	if (!user)
 		user = [];
 	else if (!(user instanceof Array))
 		user = [user];
 
-	switch(activity.action) {
-	case "c":
-		var text = "created";
-		break;case "u":
-		text = "edited";
-		break;case "d":
-		text = "deleted";
-		break;case "p":
-		text = "posted on";
-		break;default:
-		text = "unknown action";
-	}
+	var text = {
+		c: "created",
+		u: "edited",
+		d: "deleted",
+		p: "posted on",
+		pd: "deleted post on",
+	}[activity.action] || "unknown action";
 	var div = document.createElement('a');
 	div.className = "listItem bar rem1-7";
 	var action = document.createElement('span');
@@ -4590,13 +4621,17 @@ function renderActivityItem(activity, page, user, noTime) {
 	if (activity.type == 'content') {
 		if (activity.action == "p")
 			div.href = "#pages/"+activity.contentId+"#comment-"+activity.id; //todo: comment link
-		else
+		else if (activity.contentId)
 			div.href = "#pages/"+activity.contentId;
 
-		var icon = "page";
-		if (!hasPerm(page.permissions, 0, 'r'))
-			icon = "hiddenpage";
-		var name = renderContentName(page.name, icon)
+		if (page) {
+			var icon = "page";
+			if (!hasPerm(page.permissions, 0, 'r'))
+				icon = "hiddenpage";
+			var name = renderContentName(page.name, icon)
+		} else {
+			var name = renderContentName("UNKNOWN", icon)
+		}
 	} else if (activity.type == 'category') {
 		div.href = "#categories/"+activity.contentId;
 		var name = renderContentName(page.name, 'category')
@@ -4614,8 +4649,22 @@ function renderActivityItem(activity, page, user, noTime) {
 		time.className += " rightAlign";
 		div.appendChild(time);
 	}
+	if (comment) {
+		var x = document.createElement('div');
+		x.className = "activityCommentText";
+		x.textContent = decodeComment(comment)[0].replace(/\n/g," ");
+		div.appendChild(x);
+	}
 	return div;
 }
+
+function renderActivityBlock(room) {
+	
+}
+
+/*function renderActivityItem(action, user, comment) {
+	
+}*/
 
 function renderMemberListUser(user) {
 	var div = renderUserLink(user)
@@ -4630,26 +4679,11 @@ function renderMessageGap() {
 }
 
 function renderMessagePart(comment, sizedOnload){
-	var content = comment.content;
-	var text, markup;
-	if (content[0] == "{") {
-		var j = parseJSON(content);
-		if (j) {
-			text = j.t;
-			markup = j.m;
-		} else
-			text = content;
-	} else {
-		var i = content.indexOf("\n");
-		if (i<0)
-			text = content;
-		else
-			text = content.substr(i+1);
-	}
+	var x = decodeComment(comment.content);
+	var text=x[0], markup=x[1];
 	element = parser(markup)(text);
 	element.className += ' messagePart';
-	element.id = "_anchor_comment-"+comment.id;
-	//document.title=comment.username+":"+text;
+	element.setAttribute('data-id', comment.id);
 	return element;
 }
 
@@ -4721,25 +4755,29 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 }
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
+	var lastUidBlock = this.element.lastChild;
+	if (lastUidBlock) {
+		var lastUid = lastUidBlock.getAttribute('data-uid');
+		if (!lastUid)
+			lastUidBlock = null;
+		else
+			lastUid = +lastUid;
+	}
+	
 	if (id == null) {
 		this.element.appendChild(node);
-		this.lastUid = undefined;
-		this.lastUidBlock = undefined;
 	} else {
 		// replace an existing message (we assume uid doesn't change)
 		if (this.nodes[id]) {
 			this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
 			// insert a new line to the last block
-		} else if (uid && this.lastUid == uid) {
-			this.lastUidBlock.appendChild(node);
+		} else if (uid && lastUid == uid && lastUidBlock) {
+			lastUidBlock.querySelector('.messageContents').appendChild(node);
 			// create a new block
 		} else {
 			var b = makeBlock();
 			b[1].appendChild(node);
 			this.element.appendChild(b[0]);
-			
-			this.lastUidBlock = b[1];
-			this.lastUid = uid;
 		}
 		this.nodes[id] = node;
 	}
@@ -4748,10 +4786,14 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 }
 AutoScroller.prototype.remove = function(id) {
 	var node = this.nodes[id]
-	// todo: remove block when all messages are gone from it
-	// don't forget to update lastUidBlock etc. too
 	if (node) {
-		node.parentNode.removeChild(node);
+		
+		var parent = node.parentNode;
+		parent.removeChild(node);
+		// when removing the last comment in a block
+		if (parent.children.length == 0) {// todo: make this less of a hack
+			parent.parentNode.parentNode.removeChild(parent.parentNode);
+		}
 	}
 	this.nodes[id] = undefined;
 }
@@ -4915,20 +4957,52 @@ function generatePagePath(page, users) {
 	}
 }
 
-function megaAggregate(activity, ca, contents) {
+function decodeComment(content) {
+	var text, markup;
+	if (content[0] == "{") {
+		var j = parseJSON(content);
+		if (j) {
+			text = j.t;
+			markup = j.m;
+		} else
+			text = content;
+	} else {
+		var i = content.indexOf("\n");
+		if (i<0)
+			text = content;
+		else
+			text = content.substr(i+1);
+	}
+	return [text,markup];
+}
+
+function megaAggregate(activity, ca, contents, deletecomment) {
 	var contentMap = {};
 	contents.forEach(function(x){
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
 		if (x.createDate) {
-			return {
-				action: "p",
-				contentId: x.parentId,
-				date: x.createDate,
-				id: x.id,
-				userId: x.createUserId,
-				type: 'content'
+			if (x.deleted) {
+				return {
+					action: "pd",
+					contentId: x.parentId,
+					date: x.createDate,
+					id: x.id,
+					userId: x.createUserId,
+					type: 'content',
+					comment: x.content
+				}
+			} else {
+				return {
+					action: "p",
+					contentId: x.parentId,
+					date: x.createDate,
+					id: x.id,
+					userId: x.createUserId,
+					type: 'content',
+					comment: x.content
+				}
 			}
 		}
 		return {
@@ -4941,6 +5015,15 @@ function megaAggregate(activity, ca, contents) {
 			type: 'content',
 		}
 	}));
+	if (deletecomment) {
+		allAct = allAct.concat(deletecomment.map(function(x){
+			return {
+				action: "pd",
+				id: x.id,
+				type: 'content'
+			}
+		}));
+	}
 	allAct = allAct.filter(function(x) {
 		if (x.action == 'd')
 			x.content = {name: x.extra, id: x.contentId, deleted: true};
@@ -5037,7 +5120,6 @@ function fillFileFields(file) {
 	$fileName.value = file.name;
 	$filePermissions.value = JSON.stringify(file.permissions);
 	$fileValues.value = JSON.stringify(file.values);
-	console.log(me.userCache);
 	$fileUser.textContent = me.userCache[file.createUserId].username;
 }
 
@@ -5329,6 +5411,11 @@ var views = {
 						displayMessage(comment, user);
 				})
 			}
+			lp.onDelete = function(comments) {
+				comments.forEach(function(comment) {
+					displayMessage({deleted: true, id:comment.id});
+				});
+			}
 			lp.setViewing(id);
 			var linked = query["#"];
 			if (linked && /^comment-/.test(linked)) {
@@ -5509,6 +5596,32 @@ var views = {
 	}
 }
 
+function attachResize(element, tab, horiz,cb) {
+	var startX,startY,down,startW,startH;
+	tab.addEventListener('mousedown', function(e) {
+		startX = e.clientX;
+		startY = e.clientY;
+		startW = element.offsetWidth;
+		startH = element.offsetHeight;
+		down = true;
+	});
+	document.addEventListener('mouseup', function() {
+		down = false;
+	});
+	document.addEventListener('mousemove', function(e) {
+		if (!down)
+			return;
+		var vx = e.clientX - startX;
+		var vy = e.clientY - startY;
+		if (horiz) {
+			element.style.width = startW+vx+"px";
+			cb(startW+vx)
+		} else {
+			element.style.height = startH+vy+"px";
+			cb(startH+vy);
+		}
+	});
+}
 //bug: when going back from another site, page is loaded from cache, and
 // certain things are not reloaded
 
@@ -5754,9 +5867,53 @@ function ready() {
 		setUserCSS(css);
 	}
 
+	attachResize($m, $sidebarPinnedResize, true, function(w) {
+		localStorage.sidebarWidth = w;
+	});
+	if (localStorage.sidebarWidth)
+		$m.style.width = localStorage.sidebarWidth+"px";
+
+	attachResize($sidebarPinned, $sidebarPinnedResize, false, function(w) {
+		localStorage.sidebarPinnedHeight = w;
+	});
+	if (localStorage.sidebarPinnedHeight)
+		$sidebarPinned.style.height = localStorage.sidebarPinnedHeight+"px";
+
+	
 /*	document.body.onclick = function(e) {
 		console.log(e.target)
-	}*/
+		}*/
+
+	document.onclick = function(e) {
+		var element = e.target;
+		if (flags.editComment || flags.deleteComment) {
+			while (element && element instanceof HTMLElement) {
+				var id = element.getAttribute('data-id')
+				if (id) {
+					if (flags.editComment) {
+						editComment(+id);
+					} else {
+						deleteComment(+id);
+					}
+				}
+				element = element.parentNode;
+			}
+			flag('editComment');
+			flag('deleteComment');
+		}
+	}
+	$chatDelete.onclick = function() {
+		window.setTimeout(function() {
+			flag('deleteComment', true);
+		}, 10);
+	}
+	
+}
+
+function deleteComment(id) {
+	var resp = confirm("Are you sure you want to delete this message?");
+	if (resp)
+		me.deleteComment(id, console.log);
 }
 
 function updateAvatar(file) {
@@ -5810,7 +5967,6 @@ function scrollTo(name) {
 	//todo: this needs to happen after all images load etc. somehow...
 	if (name) {
 		var n = document.getElementsByName("_anchor_"+name)[0] || document.getElementById("_anchor_"+name);
-		console.log("ANCHOR",n,name);
 		if (n)
 			n.scrollIntoView();
 	}
@@ -5965,6 +6121,7 @@ function generateAuthorBox(page, users) {
 }
 
 function onLogin(me) {
+	console.log("logged in");
 	//var me = this;
 	me.whenUser(me.uid, function(user) {
 		userAvatar(user, $myAvatar);
@@ -5975,6 +6132,7 @@ function onLogin(me) {
 	/*hashChange(false);*/
 	lp.onMessages = function(messages, users, pages) {
 	}
+	lp.onDelete = function(comments) {}
 	lp.onActivity = function(activity, users, pages) {
 	}
 	lp.onBoth = function(resp) {
@@ -6001,26 +6159,37 @@ function onLogin(me) {
 	})
 }
 
+//todo: commentdelete
 function sbm(resp) {
-	console.log(resp);
 	if (!(resp.comment && resp.content && resp.activity))
 		return;
 	var users = resp.userMap;
 	var last = {};
-	var all = megaAggregate(resp.activity, resp.comment, resp.content);
+	console.log("SBM",resp);
+	var all = megaAggregate(resp.activity, resp.comment, resp.content, resp.commentdelete);
 	all.reverse().forEach(function(activity){
-		if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
-			if (activity.content) {
-				if (activity.userId instanceof Array)
-					var user = activity.userId.map(function(x){
-						return users[x];
-					})
-				else
-					user = users[activity.userId]
-				$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true), $sidebarActivity.firstChild);
-				last = activity;
-			}
+		/*if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {*/
+			//if (activity.content) {
+		if (activity.userId instanceof Array)
+			var user = activity.userId.map(function(x){
+				return users[x];
+			})
+		else if (activity.userId)
+			user = users[activity.userId];
+		else
+			user = null;
+		
+		$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true, activity.comment), $sidebarActivity.firstChild);
+		if ($sidebarActivity.children.length > 40) {
+			var c = $sidebarActivity.lastChild;
+			c.parentNode.removeChild(c);
 		}
+		
+		last = activity;
+
+		
+		//}
+		//}
 	});
 }
 
@@ -6061,7 +6230,7 @@ function onLogout() {
 	</header>
 
 	<div class="sideBarContainer">
-		<div class="m">
+		<div class="m" id="$m">
 			<div class="userlistPane userlist rem2-3 pageChatMode bar" id="$chatUserlist"></div>
 			
 			<div class="infoPane editorMode">
@@ -6159,7 +6328,7 @@ function onLogout() {
 				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div id="$categoryPinned" class="categoryMode"></div>
-				<div class="categoryMode categoryNav rem1-7">
+				<div class="categoryMode categoryNav rem1-7 bar">
 					<span class="buttonContainer item">
 						<button id="$categoryPagesPrev">&lt;</button>
 					</span><span class="buttonContainer item">
@@ -6255,24 +6424,36 @@ function onLogout() {
 				 Bottom of the page
 			  -->
 			<div class="inputPane pageChatMode">
-				<textarea id="$chatTextarea"></textarea>
-				<div class="buttonContainer"><button id="$chatSend">Send</button></div>
+				<table>
+					<tr>
+						<td rowspan="2" class="tableGrow"><textarea class="chatTextarea" id="$chatTextarea"></textarea></td>
+						<td rowspan="2"><div class="buttonContainer chatSend fill"><button id="$chatSend">Send</button></div></td>
+						<td style="white-space: nowrap"><div class="buttonContainer chatSend"><button id="$chatEdit">Edit</button></div><div class="buttonContainer chatSend"><button id="$chatDelete">Delete</button></div></td>
+					</tr>
+					<tr>
+						<td><select class="fill"><option>Plaintext</option><option>12y</option><option>BBCode</option></select></td>
+					</tr>
+				</table>
 			</div>
-
 		</div>
 		
-		<div class="sideBar" id="$sidebar">
-			<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div><br>
+		<div id="$sidebar">
+			<div>
+				<!--<div id="$sidebarResize" class="resize">&lt;-&gt;</div>-->
+				<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
+				<span class="loggedIn">
+					<span id="$longPollStatus"></span>
+				</span>
+			</div>
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
 				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
-			<div class="loggedIn">
-				Long Poller: <span id="$longPollStatus"></span>
-			</div>
+			<div id="$sidebarPinned"></div>
+			<div id="$sidebarPinnedResize" class="resize">resize</div>
 			<div class="sidebarScroller" id="$sidebarScroller">
-				<div id="$sidebarPinned"></div>
 				<div id="$sidebarActivity"></div>
 			</div>
+
 		</div>
 	</div>
 </body>
