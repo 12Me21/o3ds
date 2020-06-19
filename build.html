@@ -3,12 +3,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="icon" sizes="16x16" href="favicon.ico?a"> <!-- compatibility -->
-<link rel="shortcut icon" sizes="16x16" href="favicon.png?a"> <!-- firefox -->
-<link rel="icon" sizes="32x32" href="icon32.png?a"> <!-- chrome -->
-<link rel="icon" sizes="192x192" href="fav-big.png?b"> <!-- large -->
-<link rel="apple-touch-icon" href="fav-big.png?b"> <!-- large 2 -->
-<link rel="image_src" href="fav-big.png?b"> <!-- large 3 -->
+<link rel="icon" sizes="16x16" href="images/icon16.ico?a"> <!-- compatibility -->
+<link rel="shortcut icon" sizes="16x16" href="images/icon16.png?a"> <!-- firefox -->
+<link rel="icon" sizes="32x32" href="images/icon32.png?a"> <!-- chrome -->
+<link rel="icon" sizes="192x192" href="images/iconbig.png?a"> <!-- large -->
+<link rel="apple-touch-icon" href="images/iconbig.png?a"> <!-- large 2 -->
+<link rel="image_src" href="images/iconbig.png?a"> <!-- large 3 -->
+<!--<meta property="og:site_name" content="12-SBS2">
+<meta property="og:description" content="SmileBASIC Source 2">
+<meta name="og:image" content="images/iconbig.png?a">
+<meta name="theme-color" content="#009688">-->
 
 <style>
 @font-face{
@@ -40,11 +44,19 @@
 @font-face{font-family:roboto mono;font-weight:400;font-style:italic;src:url(/fonts/roboto_mono/400i.woff2) format('woff2'),url(/fonts/roboto_mono/400i.woff) format('woff')}
 @font-face{font-family:roboto mono;font-weight:700;font-style:normal;src:url(/fonts/roboto_mono/700.woff2) format('woff2'),url(/fonts/roboto_mono/700.woff) format('woff')}
 @font-face{font-family:roboto mono;font-weight:700;font-style:italic;src:url(/fonts/roboto_mono/700i.woff2) format('woff2'),url(/fonts/roboto_mono/700i.woff) format('woff')}*/
+body.pageMode main {
+	height: 90vh;
+	display: block;
+}
+
 * {
 	margin: 0;
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	overflow-wrap: break-word;
+}
+/* may need more things here */
+.textItem, .item, .buttonContainer button {
 	vertical-align: top;
 }
 
@@ -54,17 +66,24 @@
 
 html {
 	background-color: red;
-	font-family: roboto, sans-serif;
+	font-family: roboto, fontello, sans-serif;
 }
 
 /* all elements with user content, where whitespace should be preserved */
 .pre {
 	white-space: pre-wrap;
+	unicode-bidi: embed;
 }
 
-a:visited {
-	color: #00A;
+a {
+	
 }
+
+/*a:visited {
+	color: #00A;
+	color: inherit;
+}*/
+/* heck all this blue text */
 
 .time {
 	color: #333;
@@ -89,19 +108,13 @@ textarea {
 	border: 2px solid #00C8B4;
 	box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(13,13,13,0.5);
 	max-width: 100%;
-	font-size: 1em; /* prevent zoom in on iphone */
+	font-family: roboto, sans-serif;
+	font-size: 0.8em;
 }
 
-.scroller {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	overflow-y: auto;
-	flex-basis: 0;
-	/*min-height: 300px;
-	height: 300px;*/
-}
+sup {vertical-align: super;}
+
+sub {vertical-align: sub;}
 
 .spacer {
 	-webkit-flex-grow: 1;
@@ -118,8 +131,16 @@ textarea {
 	overflow: hidden;
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
+	/*padding: 0 0.5rem !important;*/
 	/* set min-height */
 }
+/*.bar > img:first-child, .bar > .iconBg:first-child {
+	margin-left: -0.5rem !important;
+}
+.bar > img:last-child, .bar > .iconBg:last-child {
+	margin-right: -0.5rem !important;
+}*/
+
 .textItem { /* basically anything within a .bar */
 	max-width: 100%;
 	display: inline;
@@ -130,6 +151,9 @@ textarea {
 	max-width: 100%;
 	/* set height */
 }
+
+@keyframes colorPulse{ 0% {background-color: #a1cfef} 100% {background-color: #a0f4df}}
+
 
 /****************************
  ** Main Container Element **
@@ -147,31 +171,15 @@ body {
 	background-color: white;
 }
 
-body > *:not(:first-child), .editorPreview, .pagePane > *:not(:first-child):not(.spacer), .categoryPages {
-	border-top: 1px solid gray;
-}
-
 /* most elements will be fixed-height, and should never shrink */
 body > * {
 	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
-/* each view has one pane which takes up the remaining screen height */
-.paneGrow {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	-webkit-flex-shrink: 1;
-	flex-shrink: 1;
-
-	min-height: 100px;
-	/*padding: 0.5rem;*/
-	/*overflow-y: scroll;*/
-}
-
 /* visibility control */
 body:not(.pageMode) .pageMode,
-body:not(.chatMode) .chatMode,
+body:not(.pageMode) .pageChatMode,
 body:not(.editorMode) .editorMode,
 body:not(.categoryMode) .categoryMode,
 body:not(.navMode) .navMode,
@@ -180,27 +188,37 @@ body:not(.membersMode) .membersMode,
 body:not(.registerMode) .registerMode,
 body:not(.settingsMode) .settingsMode,
 body:not(.activityMode) .activityMode,
+body:not(.cateditMode) .cateditMode,
 body:not(.userMode):not(.pageMode) .pageUserMode,
-body:not(.chatMode):not(.pageMode) .pageChatMode,
-body:not(.homeMode) .homeMode {
+body:not(.homeMode) .homeMode,
+body:not(.testMode) .testMode,
+body:not(.fileMode) .fileMode {
 	display: none;
 }
-
-
 
 /*************
  ** Top Bar **
  *************/
-.headerPane {
+.navPane {
 	min-height: 1.5rem;
 	background-color: #333;
+	-webkit-transition: background-color 0.1s ease;
+	transition: background-color 0.1s ease;
 }
 
-html.f-loading .headerPane {
-	background-color: #008;
+.navPane a {
+	color: #BCF;
 }
 
-html.f-error .headerPane {
+.navPane a:hover {
+	color: #9AF;
+}
+
+html.f-loading .navPane {
+	background-color: rgb(0,150,136);
+}
+
+html.f-error .navPane {
 	background-color: #800;
 }
 
@@ -209,15 +227,11 @@ html.f-loggedIn .loggedOut {
 	display: none;
 }
 
-.headerRight {
-	float: right;
-}
-
-.headerPane .item {
+.navPane .item {
 	height: 1.5rem;
 }
 
-.headerPane .textItem{
+.navPane .textItem{
 	min-height: 1.5rem;
 	line-height: 1.5rem;
 }
@@ -236,14 +250,6 @@ html.f-loggedIn .loggedOut {
 	color: white;
 }
 
-.headerPane a {
-	color: #BCF;
-}
-
-.headerPane a:hover {
-	color: #9AF;
-}
-
 .pathSeparator {
 	padding: 0 0.2rem;
 }
@@ -253,15 +259,17 @@ html.f-loggedIn .loggedOut {
  ****************/
 .titlePane {
 	background-color: #DDD;
-	padding: 0 0.5rem;
+	padding: 0 0.1rem;
+	border-bottom: 2px solid black;
+}
+
+.titlePane .iconBg {
+	width: 2rem;
 }
 
 .titlePane .userLink img {
 	margin: 0 0.7ch;
 }
-
-/* .item's are things like the site logo, user avatar, etc.*/
-/* .textItem is similar, but is allowd to wrap */
 
 .editingLabel {
 	padding-left: 0.3rem;
@@ -273,30 +281,89 @@ html.f-loggedIn .loggedOut {
 	font-size: 1.6rem;
 }
 
+html:not(.f-canEdit) .canEdit {
+	display: none;
+}
+
 .errorMode .titlePane {
 	background-color: pink;
 	color: maroon;
 	font-family: monospace;
 }
 
-/* Box showing the page author/editor */
-.pageCreate {
-	float: right;
+/*******************************
+ ** content+sidebar container **
+ *******************************/
+.sideBarContainer {
+	display: flex;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	-webkit-flex-shrink: 1;
+	flex-shrink: 1;
+	overflow-x: hidden;
 }
-.pageCreate {
-	background-color: rgba(255,255,255,0.1);
+
+.m {
+	width:100%;
+
+	-webkit-flex-grow: 0;
+	flex-grow: 0;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
 }
-.pageAuthorAvatar {
-	width: 2.3rem;
+
+.sideBar {
+	-webkit-flex: 1 0 0;
+	flex: 1 0 0;
+	background-color: rgba(204, 221, 238, 0.9);
+	border-left: 2px solid black;
+	/*-webkit-transition: margin-left 0.25s ease, transform 0.25s ease;
+	transition: margin-left 0.25s ease, transform 0.25s ease;*/
+	overflow: auto;
 }
-.pageAuthorDate {
-	padding-left: 0.5rem;
+
+html:not(.f-sidebar) .sideBar {
+	-webkit-transform: translateX(100%);
+	transform: translateX(100%);
 }
-.pageAuthorName {
-	padding: 0 0.5rem;
+
+html:not(.f-sidebar) .m {
+	width: 100% !important;
 }
-.pageEdited {
-	border-left: 1px solid gray;
+
+html.f-sidebar .m {
+	resize: horizontal;
+	width: 70vw;
+	overflow:auto;
+}
+
+/**********
+ ** main **
+ **********/
+main {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	overflow-y: auto;
+	flex-basis: 0;
+
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	-webkit-flex-shrink: 1;
+	flex-shrink: 1;
+
+	min-height: 100px;
+	/*padding: 0.5rem;*/
+	/*overflow-y: scroll;*/
+	
+	/*min-height: 300px;
+	height: 300px;*/
 }
 
 /*******************
@@ -308,27 +375,30 @@ html.f-loggedIn .loggedOut {
 	padding-left: 0.4rem;
 }
 .categoryPage, .categoryDescription, .member {
-	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 }
 .categoryPage .username {
 	padding: 0 0.4rem;
 }
 
-.rem1-5 {
+.rem1-7 {
 	min-height: 1.7rem;
 }
-.rem1-5 .item {
+.rem1-7 .item {
 	height: 1.7rem;
 	line-height: 1.7rem;
 }
-.rem1-5 .textItem {
+.rem1-7 .textItem {
 	min-height: 1.7rem;
 	line-height: 1.7rem;
 }
-.rem1-5 .avatar {
+.rem1-7 .avatar {
 	width: 1.7rem;
 }
-
+.rem1-7 .iconBg {
+	width: 1rem;
+	margin-right: 0.2rem;
+}
 .rem2-3 {
 	min-height: 2.3rem;
 }
@@ -343,19 +413,31 @@ html.f-loggedIn .loggedOut {
 .rem2-3 .avatar {
 	width: 2.3rem;
 }
+.rem2-3 .iconBg {
+	width: 1.5rem;
+}
+
+.px40 {
+}
+.px40 .item {
+	height: 40px;
+	line-height: 40px;
+}
+.px40 .textItem {
+	min-height: 40px;
+	line-height: 40px;
+}
 
 /***************
  ** Page Pane **
  ***************/
-.pageContents, .editorPreview {
-	/*padding: 0.5rem;*/
-}
 
 /*******************
  ** Chat Userlist **
  *******************/
 .userlist {
 	background-color: #EEE;
+	border-bottom: 1px solid gray;
 }
 
 /***********************
@@ -364,6 +446,10 @@ html.f-loggedIn .loggedOut {
 /* ... */
 .messageList {
 	padding-bottom: 0.7rem;
+}
+
+.spacer {
+	border-bottom: 1px solid gray;
 }
 
 /** Chat Messages **/
@@ -400,6 +486,13 @@ html.f-loggedIn .loggedOut {
 	margin-right: 0.5rem;
 	float: left;
 }
+.message .username {
+	margin-left: 4rem;
+	display: block;
+	/*white-space: pre;
+	overflow: hidden;
+	text-overflow: ellipsis;*/
+}
 .messageUsername {
 	display: inline-block;
 }
@@ -408,7 +501,7 @@ html.f-loggedIn .loggedOut {
 	vertical-align: top;
 	overflow: auto;
 }
-.messagePart {
+.messagePart.markup-root {
 	margin: .2rem;
 }
 .messagePart img {
@@ -461,23 +554,23 @@ html.f-loggedIn .loggedOut {
 	flex-grow: 1;
 	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
-	overflow-y: scroll;
+	overflow-y: auto;
 	-webkit-flex-basis: 0;
 	flex-basis: 0;
-	min-height: 10rem;
+	min-height: 4rem;
 }
 
 .editorTextarea > textarea {
 	resize: vertical;
 	width: 100%;
 	height: 40vh;
+	min-height: 5rem;
 	box-sizing: border-box;
 }
 
 /***************
  ** User Page **
  ***************/
-
 .member {
 	display: block;
 	background-color: #EEE;
@@ -487,6 +580,7 @@ html.f-loggedIn .loggedOut {
 	padding: 0 0.5rem;
 }
 
+/* do we even need this */
 .bottomSpacer {
 	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
@@ -495,8 +589,12 @@ html.f-loggedIn .loggedOut {
 
 .listItem {
 	background-color: #EEE;
-	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 	padding: 0 0.2rem;
+}
+
+.activityMode > .listItem > *:first-child {
+	margin-left: -0.2rem;
 }
 
 .listItem a {
@@ -511,6 +609,7 @@ html.f-loggedIn .loggedOut {
 	flex-direction: row;
 	max-height: 40vh;
 	overflow: auto;
+	border-bottom: 1px solid gray;
 	/* todo: make this outside of scroller and have activity list scroll separately*/
 }
 
@@ -527,9 +626,15 @@ html.f-loggedIn .loggedOut {
 	flex-basis: 0;
 }
 
-.categoryNav {
+.nav {
 	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
+	border-bottom: 1px solid gray;
+	background-color: #333;
+}
+
+.nav > span {
+	color: white;
 }
 
 .loginField {
@@ -538,6 +643,22 @@ html.f-loggedIn .loggedOut {
 
 button {
 	line-height: normal !important;
+	font-size: 0.8em;
+	cursor: pointer;
+}
+input {
+	font-size: 0.8em;
+}
+
+table.form td:first-child {
+	text-align:right;
+}
+table.form td {
+	padding: 0;
+}
+table.form th {
+	padding: 0;
+	text-align:right;
 }
 
 img.item {
@@ -562,83 +683,37 @@ img.item {
 	flex-shrink: 0;
 }
 
-.listItem span {
-	color: black;
-}
-
 .listItem .avatar {
 	margin-right: 0.3ch;
 }
 
-
 .username {
 	font-weight: bold;
+	unicode-bidi: embed;
+	white-space: pre-wrap;
 }
 
 .member .avatar {
 	margin-right: 0.7ch;
 }
 
-.iframe {
-	border: 1px solid red;
-}
-
-.bottomSpacer {
-	border-top: 1px solid gray;
-}
-
-.sideBarContainer {
-	display: flex;
-	display: -webkit-flex;
-	-webkit-flex-direction: row;
-	flex-direction: row;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	overflow-x: hidden;
-}
-
-.m {
-	width:100%;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-}
-
-.sideBar {
-	-webkit-flex: 0 0 30vw;
-	flex: 0 0 30vw;
-	background-color: rgba(204, 221, 238, 0.9);
-	border-left: 2px solid black;
-	-webkit-transition: margin-left 0.25s ease, transform 0.25s ease;
-	transition: margin-left 0.25s ease, transform 0.25s ease;
-}
-
-html:not(.f-sidebar) .sideBar {
-	-webkit-transform: translateX(100%);
-	transform: translateX(100%);
-	margin-left: -30vw;
-}
-
 html:not(.f-myUserPage) .myUserPage {
 	display: none;
 }
 
-/*@media (max-width: 700px) {
+@media (max-width: 700px) {
 	.userPageBox {
 		flex-direction: column;
 		max-height: none;
 	}
-	.userPageContents {
+	.userPageBox .userPageContents {
 		width: 100%;
+		flex-basis: auto;
 	}
-}*/
+}
 
-/* for devices with small screens */
-@media (max-width: 700px), (max-height: 500px) {
-	/* make sidebar fill screen */
+/* narrow screen: fullscreen sidebar */
+@media (max-width: 700px) {
 	.sideBar {
 		width: 100%;
 		height: 100%;
@@ -647,42 +722,286 @@ html:not(.f-myUserPage) .myUserPage {
 		right: 0;
 		left: 0;
 		border-left: none;
+		transform: none;
+		-webkit-transition: -webkit-transform 0.2s ease;
+		-webkit-transition: transform 0.2s ease;
+		transition: -webkit-transform 0.2s ease;
+		transition: transform 0.2s ease;
 	}
 	html:not(.f-sidebar) .sideBar {
 		margin-left: 0;
+		-webkit-transform: translateX(0);
+		transform: translateX(0);
+	}
+	html:not(.f-mobileSidebar) .sideBar {
+		-webkit-transform: translateX(100%);
+		transform: translateX(100%);
 	}
 	.m {
-		width: 100%;
+		width: 100% !important;
 	}
+}
 
+/* for devices with small screens */
+@media (max-width: 700px), (max-height: 500px) {
 	/* make the entire page scroll */
 	/* todo: make chat mode work better here */
-	body {
+	body:not(.pageMode) {
 		position: static;
 		min-height: 100vh;
 		font-size: 0.9em;
 	}
-	main {
+	textarea {
+		font-size: 1em; /* prevent zoom in on iphone */
+	}
+	body:not(.pageMode) main {
 		height: auto !important;
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
 	}
 	html {
 		background-color: transparent;
 	}
-	/* smaller editor text area */
-	.editorTextarea textarea {
-		height: 20vh;
+	.editorPreview {
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
 	}
 	.userPageBox {
 		max-height: none;
 	}
-	.scroller {
-		flex-basis: auto;
+	.inputPane textArea {
+		font-size: 1rem;
 	}
 }
 
+.pageInfoPane {
+	background-color: #EEE;
+	overflow: auto;
+	flex-shrink: 0;
+}
 
+.pageMetaIcon {
+	width: 40px;
+	height: 40px;
+}
+
+.html:not(.f-hasKey) .hasKey {
+	display: none;
+}
+
+.metaKey.brokenKey .metaKey.invalidKey {
+	text-decoration: line-through;
+}
+
+.metaKey {
+	font-family: consolas;
+	font-weight: bold;
+	font-size: 1.3rem;
+	margin: 0 0.5rem;
+}
+
+.metaTitle {
+	font-family: consolas;
+	margin: 0 0.3rem;
+}
+
+.gallery {
+	width: 20rem;
+	height: 10rem;
+	display: inline-block;
+	float: left;
+}
+
+.gallery img {
+	max-height: 100%;
+	max-width: 16rem;
+}
+
+.gallery button {
+	height: 100%;
+	width: 2rem;
+}
+
+.metaInfo {
+	display: inline;
+}
+
+.categoryNav {
+	border-bottom: 1px solid gray;
+}
+
+.memberNav {
+	border-bottom: 1px solid gray;
+}
+
+.buttonContainer {
+	padding: 1px;
+	display: inline-block;
+}
+
+.buttonContainer button {
+	margin: 0;
+	padding: 0 0.5rem;
+	background-color: #EEE;
+	border: 2px solid gray;
+	height: 100%;
+	overflow-y: hidden;
+	border-style: outset;
+	border-radius: 2px;
+}
+
+.buttonContainer > a {
+	width: 100%;
+	height: 100%;
+	display: inline-block;
+}
+
+.buttonContainer button:hover {
+	border-color: #59E;
+}
+
+.buttonContainer button:active {
+	border-style: inset;
+}
+
+.ib {
+	display: inline-block;
+}
+
+.iconBg {
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	margin-right: 0.3rem;
+}
+
+.iconBg-page {
+	background-image: url("icons/page.png");
+}
+.iconBg-pin {
+	background-image: url("icons/pin.png");
+}
+.iconBg-category {
+	background-image: url("icons/folder.png");
+}
+.iconBg-hiddenpage {
+	background-image: url("icons/hiddenpage.png");
+}
+
+.pageName {
+	font-weight: bold;
+}
+
+.noColor {
+	color: black;
+}
+
+body.pageMode .bottomSpacer {
+	display: none;
+}
+body.fileMode .bottomSpacer {
+	display: none;
+}
+
+.messagePart[data-linked] {
+	background-color: rgba(255,255,0,0.3);
+}
+
+.messageGap {
+	border: 1px dashed gray;
+	margin: 0.3rem 0;
+}
+
+.fileThumbnail {
+	display: inline-block;
+	width: 52px;
+	height: 52px;
+	cursor: pointer;
+}
+
+.fileThumbnail > img {
+	max-width: 50px;
+	max-height: 50px;
+	border: 1px solid black;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.fileView {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.fileViewPane {
+	flex-grow: 1;
+	overflow: auto;
+	flex-basis: 0;
+}
+
+html:not(.f-fileSelected) .fileSelected {
+	display: none;
+}
+
+html:not(.f-fileUploading) .fileUploading {
+	display: none;
+}
+
+.fileBox {
+	border-bottom: 1px solid gray;
+}
+
+.closeSidebar {
+	width: 100%;
+}
+
+.closeSidebar button {
+	width: 100%;
+}
+
+html:not(.f-page) .pageItem {
+	display: none;
+}
+
+.userPageBox .pageContents {
+	max-height: 100%;
+}
+
+header :first-child {
+	min-width: 0.3rem;
+	display: inline-block;
+}
+
+.sideBar {
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebarScroller {
+	flex-grow: 1;
+	overflow-y: scroll;
+	flex-basis: 0;
+	border-top: 1px solid gray;
+}
+
+.sidebarScroller .bar {
+	display: block;
+	/*padding: 0.2rem; mmm*/
+	padding: 0 0.2rem;
+	border-bottom: 1px solid gray;
+}
+
+.sidebarScroller .bar > :first-child {
+	margin-left: -0.2rem;
+}
+
+.sidebarScroller .bar > :last-child {
+	margin-right: -0.2rem;
+}
 .markup-root {
 	white-space: pre-wrap;
+	overflow-x: auto;
+	/*display: table;*/
+	vertical-align: baseline;
 }
 
 .markup-root table, .markup-root td, .markup-root th {
@@ -698,13 +1017,22 @@ html:not(.f-myUserPage) .myUserPage {
 	margin: 0.25rem 0;
 }
 
-.markup-root * {
+/*.markup-root * {
 	vertical-align: baseline;
-}
+}*/
 
 .markup-root h2, .markup-root h3 {
 	border-bottom: 1px solid #eaecef;
 	margin-bottom: 0.2rem;
+	/*display: inline;*/
+}
+
+.markup-root h4 {
+	/*display: inline;*/
+}
+
+.markup-root > :first-child {
+	margin-top: 0;
 }
 
 .markup-root h2 {
@@ -716,13 +1044,16 @@ html:not(.f-myUserPage) .myUserPage {
 }
 
 .markup-root pre {
+	font-size: 0.9em;
 	font-family: consolas, monospace;
 	color: white;
 	background-color: black;
 	white-space: pre-wrap;
+	word-break: break-all;
 }
 
 .markup-root code {
+	font-size: 0.9em;
 	font-family: consolas, monospace;
 	background-color: rgba(0,0,0,0.1);
 	padding: 0 0.2rem;
@@ -748,24 +1079,146 @@ html:not(.f-myUserPage) .myUserPage {
 	display: block;
 	-webkit-transition: all 0.25s ease;
 	transition: all 0.25s ease;
+	/*margin: 0 1px; why is this here */
 }
 
 .markup-root img:focus {
 	max-height: 75vh;
 }
 
-.markup-root ul {
-	padding-left: 1.1em;
+.markup-root ol {
+	margin-left: 2em;
+	padding-left: 0;
+}
+
+.markup-root ul, .markup-root ol ol, .markup-root ul ol {
+	margin-left: 1.1em;
+	padding-left: 0;
 }
 
 .markup-root audio, .markup-root video, .markup-root .youtube {
 	display: block;
+	max-width: 100%;
 }
 
 .markup-root .youtube {
 	width: 320px;
 	max-height: none;
 }
+
+.markup-root .cell {
+	background-color: white;
+}
+
+.markup-root .cell[data-bgcolor="red"] {
+	background-color: #FCC;
+}
+
+.markup-root .cell[data-bgcolor="green"] {
+	background-color: #CFC;
+}
+
+.markup-root .cell[data-bgcolor="yellow"] {
+	background-color: #FFC;
+}
+
+.markup-root .cell[data-bgcolor="orange"] {
+	background-color: #FEC;
+}
+
+.markup-root .cell[data-bgcolor="blue"] {
+	background-color: #DEF;
+}
+
+.markup-root .cell[data-bgcolor="gray"] {
+	background-color: #DDD;
+}
+
+.markup-root .spoilerButton {
+	padding: 0 0.3rem;
+	background-color: #EEE;
+	border: 2px solid gray;
+	border-style: outset;
+	border-radius: 2px;
+	margin-left: 0.2rem;
+	margin-right: 0.2rem;
+	margin-top: 1px;
+	display: table;
+}
+
+.markup-root .spoilerButton:hover {
+	border-color: #59E;
+}
+
+.markup-root spoilerButton:active {
+	border-style: inset;
+}
+
+.markup-root .spoiler {
+	padding: 0.5rem;
+	border: 1px solid gray;
+	background-color: #F8F8F8;
+	margin-bottom: 1px;
+}
+
+.spoilerButton:not([data-show]) + .spoiler {
+	display: none;
+}
+
+.markup-root .spoilerButton:not([data-show]):before {
+	content: "Show ";
+}
+
+.spoilerButton[data-show] {
+	border-bottom: none;
+}
+
+.markup-root .spoilerButton[data-show]:before {
+	content: "Hide ";
+}
+
+.markup-root .invalid {
+	background-color: pink;
+}
+
+.markup-root .error {
+	background-color: #F55;
+	border: 1px solid black;
+	padding: 0.2rem;
+	border-radius: 5px;
+}
+
+.markup-root .tableContainer {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+/*.markup-root th.cell {
+	background-color: #222;
+	color: white;
+	border-color: white;
+}*/
+
+.markup-root blockquote {
+	padding: 0.5rem;
+	padding-left: 1.5rem;
+	border: 1px solid gray;
+	background-color: #eee;
+	margin: 1px 0;
+}
+
+.markup-root blockquote > cite {
+	margin-left: -1rem;
+}
+
+/*.markup-root blockquote[cite]::before {
+	content: attr(cite) ":\A";
+	white-space: pre;
+	font-weight: bold;
+	margin-left: -1rem;
+	display: block;
+	margin-bottom: 0.2em;
+}*/
 .markup-root pre {
 	background-color: #000;
 	color: #EEE;
@@ -827,54 +1280,69 @@ html:not(.f-myUserPage) .myUserPage {
 
 </style>
 <script>
-/******************
- ** EVENT SYSTEM **
- ******************/
-// based on nodejs EventEmitter
-// ok I like, never even use this...
-// should I really keep it even..
-
-function EventEmitter() {
-	this.events = {};
+function hide(element) {
+	element.style.display = 'none';
 }
 
-EventEmitter.prototype.on = function(name, func) {
-	if (this.events[name]) {
-		return this.events[name].push(func)-1;
-	} else {
-		this.events[name] = [func];
-		return 0;
+function show(element) {
+	element.style.display = '';
+}
+
+function visible(element, state) {
+	element.style.display = state ? '' : 'none';
+}
+
+function setChild(element, child) {
+	element.innerHTML = "";
+	if (child)
+		element.appendChild(child);
+}
+
+function protocol() {
+	if (window.location.protocol == "http:")
+		return "http:";
+	return "https:";
+}
+
+function parseJSON(json) {
+	if (!json)
+		return undefined;
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		return null;
 	}
 }
 
-EventEmitter.prototype.removeListener = function(name, item) {
-	var events = this.events[name]
-	if (!events)
-		return false;
-	// this takes either an index (returned by .on) or a function reference
-	if (item instanceof Function) {
-		item = events.indexOf(item);
-		if (item==-1)
-			return false;
+var flags = {};
+function flag(flag, state) {
+	if (!flags[flag] != !state) {
+		if (state)
+			flags[flag] = true;
+		else
+			delete flags[flag];
+		var cls = "";
+		for (flag in flags) {
+			cls += " f-"+flag;
+		}
+		document.documentElement.className = cls;
 	}
-	if (events[item]) {
-		events[item] = undefined;
-		return true;
-	}
-	return false;
 }
 
-EventEmitter.prototype.emit = function(name) {
-	var $=this;
-	var events = $.events[name];
-	var args = Array.prototype.slice.call(arguments, 1);
-	if (events) {
-		events.forEach(function(event) {
-			if (event) {
-				event.apply($, args);
-			}
-		});
+function forDict(dict, func) {
+	for (key in dict)
+		func(dict[key], key, dict);
+}
+
+function hasPerm(perms, id, perm) {
+	return perms && perms[id] && perms[id].indexOf(perm) != -1
+}
+
+Object.assign = function(a, b) {
+	for (key in b) {
+		a[key] = b[key]
 	}
+	return a;
 }
 // Source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Local_storage
 
@@ -904,10 +1372,28 @@ if (!window.localStorage) {
 	};
 	window.localStorage.length = (document.cookie.match(/\=/g) || window.localStorage).length;
 }
+// ok so
+// logging in/out
+// the big important things are
+// - content permissions (when logged in, you can view hidden content, and edit/delete permissions apply)
+// - long polling (must be logged in)
+// so, when logging in, need to re-request permissions
+
+// long poller plans:
+// when viewing a page, you temporarily join that room
+// you can then add that room to your list of currrent rooms in the sidebar (or just watch it, for notifications only)
+//
+// need to handle logging in/out though
+// on login (or page load + logged in already),
+// start long poller,
+// on log out, stop long poller
+// but keep list of joined rooms uh, somewhere I guess.
+// user variable I suppose
+
 function sbs2Request(url, method, callback, data, auth, cancel) {
 	var x = new XMLHttpRequest();
 	if (cancel)
-		cancel[0] = function() {x.abort();};
+		cancel[0] = function() {x.abort();console.log("aborted")};
 	x.open(method, url);
 
 	var start = Date.now();
@@ -925,14 +1411,21 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		}
 		if (code==200) {
 			callback(null, resp);
-		} else if (code==408 || code==204) {
+		} else if (code==408 || code==204 || code==524) {
 			// record says server uses 408, testing showed only 204
 			// basically this is treated as an error condition,
 			// except during long polling, where it's a normal occurance
 			callback('timeout', resp);
+		} else if (code == 429) { // rate limit
+			window.setTimeout(function() {
+				callback('rate', resp);
+			}, 100);
 		} else if (code==401) {
 			console.log(x);
 			callback('auth', resp);
+		} else if (code==404) {
+			console.log("got 404");
+			callback('404', resp);
 		} else {
 			alert("Request failed! "+code+" "+url);
 			//console.log("sbs2Request: request failed! "+code);
@@ -957,7 +1450,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('fail');
 		}
 	}
-	x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
+	//x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
 	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
 	if (auth)
 		x.setRequestHeader('Authorization', "Bearer "+auth);
@@ -972,6 +1465,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 	} else {
 		x.send();
 	}
+	return x;
 }
 
 function queryString(obj) {
@@ -1003,18 +1497,11 @@ function queryString(obj) {
 }
 
 function Myself(isDev) {
-	EventEmitter.call(this);
 	this.userCache={};
 	this.userRequests={};
 	this.selectServer(isDev);
 	this.openRequests = 0;
 }
-Myself.prototype = Object.create(EventEmitter.prototype);
-Object.defineProperty(Myself.prototype, 'constructor', {
-	value: Myself,
-	enumerable: false,
-	writable: true
-});
 
 function https() {
 	if (window.location.protocol=="http:")
@@ -1040,7 +1527,7 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 	var $=this;
 	$.openRequests++;
 	$.loadStart(!!cancel);
-	sbs2Request($.server+"/"+url, method, function(e, resp) {
+	return sbs2Request($.server+"/"+url, method, function(e, resp) {
 		$.openRequests--;
 		$.loadEnd(!!cancel, e);
 		/*if (e=='auth') {
@@ -1060,8 +1547,10 @@ Myself.prototype.loadEnd = function(lp, e) {
 		this.cb(this.onLoadEnd, lp, e);
 }
 
-Myself.prototype.getUsers = function(query, callback) {
+Myself.prototype.getUsers = function(query, page, callback) {
 	var $=this;
+	query.limit = 20;
+	query.skip = page * query.limit;
 	$.readSimple("User"+queryString(query), 'user', function(e, resp){
 		if (!e){
 			$.cb(callback, resp);
@@ -1075,7 +1564,7 @@ Myself.prototype.getUsers = function(query, callback) {
 // the response is always an array of objects of the specified type
 Myself.prototype.readSimple = function(url, type, callback) {
 	var $=this;
-	$.request(url, 'GET', function(e, resp) {
+	return $.request(url, 'GET', function(e, resp) {
 		if (!e) {
 			var obj = {};
 			resp instanceof Array || (resp = [resp]);
@@ -1103,12 +1592,12 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 		query[filter] = filters[filter];
 	var needCategorys = !$.categoryTree && query.requests.length<5;
 	if (needCategorys) {
-		query.requests.push('category');
+		query.requests.push('category~tree');
 	}
 	
-	$.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
+	return $.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
 		if (needCategorys) {
-			$.categoryTree = buildCategoryTree(resp.category);
+			$.categoryTree = buildCategoryTree(resp.tree);
 		}
 		$.handle(e, resp);
 		$.cb(callback, e, resp);
@@ -1126,16 +1615,16 @@ Myself.prototype.listen = function(requests, filters, callback, cancel) {
 	for (var filter in filters)
 		query[filter] = filters[filter];
 	
-	$.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
+	return $.request("Read/listen"+queryString(query), 'GET', function(e, resp) {
 		if (!e)
-			$.handle(e, resp.chain);
+			$.handle(e, resp.chains);
 		$.cb(callback, e, resp);
 	}, undefined, cancel);
 };
 
 Myself.prototype.getUser = function(id, callback) {
 	var $=this;
-	$.readSimple("User"+queryString(id), 'user', function(e, resp) {
+	return $.readSimple("User"+queryString(id), 'user', function(e, resp) {
 		if (!e) {
 			$.cb(callback, resp[0]);
 		} else {
@@ -1186,7 +1675,8 @@ Myself.prototype.logOut = function(soft) {
 		if (!soft) {
 			localStorage.removeItem(this.lsKey);
 		}
-		this.emit('logout');
+		if (this.onLogout)
+			this.onLogout(this);
 	}
 }
 
@@ -1196,7 +1686,8 @@ Myself.prototype.setAuth = function(auth) {
 	this.auth = auth;
 	var x = JSON.parse(atob(auth.split(".")[1]));
 	this.uid = +x.uid;
-	this.emit('login');
+	if (this.onLogin)
+		this.onLogin(this);
 }
 
 // run callback function
@@ -1205,12 +1696,14 @@ Myself.prototype.setAuth = function(auth) {
 Myself.prototype.cb = function(func) {
 	if (func)
 		func.apply(this, Array.prototype.slice.call(arguments, 1));
+	else
+		console.warn("Unbound callback", arguments);
 }
 
 // request auth token from username+password
 Myself.prototype.logIn = function(username, password, callback) {
 	var $=this;
-	$.request("User/authenticate", 'POST', function(e, resp) {
+	return $.request("User/authenticate", 'POST', function(e, resp) {
 		if (!e) {
 			$.setAuth(resp);
 			localStorage.setItem($.lsKey, resp);
@@ -1244,9 +1737,9 @@ Myself.prototype.loadCachedAuth = function(callback) {
 Myself.prototype.getPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	return $.read([
 		{content: {ids: [id]}},
-		{comment: {parentIds: [id], limit: 50}},
+		{comment: {parentIds: [id], limit: 50, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
 	], {
 		user: "id,username,avatar"
@@ -1254,9 +1747,9 @@ Myself.prototype.getPage = function(id, callback) {
 		if (!e) {
 			var page = resp.content[0];
 			if (page)
-				$.cb(callback, page, resp.userMap, resp.comment);
+				$.cb(callback, page, resp.userMap, resp.comment, resp.old);
 			else
-				$.cb(callback, null, {}, []);
+				$.cb(callback, null, {}, [], []);
 		}
 	});
 }
@@ -1264,7 +1757,7 @@ Myself.prototype.getPage = function(id, callback) {
 Myself.prototype.getDiscussion = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	return $.read([
 		{content: {ids: [id]}},
 		{comment: {parentIds: [id], limit: 30, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
@@ -1295,7 +1788,7 @@ Myself.prototype.whenUser = function(id, callback) {
 
 Myself.prototype.getCategories = function(callback) {
 	var $=this;
-	$.read([
+	return $.read([
 		'category'
 	], {
 		category: "id,name,description,parentId"
@@ -1310,34 +1803,48 @@ Myself.prototype.getCategories = function(callback) {
 var rootCategory = {
 	name: "[root]",
 	id: 0,
+	values: {},
 }
 
 // get the pages in a category
-Myself.prototype.getCategory = function(id, count, start, sort, reverse, callback) {
+Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 	id=+id;
 	var $=this;
 	var search = {
 		parentIds: [id],
-		limit: +count,
+		limit: 10,
+		skip: page*10,
+		sort: 'editDate',
+		reverse: true
 	}
-	if (start)
-		search.skip = +start;
-	if (sort)
-		search.sort = sort;
-	if (reverse)
-		search.reverse = reverse;
 	if (id)
 		var childCategorysFilter = {parentIds: [id]};
 	else
 		childCategorysFilter = {};
-	$.read([
+	var reading = [
 		{content: search},
 		{category: {ids: [id]}},
 		{category: childCategorysFilter},
 		"user.0createUserId"
-	], {
-		content: "id,name,parentId,createUserId,editDate",
-		category: "id,name,description,parentId",
+	];
+	
+	var pinned, req2;
+	if (id) {
+		if ($.categoryTree) {
+			var values = $.categoryTree.map[id].values;
+			if (values.pinned) {
+				pinned = values.pinned.split(",").map(function(x){return +x});
+				reading[3] = {"content~pinned": {ids: pinned}};
+				reading[4] = "user.0createUserId.3createUserId";
+			}
+		} else {
+			req2 = true;
+		}
+	}
+	
+	return $.read(reading, {
+		content: "id,name,parentId,createUserId,editDate,permissions",
+		/*category: "id,name,description,parentId,values",*/
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
@@ -1349,13 +1856,55 @@ Myself.prototype.getCategory = function(id, count, start, sort, reverse, callbac
 				if (cat.id == id)
 					category = cat;
 			});
+			var pages = resp.content;
+			//if (req2) {
+			if (id) {
+				var values = category.values;
+				if (values.pinned) {
+					pinned = values.pinned.split(",").map(function(x){return +x});
+					$.readSimple("Content"+queryString({ids: pinned}), 'content', function(e, resp) {
+						if (!e) {
+							pinnedCallback(resp)
+						}
+					});
+				}
+			}
+			//}
+			if (pinned)
+				var pinnedPages = resp.pinned;
+			if (req2)
+				pinnedPages = null; //nO
+			// so here's an idea.
+			// with the first request, we get some pages, right
+			// our pinned pages MAY be included in there, depending on
+			// what info we knew, and if any were in the search.
+			// so, even if we couldn't specifically request the pinned pages,
+			// we still might get some! and can return that info, perhaps..
+			
 			if (id==0) {
-				$.cb(callback, rootCategory, childs, resp.content, resp.userMap);
+				$.cb(callback, rootCategory, childs, pages, resp.userMap, pinnedPages);
 			} else if (category)
-				$.cb(callback, category, childs, resp.content, resp.userMap);
+				$.cb(callback, category, childs, pages, resp.userMap, pinnedPages);
 			else
-				$.cb(callback, null, childs, resp.content, resp.userMap);
+				$.cb(callback, null, childs, pages, resp.userMap, pinnedPages);
 		}
+	});
+}
+
+Myself.prototype.getNotifications = function(callback) {
+	var $=this;
+	return $.read([
+		{activityaggregate: {contentLimit: {watches: true}}},
+		{commentaggregate: {contentLimit: {watches: true}}},
+		"watch",
+		"content.0id.1id.2contentId",
+		"user.0userIds.1userIds.3createUserId.2userId"
+	],{
+		content: "id,name,parentId,createUserId,permissions",
+		watch: "contentId,lastNotificationId,id",
+		user: "id,avatar,super,special,username"
+	}, function(e, resp) {
+		$.cb(callback, e, resp);
 	});
 }
 
@@ -1363,7 +1912,7 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 	var $=this;
 	if (id) {
 		id = +id;
-		$.read([
+		return $.read([
 			{content: {ids: [id]}},
 			"user.0createUserId.0editUserId",
 		], {
@@ -1381,7 +1930,7 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 		if ($.categoryTree) {
 			$.cb(callback, null, {});
 		} else {
-			this.readSimple("Category", 'category', function(e, resp) {
+			return $.readSimple("Category", 'category', function(e, resp) {
 				$.categoryTree = buildCategoryTree(resp);
 				$.cb(callback, null, {});
 			});
@@ -1389,26 +1938,91 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 	}
 }
 
-Myself.prototype.listenChat = function(ids, firstId, lastId, listeners, callback, cancel) {
+Myself.prototype.getCategoryForEditing = function(id, callback) {
 	var $=this;
-	if (lastId == -Infinity)
-		lastId = undefined;
-	$.listen([
-		{actions: {
-			parentIds: ids,
-			lastId: lastId,
-			chain: ["comment.0id","user.1createUserId"]
-		}},
-	], {
-		user: "id,username,avatar"
-	}, function(e, resp) {
-		if (e)
-			$.cb(callback, e, resp);
-		else {
-			$.cb(callback, e, resp.chain.comment, resp.listeners, resp.chain.userMap);
+	if (id) {
+		id = +id;
+		return $.read([
+			{category: {ids: [id]}},
+		], {
+		}, function(e, resp) {
+			if (!e) {
+				var cat = resp.category[0];
+				if (cat)
+					$.cb(callback, cat);
+				else
+					$.cb(callback, null);
+			}
+		});
+	} else {
+		if ($.categoryTree) {
+			$.cb(callback, null, {});
+		} else {
+			return $.readSimple("Category", 'category', function(e, resp) {
+				$.categoryTree = buildCategoryTree(resp);
+				$.cb(callback, null, {});
+			});
 		}
-	}, cancel);
+	}
 }
+
+Myself.prototype.setVariable = function(name, value, callback) {
+	var s = new String(value);
+	s.constructor = Object;
+	return this.request("Variable/"+name, 'POST', callback, s);
+}
+
+Myself.prototype.getVariable = function(name, callback) {
+	var $=this;
+	return this.request("Variable/"+name, 'GET', function(e, resp){
+		if (!e) {
+			$.cb(callback, resp);
+		} else
+			$.cb(callback, null);
+	});
+}
+
+Myself.prototype.doListenInitial = function(callback) {
+	var $=this;
+	return $.read([
+		{comment:{reverse:true,limit:10}},
+		{activity:{reverse:true,limit:10}},
+		"content.0parentId.1contentId", //pages
+		"user.0createUserId.1userId" //users for comment and activity
+	],{content:"id,createUserId,name,permissions"},callback);
+}
+
+Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotifs, cancel, callback) {
+	var $=this;
+	var actions = {
+		lastId: lastId,
+		statuses: statuses,
+		chains: [
+			"comment.0id","activity.0id","watch.0id", //new stuff
+			"content.1parentId.2contentId.3contentId", //pages
+			"user.1createUserId.2userId" //users for comment and activity
+		]
+	}
+	if (clearNotifs)
+		actions.clearNotifictions = clearNotifs;
+	var req = [
+		{actions: actions}
+	];
+	if (Object.keys(lastListeners).length) {
+		req.push({listeners: {
+			lastListeners: lastListeners,
+			chains: ["user.0listeners"]
+		}});
+	}
+	return $.listen(req, {
+		content: "id,createUserId,name,permissions"
+	}, callback, cancel);
+}
+// todo:
+// when logging in on a page, re-request the page data (along with your own user data)
+// make a function for this
+// it needs to handle all page types, hmm
+
 
 Myself.prototype.postPage = function(page, callback) {
 	if (page.id) {
@@ -1418,14 +2032,22 @@ Myself.prototype.postPage = function(page, callback) {
 	}
 }
 
+Myself.prototype.postCategory = function(cat, callback) {
+	if (cat.id) {
+		this.request("Category/"+cat.id, 'PUT', callback, cat);
+	} else {
+		this.request("Category", 'POST', callback, cat);
+	}
+}
+
 Myself.prototype.deletePage = function(id, callback) {
 	this.request("Content/"+id+"/delete", 'POST', callback);
 }
 
-Myself.prototype.postComment = function(id, message, markup, callback) {
+Myself.prototype.postComment = function(id, message, f, callback) {
 	this.request("Comment", 'POST', callback, {
 		parentId: id,
-		content: JSON.stringify({t: message, m: markup})
+		content: f+"\n"+message,
 	});
 };
 
@@ -1437,15 +2059,15 @@ Myself.prototype.setWatch = function(id, state, callback) {
 };
 
 Myself.prototype.getWatch = function(query, callback) {
-	this.request("Watch"+queryString(query), 'GET', callback);
+	return this.request("Watch"+queryString(query), 'GET', callback);
 }
 
 Myself.prototype.setVote = function(id, state, callback) {
-	this.request("Vote/"+id+"/"+(state||"delete"), 'POST', callback);
+	return this.request("Vote/"+id+"/"+(state||"delete"), 'POST', callback);
 }
 
 Myself.prototype.getVote = function(query, callback) {
-	this.request("Vote"+queryString(query), 'GET', callback);
+	return this.request("Vote"+queryString(query), 'GET', callback);
 }
 
 Myself.prototype.register = function(username, password, email, callback) {
@@ -1456,6 +2078,10 @@ Myself.prototype.register = function(username, password, email, callback) {
 	});
 }
 
+Myself.prototype.setSensitive = function(data, callback) {
+	this.request("User/sensitive", 'POST', callback, data);
+}
+
 Myself.prototype.sendEmail = function(email, callback) {
 	this.request("User/register/sendemail", 'POST', callback, {
 		email: email
@@ -1464,7 +2090,7 @@ Myself.prototype.sendEmail = function(email, callback) {
 
 Myself.prototype.confirmRegister = function(key, callback) {
 	var $=this;
-	$.request("User/register/confirm", 'POST', function(e, resp) {
+	return $.request("User/register/confirm", 'POST', function(e, resp) {
 		if (!e) {
 			$.setAuth(resp);
 			localStorage.setItem($.lsKey, resp);
@@ -1479,7 +2105,7 @@ Myself.prototype.confirmRegister = function(key, callback) {
 Myself.prototype.getSettings = function(callback) {
 	var $=this;
 	if (me.auth) {
-		$.read([
+		return $.read([
 			{user: {ids: [$.uid]}},
 			{content: {createUserIds: [$.uid], type: '@user.page', limit: 1}},
 		], {
@@ -1496,25 +2122,36 @@ Myself.prototype.getSettings = function(callback) {
 	}
 }
 
-Myself.prototype.uploadFile = function(data, callback) {
-	this.request("File", 'POST', callback, data);
+Myself.prototype.fileUrl = function(id) {
+	return this.server+"/File/raw/"+id;
+}
+
+Myself.prototype.uploadFile = function(file, callback) {
+	var form = new FormData();
+	form.append('file', file);
+	this.request("File", 'POST', callback, form);
 }
 
 Myself.prototype.setBasic = function(data, callback) {
 	this.request("User/basic", 'PUT', callback, data);
 }
 
-Myself.prototype.getActivity = function(callback) {
+Myself.prototype.getActivity = function(page, callback) {
 	var $=this;
-	$.read([
-		//todo: this should just get an entire day??
-		// except no that won't work if site dies lol
-		{activity: {limit: 20, reverse: true}},
-		{commentaggregate: {limit: 100, reverse: true}},
+	var day = 1000*60*60*24
+	var start = new Date(Date.now() - day*(page+1)).toISOString();
+	// "except no that won't work if site dies lol"
+	var end = new Date(Date.now() - day*page).toISOString();
+	var reading = [
+		{activity: {createStart: start, createEnd: end}},
+		{commentaggregate: {createStart: start, createEnd: end}},
 		"content.0contentId.1id",
 		"user.0userId.1userIds"
-	], {
-		content: "name,id"
+	]
+	/*if ($.categoryTree)
+		reading.push("category.0contentId");*/
+	return $.read(reading, {
+		content: "name,id,permissions"
 	},function(e, resp) {
 		if (!e) {
 			$.cb(callback, resp.activity, resp.commentaggregate, resp.content, resp.userMap)
@@ -1524,10 +2161,94 @@ Myself.prototype.getActivity = function(callback) {
 	});
 }
 
+Myself.prototype.getFiles = function(query, page, callback) {
+	var $=this;
+	query.limit = 20;
+	query.skip = page*query.limit;
+	query.reverse = true;
+	return $.read([
+		{file: query},
+		"user.0createUserId"
+	],{},function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.file, resp.userMap);
+		} else {
+			$.cb(callback, null, {});
+		}
+	});
+}
+
+// load next 10 comments older than `start`
+Myself.prototype.loadCommentsBefore = function(id, start, callback) {
+	var $=this;
+	return $.read([
+		{comment: {parentIds: [id], maxId: id-1, reverse: true, limit: 10}},
+		"user.0createUserId"
+	], {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		}
+	})
+}
+
+// load next 10 comments newer than `start`
+Myself.prototype.loadCommentsAfter = function(id, start, callback) {
+	var $=this;
+	return $.read([
+		{comment: {parentIds: [id], minId: id+1, limit: 10}},
+		"user.0createUserId"
+	], {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		}
+	})
+}
+
+// load comments between min and max, and 10 on either side
+Myself.prototype.loadCommentsNear = function(id, min, max, callback) {
+	var $=this;
+	var query;
+	if (max != min) {
+		query = [
+			{comment: {parentIds: [id], minId: min, maxId: max}},
+			{comment: {parentIds: [id], maxId: min-1, reverse: true, limit: 10}},
+			{comment: {parentIds: [id], minId: max+1, limit: 10}},
+			"user.0createUserId.1createUserId.2createUserId"
+		]
+	} else  {
+		query = [
+			{comment: {parentIds: [id], maxId: min-1, reverse: true, limit: 10}},
+			{comment: {parentIds: [id], minId: max, limit: 11}},
+			"user.0createUserId.1createUserId"
+		]
+	}
+	return $.read(query, {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		}
+	})
+}
+
+Myself.prototype.thumbnailURL = function(id) {
+	return this.server+"/File/raw/"+id+"?size=50";
+}
+
+Myself.prototype.avatarURL = function(id) {
+	return this.server+"/File/raw/"+id+"?size=120";
+}
+
+Myself.prototype.imageURL = function(id) {
+	return this.server+"/File/raw/"+id;
+}
+
+Myself.prototype.putFile = function(file, callback) {
+	return this.request("File/"+file.id, 'PUT', callback, file);
+}
+
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;
-	$.read([
+	return $.read([
 		{user: {userIds: [id]}},
 		{content: {createUserIds: [id], type: '@user.page', limit: 1}}, //page
 		{activity: {userIds: [id], limit: 20, reverse: true}},
@@ -1536,7 +2257,6 @@ Myself.prototype.getUserPage = function(id, callback) {
 	], {
 	}, function(e, resp) {
 		if (!e) {
-			console.log("user page",resp);
 			var user = resp.userMap[id];
 			// ugh need to make
 			// content map now
@@ -1559,18 +2279,19 @@ Myself.prototype.getUserPage = function(id, callback) {
 }
 
 function buildCategoryTree(categories) {
-	var root = {childs: [], id: 0, name: "[root]"};
+	var root = {childs: [], id: 0, name: "[root]", values: {}};
 	var orphans = [];
 	var map = {
 		'0': root
 	};
 	root.map = map;
-	categories.forEach(function(cat) {
-		cat.childs = [];
-		map[cat.id] = cat;
+	categories = categories.map(function(cat) {
+		var n = Object.assign({}, cat); //copy
+		n.childs = [];
+		map[n.id] = n;
+		return n
 	});
 	categories.forEach(function(cat) {
-		//cat = Object.assign({}, cat); //copy
 		if (cat.parentId < 0)
 			cat.parentId = 0;
 		var parent = map[cat.parentId];
@@ -1583,117 +2304,57 @@ function buildCategoryTree(categories) {
 	});
 	return root;
 }
-function DiscussionLongPoller(myself, callback) {
+
+// so if I was a Good Programmer I would
+// make Classes for every data type
+// and either
+// - have functions to convert to/from the native format
+// - or store the raw data separately from extra data (better)
+// but none of this will ever really work because
+// field filtering, etc.
+// nothing   is real
+function LongPoller(myself) {
 	this.myself = myself;
-	
-	this.firstId = 0; // minimum id for all rooms
-	this.lastId = 0; // max comment id for all rooms
-
-	this.idList = []; // list of discussion ids
-	
-	this.firstIds = {}; //first id per room
-	this.lastIds = {}; //last id per room
-	this.listeners = {}; //userlist per room
-	
 	this.cancel = [function(){}];
-	this.callback = callback;
+	this.lastListeners = {};
+	this.lastId = -1;
+	this.statuses = {};
 }
 
-// ok so what this needs to do is
-// 1: get info for the new room (room page contents, listeners, comments)
-// 2: cancel the current longpoll
-// 3: start a new longpoll with the updated info
-DiscussionLongPoller.prototype.addRoom = function(id) {
-	if (this.lastIds[id])
-		return;
+LongPoller.prototype.start = function() {
+	this.loop();
+}
+
+LongPoller.prototype.setState = function(text, state) {
+	this.running = state;
+	this.onStatus.call(this, text);
+}
+
+LongPoller.prototype.loop = function() {
 	var $=this;
-	// todo: this doesn't get the listners
-	// what we can do is maybe,
-	// make 2 requests (one for listeners, the other for page contents)
-	// and then when they BOTH finish, reload the long poller
-	$.myself.getDiscussion(id, function(page, comments, userMap) {
-		if (page) {
-			$.callback.call($, comments, null, userMap, page);
-			$.cancel[0]();
-			$.listeners[id] = [0];
-			if (comments.length) {
-				$.firstIds[id] = comments[0].id;
-				$.lastIds[id] = comments[comments.length-1].id;
-			}
-			$.updateIdRange();
-			$.idList.push(id);
-			$.running = true;
-			$.loop();
-		} else {
-			$.callback.call($, null, null, null, false);
-		}
-	})
-}
-
-DiscussionLongPoller.prototype.updateIdRange = function() {
-	this.firstId = Infinity;
-	this.lastId = -Infinity;
-	for (id in this.lastIds) {
-		if (this.firstIds[id] < this.firstId)
-			this.firstId = this.firstIds[id];
-		if (this.lastIds[id] > this.lastId)
-			this.lastId = this.lastIds[id];
-	}
-}
-
-DiscussionLongPoller.prototype.reset = function() {
-	this.stop();
-	this.firstId = 0;
-	this.lastId = 0;
-
-	this.idList = [];
-	
-	this.firstIds = {};
-	this.lastIds = {};
-	this.listeners = {};
-	
-	this.cancel = [function(){}];
-}
-
-DiscussionLongPoller.prototype.removeRoom = function(id) {
-	if (this.lastIds[id]) {
-		// stop long poller
-		this.cancel[0]();
-		// remove info for current room
-		delete this.listeners[id];
-		delete this.firstIds[id];
-		delete this.lastIds[id];
-		var i = this.idList.indexOf(id);
-		if (i >= 0)
-			this.idList.splice(i, 1);
-		// update first and last ids
-		this.updateIdRange();
-		// start long poller again
-		this.loop();
-	}
-}
-
-DiscussionLongPoller.prototype.stop = function() {
-	this.running = false;
-	this.cancel[0]();
-}
-
-DiscussionLongPoller.prototype.loop = function() {
-	var $=this;
-	$.myself.listenChat($.idList, $.firstId, $.lastId, $.listeners, function(e, comments, listeners, userMap){
+	$.setState("Idle (waiting)", true);//idle
+	$.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
+		$.setState("Handling response", false);
 		if (!e) {
-			comments = comments || [];
-			comments.forEach(function(comment) {
-				if (comment.id > $.lastIds[comment.parentId]) {
-					$.lastIds[comment.parentId] = comment.id;
-				}
+			$.lastId = resp.lastId;
+			if (resp.listeners) {
+				$.lastListeners = resp.listeners;
+				$.onListeners.call(this, resp.listeners, resp.chains.userMap);
+			}
+			var pageMap = {};
+			resp.chains.content && resp.chains.content.forEach(function(page) {
+				pageMap[page.id] = page;
 			});
-			$.updateIdRange();
-			$.listeners = listeners || {};
-			$.callback.call($, comments, listeners, userMap, null);
+			if (resp.chains && resp.chains.comment) {
+				$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+			}
+			if (resp.chains && resp.chains.activity) {
+				$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
+			}
+			$.onBoth.call(this, resp);
 		}
 		if (!e || e=='timeout') {
-			$.running = true;
+			$.setState("Queueing next request", true);
 			var t = setTimeout(function() {
 				$.loop();
 			}, 0);
@@ -1701,11 +2362,29 @@ DiscussionLongPoller.prototype.loop = function() {
 				clearTimeout(t);
 			}]
 		} else {
-			$.running = false;
-			alert("LONG POLLER FAILED");
-			console.error("LONG POLLER FAILED");
+			$.setState("Error!", false);
+			alert("LONG POLLER FAILED:"+resp);
+			console.log("LONG POLLED FAILED", e, resp);
 		}
-	}, $.cancel);
+	});
+}
+
+LongPoller.prototype.refresh = function() {
+	if (this.running) {
+		this.cancel[0]();
+		this.loop();
+	}
+}
+
+LongPoller.prototype.setViewing = function(id) {
+	if (this.viewing) {
+		delete this.lastListeners[this.viewing];
+		delete this.statuses[this.viewing];
+	}
+	this.lastListeners[id] = {"0":""};
+	this.statuses[id] = "active";
+	this.viewing = id;
+	this.refresh();
 }
 var highlight_smilebasic = (function(){
 	//keywords that don't have an expression after them
@@ -2190,229 +2869,602 @@ var Parse = {
 	lang:{}
 };
 
-var create = function(x) {
-	return document.createElement(x);
-}
-var createText = function(x) {
-	return document.createTextNode(x);
-}
-var creator = function (tag) {
-	return function() {
-		return create(tag);
+// parser options
+// this can be easily changed
+// to control the output
+
+// most functions should return an object containing:
+//   .node or .nodes - the node(s) to insert
+//   .branch - (optional if .node was specified) which node to insert children into
+//   .block - `true` if the element is display: block or similar.
+
+// most functions take input in the form of either
+// (args) (or (args, contents) for things where the contents are plain text)
+// (code blocks, [img], etc.)
+// the unnamed argument uses a key of ""
+// args without a value are set to true
+// for example, `[tag=test key=value option]` would pass
+// {"":"test", key:"value", option:true}
+(function() {
+	function create(x) {
+		return document.createElement(x);
 	}
-};
-
-Parse.options = {
-	append: function (parent, child) {
-		parent.appendChild(child);
-	},
-	parent: function (child) { // unused currently
-		return child.parent;
-	},
-	remove: function(child) {
-		child.parentNode.removeChild(child);
-	},
-
-	preview: {
-		video: function(url) {
-			
-		},
-		youtube: function(url) {
-			
-		},
-		audio: function(url) {
-			
+	function createText(x) {
+		return document.createTextNode(x);
+	}
+	function creator(tag) {
+		return function() {
+			return {node:create(tag)};
 		}
-	},
-	
-	//========================
-	// nodes without children:
-	text: function(text) {
-		return createText(text);
-	},
-	lineBreak: creator('br'),
-	line: creator('hr'),
-	// code block
-	code: function(code, language) {
-		var node = create('pre');
-		node.setAttribute('data-lang', language);
-		node.innerHTML = highlightSB(code, language);
-		return node;
-	},
-	// inline code
-	icode: function(code) {
-		var node = create('code');
-		node.textContent = code;
-		return node;
-	},
-	audio: function(url, preview) {
-		if (preview) {
-			var node = create('div');
-			node.className = "audioPreview preview";
-			node.textContent = "[audio preview]\n";
-			return node;
-		}
-		var node = create('audio');
-		node.setAttribute('controls', "");
-		node.setAttribute('src', url);
-		return node;
-	},
-	video: function(url, preview) {
-		if (preview) {
-			var node = create('div');
-			node.className = "videoPreview preview";
-			node.textContent = "[video preview]\n";
-			return node;
-		}
-		var node = create('video');
-		node.setAttribute('controls', "");
-		node.setAttribute('src', url);
-		return node;
-	},
-	youtube: function(url, preview) {
-		var protocol = "https:";
-		if (window.location && window.location.protocol == "http:")
-			protocol = "http:"
+	}
+	function defaultProtocol() {
+		if (window.location.protocol == 'http:')
+			return 'http:';
+		else
+			return 'https:';
+	}
+	function getYoutubeID(url) {
 		var match = url.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
-		
-		if (true) {
-			var node = create('img');
-			node.className = "youtube";
-			if (match)
-				node.src = protocol+"//i.ytimg.com/vi/"+match[1]+"/mqdefault.jpg";
-			return node;
-		}
-		var node = create('iframe');
-		node.className = "youtube";
 		if (match)
-			node.src = protocol+"//www.youtube-nocookie.com/embed/"+match[1];
-		return node;
-	},
-	
-	//=====================
-	// nodes with children
-	root: function() {
-		var node = create('div');
-		node.className = "markup-root";
-		return node;
-	},
-	bold: creator('b'),
-	italic: creator('i'),
-	underline: creator('u'),
-	strikethrough: creator('s'),
-	heading: function(level) { // input: 1, 2, or 3
-		return create('h' + (level+1));//['h1','h2','h3'][level-1] || 'h3');
-	},
-	quote: function(user) {
-		var node = create('blockquote');
-		node.setAttribute('cite', user);
-		return node;
-	},
-	list: creator('ul'),
-	item: creator('li'), // (list item)
-	link: function(url) {
-		// important, do not remove, prevents script injection
-		if (/^ *javascript:/i.test(url))
-			url = "";
-		
-		var protocol = url.match(/^([-\w]+:)([^]*)$/);
-		if (protocol && protocol[1].toLowerCase() == "sbs:") {
-			// put your custom local url handling code here
-			url = "#"+protocol[2];
-			
-		} else if (!protocol) {
-			// urls without protocol get https:// or http:// added
-			var protocol = "https:";
-			if (window.location && window.location.protocol == "http:")
-				protocol = "http:";
-			url = protocol+"//"+url;
-		}
-		
-		var node = create('a');
-		node.setAttribute('href', url);
-		return node;
-	},
-	table: creator('table'),
-	row: creator('tr'),
-	cell: function (header) {
-		return header ?
-			create('th') :
-			create('td');
-	},
-	image: function(url) {
-		var node = create('img');
-		node.setAttribute('src', url);
-		node.setAttribute('tabindex', "-1");
-		return node;
-	},
-	error: function() {
-		var node = create('div');
-		node.className = "parse-error";
-		node.textContent = "Error";
-		return node;
-	},
-	align: function(arg) {
-		var node = create('div');
-		if (arg == 'left' || arg == 'right' || arg == 'center')
-			node.style.textAlign = arg;
-		return node;
-	},
-	sup: creator('sup'),
-	sub: creator('sub'),
-	anchor: function(name) {
-		var node = create('a');
-		node.name = "_anchor_"+name;
-		return node;
+			return match[1];
+		return null;
 	}
-}
+	// returns [protocol, rest of url] or [null, url]
+	function urlProtocol(url) {
+		var match = url.match(/^([-\w]+:)([^]*)$/);
+		if (match)
+			return [match[1].toLowerCase(), match[2]];
+		return [null, url];
+	}
 
-Parse.lang['12y'] = function(code, preview, cache) {
-	// so what happens here is
-	// when a video needs to be generated
-	// first, check the cache. if it exists there, insert it
-	// (remember that a node can only exist in one place in the DOM though)
-	// now, if the video needs to be created, and preview mode is enabled,
-	// a place holder is generated (and not stored in the cache)
-	// if preview is disabled (and cache is passed), the video is generated
-	// and stored in the cache, to be reused later
+	// so normally our path structure will look like
+	// url#path?query#fragment
+	// with #s in the path and query escaped with %
+	// however, some browsers escape duplicate #s automatically, so this has to be dealt with somehow
+	// I'm not sure of a good way which still allows # to be used in the path+query, though
+	// may need to use a different character...
+	function getPath() {
+		var hash = decodeURIComponent(location.hash.substr(1));
+		return hash.split("#");
+	}
 	
-	// in the editor, this should be called normally with preview mode enabled
-	// then maybe after a delay of no typing, call it with preview off,
-	// to generate any new videos
-	// or don't use preview at all! maybe it's fine!
-	if (cache)
-		markCacheUnused();
-	
-	var options = Parse.options;
-	var output = options.root();
-	var curr = output;
-	var lastLineBreak = null;
-	var displayBlock = {
-		code:true,audio:true,video:true,heading:true,quote:true,
-		list:true,item:true,table:true,image:true,line:true,youtube:true,
-	};
+	Parse.options = {
+		append: function (parent, child) {
+			parent = parent.branch || parent.node;
+
+			if (child.nodes)
+				child.nodes.forEach(function(x){
+					parent.appendChild(x)
+				});
+			else
+				parent.appendChild(child.node);
+		},
+		
+		//========================
+		// nodes without children:
+		text: function(text) {
+			return {node: createText(text)};
+		},
+		lineBreak: creator('br'),
+		line: creator('hr'),
+		// used for displaying invalid markup
+		// reason is currently unused
+		invalid: function(text, reason) {
+			var node = create('span');
+			node.className = 'invalid';
+			node.title = reason;
+			node.textContent = text;
+			return {node:node};
+		},
+		// code block
+		code: function(args, contents) {
+			var language = args[""];
+			var node = create('pre');
+			node.setAttribute('data-lang', language);
+			node.innerHTML = highlightSB(contents, language);
+			return {block:true, node:node}
+		},
+		// inline code
+		icode: function(args, contents) {
+			var node = create('code');
+			node.textContent = contents;
+			return {node:node};
+		},
+		audio: function(args) {
+			var node = create('audio');
+			node.setAttribute('controls', "");
+			node.setAttribute('src', args[""]);
+			return {block:true, node:node};
+		},
+		video: function(args) {
+			var url = args[""];
+			var node = create('video');
+			node.setAttribute('controls', "");
+			node.setAttribute('src', url);
+			return {block:true, node:node};
+		},
+		youtube: function(args) {
+			var url = args[""];
+			var protocol = defaultProtocol();
+			var match = getYoutubeID(url);
+			if (true) {
+				var node = create('img');
+				node.className = "youtube";
+				if (match)
+					node.src = protocol+"//i.ytimg.com/vi/"+match+"/mqdefault.jpg";
+				return {block:true, node:node};
+			} else {
+				var node = create('iframe');
+				node.className = "youtube";
+				if (match)
+					node.src = protocol+"//www.youtube-nocookie.com/embed/"+match;
+				return {block:true, node:node};
+			}
+		},
+		
+		//=====================
+		// nodes with children
+		root: function() {
+			var node = create('div');
+			node.className = 'markup-root';
+			return {block:true, node:node};
+		},
+		bold: creator('b'),
+		italic: creator('i'),
+		underline: creator('u'),
+		strikethrough: creator('s'),
+		heading: function(level) { // input: 1, 2, or 3
+			// output: h2-h4
+			return {block:true, node:create('h'+(level+1))};
+		},
+		
+		quote: function(args) {
+			// <blockquote><cite> arg </cite><br> ... </blockquote>
+			var name = args[""];
+			var node = create('blockquote');
+			if (name) {
+				var cite = create('cite');
+				cite.textContent = name;
+				node.appendChild(cite);
+				node.appendChild(create('br'));
+			}
+			return {block:true, node:node};
+		},
+		list: function(args) {
+			// <ul> ... </ul>
+			if (args[""]!=undefined) {
+				var list = create('ol');
+				list.style.listStyleType = args[""];
+			} else
+				list = create('ul');
+			return {block:true, node:list};
+		},
+		item: function(index) {
+			return {block:true, node:create('li')};
+		},
+		//creator('li'), // (list item)
+		
+		link: function(args) {
+			// <a href= url> ... </a>
+			var url = args[""];
+			// important, do not remove, prevents script injection
+			if (/^ *javascript:/i.test(url))
+				url = "";
+			
+			var node = create('a');
+			
+			var protocol = urlProtocol(url);
+			if (protocol[0] == "sbs:") {
+				// put your custom local url handling code here
+				url = "#"+protocol[1];
+			} else if (!protocol[0]) {
+				if (url[0] == "#") {
+					// put your fragment link handling code here
+					var hash1 = getPath();
+					var name = url.substr(1)
+					hash = "#"+hash1[0]+"#"+name;
+					url = hash;
+					node.onclick = function(e) {
+						var hash2 = getPath();
+						if (hash1[0]==hash2[0] && hash2[1]==name) {
+							var n = document.getElementsByName("_anchor_"+name);
+							if (n[0])
+								n[0].scrollIntoView();
+							e.preventDefault();
+						} else {
+							window.location.hash = hash;
+						}
+					}
+				} else {
+					// urls without protocol get https:// or http:// added
+					url = defaultProtocol()+"//"+url;
+				}
+			}
+			node.setAttribute('href', url);
+			return {node:node};
+		},
+		
+		table: function(opts) {
+			// <div class="tableContainer"><table> ... </table></div>
+			var container = create('div');
+			container.className = "tableContainer"
+			var node = create('table');
+			container.appendChild(node);
+			return {
+				block: true,
+				node: container,
+				branch: node
+			}
+		},
+		
+		row: creator('tr'),
+		
+		cell: function (opt) {
+			// <td> ... </td> etc.
+			var node = opt.h ?
+				 create('th') :
+				 create('td');
+			if (opt.rs)
+				node.rowSpan = opt.rs;
+			if (opt.cs)
+				node.colSpan = opt.cs;
+			if (opt.c) {
+				if (opt.c[0] == "#")
+					node.style.backgroundColor = opt.c;
+				node.setAttribute("data-bgcolor", opt.c);
+			}
+			if (opt.a) {
+				node.style.textAlign = opt.a;
+			}
+			node.className = "cell";
+			return {node:node};
+		},
+		
+		image: function(args) {
+			// <img src= arg tabindex="-1">
+			var url = args[""];
+			var node = create('img');
+			node.setAttribute('src', url);
+			node.setAttribute('tabindex', "-1");
+			/*node.onload = function() {
+			  if (window.scrollToAuto)
+			  scrollToAuto();
+			  }*/
+			return {node:node, block:true};
+		},
+		
+		// parser error message
+		error: function(e, stack) {
+			// <div class="error">Error while parsing:<pre> stack trace </pre>Please report this</div>
+			var node = create('div');
+			node.className = "error";
+			node.appendChild(createText("Markup parsing error: "));
+			var err = create('code')
+			err.textContent = e;
+			node.appendChild(err);
+			node.appendChild(createText("\nPlease report this!"));
+			if (stack) {
+				var pre = create('pre');
+				pre.textContent = stack;
+				node.appendChild(pre);
+			}
+			return {node:node, block:true};
+		},
+		
+		align: function(args) {
+			var node = create('div');
+			var arg = args[""];
+			if (arg == 'left' || arg == 'right' || arg == 'center')
+				node.style.textAlign = arg;
+			return {node:node, block:true};
+		},
+		superscript: creator('sup'),
+		subscript: creator('sub'),
+		anchor: function(args) {
+			var name = args[""];
+			var node = create('a');
+			// put your anchor name handler here
+			// I prefix the names to avoid collision with node ids
+			// which use the same namespace as name
+			node.name = "_anchor_"+name;
+			return {node:node, block:true};
+		},
+		spoiler: function(args) {
+			// <button> arg </button><div class="spoiler"> ... </div>
+			// I'd use <summary>/<details> but it's not widely supported
+			// and impossible to style with css
+			// this probably needs some aria attribute or whatever
+			var button = create('button');
+			button.onclick = function() {
+				if (this.getAttribute('data-show') == null)
+					this.setAttribute('data-show',"");
+				else
+					this.removeAttribute('data-show');
+			}
+			button.className = 'spoilerButton';
+			var name = args[""];
+			if (name == true)
+				name = "spoiler";
+			button.textContent = name;
+			
+			var box = create('div');
+			box.className = "spoiler";
+			
+			return {
+				block: true,
+				nodes: [button, box],
+				branch: box
+			}
+		}
+	}
+})();
+
+(function(){
+	/***********
+	 ** STATE **
+    ***********/
+	var c,i,cache = {video:{},audio:{},youtube:{}},code;
 	var skipNextLineBreak;
+	var textBuffer;
+	var curr, output;
+	var stack;
+	var startOfLine;
+	var leadingSpaces;
+	var blocks;
+	function scan(){};
+
+	function errorHandle(func) {
+		try {
+			func()
+		} catch (e) {
+			// todo: close all blocks and add error message
+		}
+	}
 	
-	try {
-		// this is a list of all nodes that we are currently inside
-		// as well as {}-block pseudo-nodes
-		var stack = [{node:curr, type:'root'}];
+	function init(scanFunc, myBlocks, text) {
+		scan = scanFunc;
+		code = text;
+		for (type in cache)
+			for (arg in cache[type])
+				cache[type][arg].forEach(function(x){
+					x.used = false;
+				});
+		blocks = myBlocks;
+		leadingSpaces = 0;
+		startOfLine = true;
+		skipnextLineBreak = false;
+		textBuffer = "";
+		output = curr = options.root();
+		stack = [{node:curr, type:'root'}];
 		stack.top = function() {
 			return stack[stack.length-1];
 		};
-		var textBuffer = "";
-		var inside = {};
-		var startOfLine = true;
-		var leadingSpaces = 0;
-		var lastWasBlock;
-		// todo:
-		// so, the way to prevent extra linebreaks (without just ignoring them all) is
-		// to ignore linebreaks around blocks. (before and after, as well as inside, ignore 1 leading/trailing linebreak)
-		// idea:
-		
-		var i = -1;
-		var c;
+		restore(0);
+	}
+	// move to pos
+	function restore(pos) {
+		i = pos-1;
 		scan();
+	}
+
+	//try to read a char
+	function eatChar(chr) {
+		if (c == chr) {
+			scan();
+			return true;
+		}
+	}
+
+	function matchNext(str) {
+		return code.substr(i, str.length) == str;
+	}
+	
+	// read a url
+	// if `allow` is true, url is only ended by end of file or ]] or ][ (TODO)
+	function readUrl(allow) {
+		var start = i;
+		if (allow)
+			while (c && c!="]" && c!="[")
+				scan();
+		else
+			while (isUrlChar(c))
+				scan();
+		return code.substring(start, i);
+	}
+
+	
+	// ew regex
+	function isUrlChar(c) {
+		// removed ) because interferes with stuff too much
+		// other problems common are
+		// - period, comma, etc. after url
+		return c && (/[-\w\$\.+!*'(,;/\?:@=&#%]/).test(c);
+	}
+	/***********
+    ** stack **
+    ***********/
+	function stackContains(type) {
+		for (var i=0; i<stack.length; i++) {
+			if (stack[i].type == type) {
+				return true;
+			}
+		}
+		return false;
+	}
+	function top_is(type) {
+		var top = stack.top();
+		return top && top.type == type;
+	}
+	
+	/****************
+    ** outputting **
+    ****************/
+	function endBlock() {
+		flushText();
+		var item = stack.pop();
+		if (item.node && item.node.block)
+			skipNextLineBreak = true;
+
+		if (stack.length) {
+			var i=stack.length-1;
+			// this skips {} fake nodes
+			// it will always find at least the root <div> element I hope
+			while (!stack[i].node){
+				i--;
+			}
+			curr = stack[i].node;
+		} else {
+			curr = null;
+		}
+	}
+	
+	// add simple block with no children
+	function addBlock(node) {
+		flushText();
+		options.append(curr, node);
+	}
+
+	// output contents of text buffer
+	function flushText() {
+		if (textBuffer) {
+			options.append(curr, options.text(textBuffer));
+			textBuffer = "";
+		}
+	}
+
+	// add linebreak to output
+	// todo: skipping linebreaks should skip / *\n? */ (spaces before/after!)
+	// so like [h1]test[/h1] [h2]test[/h2]
+	// no extra linebreak there
+	function addLineBreak() {
+		if (skipNextLineBreak) {
+			skipNextLineBreak = false;
+		} else {
+			flushText();
+			addBlock(options.lineBreak());
+		}
+	}
+
+	// add text to output (buffered)
+	function addText(text) {
+		if (text) {
+			textBuffer += text;
+			skipNextLineBreak = false;
+		}
+	}
+	
+	// call at end of parsing to flush output
+	function endAll() {
+		flushText();
+		while (stack.length)
+			endBlock();
+	}
+	
+	/*****************
+    ** cache stuff **
+    *****************/
+	function markCacheUnused() {
+		for (type in cache)
+			for (arg in cache[type])
+				cache[type][arg].forEach(function(x){
+					x.used = false;
+				});
+	}
+	
+	function findUnusedCached(cache, type, arg) {
+		var list = cache[type][arg]
+		if (!list)
+			return null;
+		for (var i=0;i<list.length;i++) {
+			if (!list[i].used)
+				return list[i];
+		}
+		return null;
+	}
+
+	function startBlock(type, data, arg) {
+		data.type = type;
+		if (type) {
+			
+			var node = tryGetCached(cache, type, arg, function() {
+				return blocks[type](arg);
+			});
+			data.node = node;
+			if (node.block)
+				skipNextLineBreak = true;
+			
+			flushText();
+			options.append(curr, node);
+			curr = node;
+		}
+		stack.push(data);
+		return data;
+	}
+	// check for /\b(http://|https://|sbs:)/ basically
+	function isUrlStart() {
+		if (code[i-1] && /\w/.test(code[i-1]))
+			return false
+		return matchNext("http://") || matchNext("https://") || matchNext("sbs:")
+	}
+	
+	// try to get a node from cache.
+	// will get nodes where `type` and `arg` matches
+	// if not found, returns make(), and adds to cache
+	function tryGetCached(cache, type, arg, make) {
+		var node;
+		if (cache && type && cache[type]) {
+			var item = findUnusedCached(cache, type, arg);
+			if (item) {
+				item.used = true;
+				node = item.node;
+			}
+		}
+		if (!node && type) {
+			node = make();
+			if (cache && cache[type]) {
+				if (!cache[type][arg])
+					cache[type][arg] = [];
+				cache[type][arg].push({node:node, used:true});
+			}
+		}
+		return node;
+	}
+
+	var options = Parse.options;
+	
+	Parse.lang['12y'] = function(codeInput, preview) {
+		// so what happens here is
+		// when a video needs to be generated
+		// first, check the cache. if it exists there, insert it
+		// (remember that a node can only exist in one place in the DOM though)
+		// now, if the video needs to be created, and preview mode is enabled,
+		// a place holder is generated (and not stored in the cache)
+		// if preview is disabled (and cache is passed), the video is generated
+		// and stored in the cache, to be reused later
+		
+		// in the editor, this should be called normally with preview mode enabled
+		// then maybe after a delay of no typing, call it with preview off,
+		// to generate any new videos
+		// or don't use preview at all! maybe it's fine!
+
+		init(function() {
+			if (c == "\n" || !c)
+				lineStart();
+			else if (c != " ")
+				startOfLine = false;
+			else if (startOfLine)
+				leadingSpaces++;
+			i++;
+			c = code.charAt(i);
+		}, options, codeInput);
+		
+		var tags = {
+			spoiler: "spoiler",
+			align: "align",
+			sub: "subscript",
+			sup: "superscript",
+			anchor: "anchor",
+		};
 		
 		while (c) {
 			if (eatChar("\n")) {
@@ -2427,19 +3479,18 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				scan();
 				//===============
 				// { group start (why did I call these "groups"?)
-			} else if (eatChar("{")) {
-				startBlock(null, {});
-				lineStart();
-			//=============
-			// } group end
+			} else if (c == "{") {
+				readEnv();
+				//=============
+				// } group end
 			} else if (eatChar("}")) {
 				if (stackContains(null)) {
 					closeAll(false);
 				} else {
 					addText("}");
 				}
-			//================
-			// * heading/bold
+				//================
+				// * heading/bold
 			} else if (c == "*") {
 				if (startOfLine && (code[i+1] == "*" || code[i+1] == " ")) {
 					var headingLevel = 0;
@@ -2461,8 +3512,8 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				doMarkup('underline', options.underline);
 			} else if (c == "~") {
 				doMarkup('strikethrough', options.strikethrough);
-			//============
-			// >... quote
+				//============
+				// >... quote
 			} else if (startOfLine && eatChar(">")) {
 				// todo: maybe >text should be a quote without author... 
 				// need to add a way to add information to quotes:
@@ -2477,10 +3528,11 @@ Parse.lang['12y'] = function(code, preview, cache) {
 				eatChar(":");
 				while (eatChar(" "))
 					;
-				startBlock('quote', {}, name);
+				startBlock('quote', {}, {"":name});
 				//==============
 				// -... list/hr
 			} else if (startOfLine && eatChar("-")) {
+				textBuffer = ""; //hack:
 				//----------
 				// --... hr
 				if (eatChar("-")) {
@@ -2492,22 +3544,22 @@ Parse.lang['12y'] = function(code, preview, cache) {
 					if (c == "\n" || !c) { //this is kind of bad
 						addBlock(options.line());
 						skipNextLineBreak = true; //hack
-					//----------
-					// ---... normal text
+						//----------
+						// ---... normal text
 					} else {
 						addMulti("-", count);
 					}
-				//------------
-				// - ... list
+					//------------
+					// - ... list
 				} else if (eatChar(" ")) {
-					startBlock('list', {level:leadingSpaces});
+					startBlock('list', {level:leadingSpaces}, {});
 					startBlock('item', {level:leadingSpaces});
-				//---------------
-				// - normal char
+					//---------------
+					// - normal char
 				} else
 					addText("-");
-			//==========================
-			// ] end link if inside one
+				//==========================
+				// ] end link if inside one
 			} else if (c == "]" && stack.top().inBrackets){ //this might break if it assumes .top() exists. needs more testing
 				scan();
 				if (stack.top().big) {
@@ -2517,56 +3569,39 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						addText("]");
 				} else
 					endBlock();
-			//================
-			// https?:// link
-			} else if (c == "h" || c == "!") { //lol this is silly
-				var embed = eatChar("!");
-				if (embed && eatChar("[")) {
-					readBracketedLink(embed) || addText("[");
-					// handled
-				} else {
-					var start = i;
-					if (code.substr(start,7) == "http://" || code.substr(start,8) == "https://") {
-						var url = readUrl();
-						startBlock(embed ? urlType(url) : 'link', {}, url, preview);
-						if (eatChar("["))
-							stack.top().inBrackets = true;
-						else {
-							addText(url);
-							endBlock();
-						}
-					} else {
-						if (embed)
-							addText("!");
-						else {
-							scan();
-							addText("h");
-						}
-					}
-				}
-			//============
-			// |... table
+				//============
+				// |... table
 			} else if (c == "|") {
 				var top = stack.top();
 				// continuation
 				if (top.type == 'cell') {
+					scan();
 					var row = top.row;
 					var table = top.row.table;
-					scan();
-					eatChar("\n");
+					var eaten = eatChar("\n");
 					//--------------
 					// | | next row
-					if (eatChar("|")) {
+					if (eaten && eatChar("|")) {
+						// number of cells in first row
+						// determines number of columns in table
 						if (table.columns == null)
 							table.columns = row.cells;
-						endBlock();
+						// end blocks
+						endBlock(); //cell
 						if (top_is('row')) //always
 							endBlock();
-						var row = startBlock('row', {table:table, cells:0});
+						// start row
+						// calculate number of cells in row which will be
+						// already filled due to previous row-spanning cells
+						var cells = 0
+						table.rowspans = table.rowspans.map(function(span){
+							cells++;
+							return span-1;
+						}).filter(function(span){return span > 0});
+						var row = startBlock('row', {table:table, cells:cells});
 						row.header = eatChar("*");
-						startBlock('cell', {row:row}, row.header);
-						while (eatChar(" "))
-							;
+						// start cell
+						startCell(row);
 						//--------------------------
 						// | next cell or table end
 					} else {
@@ -2579,32 +3614,29 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						if (table.columns != null && row.cells > table.columns) {
 							endBlock(); //end cell
 							if (top_is('row')) //always
-								endBlock();
+								endBlock(); //row
 							if (top_is('table')) //always
-								endBlock();
+								endBlock(); //table
+							if (eaten)
+								addLineBreak();
 						} else { // next cell
-							endBlock();
-							startBlock('cell', {row:row}, row.header);
-							while (c == " ")
-								scan();
+							endBlock(); //cell
+							startCell(row);
 						}
 					}
 					// start of new table (must be at beginning of line)
 				} else if (startOfLine) {
 					scan();
 					table = startBlock('table', {
-						columns: null
-					});
+						columns: null,
+						rowspans: []
+					}, {});
 					row = startBlock('row', {
 						table: table,
 						cells: 0
 					});
 					row.header = eatChar("*");
-					startBlock('cell', {
-						row: row
-					}, row.header);
-					while (eatChar(" "))
-						;
+					startCell(row);
 				} else {
 					scan();
 					addText("|");
@@ -2622,29 +3654,28 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						start = i;
 						while (c && c!="\n" && c!="`")
 							scan();
+						//todo: protect against ```why won't this work``` ?
 						var language = code.substring(start, i).trim().toLowerCase();
-						eatChar("\n");
+						var eaten = eatChar("\n");
 						start = i;
 						i = code.indexOf("```", i);
 						addBlock(options.code(
-							code.substring(start, i!=-1 ? i : code.length),
-							language
+							{"": language},
+							code.substring(start, i!=-1 ? i : code.length)
 						));
-						skipNextLineBreak = true;
+						skipNextLineBreak = eaten;
 						if (i != -1) {
-							i += 2;
-							scan();
+							restore(i + 3);
 						} else {
-							i = code.length;
-							scan();
+							restore(code.length);
 						}
-					//------------
-					// `` invalid
+						//------------
+						// `` invalid
 					} else {
 						addText("``");
 					}
-				// --------------
-				// ` inline code
+					// --------------
+					// ` inline code
 				} else {
 					start = i;
 					var codeText = ""
@@ -2660,642 +3691,654 @@ Parse.lang['12y'] = function(code, preview, cache) {
 						codeText += c;
 						scan();
 					}
-					addBlock(options.icode(codeText));
+					addBlock(options.icode({},codeText));
 					scan();
 				}
-			//
-			//=============
-			// [[url link
-			} else if (eatChar("[")) {
-				readBracketedLink() || addText("[");
-			//
-			//=============
-			// normal char
+				//
+				//================
+				// link
+			} else if (readLink()) {
+				//
+				//=============
+				// normal char
 			} else {
 				addText(c);
 				scan();
 			}
 		}
-		flushText();
-		closeAll(true);
-		return output;
-	} catch (e) {
-		try {
-			flushText();
-			closeAll(true);
-			addBlock(options.error());
-			console.log(e);
-
-			addText(code.substr(i));
-			flushText();
-
-			return output;
-		} catch (e) {
-			alert("Fatal parse error at: "+i);
-		}
-	}
-	
-	// ######################
-	
-	function eatChar(chr) {
-		if (c == chr) {
-			scan();
-			return true;
-		}
-	}
-	
-	function readBracketedLink(embed) {
-		if (c != "[") {
-			return false;
-		} else {
-			scan();
-			// read url:
-			var start = i;
-			var part2 = false;
-			var url = readUrl(true);
-			if (eatChar("]")) {
-				if (eatChar("]"))
-					;
-				else if (eatChar("["))
-					part2 = true;
-			}
-			startBlock(embed ? urlType(url) : 'link', {big: true}, url, preview);
-			if (part2)
-				stack.top().inBrackets = true;
-			else {
-				addText(url);
-				endBlock();
-			}
-			return true;
-		}
-	}
-
-	function addMulti(text, count) {
-		while (count --> 0)
-			addText(text);
-	}
-
-	// read a url
-	// if `allow` is true, url is only ended by end of file or ]] or ][ (TODO)
-	function readUrl(allow) {
-		var start = i;
-		if (allow)
-			while (c && c!="]" && c!="[")
-				scan();
-		else
-			while (isUrlChar(c))
-				scan();
-		return code.substring(start, i);
-	}
-	
-	// ew regex
-	function isUrlChar(c) {
-		return c && (/[-\w\$\.+!*'(),;/\?:@=&#%]/).test(c);
-	}
-	
-	// closeAll(true) - called at end of document
-	// closeAll(false) - called at end of {} block
-	function closeAll(force) {
-		while(stack.length) {
-			var top = stack.top();
-			if (top.type == 'root') {
-				break;
-			}
-			if (!force && top.type == null) {
-				endBlock();
-				break;
-			}
-			endBlock();
-		}
-	}
-	
-	function endLine() {
-		while (1) {
-			var top = stack.top();
-			if (top.type == 'heading' || top.type == 'quote') {
-				endBlock();
-			} else if (top.type == 'item') {
-				if (top.type == 'item')
-					endBlock();
-				var indent = 0;
-				while (eatChar(" "))
-					indent++;
-				// OPTION 1:
-				// no next item; end list
-				if (c != "-") {
-					while (top_is('list')) {//should ALWAYS happen at least once
+		// END
+		endAll();
+		return output.node;
+		
+		
+		// ###################################
+		
+		function readBracketedLink(embed) {
+			if (eatChar("[")) {
+				if (eatChar("[")) {
+					// read url:
+					var start = i;
+					var part2 = false;
+					var url = readUrl(true);
+					if (eatChar("]")) {
+						if (eatChar("]"))
+							;
+						else if (eatChar("["))
+							part2 = true;
+					}
+					startBlock(embed ? urlType(url) : 'link', {big: true}, {"":url}, preview);
+					if (part2)
+						stack.top().inBrackets = true;
+					else {
+						addText(url);
 						endBlock();
 					}
-					addMulti(" ", indent);
+					return true;
 				} else {
-					scan();
-					while (eatChar(" "))
-						;
-					// OPTION 2:
-					// next item has same indent level; add item to list
-					if (indent == top.level) {
-						startBlock('item', {level: indent});
-						// OPTION 3:
-						// next item has larger indent; start nested list	
-					} else if (indent > top.level) {
-						startBlock('list', {level: indent});
-						startBlock('item', {level: indent}); // then made the first item of the new list
-						// OPTION 4:
-						// next item has less indent; try to exist 1 or more layers of nested lists
-						// if this fails, fall back to just creating a new item in the current list
-					} else {
-						// TODO: currently this will just fail completely 
-						while(1) {
-							top = stack.top();
-							if (top && top.type == 'list') {
-								if (top.level <= indent) {
-									break;
-								} else {
-									endBlock();
-								}
-							} else {
-								// no suitable list was found :(
-								// so just create a new one
-								startBlock('list', {level: indent});
-								break;
-							}
-						}
-						startBlock('item', {level: indent});
-					}
-					break; //really?
+					addText("[");
 				}
-			} else {
-				addLineBreak();
-				break;
+			}
+			return false;
+		}
+		
+		function readEnv() {
+			if (!eatChar("{"))
+				return false;
+			startBlock(null, {});
+			lineStart();
+			
+			var start = i;
+			if (eatChar("#")){
+				var name = readTagName();
+				var props = readProps();
+				// todo: make this better lol
+				var func = tags[name];
+				if (func && !(name=="spoiler" && stackContains("spoiler"))) {
+					startBlock(func, {}, props);
+				} else {
+					addBlock(options.invalid(code.substring(start, i), "invalid tag"))
+				}
+				/*if (displayBlock({type:name}))
+				  skipNextLineBreak = true; //what does this even do?*/
+			}
+			lineStart();
+			//	eatChar("\n");
+			return true;
+		}
+		
+		// read table cell properties and start cell block, and eat whitespace
+		// assumed to be called when pointing to char after |
+		function startCell(row) {
+			var props = {}
+			if (eatChar("#"))
+				Object.assign(props, readProps());
+			
+			if (props.rs)
+				row.table.rowspans.push(props.rs-1);
+			if (props.cs)
+				row.cells += props.cs-1;
+			
+			if (row.header)
+				props.h = true;
+			
+			startBlock('cell', {row: row}, props);
+			while (eatChar(" "))
+				;
+		}
+
+		// split string on first occurance
+		function split1(string, sep) {
+			var n = string.indexOf(sep);
+			if (n == -1)
+				return [string, null];
+			else
+				return [string.substr(0,n), string.substr(n+sep.length)];
+		}
+		
+		function readTagName() {
+			var start = i;
+			while (c>="a" && c<="z") {
+				scan();
+			}
+			if (i > start)
+				return code.substring(start, i);
+		}
+		
+		// read properties key=value,key=value... ended by a space or \n or } or {
+		// =value is optional and defaults to `true`
+		function readProps() {
+			var start = i;
+			var end = code.indexOf(" ", i);
+			if (end < 0)
+				end = code.length;
+			var end2 = code.indexOf("\n", i);
+			if (end2 >= 0 && end2 < end)
+				end = end2;
+			end2 = code.indexOf("}", i);
+			if (end2 >= 0 && end2 < end)
+				end = end2;
+			end2 = code.indexOf("{", i);
+			if (end2 >= 0 && end2 < end)
+				end = end2;
+
+
+			restore(end);
+			eatChar(" ");
+
+			var propst = code.substring(start, end);
+			var props = {};
+			propst.split(",").forEach(function(x){
+				var pair = split1(x, "=");
+				if (pair[1] == null)
+					pair[1] = true;
+				props[pair[0]] = pair[1];
+			});
+			return props;
+		}
+
+		// string.repeat doesn't exist
+		function addMulti(text, count) {
+			while (count --> 0)
+				addText(text);
+		}
+
+		function readLink() {
+			var embed = eatChar("!");
+			if (readBracketedLink(embed) || readPlainLink(embed))
+				return true;
+			else if (embed) {
+				addText("!");
+				return true;
+				//lesson: if anything is eaten, you must return true if it's in the top level if switch block
 			}
 		}
-	}
 
-	// audio, video, image, youtube (todo)
-	function urlType(url) {
-		if (/(\.mp3(?!\w)|\.ogg(?!\w)|\.wav(?!\w)|#audio$)/.test(url))
-			return "audio";
-		if (/(\.mp4(?!\w)|\.mkv(?!\w)|#video$)/.test(url))
-			return "video";
-		if (/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/.test(url))
-			return "youtube";
-		return "image";
-	}
-	
-	// common code for all text styling tags (bold etc.)
-	function doMarkup(type, create) {
-		var symbol = c;
-		scan();
-		if (canStartMarkup(type)) {
-			startBlock(type, {});
-		} else if (canEndMarkup(type)) {
-			endBlock();
-		} else {
-			addText(symbol);
-		}
-	}
-	// todo: maybe have support for non-ASCII punctuation/whitespace?
-	function canStartMarkup(type) {
-		return (
-			(!code[i-2] || char_in(code[i-2], " \t\n({'\"")) && //prev char is one of these (or start of text)
-			!char_in(c, " \t\n,'\"") && //next char is not one of these
-			!stackContains(type)
-		);
-	}
-	function canEndMarkup(type) {
-		return (
-			top_is(type) && //there is an item to close
-			!char_in(code[i-2], " \t\n,'\"") && //prev char is not one of these
-			(!c || char_in(c, " \t\n-.,:!?')}\"")) //next char is one of these (or end of text)
-		);
-	}
-	function char_in(chr, list) {
-		return chr && list.indexOf(chr) != -1;
-	}
-
-	function lineStart() {
-		startOfLine = true;
-		leadingSpaces = 0;
-	}
-	
-	function scan() {
-		if (c == "\n" || !c)
-			lineStart();
-		else if (c != " ")
-			startOfLine = false;
-		else if (startOfLine)
-			leadingSpaces++;
-		i++;
-		c = code.charAt(i);
-	}
-
-	// um like
-	// don't use 'null' as a type name probably
-	// In THis House
-	// We use ==         ,
-	function stackContains(type) {
-		for (var i=0; i<stack.length; i++) {
-			if (stack[i].type == type) {
+		function readPlainLink(embed) {
+			if (isUrlStart()) {
+				var url = readUrl();
+				var after = eatChar("[");
+				startBlock(embed ? urlType(url) : 'link', {
+					inBrackets: after
+				}, {"":url}, preview);
+				if (!after) {
+					addText(url);
+					endBlock();
+				}
 				return true;
 			}
 		}
-		return false;
-	}
-	function top_is(type) {
-		var top = stack.top();
-		return top && top.type == type;
-	}
+		
+		// closeAll(true) - called at end of document
+		// closeAll(false) - called at end of {} block
+		function closeAll(force) {
+			while(stack.length) {
+				var top = stack.top();
+				if (top.type == 'root') {
+					break;
+				}
+				if (!force && top.type == null) {
+					endBlock();
+					break;
+				}
+				endBlock();
+			}
+		}
 
-	function markCacheUnused() {
-		for (type in cache)
-			for (arg in cache[type])
-				cache[type][arg].forEach(function(x){
-					x.used = false;
-				});
-	}
-	
-	function findUnusedCached(type, arg) {
-		var list = cache[type][arg]
-		if (!list)
-			return null;
-		for (var i=0;i<list.length;i++) {
-			if (!list[i].used)
-				return list[i];
-		}
-		return null;
-	}
-	
-	function startBlock(type, data, arg) {
-		if (displayBlock[type]) {
-			/*if (lastLineBreak) {
-				options.remove(lastLineBreak);
-			}*/
-			skipNextLineBreak = true;
-		}
-		var node;
-		if (cache && type && cache[type]) {
-			var item = findUnusedCached(type, arg);
-			if (item) {
-				item.used = true;
-				node = item.node;
+		// called at the end of a line (unescaped newline)
+		function endLine() {
+			while (1) {
+				var top = stack.top();
+				if (top.type == 'heading' || top.type == 'quote') {
+					endBlock();
+				} else if (top.type == 'item') {
+					if (top.type == 'item')
+						endBlock();
+					var indent = 0;
+					while (eatChar(" "))
+						indent++;
+					// OPTION 1:
+					// no next item; end list
+					if (c != "-") {
+						while (top_is('list')) //should ALWAYS happen at least once
+							endBlock();
+						addMulti(" ", indent);
+					} else {
+						scan();
+						while (eatChar(" ")) {}
+						// OPTION 2:
+						// next item has same indent level; add item to list
+						if (indent == top.level) {
+							startBlock('item', {level: indent});
+							// OPTION 3:
+							// next item has larger indent; start nested list	
+						} else if (indent > top.level) {
+							startBlock('list', {level: indent}, {});
+							startBlock('item', {level: indent}); // then made the first item of the new list
+							// OPTION 4:
+							// next item has less indent; try to exist 1 or more layers of nested lists
+							// if this fails, fall back to just creating a new item in the current list
+						} else {
+							// TODO: currently this will just fail completely 
+							while(1) {
+								top = stack.top();
+								if (top && top.type == 'list') {
+									if (top.level <= indent) {
+										break;
+									} else {
+										endBlock();
+									}
+								} else {
+									// no suitable list was found :(
+									// so just create a new one
+									startBlock('list', {level: indent}, {});
+									break;
+								}
+							}
+							startBlock('item', {level: indent});
+						}
+						break; //really?
+					}
+				} else {
+					addLineBreak();
+					break;
+				}
 			}
 		}
-		if (!node && type) {
-			node = options[type](arg);
-			
-			if (cache && cache[type]) {
-				if (!cache[type][arg])
-					cache[type][arg] = [];
-				cache[type][arg].push({node:node, used:true});
+
+		// audio, video, image, youtube
+		//todo: improve this lol
+		function urlType(url) {
+			if (/(\.mp3(?!\w)|\.ogg(?!\w)|\.wav(?!\w)|#audio$)/.test(url))
+				return "audio";
+			if (/(\.mp4(?!\w)|\.mkv(?!\w)|#video$)/.test(url))
+				return "video";
+			if (/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/.test(url))
+				return "youtube";
+			return "image";
+		}
+
+		// common code for all text styling tags (bold etc.)
+		function doMarkup(type, create) {
+			var symbol = c;
+			scan();
+			if (canStartMarkup(type)) {
+				startBlock(type, {});
+			} else if (canEndMarkup(type)) {
+				endBlock();
+			} else {
+				addText(symbol);
 			}
+		}
+		// todo: maybe have support for non-ASCII punctuation/whitespace?
+		function canStartMarkup(type) {
+			return (
+				(!code[i-2] || char_in(code[i-2], " \t\n({'\"")) && //prev char is one of these (or start of text)
+				!char_in(c, " \t\n,'\"") && //next char is not one of these
+				!stackContains(type)
+			);
+		}
+		function canEndMarkup(type) {
+			return (
+				top_is(type) && //there is an item to close
+				!char_in(code[i-2], " \t\n,'\"") && //prev char is not one of these
+				(!c || char_in(c, " \t\n-.,:!?')}\"")) //next char is one of these (or end of text)
+			);
+		}
+		function char_in(chr, list) {
+			return chr && list.indexOf(chr) != -1;
+		}
+
+		function lineStart() {
+			startOfLine = true;
+			leadingSpaces = 0;
 		}
 		
-		data.type = type;
-		if (type) {
-			data.node = node;
-			flushText();
-			options.append(curr, data.node);
-			curr = data.node;
-		}
-		stack.push(data);
-		return data;
 	}
-	// add simple block with no children
-	function addBlock(node) {
-		flushText();
-		options.append(curr, node);
-	}
-	function addText(text) {
-		if (text) {
-			textBuffer += text;
-			lastLineBreak = null;
-			if (skipNextLineBreak) {
-				skipNextLineBreak = false;
-			}
-		}
-	}
-	function flushText() {
-		if (textBuffer) {
-			options.append(curr, options.text(textBuffer));
-			textBuffer = ""
-		}
-	}
-	function addLineBreak() {
-		if (skipNextLineBreak) {
-			skipNextLineBreak = false;
-		} else {
-			flushText();
-			lastLineBreak = options.lineBreak();
-			addBlock(lastLineBreak);
-		}
-	}
-	function endBlock() {
-		flushText();
-		var node = stack.pop();
-		if (displayBlock[node.type]) {
-			skipNextLineBreak = true;
-		}
-		var i=stack.length-1;
-		// this skips {} fake nodes
-		// it will always find at least the root <div> element I hope
-		while (!stack[i].node){
-			i--;
-		}
-		curr = stack[i].node;
-	}
-}
 
-Parse.lang.bbcode = function(code, preview) {
-	var options = Parse.options;
-	var output = options.root();
-	var curr = output;
-	var displayBlock = {
-		h1:true,h2:true,h3:true,align:true,list:true,spoiler:true,youtube:true,quote:true,table:true,tr:true,img:true
-	};
-	var blocks = {
-		b: options.bold,
-		i: options.italic,
-		u: options.underline,
-		s: options.strikethrough,
-		sup: options.superscript,
-		sub: options.subscript,
-		h1: function(){return options.heading(1)},
-		h2: function(){return options.heading(2)},
-		h3: function(){return options.heading(3)},
-		table: options.table,
-		tr: options.row,
-		td: function(){return options.cell(false)},
-		th: function(){return options.cell(true)},
-		code: true, 
-		align: options.align,
-		url: options.link,//+<VERY special case> (only hardcode when no argument)
-		youtube: true, //<special case>,
-		img: true, //<special case>,
-		list: options.list,
-		spoiler: options.spoiler,
-		quote: options.quote,
-		anchor: function(arg){
-			return options.anchor(arg);
-		},
-		item: options.item,
-	};
-	var specialBlock = {
-		url: function(arg, args, contents){
-			var node = options.link(contents);
-			node.textContent = contents;
-			return node;
-		},
-		code: function(arg, args, contents) {
-			if (args)
-				var lang = args.lang;
-			if (arg == 'inline')
-				return options.icode(contents, lang);
-			return options.code(contents, lang);
-		},
-		youtube: function(arg, args, contents) {
-			return options.youtube(contents, preview);
-		},
-		img: function(arg, args, contents) {
-			return options.image(contents);
-		}
-	};
-	
-	var skipNextLineBreak;
-	var lastLineBreak;
-	
-	var stack = [{node:curr, type:'root'}];
-	stack.top = function() {
-		return stack[stack.length-1];
-	};
-	var textBuffer = "";
-	var point = 0;
-	var i = -1;
-	var c;
-	scan();
-	
-	while (c) {
-		//===========
-		// [... tag?
-		if (eatChar("[")) {
-			point = i-1;
-			if(eatChar("/")) {
-				var name = readTagName();
-				if (!eatChar("]") || !name) {
-					cancel();
-				} else {
-					if (name == "list" && stack.top().type == "item") {
-						endBlock(point);
-					}
-					if (name == stack.top().type) {
-						endBlock(point);
-					} else {
-						cancel();
-					}
-				}
-			} else {
-				var name = readTagName();
-				if (!name || !blocks[name]) {
-					if (eatChar("*") && eatChar("]")) {
-						if (stack.top().type == "item") {
-							endBlock(point);
-						}
-						startBlock("item", undefined, undefined, i);
-					} else {
-						cancel();
-					}
-				} else {
-					
-					// [tag=...
-					var arg = null, args = null;
-					if (eatChar("=")) {
-						var start=i;
-						while (c && c!="]" && c!=" ")
-							scan();
-						if (c == "]" || c == " ")
-							arg = code.substring(start, i);
-					}
-					if (eatChar(" ")) {
-						args = readArgList();
-					}
-					if (eatChar("]")) {
-						if (name == "youtube" || name == "img" || (name == "url" && !arg) || name == "code") {
-							var endTag = "[/"+name+"]";
-							var end = code.indexOf(endTag, i);
-							if (end < 0)
-								cancel();
-							else {
-								var contents = code.substring(i, end);
-								i = end + endTag.length;
-								i--;
-								scan();
-								addBlock(specialBlock[name](arg,args,contents));
-								if (name == "youtube" || name=="img" || (name=="code" && arg != "inline"))
-									skipNextLineBreak = true;
-							}
-						} else if (blocks[name]) {
-							startBlock(name, arg, args, i);
-						} else
-							cancel();
-					} else {
-						cancel();
-					}
-				}
+	Parse.lang.bbcode = function(codeArg, preview) {
+		var noNesting = {
+			spoiler:true
+		};
+		var blocks = {
+			b: options.bold,
+			i: options.italic,
+			u: options.underline,
+			s: options.strikethrough,
+			sup: options.superscript,
+			sub: options.subscript,
+			h1: function(){return options.heading(1)},
+			h2: function(){return options.heading(2)},
+			h3: function(){return options.heading(3)},
+			table: options.table,
+			tr: options.row,
+			td: options.cell,
+			th: function(arg, opt){
+				return options.cell(Object.assign({h:true}, opt))
+			},
+			code: true, 
+			align: options.align,
+			url: options.link,//+<VERY special case> (only hardcode when no argument)
+			youtube: true, //<special case>,
+			audio: true,
+			video: true,
+			img: true, //<special case>,
+			list: options.list,
+			spoiler: options.spoiler,
+			quote: options.quote,
+			anchor: options.anchor,
+			item: options.item,
+		};
+		init(function() {
+			i++;
+			c = code.charAt(i);
+		}, blocks, codeArg);
+		
+		var specialBlock = {
+			url: function(args, contents){
+				var node = options.link({"":contents});
+				options.append(node, options.text(contents));
+				return node;
+			},
+			code: function(args, contents) {
+				var inline = args[""] == 'inline';
+				args[""] = args.lang;
+				if (inline)
+					return options.icode(args, contents);
+				
+				if (contents[0]=="\n")
+					contents = contents.substr(1);
+				return options.code(args, contents);
+			},
+			youtube: function(args, contents) {
+				return options.youtube({"":contents}, preview);
+			},
+			img: function(args, contents) {
+				return options.image({"":contents});
+			},
+			audio: function(args, contents) {
+				return options.audio({"":contents});
+			},
+			video: function(args, contents) {
+				return options.video({"":contents});
 			}
-		} else if (eatChar('\n')) {
-			addLineBreak();
-		} else {
+		};
+
+		var point = 0;
+		
+		while (c) {
+			//===========
+			// [... tag?
+			if (eatChar("[")) {
+				point = i-1;
+				// [/... end tag?
+				if(eatChar("/")) {
+					var name = readTagName();
+					// invalid end tag
+					if (!eatChar("]") || !name) {
+						cancel();
+					// valid end tag
+					} else {
+						// end last item in lists
+						if (name == "list" && stack.top().type == "item")
+							endBlock(point);
+						if (name == stack.top().type) {
+							endBlock(point);
+							// eat whitespace between table cells
+							if (name == 'td' || name == 'th' || name == 'tr') {
+								while(eatChar(' ')||eatChar('\n')){
+								}
+							}
+						} else {
+							addBlock(options.invalid(code.substring(point, i), "unexpected closing tag"));
+						}
+					}
+				// [... start tag?
+				} else {
+					var name = readTagName();
+					if (!name || !blocks[name]) {
+						// special case [*] list item
+						if (eatChar("*") && eatChar("]")) {
+							if (stack.top().type == "item")
+								endBlock(point);
+							var top = stack.top()
+							if (top.type == "list") {
+								startBlock("item", {}, {});
+							}
+							else
+								cancel();
+						} else {
+							cancel();
+						}
+					} else {
+						// [tag=...
+						var arg = true, args = {};
+						if (eatChar("=")) {
+							var start=i;
+							if (eatChar('"')) {
+								start++;
+								while (c && c!='"')
+									scan();
+								if (c == '"') {
+									arg = code.substring(start, i-1);
+									scan();
+								}
+							} else {
+								while (c && c!="]" && c!=" ")
+									scan();
+								if (c == "]" || c == " ")
+									arg = code.substring(start, i);
+							}
+						}
+						if (eatChar(" ")) {
+							args = readArgList() || {};
+						}
+						if (arg!=true)
+							args[""] = arg;
+						if (eatChar("]")) {
+							if (specialBlock[name] && !(name == "url" && arg!=true)) {
+								var endTag = "[/"+name+"]";
+								var end = code.indexOf(endTag, i);
+								if (end < 0)
+									cancel();
+								else {
+									var contents = code.substring(i, end);
+									restore(end + endTag.length);
+									
+									// todo: this can't handle args with caching currently
+									var node = tryGetCached(cache, name, contents, function() {
+										return specialBlock[name](args, contents);
+									});
+									addBlock(node);
+									
+									if (node.block)
+										skipNextLineBreak = true;
+								}
+							} else if (name!="item" && blocks[name] && !(noNesting[name] && stackContains(name))) {
+								if (name == 'tr' || name == 'table') {
+									while(eatChar(' ')||eatChar('\n')){
+									}
+								}
+								startBlock(name, {}, args);
+							} else
+								addBlock(options.invalid(code.substring(point, i), "invalid tag"));
+						} else {
+							cancel();
+						}
+					}
+				}
+			} else if (readPlainLink()) {
+			} else if (eatChar('\n')) {
+				addLineBreak();
+			} else {
+				addText(c);
+				scan();
+			}
+		}
+		endAll();
+		return output.node;
+		
+		function cancel() {
+			restore(point);
 			addText(c);
 			scan();
 		}
-	}
-	while (stack.length) {
-		endBlock(i);
-	}
-	return output;
-	
-	function cancel() {
-		addText(code.substring(point, i));
-	}
 
-	function readArgList() {
-		var args = {};
-		while (1) {
-			// read key
+		function readPlainLink() {
+			if (isUrlStart()) {
+				var url = readUrl();
+				addBlock(specialBlock.url({},url));
+				return true;
+			}
+		}
+
+		function readArgList() {
+			var args = {};
+			while (1) {
+				// read key
+				var start = i;
+				while (isTagChar(c))
+					scan();
+				var key = code.substring(start, i);
+				// key=...
+				if (eatChar("=")) {
+					// key="...
+					if (eatChar('"')) {
+						start = i;
+						while (c && c!='"' && c!="\n")
+							scan();
+						if (eatChar('"'))
+							args[key] = code.substring(start, i-2);
+						else
+							return null;
+						// key=...
+					} else {
+						start = i;
+						while (c && c!=" " && c!="]" && c!="\n")
+							scan();
+						if (c == "]") {
+							args[key] = code.substring(start, i);
+							return args;
+						} else if (eatChar(" "))
+							args[key] = code.substring(start, i-1);
+						else
+							return null;
+					}
+					// key ...
+				} else if (eatChar(" ")) {
+					args[key] = true;
+					// key]...
+				} else if (c == "]") {
+					args[key] = true;
+					return args;
+					// key<other char> (error)
+				} else
+					return null;
+			}
+		}
+		
+		function readTagName() {
 			var start = i;
 			while (isTagChar(c))
 				scan();
-			var key = code.substring(start, i);
-			// key=...
-			if (eatChar("=")) {
-				// key="...
-				if (eatChar('"')) {
-					start = i;
-					while (c && c!='"' && c!="\n")
-						scan();
-					if (eatChar('"'))
-						args[key] = code.substring(start, i-2);
-					else
-						return null;
-				// key=...
-				} else {
-					start = i;
-					while (c && c!=" " && c!="]" && c!="\n")
-						scan();
-					if (c == "]") {
-						args[key] = code.substring(start, i);
-						return args;
-					} else if (eatChar(" "))
-						args[key] = code.substring(start, i-1);
-					else
-						return null;
-				}
-			// key ...
-			} else if (eatChar(" ")) {
-				args[key] = true;
-			// key]...
-			} else if (c == "]") {
-				args[key] = true;
-				return args;
-			// key<other char> (error)
-			} else
-				return null;
+			return code.substring(start, i);
+		}
+
+		function isTagChar(c) {
+			return c>="a" && c<="z" || c>="A"&&c<="Z" || c>="0"&&c<="9";
 		}
 	}
 	
-	function readTagName() {
-		var start = i;
-		while (isTagChar(c))
-			scan();
-		return code.substring(start, i);
-	}
-
-	function isTagChar(c) {
-		return c>="a" && c<="z" || c>="A"&&c<="Z" || c>="0"&&c<="9";
-	}
+	// "plain text" (with autolinker)
+	Parse.fallback = function(text) {
+		var options = Parse.options;
+		var root = options.root();
+		i = 0;
+		code = text;
+		output = root;
 		
-	function eatChar(chr) {
-		if (c == chr) {
-			scan();
-			return true;
+		var linkRegex = /\b(?:https?:\/\/|sbs:)[-\w\$\.+!*'(),;/\?:@=&#%]*/g;
+		var result;
+		var out = "", last = 0;
+		while (result = linkRegex.exec(text)) {
+			// text before link
+			options.append(root, options.text(text.substr(last, result.index)));
+			// generate link
+			var link = options.link({"": result[0]});
+			options.append(link, options.text(result[0]));
+			options.append(root, link);
+			
+			last = result.index + result[0].length;
 		}
-	}
-
-	function scan() {
-		i++;
-		c = code.charAt(i);
-	}
-
-	// ###
-	
-	function addLineBreak() {
-		if (skipNextLineBreak)
-			skipNextLineBreak = false;
-		else {
-			flushText();
-			lastLineBreak = options.lineBreak();
-			addBlock(lastLineBreak);
-		}
-	}
-
-	function addBlock(node) {
-		flushText();
-		options.append(curr, node);
+		// text after last link (or entire message if no links were found)
+		options.append(root, options.text(text.substr(last)));
+		
+		return root.node;
 	}
 	
-	function addText(text) {
-		if (text) {
-			textBuffer += text;
-			skipNextLineBreak = false;
+	Parse.parseLang = function(text, lang) {
+		i=0;
+		code = text;
+		try {
+			var parser = Parse.lang[lang] || Parse.fallback;
+			return parser(text);
+		} catch(e) {
+			try {
+				options.append(output, options.error(e,e.stack));
+				options.append(output, options.text(code.substr(i)));
+				return output.node
+			} catch (e) {
+				alert("Unrecoverable parser error! please report this!\n"+e);
+			}
 		}
 	}
+})();
+//todo: make href-setting function
+// which processes links automatically
+// to add trailing # to fragment links
+// OR some other way to solve the issue of
+// fragment links not working when clicked again
 
-	function flushText() {
-		if (textBuffer) {
-			options.append(curr, options.text(textBuffer));
-			textBuffer = "";
-		}
-	}
-
-	function endBlock(index) {
-		flushText();
-		var item = stack.pop();
-		if (displayBlock[item.type]) {
-			skipNextLineBreak = true;
-		}
-		if (stack.length)
-			curr = stack.top().node;
-		else
-			curr = null;
-	}
+function renderKeyInfo(key, data, element) {
+	element = element || document.createElement('span');
+	element.innerHTML = "";
 	
-	function startBlock(type, arg, args, index) {
-		if (displayBlock[type]) {
-			if (eatChar("\n")) //hack
-				index++;
-			else
-				skipNextLineBreak = true;
-		}
-		var node = blocks[type](arg, args);
-		stack.push({
-			type: type,
-			node: node,
-			start: index,
-			arg: arg
-		});
-		flushText();
-		options.append(curr, node);
-		curr = node;
-	}
+	var icon = document.createElement('img');
+	icon.src = protocol()+"//sbapi.me/get/"+data.path+"/META/icon";
+	icon.className = "metaIcon";
+
+	element.appendChild(icon);
+	
+	element.appendChild(textItem(data.filename, "pre metaTitle"));
+	
+	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
+	return element;
 }
 
-Parse.fallback = function(text) {
-	var options = Parse.options;
-	var root = options.root();
-	var text = options.text(text);
-	options.append(root, text);
-	//todo: autolinker
-	return root;
+function renderSidebarItem(page, user, comment) {
+	if (!page) {
+		page = {};
+	}
+	var d = document.createElement('a');
+	d.href = "#pages/"+page.id+"#comment-"+comment.id;
+	d.className = "pre";
+	d.textContent = page.name+"\n"+user.username+": "+comment.content;
+	return d;
 }
+
+function renderContentName(name, icon) {
+	var span = document.createElement('span');
+	span.className = "textItem pageName";
+	if (icon) {
+		var img = document.createElement('span');
+		img.setAttribute('role', 'img');
+		img.setAttribute('aria-label', icon);
+		img.className = "item iconBg iconBg-"+icon;
+		span.appendChild(img);
+	}
+	span.appendChild(textItem(name, 'pre'));
+	return span;
+}
+
 function renderPath(element, list) {
 	element.innerHTML = "";
 	if (!list)
@@ -3329,14 +4372,16 @@ function userAvatar(user, cls, big) {
 		img.src = user.bigAvatarURL;
 	else
 		img.src = user.avatarURL;
-	img.alt = user.username;
+	img.alt = "";
 	return img;
 }
 
-function textItem(text) {
+function textItem(text, cls) {
 	var s = document.createElement('span');
 	s.textContent = text;
 	s.className = 'textItem';
+	if (cls)
+		s.className += " "+cls;
 	return s;
 }
 
@@ -3344,7 +4389,7 @@ function textItem(text) {
 // <a><figure><img><figcaption>
 function renderUserLink(user, nameFirst) {
 	var a = document.createElement('a');
-	a.className = 'item userLink';
+	a.className = 'textItem userLink ib';
 	if (user) {
 		a.href = "#user/"+user.id;
 		var name = textItem(user.username);
@@ -3375,7 +4420,8 @@ function renderAuthorBox(page, users, element) {
 	element.innerHTML = "";
 	if (!page)
 		return;
-	/*element.appendChild(textItem("Author: "));*/
+	element.appendChild(textItem("Author:"));
+	element.appendChild(document.createTextNode(" "));
 	element.appendChild(renderUserLink(users[page.createUserId], true));
 	element.appendChild(renderTimeAgo(page.createDate));
 	// page was edited by other user
@@ -3392,15 +4438,20 @@ function renderAuthorBox(page, users, element) {
 	}
 }
 
-function renderCategoryPage(page, users) {
-	var user = users[page.createUserId];
+// Page in the list displayed on a category view
+function renderCategoryPage(page, users, pinned) {
 	var div = document.createElement('a');
 	div.href = "#pages/"+page.id;
 	div.className = "pre categoryPage bar rem2-3";
-	var title = document.createElement('span');
-	title.className = "categoryPageTitle textItem";
-	title.textContent = "\uD83D\uDCC4 " + page.name;
-	div.appendChild(title);
+
+	var icon = "page";
+	if (pinned)
+		icon = "pin";
+	if (!hasPerm(page.permissions, 0, 'r'))
+		icon = "hiddenpage";
+	div.appendChild(renderContentName(page.name, icon));
+
+	var user = users[page.createUserId];
 	if (user) {
 		var right = renderUserLink(user, true);
 		right.className += ' rightAlign';
@@ -3409,54 +4460,14 @@ function renderCategoryPage(page, users) {
 	return div;
 }
 
-function insertFirst(node, child) {
-	if (node.firstChild)
-		node.insertBefore(child, node.firstChild);
-	else
-		node.appendChild(child);
-}
-
-function renderUserPath(element, user) {
-	element.innerHTML = "";
-	var link = document.createElement('a');
-	link.href = "#users"
-	link.textContent = "Users";
-	link.className = "textItem";
-	element.appendChild(link);
-	
-	var slash = document.createElement('span');
-	slash.textContent = "/";
-	slash.className = "pathSeparator textItem";
-	element.appendChild(slash);
-	
-	if (user) {
-		link = document.createElement('a');
-		link.href = "#user/"+user.id
-		link.textContent = user.username;
-		link.className = "textItem";
-		element.appendChild(link);	
-	}
-}
-
-function renderActivityPath(element) {
-	element.innerHTML = "";
-	var link = document.createElement('a');
-	link.href = "#activity"
-	link.textContent = "Activity";
-	link.className = "textItem";
-	element.appendChild(link);
-	
-	var slash = document.createElement('span');
-	slash.textContent = "/";
-	slash.className = "pathSeparator textItem";
-	element.appendChild(slash);
-}
-
+// HH:MM AM/PM
 function timeString(date) {
-	var hours = date.getHours();
-	var minutes = date.getMinutes();
-	var twelve = hours % 12 || 12;
-	return twelve+":"+("00"+minutes).substr(-2)+" "+["AM","PM"][hours >= 12 |0];
+	if (new Date()-date > 1000*60*60*12) {
+		var options = {year:'numeric',month:'long',day:'numeric',hour:'2-digit', minute:'2-digit'}
+	} else {
+		options = {hour:'2-digit', minute:'2-digit'}
+	}
+	return date.toLocaleString([], options);
 }
 
 function renderSystemMessage(text) {
@@ -3467,26 +4478,30 @@ function renderSystemMessage(text) {
 }
 
 function renderUserListAvatar(user) {
-	var a = userAvatar(user, "userListAvatar");
+	var a = document.createElement('a');
+	a.appendChild(userAvatar(user,""));
 	a.title = user.username;
+	a.className = "item";
+	a.href = "#user/"+user.id;
 	return a;
 }
 
+// chat message block
 function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
 
-	div.appendChild(userAvatar(user, 'avatar'));
-	
-	var name = document.createElement('span');
-	name.className = 'username';
-	name.textContent = user.username+":";
-	div.appendChild(name);
-	
 	var time = document.createElement('span');
 	time.textContent = timeString(date);
 	time.className = 'messageTime'
 	div.appendChild(time);
+
+	div.appendChild(userAvatar(user, 'avatar'));
+
+	var name = document.createElement('span');
+	name.className = 'username';
+	name.textContent = user.username+":";
+	div.appendChild(name);
 	
 	var contentBox = document.createElement('div');
 	contentBox.className = 'messageContents';
@@ -3498,9 +4513,9 @@ function renderCategory(cat, users) {
 	var div = document.createElement('a');
 	div.href = "#categories/"+cat.id;
 	div.className = "pre categoryPage rem2-3 bar";
-	var title = document.createElement('span');
-	title.className = "categoryPageTitle item";
-	title.textContent = "\uD83D\uDCC1 "+cat.name;
+
+	var title = renderContentName(cat.name, "category");
+	
 	div.appendChild(title);
 	return div;
 }
@@ -3524,24 +4539,17 @@ function timeAgo(date) {
 	if (seconds < 0)
 		return " IN THE FUTURE?";
 	return Math.round(seconds) + " seconds ago";
-	//return date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
 }
 
 function renderPageContents(page, element, cache) {
 	if (page.values) {
-		var parser = Parse.lang[page.values.markupLang];
+		var lang = page.values.markupLang;
 	}
-	parser = parser || Parse.fallback;
-	if (element) {
-		setChild(element, parser(page.content, false, cache));
-	} else {
-		return parser(page.content, false, cache);
-	}
-}
-
-function setChild(element, child) {
-	element.innerHTML = "";
-	element.appendChild(child);
+	var out = Parse.parseLang(page.content, lang);
+	if (element)
+		setChild(element, out);
+	
+	return out
 }
 
 // as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
@@ -3555,7 +4563,7 @@ function parseDate(str) {
 	return new Date(0);
 }
 
-function renderActivityItem(activity, page, user) {
+function renderActivityItem(activity, page, user, noTime) {
 	if (!user)
 		user = [];
 	else if (!(user instanceof Array))
@@ -3563,47 +4571,49 @@ function renderActivityItem(activity, page, user) {
 
 	switch(activity.action) {
 	case "c":
-		var text = "Created";
+		var text = "created";
 		break;case "u":
-		text = "Edited";
+		text = "edited";
 		break;case "d":
-		text = "Deleted";
+		text = "deleted";
 		break;case "p":
-		text = "Posted on";
+		text = "posted on";
 		break;default:
-		text = "Unknown action";
+		text = "unknown action";
 	}
 	var div = document.createElement('a');
-	div.className = "listItem bar rem1-5";
+	div.className = "listItem bar rem1-7";
 	var action = document.createElement('span');
-	action.className = "textItem";
-	action.textContent = text;
-	var link = document.createElement('b');
-	link.className = "textItem pre";
-	if (activity.action =="p")
-		div.href = "#discussions/"+activity.contentId;
-	else
-		div.href = "#pages/"+activity.contentId;
-	link.textContent = " "+page.name+" ";
+	action.className = "textItem noColor";
+	action.textContent = text+" ";
+
+	if (activity.type == 'content') {
+		if (activity.action == "p")
+			div.href = "#pages/"+activity.contentId+"#comment-"+activity.id; //todo: comment link
+		else
+			div.href = "#pages/"+activity.contentId;
+
+		var icon = "page";
+		if (!hasPerm(page.permissions, 0, 'r'))
+			icon = "hiddenpage";
+		var name = renderContentName(page.name, icon)
+	} else if (activity.type == 'category') {
+		div.href = "#categories/"+activity.contentId;
+		var name = renderContentName(page.name, 'category')
+	}
 	
 	user.forEach(function(user){
-		var usr = document.createElement('a');
-		usr.className = 'item';
-		usr.href = "#user/"+user.id;
-		
-		var name = document.createElement('span');
-		name.textContent = user.username;
-		name.className = "textItem";
-		usr.appendChild(userAvatar(user, 'item'));
-		usr.appendChild(name);
+		var usr = renderUserLink(user);
 		div.appendChild(usr);
 		div.appendChild(document.createTextNode(" "));
 	});
 	div.appendChild(action);
-	div.appendChild(link);
-	var time = renderTimeAgo(activity.date);
-	time.className += " rightAlign";
-	div.appendChild(time);
+	div.appendChild(name);
+	if (!noTime) {
+		var time = renderTimeAgo(activity.date);
+		time.className += " rightAlign";
+		div.appendChild(time);
+	}
 	return div;
 }
 
@@ -3613,45 +4623,38 @@ function renderMemberListUser(user) {
 	return div;
 }
 
+function renderMessageGap() {
+	var div = document.createElement('div');
+	div.className = "messageGap";
+	return div;
+}
+
 function renderMessagePart(comment, sizedOnload){
-	var c = comment.content;
-	var t, m;
-	try {
-		c = JSON.parse(c);
-		if (c.t)
-			t = c.t;
+	var content = comment.content;
+	var text, markup;
+	if (content[0] == "{") {
+		var j = parseJSON(content);
+		if (j) {
+			text = j.t;
+			markup = j.m;
+		} else
+			text = content;
+	} else {
+		var i = content.indexOf("\n");
+		if (i<0)
+			text = content;
 		else
-			t = c;
-		m = c.m;
-	} catch (e) {
-		t = c;
+			text = content.substr(i+1);
 	}
-	/*if (m == '12y') {
-		//todo: update for parser aaaa
-		element = parse(t);
-		var x = element.getElementsByTagName('img');
-		for (var i=0;i<x.length;i++) {
-			x[i].onload = sizedOnload;
-		}
-	} else {*/
-		element = document.createElement('div');
-		element.appendChild(document.createTextNode(t));
-	//}
+	element = parser(markup)(text);
 	element.className += ' messagePart';
-	//document.title=comment.username+":"+t;
+	element.id = "_anchor_comment-"+comment.id;
+	//document.title=comment.username+":"+text;
 	return element;
 }
 
-function hide(element) {
-	element.style.display = 'none';
-}
-
-function show(element) {
-	element.style.display = '';
-}
-
-function visible(element, state) {
-	element.style.display = state ? '' : 'none';
+function parser(markup) {
+	return Parse.lang[markup] || Parse.fallback;
 }
 
 // Based on sbs chat autoscroller
@@ -3718,22 +4721,28 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 }
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
-	// replace an existing message (we assume uid doesn't change)
-	if (this.nodes[id]) {
-		this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
-	// insert a new line to the last block
-	} else if (uid && this.lastUid == uid) {
-		this.lastUidBlock.appendChild(node);
-	// create a new block
+	if (id == null) {
+		this.element.appendChild(node);
+		this.lastUid = undefined;
+		this.lastUidBlock = undefined;
 	} else {
-		var b = makeBlock();
-		b[1].appendChild(node);
-		this.element.appendChild(b[0]);
-		
-		this.lastUidBlock = b[1];
-		this.lastUid = uid;
+		// replace an existing message (we assume uid doesn't change)
+		if (this.nodes[id]) {
+			this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
+			// insert a new line to the last block
+		} else if (uid && this.lastUid == uid) {
+			this.lastUidBlock.appendChild(node);
+			// create a new block
+		} else {
+			var b = makeBlock();
+			b[1].appendChild(node);
+			this.element.appendChild(b[0]);
+			
+			this.lastUidBlock = b[1];
+			this.lastUid = uid;
+		}
+		this.nodes[id] = node;
 	}
-	this.nodes[id] = node;
 	if (s)
 		this.autoScroll();
 }
@@ -3765,67 +4774,52 @@ AutoScroller.prototype.embed = function(node) {
 	if (s)
 		this.autoScroll();
 }
-var flags = {};
-function flag(flag, state) {
-	if (!flags[flag] != !state) {
-		if (state)
-			flags[flag] = true;
-		else
-			delete flags[flag];
-		var cls = "";
-		for (flag in flags) {
-			cls += " f-"+flag;
-		}
-		document.documentElement.className = cls;
-	}
-}
-
-var uploadedAvatar;
+// this file contains code for rendering stuff direclty to the screen
+// none of it is "reusable" etc.
 
 // clean up stuff whenever switching pages
-function cleanUp() {
+function cleanUp(type) {
 	flag('myUserPage');
+	flag('canEdit');
+	flag('page');
 	$messageList.innerHTML = "";
 	$authorBox.innerHTML = "";
+	$sbapiInfo.innerHTML = "";
+	$fileBox.innerHTML = "";
+	$fileView.src = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
 	}
 }
 
-function setTitle(text) {
+var currentChatRoom;
+
+function setTitle(text, icon) {
 	$pageTitle.textContent = text;
+	document.title = text;
+	if (icon) {
+		$pageTitleIcon.className = "item iconBg iconBg-"+icon;
+	} else {
+		$pageTitleIcon.className = "";
+	}
 }
 
-function generateSettingsView(n, callback) {
-	// maybe merge this with the register page somehow?
-	// only one of them really works at a time anyway
-	if (me.auth) {
-		me.getSettings(function(user, page) {
-			cleanUp();
-			$main.className = "settingsMode";
-			generateAuthorBox();
-			generatePath([["#usersettings","Settings"]]);
-			if (user) {
-				setTitle("User Settings: " + user.username);
-				userAvatar(user, $settingsAvatar);
-				if (page) {
-					$userPageLink.href = "#pages/edit/"+page.id;
-				} else {
-					$userPageLink.href = "#pages/edit?type=@user.page&name=User Page";
-				}
-			}
-			callback();
-		});
-	} else {
-		cleanUp();
-		$main.className = "errorMode";
-		setTitle("WHAT IS YOUR NAME?");
-	}
+function submitUserSettings() {
+	me.setSensitive({
+		oldPassword: $settingsOldPassword.value,
+		username: $settingsUsername.value || undefined,
+		newPassword: $settingsNewPassword.value || undefined,
+		newEmail: $settingsEmail.value || undefined
+	}, function(){});
 }
 
 var editingPage;
 var editorCache = {};
+
+function cleanUpEditor() {
+	$editorTextarea.value = "";
+}
 
 function newPage(query) {
 	return {
@@ -3855,7 +4849,9 @@ function fillEditorFields(page) {
 	$keywords.value = page.keywords.join(" ");
 	$permissions.value = JSON.stringify(page.permissions);
 	$editPageType.value = page.type;
-	generatePath(makeCategoryPath(me.categoryTree, page.parentId, page.name ? page : undefined));
+	$editPageCategory.value = page.parentId;
+	
+	generatePagePath(page, me.userCache); //usercache is hack lol
 }
 
 function readEditorFields(page) {
@@ -3865,48 +4861,40 @@ function readEditorFields(page) {
 	page.permissions = JSON.parse($permissions.value);
 	page.type = $editPageType.value;
 	page.content = $editorTextarea.value;
+	page.parentId = +$editPageCategory.value;
 }
 
-// call this function with no `id` to create a new page
-// remember to set .cid in `query` so it knows what parentId to use
-
-// idea: when editing, store the parent category/whatever somewhere, to tell where to go back to when deleting/ and also a way to send you to your user page when editing that I guess.
-function generateEditorView(id, query, callback) {
-	me.getPageForEditing(id, go);
-	// if there's no ID, getPageForEditing will just
-	// get the category tree if it's needed
-	
-	function go(page, users) {
-		cleanUp();
-		$main.className = "editorMode";
-		generateAuthorBox(page, users);
-		visible($deletePage, page && /d/.test(page.myPerms));
-		visible($submitEdit, !page || /u/.test(page.myPerms));
-		//todo: set buttons to "disabled" instead maybe
-		// and add explanation of permissions?
-		//make it more clear when you can't modify page, especially
-		
-		if (page) {
-			setTitle("Editing:");
-			editingPage = page;
-		} else {
-			setTitle("Creating:");
-			editingPage = newPage(query);
-			$titleInput.focus();
-		}
-		fillEditorFields(editingPage);
-		callback();
-	}
+function newCategory(query) {
+	return {
+		parentId: +query.cid || 0,
+		name: "untitled",
+		values: {},
+		permissions: {
+			0: "cr"
+		},
+		description: ""
+	};
 }
 
-function generateHomeView(idk, callback) {
-	cleanUp();
-	$main.className = "homeMode";
-	generateAuthorBox();
-	generatePath();
-	setTitle("Welcome to smilebnasic soruce! 2");
-	callback();
+function fillCateditFields(cat) {
+	$cateditTitle.value = cat.name;
+	var pinned = cat.values.pinned || "";
+	$cateditPinned.value = pinned;
+	$cateditCategory.value = cat.parentId;
+	$cateditPermissions.value = JSON.stringify(cat.permissions);
+	$cateditDescription.value = cat.description;
+	generatePath(makeCategoryPath(me.categoryTree, cat.id));
 }
+
+function readCateditFields(cat) {
+	cat.name = $cateditTitle.value;
+	cat.values.pinned = $cateditPinned.value;
+	cat.parentId = +$cateditCategory.value;
+	cat.permissions = parseJSON($cateditPermissions.value);
+	cat.description = $cateditDescription.value;
+}
+
+var editingCategory;
 
 function attr(element, attr, value) {
 	if (value == undefined)
@@ -3915,36 +4903,16 @@ function attr(element, attr, value) {
 		element.setAttribute(attr, value);
 }
 
-function generatePageView(id, callback) {
-	loadStart();
-	me.getPage(id, function(page, users, comments){
-		cleanUp();
-		$main.className = "pageMode";
-		generateAuthorBox(page, users);
-		visible($pageEditButton, page);
-		if (page) {
-			currentPage = page.id;
-			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
-			setTitle("\uD83D\uDCC4 " + page.name);
-			$watchCheck.checked = page.about.watching;
-			// todo: handle showing/hiding the vote box when logged in/out
-			renderPageContents(page, $pageContents)
-			$pageEditButton.href = "#pages/edit/"+page.id;
-			$voteCount_b.textContent = page.about.votes.b.count;
-			$voteCount_o.textContent = page.about.votes.o.count;
-			$voteCount_g.textContent = page.about.votes.g.count;
-			["b","o","g"].forEach(function(vote) {
-				window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
-				attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "" : undefined);
-			});
-		} else {
-			currentPage = null;
-			setTitle("Page not found");
-			generatePath();
-			$main.className = "errorMode";
-		}
-		callback();
-	});
+function generatePagePath(page, users) {
+	// user page (at root)
+	if (page.type == "@user.page" && !page.parentId) {
+		var creator = users[page.createUserId];
+		generatePath([["#users","Users"], ["#user/"+creator.id, creator.username], ["#pages/"+page.id, page.name]]);
+	} else if (page.id) {
+		generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
+	} else {
+		generatePath(makeCategoryPath(me.categoryTree, page.parentId));
+	}
 }
 
 function megaAggregate(activity, ca, contents) {
@@ -3953,6 +4921,16 @@ function megaAggregate(activity, ca, contents) {
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
+		if (x.createDate) {
+			return {
+				action: "p",
+				contentId: x.parentId,
+				date: x.createDate,
+				id: x.id,
+				userId: x.createUserId,
+				type: 'content'
+			}
+		}
 		return {
 			action: "p",
 			contentId: x.id,
@@ -3963,14 +4941,23 @@ function megaAggregate(activity, ca, contents) {
 			type: 'content',
 		}
 	}));
-	allAct.forEach(function(x) {
+	allAct = allAct.filter(function(x) {
 		if (x.action == 'd')
 			x.content = {name: x.extra, id: x.contentId, deleted: true};
-		else
+		else if (x.type == "content")
 			x.content = contentMap[x.contentId];
+		else if (x.type == "category" && me.categoryTree)
+			x.content = me.categoryTree.map[x.contentId];
+		else
+			return; //some weird activity type
+		return x;
 	});
-	allAct.sort(function(a, b) {
-		return a.date < b.date;
+	allAct = allAct.sort(function(a, b) {
+		if (a.date > b.date)
+			return -1;
+		if (a.date < b.date)
+			return 1;
+		return 0;
 	});
 	//todo: trim all trailing of same type because that's when the other runs out
 	// also we can optimize merging of 2 sorted arrays here!
@@ -3982,89 +4969,12 @@ function generatePath(path) {
 }
 // function generatePagePath - category tree paths
 
-function generateUserView(id, callback) {
-	me.getUserPage(id, function(user, page, activity, ca, pages, userMap) {
-		cleanUp();
-		$main.className = 'userMode';
-		// todo: change edit box to "Joined: <date>" and "page edited: <date>"
-		generateAuthorBox(user && page, userMap);
-		generatePath([["#users","Users"], ["#user/"+id, user.username]]);
-		$userPageAvatar.src = "";
-		$userActivity.innerHTML = "";
-		if (page) {
-			$pageEditButton.href = "#pages/edit/"+page.id;
-		} else if (id == me.uid) {
-			$pageEditButton.href = "#pages/edit?type=@user.page&name=User Page";
-		} else {
-			//todo: hide
-			$pageEditButton.removeAttribute('href');
-		}
-		if (user) {
-			if (user.id == me.uid)
-				flag('myUserPage', true);
-			setTitle(user.username);
-			if (page) {
-				renderPageContents(page, $userPageContents)
-			} else {
-				$userPageContents.innerHTML = "";
-			}
-			userAvatar(user, $userPageAvatar, true);
-			$userPageAvatarLink.href = user.rawAvatarURL;
-			var lastId, lastAction;
-			megaAggregate(activity, ca, pages).forEach(function(activity){
-				if (activity.type != "content") //idk, category?
-					return;
-				if (activity.contentId != lastId || activity.action != lastAction) {
-					if (activity.content) {
-						$userActivity.appendChild(renderActivityItem(activity, activity.content));
-						lastId = activity.contentId;
-						lastAction = activity.action;
-					}
-				}
-			});
-		} else {
-			$main.className += " errorMode";
-			setTitle("User Not Found");
-		}
-		callback();
-	});
-}
-
-function generateChatView(id, callback) {
-	// todo: make this work when logged out
-	// use a normal request at first and then switch on the long poller IF logged in
-	lp.callback = function(comments, listeners, userMap, page) {
-		if (page && page.id == id) {
-			generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
-			generateAuthorBox(page, userMap);
-			$messageList.innerHTML = ""
-			$main.className = "chatMode";
-			scroller.switchRoom(id);
-			setTitle(page.name);
-			renderPageContents(page, $pageContents);
-			callback();
-		} else if (page == false) { //1st request, page doesn't exist
-			generatePath();
-			generateAuthorBox(page, userMap);
-			$messageList.innerHTML = ""
-			setTitle("Page not found");
-			$pageContents.innerHTML = "";
-			callback();
-			// TODO: page list passed to callback needs to be PER-ID!!
-		}
-		if (comments) {
-			comments.forEach(function(comment) {
-				if (comment.parentId == id)
-					displayMessage(comment, userMap[comment.createUserId]);
-			});
-		}
-		if (listeners)
-			updateUserlist(listeners[id], userMap);
-		if (page) {
-			scroller.autoScroll(true);
-		}
-	}
-	lp.addRoom(id);
+function updateUserlist(listeners, userMap) {
+	$chatUserlist.innerHTML = "";
+	listeners && forDict(listeners, function(status, user) {
+		if (status)
+			$chatUserlist.appendChild(renderUserListAvatar(userMap[user]));
+	})
 }
 
 function displayMessage(c, user) {
@@ -4083,89 +4993,522 @@ function displayMessage(c, user) {
 	}
 }
 
-function generateCategoryView(id, callback) {
-	me.getCategory(id, 50, 0, 'editDate', false, function(category, childs, contentz, users) {
-		cleanUp();
-		$main.className = 'categoryMode';
-		
-		$categoryPages.innerHTML = "";
-		$categoryCategories.innerHTML = "";
-		$categoryDescription.textContent = "";
-		if (category) {
-			contentz.reverse();
-			generatePath(makeCategoryPath(me.categoryTree, category.id));
-			setTitle("\uD83D\uDCC1 "+category.name);
-			$categoryDescription.textContent = category.description;
-			childs.forEach(function(cat) {
-				$categoryCategories.appendChild(renderCategory(cat, users));
-			});
-			$categoryPages.style.display="none";
-			contentz.forEach(function(content) {
-				$categoryPages.appendChild(renderCategoryPage(content, users));
-			});
-			$categoryPages.style.display="";
-			$categoryCreatePage.href = "#pages/edit?cid="+category.id;
+function displayGap() {
+	scroller.insert(null, renderMessageGap());
+}
+
+function handlePinned(pinned) {
+	$categoryPinned.innerHTML = "";
+	pinned.forEach(function(content) {
+		$categoryPinned.appendChild(renderCategoryPage(content, users2, true));
+	});
+}
+
+function sbapi(key, callback) {
+	var x = new XMLHttpRequest();
+	x.open('GET', protocol()+"//sbapi.me/get/"+key+"/info?json=1");
+	x.onload = function() {
+		var code = x.status;
+		if (code == 200) {
+			var resp = null;
+			try {
+				resp = JSON.parse(x.responseText);
+			} catch(e) {
+			}
+			callback(resp);
 		} else {
-			generatePath();
-			$categoryCreatePage.href = ""
-			$main.className += "errorMode";
-			setTitle("Category not found");
+			callback(null);
 		}
-		callback();
-	});
+	}
+	x.onerror = function() {
+		callback(null);
+	}
+	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
+	x.send();
 }
 
-function generateMembersView(idk, callback) {
-	me.getUsers({}, function(users) {
-		cleanUp();
-		$main.className = 'membersMode';
-		$memberList.innerHTML = "";
-		renderUserPath($navPane);
-		setTitle("Users");
-		users.forEach(function(user) {
-			$memberList.appendChild(renderMemberListUser(user));
+function readFileFields(file) {
+	file.name = $fileName.value;
+	file.permissions = parseJSON($filePermissions.value);
+	file.values = parseJSON($fileValues.value);
+}
+
+function fillFileFields(file) {
+	$fileName.value = file.name;
+	$filePermissions.value = JSON.stringify(file.permissions);
+	$fileValues.value = JSON.stringify(file.values);
+	console.log(me.userCache);
+	$fileUser.textContent = me.userCache[file.createUserId].username;
+}
+
+function renderFileThumbnail(file) {
+	var div = document.createElement('div');
+	div.className = "fileThumbnail item";
+	div.onclick = function() {
+		selectFile(file);
+	}
+	var img = document.createElement('img');
+	img.src = me.thumbnailURL(file.id);
+	div.appendChild(img);
+	return div;
+}
+
+function saveFileSettings() {
+}
+
+var selectedFile;
+function selectFile(file) {
+	selectedFile = null;
+	fillFileFields(file);
+	$fileView.src = me.imageURL(file.id);
+	var doSelect = true;
+	$fileView.onload = $fileView.onerror = function() {
+		if (!doSelect)
+			return;
+		doSelect = false
+		selectedFile = file;
+		flag('fileSelected', true);
+		flag('canEdit', /u/.test(file.myPerms));
+	}
+	flag('fileUploading');
+}
+
+function selectUploadedFile(file) {
+	selectedFile = null;
+	var url = URL.createObjectURL(file);
+	URL.revokeObjectURL($fileView.src); //should probably only do this when it's actually a blob url lol
+	$fileView.src = url;
+	$fileView.onload = function() {
+		selectedFile = file;
+		flag('fileUploading', true);
+	}
+	flag('fileSelected');
+}
+
+function handleLoads(element) {
+	var imgs = element.querySelectorAll('video, img, iframe');
+	for (var i=0; i<imgs.length; i++) {
+		imgs[i].onload = function() {
+			scrollToAuto();
+		}
+	}
+}
+
+function doView(name, id, query, callback) {
+	var view = views[name] || views.error;
+	var cancelled;
+	if (view.start) {
+		var xhr = view.start(id, query, function() {
+			if (cancelled)
+				return;
+			cleanUp(name);
+			view.render.apply(null, arguments);
+			callback();
 		});
+	} else {
+		cleanUp(name);
+		view.render(id, query, name);
 		callback();
-	});
+	}
+	return function() {
+		if (xhr && xhr.abort) {
+			xhr.abort();
+			loadEnd();
+		}
+		cancelled = true;
+	}
 }
 
-function generateActivityView(idk, callback) {
-	me.getActivity(function(activity, ca, pages, users) {
-		cleanUp();
-		$main.className = 'activityMode';
-		renderActivityPath($navPane);
-		if (activity) {
-			setTitle("Activity");
-			var last = {};
-			$activity.innerHTML = "";
-			megaAggregate(activity, ca, pages).forEach(function(activity){
-				if (activity.type != "content") //idk, category?
-					return;
-				if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
-					if (activity.content) {
-						if (activity.userId instanceof Array)
-							var user = activity.userId.map(function(x){
-								return users[x];
-							})
-						else
-							user = users[activity.userId]
-						$activity.appendChild(renderActivityItem(activity, activity.content, user));
-						last = activity;
+var views = {
+	files: {
+		start: function(id, query, callback) {
+			var page = +query.page || 0;
+			selectedFile = null;
+			flag('fileSelected');
+			flag('fileUploading');
+			return me.getFiles({}, page, function(files, users) {
+				callback(files, page, users);
+			});
+		},
+		render: function(files, page, users) {
+			$main.className = "fileMode";
+			setTitle("Files");
+			$filePageNumber.textContent = " page "+page;
+			$filePrev.href = "#files?page="+(page-1);
+			$fileNext.href = "#files?page="+(page+1);
+			generatePath([["#files","Files"], undefined]);
+			if (files) {
+				files.forEach(function(file) {
+					$fileBox.appendChild(renderFileThumbnail(file));
+				});
+			}
+		}
+	},
+	register: {
+		render: function(id, query, callback) {
+			$main.className = "registerMode";
+			setTitle("Create an account");
+		}
+	},
+	activity: {
+		start: function(id, query, callback) {
+			var page = +query.page || 0;
+			return me.getActivity(page, function(activity, ca, pages, users) {
+				callback(activity, ca, pages, users, page);
+			});
+		},
+		render: function(activity, ca, pages, users, page) {
+			$main.className = 'activityMode';
+			$activityPageNumber.textContent = " "+page+" days ago";
+			$activityPagePrev.href = "#activity?page="+(page-1);
+			$activityPageNext.href = "#activity?page="+(page+1);
+			generatePath([["#activity","Activity"], undefined]);
+			if (activity) {
+				setTitle("Activity");
+				var last = {};
+				$activity.innerHTML = "";
+				
+				megaAggregate(activity, ca, pages).forEach(function(activity){
+					if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
+						if (activity.content) {
+							if (activity.userId instanceof Array)
+								var user = activity.userId.map(function(x){
+									return users[x];
+								})
+							else
+								user = users[activity.userId]
+							$activity.appendChild(renderActivityItem(activity, activity.content, user));
+							last = activity;
+						}
+					}
+				});
+			}
+		}
+	},
+	users: {
+		start: function(id, query, callback) {
+			var page = (+query.page-1) || 0;
+			return me.getUsers({reverse: false}, page, function(users) {
+				callback(users, page);
+			});
+		},
+		render: function(users, page) {
+			$main.className = 'membersMode';
+			$memberList.innerHTML = "";
+			$membersPrev.href = "#users?page="+Math.max(1,page);
+			$membersNext.href = "#users?page="+(page+2);
+			// we need better pagination :(
+			generatePath([["#users","Users"],undefined]);
+			setTitle("Users");
+			users.forEach(function(user) {
+				$memberList.appendChild(renderMemberListUser(user));
+			});
+		}
+	},
+	categories: {
+		start: function(id, query, callback) {
+			var page = +query.page || 0
+			return me.getCategory(id, page, function(category, childs, contentz, users, pinned) {
+				callback(category, childs, contentz, users, pinned, page, id);
+			}, handlePinned);
+		},
+		render: function(category, childs, contentz, users, pinned, page, id) {
+			//todo: make these only load the pages, not pinned etc. too;
+			$categoryPageNumber.textContent = " "+page;
+			$categoryPagesPrev.onclick = function() {
+				window.location.hash = "#categories/"+id+"?page="+(page-1);
+			}
+			$categoryPagesNext.onclick = function() {
+				window.location.hash = "#categories/"+id+"?page="+(page+1);
+			}
+			
+			users2 = users;
+			$main.className = 'categoryMode';
+			$categoryPages.innerHTML = "";
+			$categoryCategories.innerHTML = "";
+			$categoryDescription.textContent = "";
+			$categoryPinned.innerHTML = "";
+			flag('canEdit', !!category);
+			visible($categoryDescription, category && category.id);
+			if (category) {
+				$editButton.href = "#categories/edit/"+category.id;
+				contentz.reverse();
+				generatePath(makeCategoryPath(me.categoryTree, category.id));
+				setTitle(category.name, 'category');
+				if (category.id && category.description)
+					renderPageContents({
+						content: category.description,
+						values: category.values
+					}, $categoryDescription);
+				childs.forEach(function(cat) {
+					$categoryCategories.appendChild(renderCategory(cat, users));
+				});
+				$categoryPages.style.display="none";
+				contentz.reverse();
+				contentz.forEach(function(content) {
+					$categoryPages.appendChild(renderCategoryPage(content, users));
+				});
+				$categoryPages.style.display="";
+				$categoryCreatePage.href = "#pages/edit?cid="+category.id;
+				if (pinned)
+					handlePinned(pinned);
+				else if (category.values.pinned) {
+					category.values.pinned.split(",").forEach(function(x) {
+						$categoryPinned.appendChild(renderCategoryPage({
+							id: +x,
+							name: ""
+						}, users, true));
+					});
+				}
+			} else {
+				$categoryCreatePage.href = ""
+				$main.className += "errorMode";
+				setTitle("Category not found");
+			}
+		}
+	},
+	user: {
+		start: function(id, query, render) {
+			id = +id;
+			return me.getUserPage(id, function(user, page, activity, ca, pages, userMap) {
+				render(user, page, activity, ca, pages, userMap, id);
+			})
+		},
+		render: function(user, page, activity, ca, pages, userMap, id) {
+			$main.className = 'userMode';
+			// todo: change edit box to "Joined: <date>" and "page edited: <date>"
+			generateAuthorBox(user && page, userMap);
+			
+			$userPageAvatar.src = "";
+			$userActivity.innerHTML = "";
+			if (page) {
+				$editButton.href = "#pages/edit/"+page.id;
+				flag('canEdit', true);
+			} else if (id == me.uid) {
+				$editButton.href = "#pages/edit?type=@user.page&name=User Page";
+				flag('canEdit', true);
+			}
+			if (user) {
+				generatePath([["#users","Users"], ["#user/"+id, user.username]]);
+				if (user.id == me.uid)
+					flag('myUserPage', true);
+				setTitle(user.username);
+				if (page) {
+					renderPageContents(page, $userPageContents)
+				} else {
+					$userPageContents.innerHTML = "";
+				}
+				userAvatar(user, $userPageAvatar, true);
+				$userPageAvatarLink.href = user.rawAvatarURL;
+				var lastId, lastAction;
+				megaAggregate(activity, ca, pages).forEach(function(activity){
+					if (activity.contentId != lastId || activity.action != lastAction) {
+						if (activity.content) {
+							$userActivity.appendChild(renderActivityItem(activity, activity.content));
+							lastId = activity.contentId;
+							lastAction = activity.action;
+						}
+					}
+				});
+			} else {
+				generatePath([["#users","Users"], undefined]);
+				$main.className = "errorMode";
+				setTitle("User Not Found");
+			}
+		}
+	},
+	pages: {
+		start: function(id, query, callback) {
+			lp.onListeners = function(lists, users) {
+				updateUserlist(lists[id], users)
+			}
+			lp.onMessages = function(messages, users, pages) {
+				messages.forEach(function(comment) {
+					var user = users[comment.createUserId];
+					if (comment.parentId == id)
+						displayMessage(comment, user);
+				})
+			}
+			lp.setViewing(id);
+			var linked = query["#"];
+			if (linked && /^comment-/.test(linked)) {
+				linked=+linked.substr(8);
+			} else {
+				linked = null;
+			}
+			return me.getPage(id, function(page, users, comments){
+				callback(page, users, comments, query);
+			});
+		},
+		render: function(page, users, comments, query) {
+			$main.className = "pageMode";
+			generateAuthorBox(page, users);
+			flag('canEdit', !!page);
+			if (page) {
+				flag('page', true);
+				scroller.switchRoom(page.id);
+				generatePagePath(page, users);
+				currentPage = page.id;
+				currentChatRoom = page.id;
+				var icon = "page";
+				if (!hasPerm(page.permissions, 0, 'r'))
+					icon = "hiddenpage"
+				setTitle(page.name, icon);
+				$watchCheck.checked = page.about.watching;
+				// todo: handle showing/hiding the vote box when logged in/out
+				renderPageContents(page, $pageContents)
+				handleLoads($pageContents);
+				displayGap();
+				comments && comments.reverse().forEach(function(comment) {
+					if (comment.parentId == page.id)
+						displayMessage(comment, users[comment.createUserId]);
+				});
+				$editButton.href = "#pages/edit/"+page.id;
+				$voteCount_b.textContent = page.about.votes.b.count;
+				$voteCount_o.textContent = page.about.votes.o.count;
+				$voteCount_g.textContent = page.about.votes.g.count;
+				["b","o","g"].forEach(function(vote) {
+					window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
+					attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "" : undefined);
+				});
+				
+				var photos = page.values.photos;
+				visible($gallery, photos);
+				if (photos) {
+					photos = photos.split(",").map(function(x){return +x});
+					$galleryImage.src = me.fileUrl(photos[0]);
+				}
+				var keyinfo = parseJSON(page.values.keyinfo);
+				var key = page.values.key;
+				var supported = parseJSON(page.values.supported);
+				flag('hasKey', !!key);
+				
+				if (key) {
+					$metaKey.textContent = key;
+					$metaKey.className = "metaKey textItem";
+					
+					sbapi(key, function(data) {
+						if (!data) {
+							$metaKey.className += " invalidKey";
+						} else if (!data.available) {
+							$metaKey.className += " brokenKey";
+						}
+						renderKeyInfo(key, data, $sbapiInfo)
+					})
+				} else {
+					$metaKey.textContent = "";
+					$sbapiInfo.innerHTML = "";
+				}
+				if (query["#"]) {
+					var comment=document.getElementById("_anchor_"+query["#"])
+					if (comment) {
+						comment.scrollIntoView()
+						comment.setAttribute("data-linked", "");
 					}
 				}
-			});
+			} else {
+				currentPage = null;
+				setTitle("Page not found");
+				generatePath();
+				$main.className = "errorMode";
+			}
 		}
-	});
+	},
+	"": {
+		render: function(id, query, callback) {
+			$main.className = "homeMode";
+			generatePath();
+			setTitle("Welcome to smilebnasic source! 2");
+		}
+	},
+	'categories/edit': {
+		start: function(id, query, callback) {
+			return me.getCategoryForEditing(id, function(cat) {
+				callback(cat, query);
+			})
+		},
+		render: function(cat, query) {
+			$main.className = 'cateditMode';
+			if (cat) {
+				visible($cateditSubmit, /u/.test(cat.myPerms));
+				setTitle("Editing Category:");
+				editingCategory = cat;
+			} else {
+				setTitle("Creating Category:");
+				editingCategory = newCategory(query);
+			}
+			fillCateditFields(editingCategory);
+		}
+	},
+	// idea: when editing, store the parent category/whatever somewhere, to tell where to go back to when deleting/ and also a way to send you to your user page when editing that I guess.
+
+	'pages/edit': {
+		start: function(id, query, callback) {
+			return me.getPageForEditing(id, function(page, users) {
+				callback(page, users, query);
+			});
+		},
+		render: function(page, users, query) {
+			$main.className = "editorMode";
+			//todo: detect create perm properly (on category)
+			// annoying thing is, when logging in to a page,
+			// would need to re-request myperms hmm
+			// maybe just have proper error handling?
+			var canEdit = (!page && me.auth) || /u/.test(page.myPerms)
+			visible($deletePage, page && /d/.test(page.myPerms));
+			visible($submitEdit, canEdit);
+			generateAuthorBox(page, users);
+			//todo: set buttons to "disabled" instead maybe
+			// and add explanation of permissions?
+			//make it more clear when you can't modify page, especially
+			
+			if (page) {
+				setTitle(canEdit ? "Editing:" : "Viewing Source:");
+				editingPage = page;
+			} else {
+				setTitle("Creating:");
+				editingPage = newPage(query);
+				$titleInput.focus();
+			}
+			fillEditorFields(editingPage);
+		}
+	},
+	usersettings: {
+		start: function(id, query, render) {
+			if (me.auth) {
+				return me.getSettings(function(user, page) {
+					render(user, page)
+				});
+			} else {
+				render();
+			}
+		},
+		render: function(user, page) {
+			if (user) {
+				$main.className = "settingsMode";
+				generateAuthorBox();
+				generatePath([["#usersettings","Settings"]]);
+				setTitle("User Settings: " + user.username);
+			} else {
+				$main.className = "errorMode";
+				setTitle("WHAT IS YOUR NAME?");
+			}
+		}
+	},
+	test: {
+		render: function(id, query) {
+			setTitle("Testing");
+			$main.className = "testMode";
+		}
+	},
+	error: {
+		render: function(id, query, type) {
+			$main.className = "errorMode";
+			setTitle("[404] I DON'T KNOW WHAT A \""+type+"\" IS");
+		}
+	}
 }
 
-function generateRegisterView(idk, callback) {
-	cleanUp();
-	$main.className = "registerMode";
-	generateAuthorBox();
-	generatePath();
-	$pageTitle.textContent = "Create an account";
-	callback();
-}
 //bug: when going back from another site, page is loaded from cache, and
 // certain things are not reloaded
 
@@ -4176,7 +5519,7 @@ function generateRegisterView(idk, callback) {
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
 var scroller;
-var lp = new DiscussionLongPoller(me, null);
+var lp = new LongPoller(me, null);
 var currentPage;
 flag('sidebar', localStorage.getItem('sbs-sidebar') == 'true');
 
@@ -4190,7 +5533,16 @@ else {
 	ready();
 }
 
+function setUserCSS(text) {
+	$userCSS.textContent = text;
+}
+
 function ready() {
+	var userCSS = localStorage.userCSS;
+	if (userCSS) {
+		setUserCSS(userCSS);
+	}
+	
 	if (me.openRequests) {
 		loadStart();
 	}
@@ -4201,12 +5553,13 @@ function ready() {
 		onLogin(me);
 	else
 		onLogout();
-	
-	me.on('login', function(gotUser) {
-		onLogin(me);
-	});
-	me.on('logout', function() {
-		onLogout(me);
+
+	me.onLogin = onLogin;
+	me.onLogout = onLogout;
+
+	me.getVariable("userCSS", function(css) {
+		if (css != null)
+			setUserCSS(userCSS);
 	});
 	
 	$loggedOut.$login.onclick = function() {
@@ -4230,11 +5583,12 @@ function ready() {
 	}
 
 	$submitEdit.onclick = submitEdit;
+	$cateditSubmit.onclick = cateditSubmit;
 	$deletePage.onclick = deletePage;
 	
 	$chatSend.onclick = function() {
-		if ($chatTextarea.value) {
-			me.postComment(lp.idList[0], $chatTextarea.value, "plaintext", function(){});
+		if ($chatTextarea.value && currentChatRoom) {
+			me.postComment(currentChatRoom, $chatTextarea.value, "", function(){});
 			$chatTextarea.value = "";
 		}
 	}
@@ -4247,28 +5601,46 @@ function ready() {
 	};
 
 	var voteBtns = [$voteButton_b, $voteButton_o, $voteButton_g];
-	// todo: this breaks when clicking things INSIDE the button
-	//wtf
+	var voteCounts = [$voteCount_b, $voteCount_o, $voteCount_g];
 	// todo: update counts when changing
-	$voteBox.addEventListener('click', function(e){
-		var btn = e.target;
-		if (voteBtns.indexOf(btn) == -1)
-			return;
-		var selected = e.target.getAttribute('data-selected');
-		voteBtns.forEach(function(btn) {
-			btn.removeAttribute('data-selected');
-		});
-		if (selected)
-			e.target.removeAttribute('data-selected');
-		else
-			e.target.setAttribute('data-selected', "true");
-		var vote = !selected ? e.target.getAttribute('data-vote') : null;
-		me.setVote(currentPage, vote, function(e){
-		});
-	},true);
-	
+	var voteBlock;
+	voteBtns.forEach(function(button, buttoni) {
+		button.onclick = function(e) {
+			if (voteBlock || !me.auth)
+				return;
+			var selected = button.getAttribute('data-selected');
+			var vote = !selected ? button.getAttribute('data-vote') : null;
+			voteBlock = true;
+			me.setVote(currentPage, vote, function(e, resp){
+				voteBlock = false;
+				if (!e) {
+					voteBtns.forEach(function(btn, i) {
+						if (btn != button || selected) {
+							if (btn.getAttribute('data-selected') != null) {
+								voteCounts[i].textContent = +voteCounts[i].textContent - 1;
+							}
+							btn.removeAttribute('data-selected');
+						}
+					});
+					//todo: update vote counts here;
+					if (!selected) {
+						button.setAttribute('data-selected', "true");
+						voteCounts[buttoni].textContent = +voteCounts[buttoni].textContent + 1;
+						//increment
+					}
+				}
+			});
+		}
+	})
+
+	var blockWatch
 	$watchCheck.onchange = function() {
-		me.setWatch(currentPage, $watchCheck.checked, function(){});
+		if (blockWatch)
+			return;
+		blockWatch = true;
+		me.setWatch(currentPage, $watchCheck.checked, function(){
+			blockWatch = false;
+		});
 	}
 	
 	$registerForm.$register.onclick = function(e) {
@@ -4276,7 +5648,6 @@ function ready() {
 		$registerError.textContent = "";
 		var email = $registerForm.email.value;
 		me.register($registerForm.username.value, $registerForm.password.value, email, function(e, resp) {
-			console.log(e, resp, resp.errors);
 			if (e == 'error' && resp) {
 				var errors = ["Registration failed:"];
 				if (resp.errors) {
@@ -4318,68 +5689,140 @@ function ready() {
 			}
 		});
 	}
-
-	$settingsAvatarUpload.onchange = function() {
-		var reader = new FileReader();
-		uploadedAvatar = new FormData();
-		uploadedAvatar.append('file', this.files[0]);
-	};
-
-	//todo: when avatar changes, update internal cache and whatever
-	// need to especially change the avatar in the corner of the screen
-	// aaaaaaa eventssss
-	$settingsAvatarSubmit.onclick = function() {
-		if (uploadedAvatar) {
-			me.uploadFile(uploadedAvatar, function(e, resp) {
-				if (!e) {
-					me.setBasic({avatar:resp.id},console.log);
-				}
-			});
-			uploadedAvatar = null;
-		}
-	}
 	
 	scroller = new AutoScroller($messageList);
 
 	hashChange(true);
-	//console.log = debugMessage;
 	/*$reload.onclick = function(){
 		hashChange();
 	}*/
 
 	$openSidebar.onclick = $closeSidebar.onclick = toggleSidebar;
+	
+	$setAvatarButton.onclick = function() {
+		if (selectedFile && selectedFile.id) {
+			me.setBasic({avatar: selectedFile.id}, function(e) {
+				if (!e) {
+					updateAvatar(selectedFile);
+				}
+			});
+		}
+	}
+
+	$fileUploadButton.onclick = function() {
+		if (selectedFile instanceof File) {
+			me.uploadFile(selectedFile, function(e, resp) {
+				if (!e) {
+					selectFile(resp);
+				}
+			});
+		}
+	}
+	
+	$fileUpload.onchange = function(e) {
+		var file = this.files[0]
+		if (file) {
+			selectUploadedFile(file);
+		}
+	}
+
+	$fileUpdateButton.onclick = function() {
+		if (selectedFile && selectedFile.id) {
+			readFileFields(selectedFile);
+			me.putFile(selectedFile, function(e, resp) {
+			});
+		}
+	}
+
+	$submitUserSettings.onclick = submitUserSettings;
+
+	$testButton.onclick = function() {
+		var c = $testTextarea.value;
+		$testOut.textContent="Starting..."
+		try {
+			var res = eval(c);
+			$testOut.textContent="Finished:\n"+res;
+		} catch(e) {
+			$testOut.textContent="Error:\n"+res;
+		}
+	}
+
+	$saveUserCSS.onclick = function() {
+		var css = $settingsUserCSS.value;
+		localStorage.userCSS = css;
+		me.setVariable("userCSS", css, function(){});
+		setUserCSS(css);
+	}
+
+/*	document.body.onclick = function(e) {
+		console.log(e.target)
+	}*/
+}
+
+function updateAvatar(file) {
+	$myAvatar.src = me.avatarURL(file.id);
+	//todo;
 }
 
 function toggleSidebar() {
-	flag('sidebar', !flags.sidebar);
-	localStorage.setItem('sbs-sidebar', flags.sidebar);
+	if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches) {
+		flag('mobileSidebar', !flags.mobileSidebar);
+	} else {
+		flag('sidebar', !flags.sidebar);
+		localStorage.setItem('sbs-sidebar', flags.sidebar);
+	}
 }
 
 var currentPath = null;
 
+function silentSetFragment(fragment) {
+	cancelhashchange = true;
+	location.hash = fragment;
+	cancelhashchange = false;
+}
+
 // todo: add a "force" flag
 function hashChange(first) {
 	var fragment = getPath();
+	// append # to the end of fragment links,
+	// and it will be removed, so every time you clikc the link it will scroll
+	if (fragment[2] == "") {
+		silentSetFragment(location.hash.slice(0,-1));
+	}
 	if (currentPath == fragment[0]) {
 		scrollTo(fragment[1])
 	} else {
 		currentPath = fragment[0];
 		navigateTo(fragment[0], first, function() {
 			scrollTo(fragment[1])
-		});
+		}, fragment[1]);
 	}
 	
 }
 
+function scrollToAuto() {
+	var fragment = getPath();
+	if (fragment[1])
+		scrollTo(fragment[1]);
+}
+
 function scrollTo(name) {
+	//todo: this needs to happen after all images load etc. somehow...
 	if (name) {
-		var n = document.getElementsByName("_anchor_"+name);
-		if (n[0])
-			n[0].scrollIntoView();
+		var n = document.getElementsByName("_anchor_"+name)[0] || document.getElementById("_anchor_"+name);
+		console.log("ANCHOR",n,name);
+		if (n)
+			n.scrollIntoView();
 	}
 }
 
+var cancelhashchange
 window.onhashchange = function() {
+	if (cancelhashchange) {
+		cancelhashchange = false;
+		return;
+	}
+	
 	// todo: when a link which has the same path but a different fragment is clicked,
 	// page should not reload, instead just scroll to fragment
 	hashChange(false);
@@ -4398,11 +5841,13 @@ function split1(string, sep) {
 		return [string.substr(0,n), string.substr(n+sep.length)];
 }
 
-function navigateTo(path, first, callback) {
-	lp.reset();
+var cancel;
+function navigateTo(path, first, callback, hash) {
+	if (cancel)
+		cancel();
 	path = split1(path, "?");
 	var query = path[1];
-	var queryVars = {};
+	var queryVars = {"#":hash};
 	if (query) {
 		query.split("&").forEach(function(item) {
 			item = split1(item, "=");
@@ -4414,55 +5859,19 @@ function navigateTo(path, first, callback) {
 		});
 	}
 	path = path[0].split("/").filter(function(x){return x;});
-	
-	var type = path[0];
-	var id = +(path[1]);
-	if (type == "pages") {
-		if (path[1] == "edit") {
-			first && ($main.className = 'editMode');
-			if (path[2]) {
-				path[2] = path[2].split(/[&?]/g);
-				id = +(path[2][0]);
-			} else {
-				id = undefined;
-			}
-			generateEditorView(id, queryVars, callback);
-		} else {
-			first && ($main.className = 'pageMode');
-			generatePageView(id, callback);
-		}
-	} else if (type == "categories") {
-		first && ($main.className = 'categoryMode');
-		generateCategoryView(id, callback);
-	} else if (type == "user") {
-		first && ($main.className = 'userMode');
-		generateUserView(id, callback);
-	} else if (type == "users") {
-		first && ($main.className = 'membersMode');
-		generateMembersView(null, callback);
-	} else if (type == "discussions") {
-		first && ($main.className = 'chatMode');
-		generateChatView(id, callback);
-	} else if (typeof type == 'undefined') { //home
-		first && ($main.className = 'homeMode');
-		generateHomeView(null, callback);
-	} else if (type == 'register') {
-		first && ($main.className = 'registerMode');
-		generateRegisterView(null, callback);
-	} else if (type == 'usersettings') {
-		first && ($main.className = 'settingsMode');
-		generateSettingsView(null, callback);
-	} else if (type == 'activity') {
-		first && ($main.className = 'activityMode');
-		generateActivityView(null, callback);
-	} else {
-		$main.className = "errorMode";
-		generateAuthorBox();
-		$pageTitle.textContent = "[404] I DON'T KNOW WHAT A \""+type+"\" IS";
-		renderPath($navPane);
-		$pageContents.textContent = "";
-		callback();
+
+	var type = path[0] || "";
+	var id = +(path[1]) || 0;
+	var name;	
+	if (path[1] == 'edit') {
+		id = path[2]!=undefined && +path[2];
+		type = type + "/" + path[1];
 	}
+	cancel = doView(type, id, queryVars, callback);
+}
+
+function doPage(mode, func, id, query, callback, first) {
+	func(id, query, callback);
 }
 
 function makeCategoryPath(tree, id, leaf) {
@@ -4484,14 +5893,11 @@ function makeCategoryPath(tree, id, leaf) {
 function loadStart(lp) {
 	if (!lp)
 		flag('loading', true);
-	/*if (window.$titlePane)
-		window.$titlePane.style.backgroundColor = "#48F";*/
 }
 function loadEnd(lp, e) {
 	if (!lp) {
 		flag('loading');
 	}
-	/*$titlePane.style.backgroundColor = "";*/
 }
 
 //maybe turn the title <h1> into an input box
@@ -4503,6 +5909,18 @@ function submitEdit() {
 			alert("ERROR");
 		} else {
 			window.location.hash = "#pages/"+resp.id;
+			cleanUpEditor();
+		}
+	});
+}
+
+function cateditSubmit() {
+	readCateditFields(editingCategory);
+	me.postCategory(editingCategory, function(e, resp) {
+		if (e) {
+			alert("ERROR");
+		} else {
+			window.location.hash = "#categories/"+resp.id;
 		}
 	});
 }
@@ -4525,12 +5943,18 @@ function deletePage() {
 
 var editorCache = {video:{},audio:{},youtube:{}};
 function updateEditorPreview(preview) {
+	var parent = $editorPreview;
+	var shouldScroll = parent.scrollHeight-parent.clientHeight-parent.scrollTop < 10
 	renderPageContents({
 		values: {
 			markupLang: $markupSelect.value
 		},
 		content: $editorTextarea.value
 	}, $editorPreview, editorCache);
+	// auto scroll down when adding new lines to the end (presumably)
+	if (shouldScroll) {
+		parent.scrollTop = parent.scrollHeight-parent.clientHeight;
+	}
 }
 
 // "generate" functions operate implicitly on specific html elements, and should be in view.js
@@ -4540,84 +5964,179 @@ function generateAuthorBox(page, users) {
 	renderAuthorBox(page, users, $authorBox);
 }
 
-function updateUserlist(listeners, userMap) {
-	$chatUserlist.innerHTML = "";
-	listeners && listeners.forEach(function(l) {
-		$chatUserlist.appendChild(renderUserListAvatar(userMap[l]));
-	})
-}
-
 function onLogin(me) {
+	//var me = this;
 	me.whenUser(me.uid, function(user) {
 		userAvatar(user, $myAvatar);
 		$myName.textContent = user.username;
 		$myUserLink.href = "#user/"+user.id;
 	});
 	flag("loggedIn",true);
+	/*hashChange(false);*/
+	lp.onMessages = function(messages, users, pages) {
+	}
+	lp.onActivity = function(activity, users, pages) {
+	}
+	lp.onBoth = function(resp) {
+		sbm(resp.chains);
+	}
+	lp.onStatus = function(text) {
+		$longPollStatus.textContent = text;
+	}
+	me.doListenInitial(function(e, resp){
+		if (!e) {
+			var lastId = -1
+			resp.comment.forEach(function(comment) {
+				if (comment.id > lastId)
+					lastId = comment.id;
+			});
+			resp.activity.forEach(function(comment) {
+				if (comment.id > lastId)
+					lastId = comment.id;
+			});
+			sbm(resp);
+			lp.lastId = lastId
+			lp.start();
+		}
+	})
+}
+
+function sbm(resp) {
+	console.log(resp);
+	if (!(resp.comment && resp.content && resp.activity))
+		return;
+	var users = resp.userMap;
+	var last = {};
+	var all = megaAggregate(resp.activity, resp.comment, resp.content);
+	all.reverse().forEach(function(activity){
+		if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
+			if (activity.content) {
+				if (activity.userId instanceof Array)
+					var user = activity.userId.map(function(x){
+						return users[x];
+					})
+				else
+					user = users[activity.userId]
+				$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true), $sidebarActivity.firstChild);
+				last = activity;
+			}
+		}
+	});
 }
 
 function onLogout() {
+	lp.cancel[0]();
 	$myAvatar.src = "";
 	$myName.textContent = "";
 	flag("loggedIn");
 }
+
+// maybe at bottom of sidebar (or top?)
+// put list of active pages
+//
+// also still need to deal with
+// old message deletion and old room clearing
+// ugh
 </script>
-<title>DAVE'S SHIT HOLE</title>
-
-<body class="pageMode" id="$main">
+<style id="$userCSS"></style>
+<body class="" id="$main">
 	<!--
-		 
+		 Nav bar 
 	  -->
-	<nav class="headerPane bar">
-		<a href="#" class="textItem"><img class="item" src="fav-big.png?b" alt="SBS"></a>
-		<span id="$navPane" class="path textItem"></span>
-
+	<nav class="navPane bar">
+		<a href="#" class="textItem"><img class="item" src="images/iconbig.png?a" alt="SBS"></a> <span id="$navPane" class="path textItem"></span>
 		<span class="rightAlign textItem">
-			<button id="$openSidebar" class="item">|||</button><!--<button id="$reload" class="item">Reload</button>--><!--<input id="$search" placeholder="Search" class="item">--><div class="loggedIn textItem" id="$loggedIn"><a class="textItem userLink" id="$myUserLink"><span class="myName username textItem" id="$myName" class="item"></span><img class="myAvatar item avatar" id="$myAvatar"></a></div>
+			<div class="buttonContainer item"><button id="$openSidebar">|||</button></div><!--<button id="$reload" class="item">Reload</button>--><!--<input id="$search" placeholder="Search" class="item">--><div class="loggedIn textItem" id="$loggedIn"><a class="item userLink" id="$myUserLink"><span class="myName username textItem" id="$myName" class="item"></span><img class="myAvatar item avatar" id="$myAvatar"></a></div>
 		</span>
 	</nav>
-
+	
 	<header class="titlePane bar rem2-3" id="$titlePane">
-		<h1 class="pageTitle textItem pre" id="$pageTitle"></h1>
-		<a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><button id="$logout" class="textItem loggedIn myUserPage">Log Out</button>
-		<input class="item editorMode" id="$titleInput" placeholder="Page Title" required>
-		<span class="editorMode textItem">
-			<button id="$submitEdit" class="item">Submit</button><div class="textItem"></div>
-		</span>
-		<span class="textItem pageMode" id="$voteBox"><button id="$voteButton_b" class="item voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button><button id="$voteButton_o" class="item voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button><button id="$voteButton_g" class="item voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></span>
-		<label for="$watchCheck" class="textItem pageMode">Watching:</label>
-		<input type="checkbox" id="$watchCheck" class="item pageMode">
+		<span id="$pageTitleIcon"></span><h1 class="pageTitle textItem pre" id="$pageTitle"></h1><a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><div class="buttonContainer item loggedIn myUserPage"><button id="$logout">Log Out</button></div><input class="item editorMode" id="$titleInput" placeholder="Page Title" required><input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required><div class="buttonContainer item editorMode"><button id="$submitEdit" >Submit</button></div><span class="cateditMode textItem"><div class="buttonContainer item"><button id="$cateditSubmit">Submit</button></div></span><span class="textItem pageMode" id="$voteBox"><div class="buttonContainer item"><button id="$voteButton_b" class="voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_o" class="voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_g" class="voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></div></span>
+		<label for="$watchCheck" class="textItem pageItem loggedIn">Watching:</label>
+		<input type="checkbox" id="$watchCheck" class="item pageItem loggedIn">
 
 		<div class="pageCreate textItem rightAlign">
-			<button id="$deletePage" class="item editorMode">DELETE</button>
-			<a class="textItem pageUserMode" id="$pageEditButton"><button class="item" tabindex="-1">Edit</button></a>
-			<span class="textItem" id="$authorBox"></span>
+			<span class="textItem" id="$authorBox"></span><div class="buttonContainer editorMode item"><button id="$deletePage">DELETE</button></div><div class="buttonContainer item canEdit"><a id="$editButton"><button tabindex="-1">Edit</button></a></div>
 		</div>
 	</header>
 
 	<div class="sideBarContainer">
 		<div class="m">
-			<div class="userlistPane userlist rem2-3 chatMode bar" id="$chatUserlist"></div>
+			<div class="userlistPane userlist rem2-3 pageChatMode bar" id="$chatUserlist"></div>
 			
 			<div class="infoPane editorMode">
 				<label for="$keywords">Keywords:</label><input placeholder="(space separated, optional)" id="$keywords"><br>
 				<label for="$editPageType">Type:</label><input placeholder="@" id="$editPageType"><br>
+				<label for="$editPageCategory">Category id:</label><input type="number" placeholder="id" id="$editPageCategory"><br>
 				<label for="$permissions">Permissions:</label><input id="$permissions"><br>
 				<label for="$markupSelect">Markup language:</label>
 				<select id="$markupSelect">
 					<option value="plaintext">plain text</option>
 					<option value="12y">12-y documentation markup format</option>
 					<option value="bbcode">bbcode</option>
-				</select><button id="$markupUpdate">Update</button>
+				</select><button id="$markupUpdate">Update Preview</button>
 			</div>
 
-			<div class="activityMode categoryNav">
-				<span class="textItem"><button id="$categoryPagesPrev" class="item">&lt;</button><button id="$categoryPagesNext" class="item">&gt;</button></span>
+			<div class="fileMode fileNav rem1-7 nav">
+				<div class="buttonContainer item"><a id="$filePrev"><button>&lt;</button></a></div><div class="buttonContainer item"><a id="$fileNext"><button>&gt;</button></a></div><span class="textItem" id="$filePageNumber"></span><input type="file" id="$fileUpload" accept="image/*" class="item loggedIn">
+			</div>
+
+			<div class="fileMode fileBox bar" id="$fileBox">
+			</div>
+
+			<div class="fileMode">
+				<div class="buttonContainer fileUploading"><button id="$fileUploadButton">Upload Image!</button></div>
+				<div class="fileSelected">
+					<div class="buttonContainer loggedIn"><button id="$setAvatarButton">Use As Avatar</button></div>
+					<table class="form">
+						<tr>
+							<th>User:</th>
+							<td id="$fileUser"></td>
+						</tr>
+						<tr>
+							<th><label for="$fileName">Name:</label></th>
+							<td><input id="$fileName"></td>
+						</tr>
+						<tr>
+							<th><label for="$fileName">Permissions:</label></th>
+							<td><input id="$filePermissions"><br></td>
+						</tr>
+						<tr>
+							<th><label for="$fileName">Values:</label></th>
+							<td><input id="$fileValues"></td>
+						</tr>
+					</table>
+					<div class="buttonContainer canEdit loggedIn"><button id="$fileUpdateButton" class="fileUpdateButton">Save Settings</button></div>
+				</div>
 			</div>
 			
-			<div class="membersMode">
-				<span class="textItem"><button id="$membersPrev" class="item">&lt;</button><button id="membersNext" class="item">&gt;</button></span>
+			
+			<div class="activityMode categoryNav rem1-7 nav bar">
+				<span class="textItem">
+					<div class="buttonContainer item">
+						<a id="$activityPagePrev"><button>&lt;</button></a>
+					</div><div class="buttonContainer item">
+						<a id="$activityPageNext"><button>&gt;</button></a>
+					</div><span class="textItem" id="$activityPageNumber"></span>
+				</span>
 			</div>
+			
+			<div class="membersMode memberNav nav">
+
+				<span class="textItem">
+					<div class="buttonContainer item">
+						<a id="$membersPrev">
+							<button>&lt;</button>
+						</a>
+					</div><div class="buttonContainer item">
+						<a id="$membersNext">
+							<button>&gt;</button>
+						</a>
+					</div>
+				</span>
+			</div>
+
+
 
 			<div class="userPageBox userMode">
 				<a id="$userPageAvatarLink"><img id="$userPageAvatar" class="userPageAvatar avatar"></a>
@@ -4629,18 +6148,36 @@ function onLogout() {
 				 one of them will be visible at a time, depending on the view mode
 			  -->
 			
-			<main class="paneGrow scroller">
+			<main>
+				<div class="cateditMode">
+					<label for="$cateditPinned">Pinned pages:</label><input id="$cateditPinned"><br>
+					<label for="$cateditCategory">Parent category:</label><input id="$cateditCategory" type="number"><br>
+					<label for="$cateditPermissions">Permissions:</label><input id="$cateditPermissions"><br>
+					<textarea id="$cateditDescription"></textarea><br>
+				</div>
+				
 				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
-				<div class="categoryMode categoryNav">
-					<span class="textItem"><button id="$categoryPagesPrev" class="item">&lt;</button><button id="$categoryPagesNext" class="item">&gt;</button></span>
-					<a class="textItem" id="$categoryCreatePage"><button class="item">Create Page</button></a>
+				<div id="$categoryPinned" class="categoryMode"></div>
+				<div class="categoryMode categoryNav rem1-7">
+					<span class="buttonContainer item">
+						<button id="$categoryPagesPrev">&lt;</button>
+					</span><span class="buttonContainer item">
+						<button id="$categoryPagesNext">&gt;</button>
+					</span>
+					<span class="textItem" id="$categoryPageNumber"></span>
+					<span class="buttonContainer item"><a id="$categoryCreatePage"><button>Create Page</button></a></span>
 				</div>
 				<div id="$categoryPages" class="categoryPages categoryMode"></div>
 
 				<div class="userActivity userMode" id="$userActivity"></div>
 
-				<div class="pageInfoPane pageChatMode" id="$pageInfoPane">
+				<div class="pageInfoPane pageMode px40" id="$pageInfoPane">
+					<span id="$gallery" class="gallery" style="display:none;"><button id="$galleryPrev" class="galleryButton">&lt;</button><img id="$galleryImage"><button id="$galleryNext" class="galleryButton rightAlign">&gt;</button></span>
+					<span class="metaInfo">
+						<span id="$metaKey" class="textItem"></span>
+						<span id="$sbapiInfo" class="textItem"></span>
+					</span>
 					<!-- here we can put
 						  tags, type, sb key info, etc.
 					  -->
@@ -4652,22 +6189,17 @@ function onLogout() {
 				
 				<div class="editorPane editorMode">
 					<div class="editorTextarea">
-						<textarea id="$editorTextarea"></textarea>
+						<textarea id="$editorTextarea" minlength="2" required=""></textarea>
 					</div>
 					<div class="editorPreview" id="$editorPreview"><div class="markup-root" ></div></div>
 				</div>
 				
-				<div class="homeMode homePane paneGrow">
-					hey<br>
-					Users: <a href="#users">here</a><br>
-					Pages: <a href="#categories/0">here</a><br>
-					Activity: <a href="#activity">here</a><br>
-					<hr>
-					<blockquote>
-						why is this so fast<br>
-						what the fuck
-						<footer>- snail_</footer>
-					</blockquote>
+				<div class="homeMode homePane">
+					<a class="categoryPage bar rem2-3" href="#activity"><span class="textItem">Activity</span></a>
+					<a class="categoryPage bar rem2-3" href="#categories/0"><span class="textItem">Pages</span></a>
+					<a class="categoryPage bar rem2-3" href="#users"><span class="textItem">Users</span></a>
+					<a class="categoryPage bar rem2-3" href="#files"><span class="textItem">Images</span></a>
+					<a class="categoryPage bar rem2-3" href="#test"><span class="textItem">Test</span></a>
 				</div>
 				<div class="membersMode memberPane">
 					<div id="$memberList"></div>
@@ -4686,34 +6218,61 @@ function onLogout() {
 					<button id="$registerConfirm">Confirm</button>
 				</div>
 
-				<div class="settingsMode">
-					<img id="$settingsAvatar" class="userPageAvatar avatar"><br>
-					<input type="file" accept="image/*" id="$settingsAvatarUpload" autocomplete="off">
-					<button id="$settingsAvatarSubmit">Submit</button><br>
-					<a id="$userPageLink">Edit User Page</a>
+				<div class="settingsMode loggedIn">
+					<table class="form">
+						<tr><td><label for="$settingsOldPassword">Old Password: </label></td><td><input type="password" id="$settingsOldPassword" required=""><td></tr>
+						<tr><td><label for="$settingsUsername">New Username (Optional): </label></td><td><input autocomplete="off" id="$settingsUsername"></td></tr>
+						<tr><td><label for="$settingsNewPassword">New Password (Optional): </label></td><td><input autocomplete="new-password" type="password" id="$settingsNewPassword"></td></tr>
+						<tr><td><label for="$settingsEmail">New Email (Optional): </label></td><td><input autocomplete="off" type="email" id="$settingsEmail"></td></tr>
+					</table>
+					<button id="$submitUserSettings">Save</button>
+					<hr>
+					<a href="#files">Change your avatar here</a>
+					<hr>
+					<label for="$settingsUserCSS">User CSS:</label><br>
+					<textarea id="$settingsUserCSS"></textarea><br>
+					<button id="$saveUserCSS">Save</button>
 				</div>
 
 				<div class="activityMode" id="$activity">
+				</div>
+
+
+				<div class="fileMode fileViewPane">
+					<img id="$fileView" class="fileView">
+				</div>
+
+				<div class="testMode">
+					<textarea id="$testTextarea"></textarea><br>
+					<button id="$testButton">Run</button><br>
+					<div id="$testOut" class="pre"></div>
 				</div>
 				
 				<div class="bottomSpacer"></div>
 			</main>
 			
-			
 			<!--
 				 Bottom of the page
 			  -->
-			<div class="inputPane chatMode">
+			<div class="inputPane pageChatMode">
 				<textarea id="$chatTextarea"></textarea>
-				<button id="$chatSend">Send</button>
+				<div class="buttonContainer"><button id="$chatSend">Send</button></div>
 			</div>
+
 		</div>
 		
-		<div class="sideBar">
-			<button id="$closeSidebar">Close Sibelius</button><br>
+		<div class="sideBar" id="$sidebar">
+			<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div><br>
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
-				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>			
+				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
+			<div class="loggedIn">
+				Long Poller: <span id="$longPollStatus"></span>
+			</div>
+			<div class="sidebarScroller" id="$sidebarScroller">
+				<div id="$sidebarPinned"></div>
+				<div id="$sidebarActivity"></div>
+			</div>
 		</div>
 	</div>
 </body>
