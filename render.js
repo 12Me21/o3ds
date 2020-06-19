@@ -269,7 +269,7 @@ function parseDate(str) {
 	return new Date(0);
 }
 
-function renderActivityItem(activity, page, user, noTime) {
+function renderActivityItem(activity, page, user, noTime,comment) {
 	if (!user)
 		user = [];
 	else if (!(user instanceof Array))
@@ -320,8 +320,22 @@ function renderActivityItem(activity, page, user, noTime) {
 		time.className += " rightAlign";
 		div.appendChild(time);
 	}
+	if (comment) {
+		var x = document.createElement('div');
+		x.className = "activityCommentText";
+		x.textContent = comment.split("\n").slice(1).join(" ");
+		div.appendChild(x);
+	}
 	return div;
 }
+
+function renderActivityBlock(room) {
+	
+}
+
+/*function renderActivityItem(action, user, comment) {
+	
+}*/
 
 function renderMemberListUser(user) {
 	var div = renderUserLink(user)

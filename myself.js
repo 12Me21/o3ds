@@ -50,8 +50,11 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			console.log(x);
 			callback('auth', resp);
 		} else if (code==404) {
-			console.log("got 404");
+			console.warn("got 404");
 			callback('404', resp);
+		} else if (code==500 && /^System.InvalidOperationException\b/.test(x.responseText)) {
+			console.warn("server page edit error");
+			callback('timeout', resp);
 		} else {
 			alert("Request failed! "+code+" "+url);
 			//console.log("sbs2Request: request failed! "+code);

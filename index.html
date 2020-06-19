@@ -32,6 +32,7 @@
 
 <script src="render.js?H"></script>
 <script src="view.js?N"></script>
+<script src="resize.js?a"></script>
 <script src="main.js?ag"></script>
 
 <!--END-->
@@ -58,7 +59,7 @@
 	</header>
 
 	<div class="sideBarContainer">
-		<div class="m">
+		<div class="m" id="$m">
 			<div class="userlistPane userlist rem2-3 pageChatMode bar" id="$chatUserlist"></div>
 			
 			<div class="infoPane editorMode">
@@ -156,7 +157,7 @@
 				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div id="$categoryPinned" class="categoryMode"></div>
-				<div class="categoryMode categoryNav rem1-7">
+				<div class="categoryMode categoryNav rem1-7 bar">
 					<span class="buttonContainer item">
 						<button id="$categoryPagesPrev">&lt;</button>
 					</span><span class="buttonContainer item">
@@ -252,14 +253,22 @@
 				 Bottom of the page
 			  -->
 			<div class="inputPane pageChatMode">
-				<textarea id="$chatTextarea"></textarea>
-				<div class="buttonContainer"><button id="$chatSend">Send</button></div>
+				<table>
+					<tr>
+						<td rowspan="2" class="tableGrow"><textarea class="chatTextarea" id="$chatTextarea"></textarea></td>
+						<td rowspan="2"><div class="buttonContainer chatSend"><button id="$chatSend">Send</button></div></td>
+						<td style="white-space: nowrap"><div class="buttonContainer chatSend"><button id="$chatSend">Edit</button></div><div class="buttonContainer chatSend"><button id="$chatSend">Delete</button></div></td>
+					</tr>
+					<tr>
+						<td><select class="fill"><option>Plaintext</option><option>12y</option><option>BBCode</option></select></td>
+					</tr>
+				</table>
 			</div>
-
 		</div>
 		
 		<div class="sideBar" id="$sidebar">
-			<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div><br>
+			<div id="$sidebarResize">.\</div>
+			<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
 				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
@@ -270,6 +279,7 @@
 				<div id="$sidebarPinned"></div>
 				<div id="$sidebarActivity"></div>
 			</div>
+
 		</div>
 	</div>
 </body>

@@ -145,6 +145,7 @@ function megaAggregate(activity, ca, contents) {
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
+		console.log("MA",x);
 		if (x.createDate) {
 			return {
 				action: "p",
@@ -152,7 +153,8 @@ function megaAggregate(activity, ca, contents) {
 				date: x.createDate,
 				id: x.id,
 				userId: x.createUserId,
-				type: 'content'
+				type: 'content',
+				comment: x.content
 			}
 		}
 		return {

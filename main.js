@@ -243,6 +243,13 @@ function ready() {
 		setUserCSS(css);
 	}
 
+	attachResize($m, $sidebarResize, true, function(w) {
+		localStorage.sidebarWidth = w;
+		console.log("saving");
+	});
+	if (localStorage.sidebarWidth)
+		$m.style.width = localStorage.sidebarWidth+"px";
+	
 /*	document.body.onclick = function(e) {
 		console.log(e.target)
 	}*/
@@ -498,7 +505,7 @@ function sbm(resp) {
 	var last = {};
 	var all = megaAggregate(resp.activity, resp.comment, resp.content);
 	all.reverse().forEach(function(activity){
-		if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
+		/*if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {*/
 			if (activity.content) {
 				if (activity.userId instanceof Array)
 					var user = activity.userId.map(function(x){
@@ -506,10 +513,10 @@ function sbm(resp) {
 					})
 				else
 					user = users[activity.userId]
-				$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true), $sidebarActivity.firstChild);
+				$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true, activity.comment), $sidebarActivity.firstChild);
 				last = activity;
 			}
-		}
+		//}
 	});
 }
 
