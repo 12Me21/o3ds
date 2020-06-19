@@ -243,16 +243,53 @@ function ready() {
 		setUserCSS(css);
 	}
 
-	attachResize($m, $sidebarResize, true, function(w) {
+	attachResize($m, $sidebarPinnedResize, true, function(w) {
 		localStorage.sidebarWidth = w;
-		console.log("saving");
 	});
 	if (localStorage.sidebarWidth)
 		$m.style.width = localStorage.sidebarWidth+"px";
+
+	attachResize($sidebarPinned, $sidebarPinnedResize, false, function(w) {
+		localStorage.sidebarPinnedHeight = w;
+	});
+	if (localStorage.sidebarPinnedHeight)
+		$sidebarPinned.style.height = localStorage.sidebarPinnedHeight+"px";
+
 	
 /*	document.body.onclick = function(e) {
 		console.log(e.target)
-	}*/
+		}*/
+
+	document.onclick = function(e) {
+		var element = e.target;
+		if (flags.editComment || flags.deleteComment) {
+			while (element && element instanceof HTMLElement) {
+				var id = element.getAttribute('data-id')
+				if (id) {
+					if (flags.editComment) {
+						editComment(+id);
+					} else {
+						deleteComment(+id);
+					}
+				}
+				element = element.parentNode;
+			}
+			flag('editComment');
+			flag('deleteComment');
+		}
+	}
+	$chatDelete.onclick = function() {
+		window.setTimeout(function() {
+			flag('deleteComment', true);
+		}, 10);
+	}
+	
+}
+
+function deleteComment(id) {
+	var resp = confirm("Are you sure you want to delete this message?");
+	if (resp)
+		me.deleteComment(id, console.log);
 }
 
 function updateAvatar(file) {
@@ -306,7 +343,6 @@ function scrollTo(name) {
 	//todo: this needs to happen after all images load etc. somehow...
 	if (name) {
 		var n = document.getElementsByName("_anchor_"+name)[0] || document.getElementById("_anchor_"+name);
-		console.log("ANCHOR",n,name);
 		if (n)
 			n.scrollIntoView();
 	}
@@ -461,6 +497,7 @@ function generateAuthorBox(page, users) {
 }
 
 function onLogin(me) {
+	console.log("logged in");
 	//var me = this;
 	me.whenUser(me.uid, function(user) {
 		userAvatar(user, $myAvatar);
@@ -471,6 +508,7 @@ function onLogin(me) {
 	/*hashChange(false);*/
 	lp.onMessages = function(messages, users, pages) {
 	}
+	lp.onDelete = function(comments) {}
 	lp.onActivity = function(activity, users, pages) {
 	}
 	lp.onBoth = function(resp) {
@@ -497,25 +535,36 @@ function onLogin(me) {
 	})
 }
 
+//todo: commentdelete
 function sbm(resp) {
-	console.log(resp);
 	if (!(resp.comment && resp.content && resp.activity))
 		return;
 	var users = resp.userMap;
 	var last = {};
-	var all = megaAggregate(resp.activity, resp.comment, resp.content);
+	console.log("SBM",resp);
+	var all = megaAggregate(resp.activity, resp.comment, resp.content, resp.commentdelete);
 	all.reverse().forEach(function(activity){
 		/*if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {*/
-			if (activity.content) {
-				if (activity.userId instanceof Array)
-					var user = activity.userId.map(function(x){
-						return users[x];
-					})
-				else
-					user = users[activity.userId]
-				$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true, activity.comment), $sidebarActivity.firstChild);
-				last = activity;
-			}
+			//if (activity.content) {
+		if (activity.userId instanceof Array)
+			var user = activity.userId.map(function(x){
+				return users[x];
+			})
+		else if (activity.userId)
+			user = users[activity.userId];
+		else
+			user = null;
+		
+		$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true, activity.comment), $sidebarActivity.firstChild);
+		if ($sidebarActivity.children.length > 40) {
+			var c = $sidebarActivity.lastChild;
+			c.parentNode.removeChild(c);
+		}
+		
+		last = activity;
+
+		
+		//}
 		//}
 	});
 }

@@ -15,7 +15,7 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?ay">
+<link rel="stylesheet" href="style.css?az">
 <link rel="stylesheet" href="markup.css?x">
 <link rel="stylesheet" href="code.css?a">
 
@@ -23,17 +23,17 @@
 
 <script src="storage.js?a"></script>
 
-<script src="myself.js?Q"></script>
+<script src="myself.js?R"></script>
 
-<script src="lp4.js?b"></script>
+<script src="lp4.js?c"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?H"></script>
 
-<script src="render.js?H"></script>
-<script src="view.js?N"></script>
-<script src="resize.js?a"></script>
-<script src="main.js?ag"></script>
+<script src="render.js?I"></script>
+<script src="view.js?O"></script>
+<script src="resize.js?b"></script>
+<script src="main.js?ah"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -256,8 +256,8 @@
 				<table>
 					<tr>
 						<td rowspan="2" class="tableGrow"><textarea class="chatTextarea" id="$chatTextarea"></textarea></td>
-						<td rowspan="2"><div class="buttonContainer chatSend"><button id="$chatSend">Send</button></div></td>
-						<td style="white-space: nowrap"><div class="buttonContainer chatSend"><button id="$chatSend">Edit</button></div><div class="buttonContainer chatSend"><button id="$chatSend">Delete</button></div></td>
+						<td rowspan="2"><div class="buttonContainer chatSend fill"><button id="$chatSend">Send</button></div></td>
+						<td style="white-space: nowrap"><div class="buttonContainer chatSend"><button id="$chatEdit">Edit</button></div><div class="buttonContainer chatSend"><button id="$chatDelete">Delete</button></div></td>
 					</tr>
 					<tr>
 						<td><select class="fill"><option>Plaintext</option><option>12y</option><option>BBCode</option></select></td>
@@ -266,17 +266,20 @@
 			</div>
 		</div>
 		
-		<div class="sideBar" id="$sidebar">
-			<div id="$sidebarResize">.\</div>
-			<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
+		<div id="$sidebar">
+			<div>
+				<!--<div id="$sidebarResize" class="resize">&lt;-&gt;</div>-->
+				<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
+				<span class="loggedIn">
+					<span id="$longPollStatus"></span>
+				</span>
+			</div>
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
 				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
-			<div class="loggedIn">
-				Long Poller: <span id="$longPollStatus"></span>
-			</div>
+			<div id="$sidebarPinned"></div>
+			<div id="$sidebarPinnedResize" class="resize">resize</div>
 			<div class="sidebarScroller" id="$sidebarScroller">
-				<div id="$sidebarPinned"></div>
 				<div id="$sidebarActivity"></div>
 			</div>
 

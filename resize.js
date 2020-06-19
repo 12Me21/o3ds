@@ -1,12 +1,12 @@
 function attachResize(element, tab, horiz,cb) {
 	var startX,startY,down,startW,startH;
-	tab.onmousedown = function(e) {
+	tab.addEventListener('mousedown', function(e) {
 		startX = e.clientX;
 		startY = e.clientY;
 		startW = element.offsetWidth;
 		startH = element.offsetHeight;
 		down = true;
-	}
+	});
 	document.addEventListener('mouseup', function() {
 		down = false;
 	});
@@ -22,6 +22,5 @@ function attachResize(element, tab, horiz,cb) {
 			element.style.height = startH+vy+"px";
 			cb(startH+vy);
 		}
-		console.log("moved");
 	});
 }

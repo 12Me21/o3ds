@@ -1,8 +1,6 @@
-body.pageMode main {
-	height: 90vh;
-	display: block;
-}
-
+/****************
+ ** All Things **
+ ****************/
 * {
 	margin: 0;
 	box-sizing: border-box;
@@ -13,16 +11,6 @@ body.pageMode main {
 .textItem, .item, .buttonContainer button {
 	vertical-align: top;
 }
-
-/* html.loading * {
-	cursor: progress !important;
-}*/
-
-html {
-	background-color: red;
-	font-family: roboto, fontello, sans-serif;
-}
-
 /* all elements with user content, where whitespace should be preserved */
 .pre {
 	white-space: pre-wrap;
@@ -30,29 +18,8 @@ html {
 }
 
 a {
-	
-}
-
-/*a:visited {
-	color: #00A;
-	color: inherit;
-}*/
-/* heck all this blue text */
-
-.time {
-	color: #333;
-	font-size: 0.9em;
-	vertical-align: baseline;
-}
-
-.avatar {
-	border: 1px solid white;
-}
-
-a {
 	text-decoration: none;
 }
-
 a:hover {
 	color: #06F;
 }
@@ -67,16 +34,71 @@ textarea {
 }
 
 sup {vertical-align: super;}
-
 sub {vertical-align: sub;}
 
+.avatar {
+	border: 1px solid white;
+}
 .spacer {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
-
+.time {
+	color: #333;
+	font-size: 0.9em;
+	vertical-align: baseline;
+}
 .rightAlign {
 	float: right;
+}
+.ib {
+	display: inline-block;
+}
+
+.categoryNav {
+	border-bottom: 1px solid gray;
+}
+
+.memberNav {
+	border-bottom: 1px solid gray;
+}
+
+
+.pageName {
+	font-weight: bold;
+}
+
+.noColor {
+	color: black;
+}
+
+body.pageMode .bottomSpacer {
+	display: none;
+}
+body.fileMode .bottomSpacer {
+	display: none;
+}
+.username {
+	font-weight: bold;
+	unicode-bidi: embed;
+	white-space: pre-wrap;
+}
+
+.member .avatar {
+	margin-right: 0.7ch;
+}
+
+input {
+	font-size: 0.8em;
+}
+body.pageMode main {
+	height: 90vh;
+	display: block;
+}
+
+html {
+	background-color: red;
+	font-family: roboto, fontello, sans-serif;
 }
 
 /* These 3 classes handle like 90% of the layout lol */
@@ -106,62 +128,56 @@ sub {vertical-align: sub;}
 	/* set height */
 }
 
-@keyframes colorPulse{ 0% {background-color: #a1cfef} 100% {background-color: #a0f4df}}
-
-
-/****************************
- ** Main Container Element **
- ****************************/
-body {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: white;
-
-	height: 100vh; /* @@@ */
-}
-
-#\$chatTextarea {
-	width: 100%;
-	height: 100%;
-	resize: none;
-}
-
-.chatSend {
-	/*width: 100%;*/
-	height: 100%;
-}
-
 .fill {
 	width: 100%;
 	height: 100%;
 }
 
-.inputPane > table {
-	width: 100%;
-	border-collapse: collapse;
+.loginField {
+	width: 5rem;
 }
 
-.inputPane > table td {
-	padding: 0;
-	margin: 0;
-	height: 100%;
+.listItem .avatar {
+	margin-right: 0.3ch;
 }
 
 .tableGrow {
 	width: 100%;
 }
 
-/* most elements will be fixed-height, and should never shrink */
-body > * {
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
+/**********************
+ ** Button Container **
+ **********************/
+button {
+	line-height: normal !important;
+	font-size: 0.8em;
+	cursor: pointer;
+}
+.buttonContainer {
+	padding: 1px;
+	display: inline-block;
+}
+.buttonContainer button {
+	margin: 0;
+	padding: 0 0.5rem;
+	background-color: #EEE;
+	border: 2px solid gray;
+	height: 100%;
+	overflow-y: hidden;
+	border-style: outset;
+	border-radius: 2px;
+}
+.buttonContainer > a {
+	width: 100%;
+	height: 100%;
+	display: inline-block;
+}
+.buttonContainer button:hover {
+	border-color: #59E;
+}
+
+.buttonContainer button:active {
+	border-style: inset;
 }
 
 /* visibility control */
@@ -183,10 +199,27 @@ body:not(.fileMode) .fileMode {
 	display: none;
 }
 
+body {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: white;
+
+	height: 100vh; /* @@@ */
+}
+
 /*************
  ** Top Bar **
  *************/
 .navPane {
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
 	min-height: 1.5rem;
 	background-color: #333;
 	-webkit-transition: background-color 0.1s ease;
@@ -245,6 +278,8 @@ html.f-loggedIn .loggedOut {
  ** Title Pane **
  ****************/
 .titlePane {
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
 	background-color: #DDD;
 	padding: 0 0.1rem;
 	border-bottom: 2px solid black;
@@ -278,6 +313,11 @@ html:not(.f-canEdit) .canEdit {
 	font-family: monospace;
 }
 
+header :first-child {
+	min-width: 0.3rem;
+	display: inline-block;
+}
+
 /*******************************
  ** content+sidebar container **
  *******************************/
@@ -297,7 +337,6 @@ html:not(.f-canEdit) .canEdit {
 
 .m {
 	width:100%;
-
 	-webkit-flex-grow: 0;
 	flex-grow: 0;
 	display: -webkit-flex;
@@ -306,7 +345,9 @@ html:not(.f-canEdit) .canEdit {
 	flex-direction: column;
 }
 
-.sideBar {
+#\$sidebar {
+	display: flex;
+	flex-direction: column;
 	flex-grow: 1;
 	flex-shrink: 0;
 	flex-basis: 0;
@@ -317,9 +358,10 @@ html:not(.f-canEdit) .canEdit {
 	overflow:auto;
 }
 
-html:not(.f-sidebar) .sideBar {
+html:not(.f-sidebar) #\$sidebar {
 	-webkit-transform: translateX(100%);
 	transform: translateX(100%);
+	display: none;
 }
 
 html:not(.f-sidebar) .m {
@@ -327,22 +369,9 @@ html:not(.f-sidebar) .m {
 }
 
 html.f-sidebar .m {
+	max-width: 90vw;
 	width: 70vw;
 	overflow:auto;
-}
-
-#\$sidebarResize {
-	width: 1rem;
-	float:left;
-	background-color: rgba(255,255,255,0.2);
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	height: 100%;
-	position: fixed;
 }
 
 /**********
@@ -431,9 +460,16 @@ main {
 	line-height: 40px;
 }
 
-/***************
- ** Page Pane **
- ***************/
+.nav {
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
+	border-bottom: 1px solid gray;
+	background-color: #333;
+}
+
+.nav > span {
+	color: white;
+}
 
 /*******************
  ** Chat Userlist **
@@ -512,28 +548,45 @@ main {
 	max-height: 10vh;
 	border: 1px solid silver;
 }
+.messagePart[data-linked] {
+	background-color: rgba(255,255,0,0.3);
+}
+.messageGap {
+	border: 1px dashed gray;
+	margin: 0.3rem 0;
+}
+
+html.f-deleteComment .messagePart:hover {
+	background-color: red;
+}
+
 /****************
  ** Chat Input **
  ****************/
 .inputPane {
 	height: 3.25rem;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	flex-direction: row;
-}
-.inputPane > * {
-	height: 100%;
-}
-.inputPane > textarea {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	resize: none;
-	min-width: 0;
 }
 
-.inputPane > button {
-	width: 3.25rem;
+#\$chatTextarea {
+	width: 100%;
+	height: 100%;
+	resize: none;
+}
+
+.chatSend {
+	height: 100%;
+}
+
+.inputPane > table {
+	width: 100%;
+	height: 100%;
+	border-collapse: collapse;
+}
+
+.inputPane > table td {
+	padding: 0;
+	margin: 0;
+	height: 100%;
 }
 
 /**********************
@@ -636,30 +689,6 @@ main {
 	flex-basis: 0;
 }
 
-.nav {
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
-	border-bottom: 1px solid gray;
-	background-color: #333;
-}
-
-.nav > span {
-	color: white;
-}
-
-.loginField {
-	width: 5rem;
-}
-
-button {
-	line-height: normal !important;
-	font-size: 0.8em;
-	cursor: pointer;
-}
-input {
-	font-size: 0.8em;
-}
-
 table.form td:first-child {
 	text-align:right;
 }
@@ -671,40 +700,12 @@ table.form th {
 	text-align:right;
 }
 
-img.item {
-	vertical-align: top;
-}
-
 .userPageContents {
-	
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
-
-.voteButton[data-selected] {
-	background-color: lime;
-}
-
-/* hecko yo */
-.pageContents {
-	max-width:100%;
-	overflow-x:auto;
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
-}
-
-.listItem .avatar {
-	margin-right: 0.3ch;
-}
-
-.username {
-	font-weight: bold;
-	unicode-bidi: embed;
-	white-space: pre-wrap;
-}
-
-.member .avatar {
-	margin-right: 0.7ch;
+.userPageBox .pageContents {
+	max-height: 100%;
 }
 
 html:not(.f-myUserPage) .myUserPage {
@@ -722,66 +723,19 @@ html:not(.f-myUserPage) .myUserPage {
 	}
 }
 
-/* narrow screen: fullscreen sidebar */
-@media (max-width: 700px) {
-	.sideBar {
-		width: 100%;
-		height: 100%;
-		position: fixed;
-		bottom: 0;
-		right: 0;
-		left: 0;
-		border-left: none;
-		transform: none;
-		-webkit-transition: -webkit-transform 0.2s ease;
-		-webkit-transition: transform 0.2s ease;
-		transition: -webkit-transform 0.2s ease;
-		transition: transform 0.2s ease;
-	}
-	html:not(.f-sidebar) .sideBar {
-		margin-left: 0;
-		-webkit-transform: translateX(0);
-		transform: translateX(0);
-	}
-	html:not(.f-mobileSidebar) .sideBar {
-		-webkit-transform: translateX(100%);
-		transform: translateX(100%);
-	}
-	.m {
-		width: 100% !important;
-	}
+/**********
+ ** Page **
+ **********/
+.voteButton[data-selected] {
+	background-color: lime;
 }
 
-/* for devices with small screens */
-@media (max-width: 700px), (max-height: 500px) {
-	/* make the entire page scroll */
-	/* todo: make chat mode work better here */
-	body:not(.pageMode) {
-		position: static;
-		min-height: 100vh;
-		font-size: 0.9em;
-	}
-	textarea {
-		font-size: 1em; /* prevent zoom in on iphone */
-	}
-	body:not(.pageMode) main {
-		height: auto !important;
-		-webkit-flex-basis: auto;
-		flex-basis: auto;
-	}
-	html {
-		background-color: transparent;
-	}
-	.editorPreview {
-		-webkit-flex-basis: auto;
-		flex-basis: auto;
-	}
-	.userPageBox {
-		max-height: none;
-	}
-	.inputPane textArea {
-		font-size: 1rem;
-	}
+/* hecko yo */
+.pageContents {
+	max-width:100%;
+	overflow-x:auto;
+	-webkit-flex-shrink: 0;
+	flex-shrink: 0;
 }
 
 .pageInfoPane {
@@ -835,92 +789,13 @@ html:not(.f-myUserPage) .myUserPage {
 .metaInfo {
 	display: inline;
 }
-
-.categoryNav {
-	border-bottom: 1px solid gray;
-}
-
-.memberNav {
-	border-bottom: 1px solid gray;
-}
-
-.buttonContainer {
-	padding: 1px;
-	display: inline-block;
-}
-
-.buttonContainer button {
-	margin: 0;
-	padding: 0 0.5rem;
-	background-color: #EEE;
-	border: 2px solid gray;
-	height: 100%;
-	overflow-y: hidden;
-	border-style: outset;
-	border-radius: 2px;
-}
-
-.buttonContainer > a {
-	width: 100%;
-	height: 100%;
-	display: inline-block;
-}
-
-.buttonContainer button:hover {
-	border-color: #59E;
-}
-
-.buttonContainer button:active {
-	border-style: inset;
-}
-
-.ib {
-	display: inline-block;
-}
-
-.iconBg {
-	background-repeat: no-repeat;
-	background-size: contain;
-	background-position: center;
-	margin-right: 0.3rem;
-}
-
-.iconBg-page {
-	background-image: url("icons/page.png");
-}
-.iconBg-pin {
-	background-image: url("icons/pin.png");
-}
-.iconBg-category {
-	background-image: url("icons/folder.png");
-}
-.iconBg-hiddenpage {
-	background-image: url("icons/hiddenpage.png");
-}
-
-.pageName {
-	font-weight: bold;
-}
-
-.noColor {
-	color: black;
-}
-
-body.pageMode .bottomSpacer {
-	display: none;
-}
-body.fileMode .bottomSpacer {
+html:not(.f-page) .pageItem {
 	display: none;
 }
 
-.messagePart[data-linked] {
-	background-color: rgba(255,255,0,0.3);
-}
-
-.messageGap {
-	border: 1px dashed gray;
-	margin: 0.3rem 0;
-}
+/***********
+ ** Files **
+ ***********/
 
 .fileThumbnail {
 	display: inline-block;
@@ -960,30 +835,53 @@ html:not(.f-fileUploading) .fileUploading {
 	border-bottom: 1px solid gray;
 }
 
+/***********
+ ** Icons **
+ ***********/
+.iconBg {
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	margin-right: 0.3rem;
+}
+
+.iconBg-page {
+	background-image: url("icons/page.png");
+}
+.iconBg-pin {
+	background-image: url("icons/pin.png");
+}
+.iconBg-category {
+	background-image: url("icons/folder.png");
+}
+.iconBg-hiddenpage {
+	background-image: url("icons/hiddenpage.png");
+}
+
+/*************
+ ** Sidebar **
+ *************/
+.resize {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: grab;
+}
+
+#\$sidebarPinnedResize {
+	display: inline-block;
+	background-color: white;
+}
+
 .closeSidebar {
-	width: 100%;
+	display: none;
 }
 
 .closeSidebar button {
 	width: 100%;
-}
-
-html:not(.f-page) .pageItem {
-	display: none;
-}
-
-.userPageBox .pageContents {
-	max-height: 100%;
-}
-
-header :first-child {
-	min-width: 0.3rem;
-	display: inline-block;
-}
-
-.sideBar {
-	display: flex;
-	flex-direction: column;
 }
 
 .sidebarScroller {
@@ -1000,10 +898,77 @@ header :first-child {
 	border-bottom: 1px solid gray;
 }
 
-.sidebarScroller .bar > :first-child {
+.sidebarScroller .bar > .userLink:first-child {
 	margin-left: -0.2rem;
 }
 
 .sidebarScroller .bar > :last-child {
 	margin-right: -0.2rem;
+}
+
+/* narrow screen: fullscreen sidebar */
+@media (max-width: 700px) {
+	.closeSidebar {
+		display: block;
+	}
+	#\$sidebar {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		border-left: none;
+		transform: none;
+		-webkit-transition: -webkit-transform 0.2s ease;
+		-webkit-transition: transform 0.2s ease;
+		transition: -webkit-transform 0.2s ease;
+		transition: transform 0.2s ease;
+	}
+	html:not(.f-sidebar) #\$sidebar {
+		margin-left: 0;
+		-webkit-transform: translateX(0);
+		transform: translateX(0);
+	}
+	html:not(.f-mobileSidebar) #\$sidebar {
+		-webkit-transform: translateX(100%);
+		transform: translateX(100%);
+	}
+	.m {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+}
+
+
+/* for devices with small screens */
+@media (max-width: 700px), (max-height: 500px) {
+	/* make the entire page scroll */
+	/* todo: make chat mode work better here */
+	body:not(.pageMode) {
+		position: static;
+		min-height: 100vh;
+		font-size: 0.9em;
+	}
+	textarea {
+		font-size: 1em; /* prevent zoom in on iphone */
+	}
+	body:not(.pageMode) main {
+		height: auto !important;
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
+	}
+	html {
+		background-color: transparent;
+	}
+	.editorPreview {
+		-webkit-flex-basis: auto;
+		flex-basis: auto;
+	}
+	.userPageBox {
+		max-height: none;
+	}
+	.inputPane textArea {
+		font-size: 1rem;
+	}
 }

@@ -27,16 +27,20 @@ LongPoller.prototype.loop = function() {
 				$.onListeners.call(this, resp.listeners, resp.chains.userMap);
 			}
 			var pageMap = {};
-			resp.chains.content && resp.chains.content.forEach(function(page) {
-				pageMap[page.id] = page;
-			});
-			if (resp.chains && resp.chains.comment) {
-				$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+			if (resp.chains) {
+				resp.chains.content && resp.chains.content.forEach(function(page) {
+					pageMap[page.id] = page;
+				});
+				if (resp.chains.comment) {
+					$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+				}
+				if (resp.chains.activity) {
+					$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
+				}
+				if (resp.chains.commentdelete)
+					$.onDelete.call(this, resp.chains.commentdelete);
+				$.onBoth.call(this, resp);
 			}
-			if (resp.chains && resp.chains.activity) {
-				$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
-			}
-			$.onBoth.call(this, resp);
 		}
 		if (!e || e=='timeout') {
 			$.setState("Queueing next request", true);

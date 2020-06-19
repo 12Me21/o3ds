@@ -139,22 +139,52 @@ function generatePagePath(page, users) {
 	}
 }
 
-function megaAggregate(activity, ca, contents) {
+function decodeComment(content) {
+	var text, markup;
+	if (content[0] == "{") {
+		var j = parseJSON(content);
+		if (j) {
+			text = j.t;
+			markup = j.m;
+		} else
+			text = content;
+	} else {
+		var i = content.indexOf("\n");
+		if (i<0)
+			text = content;
+		else
+			text = content.substr(i+1);
+	}
+	return [text,markup];
+}
+
+function megaAggregate(activity, ca, contents, deletecomment) {
 	var contentMap = {};
 	contents.forEach(function(x){
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
-		console.log("MA",x);
 		if (x.createDate) {
-			return {
-				action: "p",
-				contentId: x.parentId,
-				date: x.createDate,
-				id: x.id,
-				userId: x.createUserId,
-				type: 'content',
-				comment: x.content
+			if (x.deleted) {
+				return {
+					action: "pd",
+					contentId: x.parentId,
+					date: x.createDate,
+					id: x.id,
+					userId: x.createUserId,
+					type: 'content',
+					comment: x.content
+				}
+			} else {
+				return {
+					action: "p",
+					contentId: x.parentId,
+					date: x.createDate,
+					id: x.id,
+					userId: x.createUserId,
+					type: 'content',
+					comment: x.content
+				}
 			}
 		}
 		return {
@@ -167,6 +197,15 @@ function megaAggregate(activity, ca, contents) {
 			type: 'content',
 		}
 	}));
+	if (deletecomment) {
+		allAct = allAct.concat(deletecomment.map(function(x){
+			return {
+				action: "pd",
+				id: x.id,
+				type: 'content'
+			}
+		}));
+	}
 	allAct = allAct.filter(function(x) {
 		if (x.action == 'd')
 			x.content = {name: x.extra, id: x.contentId, deleted: true};
@@ -263,7 +302,6 @@ function fillFileFields(file) {
 	$fileName.value = file.name;
 	$filePermissions.value = JSON.stringify(file.permissions);
 	$fileValues.value = JSON.stringify(file.values);
-	console.log(me.userCache);
 	$fileUser.textContent = me.userCache[file.createUserId].username;
 }
 
@@ -554,6 +592,11 @@ var views = {
 					if (comment.parentId == id)
 						displayMessage(comment, user);
 				})
+			}
+			lp.onDelete = function(comments) {
+				comments.forEach(function(comment) {
+					displayMessage({deleted: true, id:comment.id});
+				});
 			}
 			lp.setViewing(id);
 			var linked = query["#"];

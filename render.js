@@ -196,6 +196,7 @@ function renderUserListAvatar(user) {
 function renderUserBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
+	div.setAttribute('data-uid', user.id);
 
 	var time = document.createElement('span');
 	time.textContent = timeString(date);
@@ -275,18 +276,13 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	else if (!(user instanceof Array))
 		user = [user];
 
-	switch(activity.action) {
-	case "c":
-		var text = "created";
-		break;case "u":
-		text = "edited";
-		break;case "d":
-		text = "deleted";
-		break;case "p":
-		text = "posted on";
-		break;default:
-		text = "unknown action";
-	}
+	var text = {
+		c: "created",
+		u: "edited",
+		d: "deleted",
+		p: "posted on",
+		pd: "deleted post on",
+	}[activity.action] || "unknown action";
 	var div = document.createElement('a');
 	div.className = "listItem bar rem1-7";
 	var action = document.createElement('span');
@@ -296,13 +292,17 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	if (activity.type == 'content') {
 		if (activity.action == "p")
 			div.href = "#pages/"+activity.contentId+"#comment-"+activity.id; //todo: comment link
-		else
+		else if (activity.contentId)
 			div.href = "#pages/"+activity.contentId;
 
-		var icon = "page";
-		if (!hasPerm(page.permissions, 0, 'r'))
-			icon = "hiddenpage";
-		var name = renderContentName(page.name, icon)
+		if (page) {
+			var icon = "page";
+			if (!hasPerm(page.permissions, 0, 'r'))
+				icon = "hiddenpage";
+			var name = renderContentName(page.name, icon)
+		} else {
+			var name = renderContentName("UNKNOWN", icon)
+		}
 	} else if (activity.type == 'category') {
 		div.href = "#categories/"+activity.contentId;
 		var name = renderContentName(page.name, 'category')
@@ -323,7 +323,7 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	if (comment) {
 		var x = document.createElement('div');
 		x.className = "activityCommentText";
-		x.textContent = comment.split("\n").slice(1).join(" ");
+		x.textContent = decodeComment(comment)[0].replace(/\n/g," ");
 		div.appendChild(x);
 	}
 	return div;
@@ -350,26 +350,11 @@ function renderMessageGap() {
 }
 
 function renderMessagePart(comment, sizedOnload){
-	var content = comment.content;
-	var text, markup;
-	if (content[0] == "{") {
-		var j = parseJSON(content);
-		if (j) {
-			text = j.t;
-			markup = j.m;
-		} else
-			text = content;
-	} else {
-		var i = content.indexOf("\n");
-		if (i<0)
-			text = content;
-		else
-			text = content.substr(i+1);
-	}
+	var x = decodeComment(comment.content);
+	var text=x[0], markup=x[1];
 	element = parser(markup)(text);
 	element.className += ' messagePart';
-	element.id = "_anchor_comment-"+comment.id;
-	//document.title=comment.username+":"+text;
+	element.setAttribute('data-id', comment.id);
 	return element;
 }
 
@@ -441,25 +426,29 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 }
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
+	var lastUidBlock = this.element.lastChild;
+	if (lastUidBlock) {
+		var lastUid = lastUidBlock.getAttribute('data-uid');
+		if (!lastUid)
+			lastUidBlock = null;
+		else
+			lastUid = +lastUid;
+	}
+	
 	if (id == null) {
 		this.element.appendChild(node);
-		this.lastUid = undefined;
-		this.lastUidBlock = undefined;
 	} else {
 		// replace an existing message (we assume uid doesn't change)
 		if (this.nodes[id]) {
 			this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
 			// insert a new line to the last block
-		} else if (uid && this.lastUid == uid) {
-			this.lastUidBlock.appendChild(node);
+		} else if (uid && lastUid == uid && lastUidBlock) {
+			lastUidBlock.querySelector('.messageContents').appendChild(node);
 			// create a new block
 		} else {
 			var b = makeBlock();
 			b[1].appendChild(node);
 			this.element.appendChild(b[0]);
-			
-			this.lastUidBlock = b[1];
-			this.lastUid = uid;
 		}
 		this.nodes[id] = node;
 	}
@@ -468,10 +457,14 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 }
 AutoScroller.prototype.remove = function(id) {
 	var node = this.nodes[id]
-	// todo: remove block when all messages are gone from it
-	// don't forget to update lastUidBlock etc. too
 	if (node) {
-		node.parentNode.removeChild(node);
+		
+		var parent = node.parentNode;
+		parent.removeChild(node);
+		// when removing the last comment in a block
+		if (parent.children.length == 0) {// todo: make this less of a hack
+			parent.parentNode.parentNode.removeChild(parent.parentNode);
+		}
 	}
 	this.nodes[id] = undefined;
 }

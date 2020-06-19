@@ -679,6 +679,9 @@ Myself.prototype.postComment = function(id, message, f, callback) {
 		content: f+"\n"+message,
 	});
 };
+Myself.prototype.deleteComment = function(id, callback) {
+	this.request("Comment/"+id, 'DELETE', callback);
+}
 
 Myself.prototype.setWatch = function(id, state, callback) {
 	if (state)
