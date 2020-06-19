@@ -343,6 +343,7 @@ header :first-child {
 	display: flex;
 	-webkit-flex-direction: column;
 	flex-direction: column;
+	overflow-y: hidden; /* mmm */
 }
 
 #\$sidebar {

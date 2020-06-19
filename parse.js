@@ -187,9 +187,11 @@ var Parse = {
 			var node = create('a');
 			
 			var protocol = urlProtocol(url);
+			node.setAttribute('target', "_blank");
 			if (protocol[0] == "sbs:") {
 				// put your custom local url handling code here
 				url = "#"+protocol[1];
+				node.removeAttribute('target');
 			} else if (!protocol[0]) {
 				if (url[0] == "#") {
 					// put your fragment link handling code here
@@ -212,6 +214,7 @@ var Parse = {
 					// urls without protocol get https:// or http:// added
 					url = defaultProtocol()+"//"+url;
 				}
+				
 			}
 			node.setAttribute('href', url);
 			return {node:node};
