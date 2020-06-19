@@ -44,7 +44,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('timeout', resp);
 		} else if (code == 429) { // rate limit
 			window.setTimeout(function() {
-				callback('rate', resp);
+				callback('timeout', resp);
 			}, 100);
 		} else if (code==401) {
 			console.log(x);
