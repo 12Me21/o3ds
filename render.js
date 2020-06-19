@@ -41,7 +41,7 @@ function renderContentName(name, icon) {
 		img.className = "item iconBg iconBg-"+icon;
 		span.appendChild(img);
 	}
-	span.appendChild(textItem(name));
+	span.appendChild(textItem(name, 'pre'));
 	return span;
 }
 
@@ -269,7 +269,7 @@ function parseDate(str) {
 	return new Date(0);
 }
 
-function renderActivityItem(activity, page, user) {
+function renderActivityItem(activity, page, user, noTime) {
 	if (!user)
 		user = [];
 	else if (!(user instanceof Array))
@@ -315,9 +315,11 @@ function renderActivityItem(activity, page, user) {
 	});
 	div.appendChild(action);
 	div.appendChild(name);
-	var time = renderTimeAgo(activity.date);
-	time.className += " rightAlign";
-	div.appendChild(time);
+	if (!noTime) {
+		var time = renderTimeAgo(activity.date);
+		time.className += " rightAlign";
+		div.appendChild(time);
+	}
 	return div;
 }
 

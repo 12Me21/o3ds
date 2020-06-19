@@ -36,7 +36,7 @@ LongPoller.prototype.loop = function() {
 			if (resp.chains && resp.chains.activity) {
 				$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
 			}
-			//$.onBoth.call(this, resp);
+			$.onBoth.call(this, resp);
 		}
 		if (!e || e=='timeout') {
 			$.setState("Queueing next request", true);

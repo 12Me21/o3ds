@@ -22,7 +22,16 @@ else {
 	ready();
 }
 
+function setUserCSS(text) {
+	$userCSS.textContent = text;
+}
+
 function ready() {
+	var userCSS = localStorage.userCSS;
+	if (userCSS) {
+		setUserCSS(userCSS);
+	}
+	
 	if (me.openRequests) {
 		loadStart();
 	}
@@ -36,6 +45,11 @@ function ready() {
 
 	me.onLogin = onLogin;
 	me.onLogout = onLogout;
+
+	me.getVariable("userCSS", function(css) {
+		if (css != null)
+			setUserCSS(userCSS);
+	});
 	
 	$loggedOut.$login.onclick = function() {
 		event.preventDefault();
@@ -222,12 +236,20 @@ function ready() {
 		}
 	}
 
+	$saveUserCSS.onclick = function() {
+		var css = $settingsUserCSS.value;
+		localStorage.userCSS = css;
+		me.setVariable("userCSS", css, function(){});
+		setUserCSS(css);
+	}
+
 /*	document.body.onclick = function(e) {
 		console.log(e.target)
 	}*/
 }
 
-function updateAvatar(id) {
+function updateAvatar(file) {
+	$myAvatar.src = me.avatarURL(file.id);
 	//todo;
 }
 
@@ -277,6 +299,7 @@ function scrollTo(name) {
 	//todo: this needs to happen after all images load etc. somehow...
 	if (name) {
 		var n = document.getElementsByName("_anchor_"+name)[0] || document.getElementById("_anchor_"+name);
+		console.log("ANCHOR",n,name);
 		if (n)
 			n.scrollIntoView();
 	}
@@ -374,7 +397,7 @@ function submitEdit() {
 		if (e) {
 			alert("ERROR");
 		} else {
-			//window.location.hash = "#pages/"+resp.id;
+			window.location.hash = "#pages/"+resp.id;
 			cleanUpEditor();
 		}
 	});
@@ -440,33 +463,12 @@ function onLogin(me) {
 	flag("loggedIn",true);
 	/*hashChange(false);*/
 	lp.onMessages = function(messages, users, pages) {
-		messages.forEach(function(comment) {
-			var user = users[comment.createUserId];
-			addSidebarItem(pages[comment.parentId],user,comment.content.split("\n").slice(1));
-		})
 	}
 	lp.onActivity = function(activity, users, pages) {
-		console.log("GOT ACTIVITY");
-		activity.forEach(function(activity) {
-			var user = users[activity.userId];
-			if (activity.type == "content") {
-				var page = pages[activity.contentId]
-				var action = {
-					u: "edited",
-					c: "created",
-					d: "deleted"
-				}[activity.action];
-				if (!page) {
-					page = {
-						name: activity.extra,
-						id: activity.contentId
-					}
-				}
-				addSidebarItem(page,user,action);
-			}
-		});
 	}
-	
+	lp.onBoth = function(resp) {
+		sbm(resp.chains);
+	}
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
 	}
@@ -489,11 +491,13 @@ function onLogin(me) {
 }
 
 function sbm(resp) {
-	var users = resp.userMap
+	console.log(resp);
+	if (!(resp.comment && resp.content && resp.activity))
+		return;
+	var users = resp.userMap;
 	var last = {};
-	$sidebarScroller.innerHTML = "";
 	var all = megaAggregate(resp.activity, resp.comment, resp.content);
-	all.forEach(function(activity){
+	all.reverse().forEach(function(activity){
 		if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
 			if (activity.content) {
 				if (activity.userId instanceof Array)
@@ -502,7 +506,7 @@ function sbm(resp) {
 					})
 				else
 					user = users[activity.userId]
-				$sidebarScroller.appendChild(renderActivityItem(activity, activity.content, user));
+				$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true), $sidebarActivity.firstChild);
 				last = activity;
 			}
 		}

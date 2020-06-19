@@ -20,7 +20,8 @@ o3DS:
 
 - no box-sizing: border-box
 - no flex (?)
-
+- @media queries don't take viewport into account (3ds screen is reported at 960px lol)
+- no :checked?
 
 fix needed:
 - editor preview broken?

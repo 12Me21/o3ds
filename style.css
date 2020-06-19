@@ -26,6 +26,7 @@ html {
 /* all elements with user content, where whitespace should be preserved */
 .pre {
 	white-space: pre-wrap;
+	unicode-bidi: embed;
 }
 
 a {
@@ -155,6 +156,8 @@ body:not(.fileMode) .fileMode {
 .navPane {
 	min-height: 1.5rem;
 	background-color: #333;
+	-webkit-transition: background-color 0.2s ease;
+	transition: background-color 0.2s ease;
 }
 
 .navPane a {
@@ -166,7 +169,7 @@ body:not(.fileMode) .fileMode {
 }
 
 html.f-loading .navPane {
-	background-color: #008;
+	background-color: rgb(0,150,136);
 }
 
 html.f-error .navPane {
@@ -594,6 +597,22 @@ main {
 
 button {
 	line-height: normal !important;
+	font-size: 0.8em;
+	cursor: pointer;
+}
+input {
+	font-size: 0.8em;
+}
+
+table.form td:first-child {
+	text-align:right;
+}
+table.form td {
+	padding: 0;
+}
+table.form th {
+	padding: 0;
+	text-align:right;
 }
 
 img.item {
@@ -624,6 +643,8 @@ img.item {
 
 .username {
 	font-weight: bold;
+	unicode-bidi: embed;
+	white-space: pre-wrap;
 }
 
 .member .avatar {
@@ -849,6 +870,7 @@ body.fileMode .bottomSpacer {
 	display: inline-block;
 	width: 52px;
 	height: 52px;
+	cursor: pointer;
 }
 
 .fileThumbnail > img {
@@ -915,8 +937,17 @@ header :first-child {
 	border-top: 1px solid gray;
 }
 
-.sidebarScroller > * {
+.sidebarScroller .bar {
 	display: block;
-	padding: 0.2rem;
+	/*padding: 0.2rem; mmm*/
+	padding: 0 0.2rem;
 	border-bottom: 1px solid gray;
+}
+
+.sidebarScroller .bar > :first-child {
+	margin-left: -0.2rem;
+}
+
+.sidebarScroller .bar > :last-child {
+	margin-right: -0.2rem;
 }

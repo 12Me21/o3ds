@@ -46,7 +46,7 @@ var Parse = {
 	function urlProtocol(url) {
 		var match = url.match(/^([-\w]+:)([^]*)$/);
 		if (match)
-			return [match[1].toLowercase(), match[2]];
+			return [match[1].toLowerCase(), match[2]];
 		return [null, url];
 	}
 
@@ -165,23 +165,15 @@ var Parse = {
 		},
 		list: function(args) {
 			// <ul> ... </ul>
-			var list = create('ol');
-			if (args[""])
+			if (args[""]!=undefined) {
+				var list = create('ol');
 				list.style.listStyleType = args[""];
+			} else
+				list = create('ul');
 			return {block:true, node:list};
 		},
 		item: function(index) {
-			var row = create('tr');
-			var con = create('span');
-			var li = create('span')
-			li.className = "li";
-			li.style.counterReset = "x "+index;
-			con.appendChild(li);
-			row.appendChild(con);
-			var item = create('span');
-			item.setAttribute('role', "listitem");
-			row.appendChild(item);
-			return {block:true, node:row, branch:item};
+			return {block:true, node:create('li')};
 		},
 		//creator('li'), // (list item)
 		
@@ -541,6 +533,13 @@ var Parse = {
 		stack.push(data);
 		return data;
 	}
+	// check for /\b(http://|https://|sbs:)/ basically
+	function isUrlStart() {
+		if (code[i-1] && /\w/.test(code[i-1]))
+			return false
+		return matchNext("http://") || matchNext("https://") || matchNext("sbs:")
+	}
+	
 	// try to get a node from cache.
 	// will get nodes where `type` and `arg` matches
 	// if not found, returns make(), and adds to cache
@@ -686,8 +685,8 @@ var Parse = {
 					//------------
 					// - ... list
 				} else if (eatChar(" ")) {
-					startBlock('list', {level:leadingSpaces, listIndex: 1});
-					startBlock('item', {level:leadingSpaces}, 1);
+					startBlock('list', {level:leadingSpaces}, {});
+					startBlock('item', {level:leadingSpaces});
 					//---------------
 					// - normal char
 				} else
@@ -988,7 +987,7 @@ var Parse = {
 		}
 
 		function readPlainLink(embed) {
-			if ((matchNext("http://") || matchNext("https://") || matchNext("sbs:")) && !/\w/.test(code[i-1])) {
+			if (isUrlStart()) {
 				var url = readUrl();
 				var after = eatChar("[");
 				startBlock(embed ? urlType(url) : 'link', {
@@ -1046,8 +1045,8 @@ var Parse = {
 							// OPTION 3:
 							// next item has larger indent; start nested list	
 						} else if (indent > top.level) {
-							startBlock('list', {level: indent, listIndex: 1});
-							startBlock('item', {level: indent}, 1); // then made the first item of the new list
+							startBlock('list', {level: indent}, {});
+							startBlock('item', {level: indent}); // then made the first item of the new list
 							// OPTION 4:
 							// next item has less indent; try to exist 1 or more layers of nested lists
 							// if this fails, fall back to just creating a new item in the current list
@@ -1064,11 +1063,11 @@ var Parse = {
 								} else {
 									// no suitable list was found :(
 									// so just create a new one
-									startBlock('list', {level: indent, listIndex: 1});
+									startBlock('list', {level: indent}, {});
 									break;
 								}
 							}
-							startBlock('item', {level: indent}, 0);
+							startBlock('item', {level: indent});
 						}
 						break; //really?
 					}
@@ -1236,8 +1235,7 @@ var Parse = {
 								endBlock(point);
 							var top = stack.top()
 							if (top.type == "list") {
-								startBlock("item", {}, top.listIndex);
-								top.listIndex++;
+								startBlock("item", {}, {});
 							}
 							else
 								cancel();
@@ -1267,7 +1265,8 @@ var Parse = {
 						if (eatChar(" ")) {
 							args = readArgList() || {};
 						}
-						args[""] = arg;
+						if (arg!=true)
+							args[""] = arg;
 						if (eatChar("]")) {
 							if (specialBlock[name] && !(name == "url" && arg!=true)) {
 								var endTag = "[/"+name+"]";
@@ -1292,10 +1291,7 @@ var Parse = {
 									while(eatChar(' ')||eatChar('\n')){
 									}
 								}
-								if (name == 'list')
-									startBlock(name, {listIndex: 1}, args);
-								else
-									startBlock(name, {}, args);
+								startBlock(name, {}, args);
 							} else
 								addBlock(options.invalid(code.substring(point, i), "invalid tag"));
 						} else {
@@ -1319,9 +1315,9 @@ var Parse = {
 			addText(c);
 			scan();
 		}
-		
+
 		function readPlainLink() {
-			if ((matchNext("http://") || matchNext("https://") || matchNext("sbs:")) && !/\w/.test(code[i-1])) {
+			if (isUrlStart()) {
 				var url = readUrl();
 				addBlock(specialBlock.url({},url));
 				return true;

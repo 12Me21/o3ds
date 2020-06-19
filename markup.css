@@ -88,7 +88,13 @@
 }
 
 .markup-root ol {
-	padding-left: 1.1em;
+	margin-left: 2em;
+	padding-left: 0;
+}
+
+.markup-root ul, .markup-root ol ol, .markup-root ul ol {
+	margin-left: 1.1em;
+	padding-left: 0;
 }
 
 .markup-root audio, .markup-root video, .markup-root .youtube {
@@ -181,23 +187,6 @@
 	border: 1px solid black;
 	padding: 0.2rem;
 	border-radius: 5px;
-}
-
-ol {
-	list-style-position: inside;
-}
-
-li {
-	text-align: right;
-}
-
-ol > tr > span {
-	display: table-cell;
-}
-
-.li:before {
-	content: counter(x, upper-roman);
-	text-align: right;
 }
 
 .markup-root .tableContainer {

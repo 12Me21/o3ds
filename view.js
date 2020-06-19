@@ -88,11 +88,6 @@ function readEditorFields(page) {
 	page.parentId = +$editPageCategory.value;
 }
 
-function addSidebarItem(page, user, comment) {
-	var x = renderSidebarItem(page, user, comment);
-	$sidebarScroller.insertBefore(x, $sidebarScroller.firstChild);
-}
-
 function newCategory(query) {
 	return {
 		parentId: +query.cid || 0,
@@ -266,11 +261,13 @@ function fillFileFields(file) {
 	$fileName.value = file.name;
 	$filePermissions.value = JSON.stringify(file.permissions);
 	$fileValues.value = JSON.stringify(file.values);
+	console.log(me.userCache);
+	$fileUser.textContent = me.userCache[file.createUserId].username;
 }
 
 function renderFileThumbnail(file) {
 	var div = document.createElement('div');
-	div.className = "fileThumbnail";
+	div.className = "fileThumbnail item";
 	div.onclick = function() {
 		selectFile(file);
 	}
@@ -295,7 +292,7 @@ function selectFile(file) {
 		doSelect = false
 		selectedFile = file;
 		flag('fileSelected', true);
-		
+		flag('canEdit', /u/.test(file.myPerms));
 	}
 	flag('fileUploading');
 }
@@ -353,11 +350,11 @@ var views = {
 			selectedFile = null;
 			flag('fileSelected');
 			flag('fileUploading');
-			return me.getFiles({}, page, function(files) {
-				callback(files, page);
+			return me.getFiles({}, page, function(files, users) {
+				callback(files, page, users);
 			});
 		},
-		render: function(files, page) {
+		render: function(files, page, users) {
 			$main.className = "fileMode";
 			setTitle("Files");
 			$filePageNumber.textContent = " page "+page;
@@ -554,7 +551,6 @@ var views = {
 					var user = users[comment.createUserId];
 					if (comment.parentId == id)
 						displayMessage(comment, user);
-					addSidebarItem(pages[comment.parentId],user,comment);
 				})
 			}
 			lp.setViewing(id);

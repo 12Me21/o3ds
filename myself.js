@@ -49,6 +49,9 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		} else if (code==401) {
 			console.log(x);
 			callback('auth', resp);
+		} else if (code==404) {
+			console.log("got 404");
+			callback('404', resp);
 		} else {
 			alert("Request failed! "+code+" "+url);
 			//console.log("sbs2Request: request failed! "+code);
@@ -523,7 +526,7 @@ Myself.prototype.getNotifications = function(callback) {
 		"content.0id.1id.2contentId",
 		"user.0userIds.1userIds.3createUserId.2userId"
 	],{
-		content: "id,name,parentId,createUserId",
+		content: "id,name,parentId,createUserId,permissions",
 		watch: "contentId,lastNotificationId,id",
 		user: "id,avatar,super,special,username"
 	}, function(e, resp) {
@@ -589,17 +592,20 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 	}
 }
 
-Myself.prototype.setVar = function(name, value, callback) {
-	$.request("Variable/"+name, 'POST', callback, value);
+Myself.prototype.setVariable = function(name, value, callback) {
+	var s = new String(value);
+	s.constructor = Object;
+	return this.request("Variable/"+name, 'POST', callback, s);
 }
 
-Myself.prototype.getVar = function(name, callback) {
-	$.request("Variable/"+name, 'GET', function(e, resp){
-		if (!e)
-			return resp
-		else
-			return null;
-	}, value);
+Myself.prototype.getVariable = function(name, callback) {
+	var $=this;
+	return this.request("Variable/"+name, 'GET', function(e, resp){
+		if (!e) {
+			$.cb(callback, resp);
+		} else
+			$.cb(callback, null);
+	});
 }
 
 Myself.prototype.doListenInitial = function(callback) {
@@ -609,7 +615,7 @@ Myself.prototype.doListenInitial = function(callback) {
 		{activity:{reverse:true,limit:10}},
 		"content.0parentId.1contentId", //pages
 		"user.0createUserId.1userId" //users for comment and activity
-	],{content:"id,createUserId,name"},callback);
+	],{content:"id,createUserId,name,permissions"},callback);
 }
 
 Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotifs, cancel, callback) {
@@ -635,7 +641,7 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotif
 		}});
 	}
 	return $.listen(req, {
-		content: "id,createUserId,name"
+		content: "id,createUserId,name,permissions"
 	}, callback, cancel);
 }
 // todo:
@@ -786,11 +792,14 @@ Myself.prototype.getFiles = function(query, page, callback) {
 	query.limit = 20;
 	query.skip = page*query.limit;
 	query.reverse = true;
-	return $.readSimple("File"+queryString(query), 'file', function(e, resp) {
+	return $.read([
+		{file: query},
+		"user.0createUserId"
+	],{},function(e, resp) {
 		if (!e) {
-			$.cb(callback, resp)
+			$.cb(callback, resp.file, resp.userMap);
 		} else {
-			$.cb(callback, null)
+			$.cb(callback, null, {});
 		}
 	});
 }
@@ -848,6 +857,10 @@ Myself.prototype.loadCommentsNear = function(id, min, max, callback) {
 
 Myself.prototype.thumbnailURL = function(id) {
 	return this.server+"/File/raw/"+id+"?size=50";
+}
+
+Myself.prototype.avatarURL = function(id) {
+	return this.server+"/File/raw/"+id+"?size=120";
 }
 
 Myself.prototype.imageURL = function(id) {

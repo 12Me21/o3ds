@@ -8,6 +8,10 @@
 <link rel="icon" sizes="192x192" href="images/iconbig.png?a"> <!-- large -->
 <link rel="apple-touch-icon" href="images/iconbig.png?a"> <!-- large 2 -->
 <link rel="image_src" href="images/iconbig.png?a"> <!-- large 3 -->
+<meta property="og:site_name" content="12-SBS2">
+<meta property="og:description" content="SmileBASIC Source 2">
+<meta name="og:image" content="images/iconbig.png?a">
+<meta name="theme-color" content="#009688">
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
@@ -31,6 +35,7 @@
 <script src="main.js?af"></script>
 
 <!--END-->
+<style id="$userCSS"></style>
 <body class="" id="$main">
 	<!--
 		 Nav bar 
@@ -73,17 +78,32 @@
 				<div class="buttonContainer item"><a id="$filePrev"><button>&lt;</button></a></div><div class="buttonContainer item"><a id="$fileNext"><button>&gt;</button></a></div><span class="textItem" id="$filePageNumber"></span><input type="file" id="$fileUpload" accept="image/*" class="item loggedIn">
 			</div>
 
-			<div class="fileMode fileBox" id="$fileBox">
+			<div class="fileMode fileBox bar" id="$fileBox">
 			</div>
 
 			<div class="fileMode">
 				<div class="buttonContainer fileUploading"><button id="$fileUploadButton">Upload Image!</button></div>
 				<div class="fileSelected">
-					<div class="buttonContainer loggedIn"><button id="$setAvatarButton">Use As Avatar</button></div><br class="loggedIn">
-					Name:<input id="$fileName"><br>
-					Permissions:<input id="$filePermissions"><br>
-					Values:<input id="$fileValues"><br>
-					<div class="buttonContainer loggedIn"><button id="$fileUpdateButton">Save Settings</button></div>
+					<div class="buttonContainer loggedIn"><button id="$setAvatarButton">Use As Avatar</button></div>
+					<table class="form">
+						<tr>
+							<th>User:</th>
+							<td id="$fileUser"></td>
+						</tr>
+						<tr>
+							<th><label for="$fileName">Name:</label></th>
+							<td><input id="$fileName"></td>
+						</tr>
+						<tr>
+							<th><label for="$fileName">Permissions:</label></th>
+							<td><input id="$filePermissions"><br></td>
+						</tr>
+						<tr>
+							<th><label for="$fileName">Values:</label></th>
+							<td><input id="$fileValues"></td>
+						</tr>
+					</table>
+					<div class="buttonContainer canEdit loggedIn"><button id="$fileUpdateButton" class="fileUpdateButton">Save Settings</button></div>
 				</div>
 			</div>
 			
@@ -196,14 +216,16 @@
 				</div>
 
 				<div class="settingsMode loggedIn">
-					<label for="$settingsOldPassword">Old Password: </label><input type="password" id="$settingsOldPassword" required=""><br>
-					<label for="$settingsUsername">New Username (Optional): </label><input id="$settingsUsername"><br>
-					<label for="$settingsNewPassword">New Password (Optional): </label><input type="password" id="$settingsNewPassword"><br>
-					<label for="$settingsEmail">New Email (Optional): </label><input type="email" id="$settingsEmail"><br>
+					<table class="form">
+						<tr><td><label for="$settingsOldPassword">Old Password: </label></td><td><input type="password" id="$settingsOldPassword" required=""><td></tr>
+						<tr><td><label for="$settingsUsername">New Username (Optional): </label></td><td><input autocomplete="off" id="$settingsUsername"></td></tr>
+						<tr><td><label for="$settingsNewPassword">New Password (Optional): </label></td><td><input autocomplete="new-password" type="password" id="$settingsNewPassword"></td></tr>
+						<tr><td><label for="$settingsEmail">New Email (Optional): </label></td><td><input autocomplete="off" type="email" id="$settingsEmail"></td></tr>
+					</table>
 					<button id="$submitUserSettings">Save</button>
-					<br>
+					<hr>
 					<a href="#files">Change your avatar here</a>
-					<br>
+					<hr>
 					<label for="$settingsUserCSS">User CSS:</label><br>
 					<textarea id="$settingsUserCSS"></textarea><br>
 					<button id="$saveUserCSS">Save</button>
@@ -244,7 +266,10 @@
 			<div class="loggedIn">
 				Long Poller: <span id="$longPollStatus"></span>
 			</div>
-			<div class="sidebarScroller" id="$sidebarScroller"></div>
+			<div class="sidebarScroller" id="$sidebarScroller">
+				<div id="$sidebarPinned"></div>
+				<div id="$sidebarActivity"></div>
+			</div>
 		</div>
 	</div>
 </body>
