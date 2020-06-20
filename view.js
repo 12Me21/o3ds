@@ -327,7 +327,8 @@ function selectFile(file) {
 	$fileView.src = "";
 	$fileView.src = me.imageURL(file.id);
 	var doSelect = true;
-	//$fileView.onload = $fileView.onerror = function() {
+	$fileView.onload = null
+	//$fileView.onerror = function() {
 		if (!doSelect)
 			return;
 		doSelect = false
@@ -353,17 +354,26 @@ function detectFileType(buffer) {
 function getImageFile(url, callback) {
 	// todo: make this work better.
 	// at the very least, handle local urls specially
-	var x = new XMLHttpRequest();
-	x.open('GET', url);
-	x.responseType = "arraybuffer"
-	x.onload = function() {
-		var type = detectFileType(x.response);
-		var file = new Blob([x.response], {type:type});
-		file.name="name";
-		file.lastModifiedDate = new Date();
-		callback(file);
+	try {
+		var x = new XMLHttpRequest();
+		x.open('GET', url);
+		
+		x.responseType = "arraybuffer"
+		x.onload = function() {
+			if (x.status == 200) {
+				var type = detectFileType(x.response);
+				var file = new Blob([x.response], {type:type});
+				file.name="name";
+				file.lastModifiedDate = new Date();
+				callback(file);
+			} else {
+				alert("can't get this file!");	
+			}
+		}
+		x.send();
+	} catch (e) {
+		alert("can't upload this file!");
 	}
-	x.send();
 }
 
 function selectFileURL(url) {
