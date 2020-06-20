@@ -199,7 +199,7 @@ function ready() {
 	}
 
 	$fileUploadButton.onclick = function() {
-		if (selectedFile instanceof File) {
+		if (selectedFile instanceof File || selectedFile instanceof Blob) {
 			me.uploadFile(selectedFile, function(e, resp) {
 				if (!e) {
 					selectFile(resp);
@@ -214,6 +214,11 @@ function ready() {
 			selectUploadedFile(file);
 		}
 	}
+
+	attachPaste($filePaste, function(url) {
+		selectFileURL(url);
+	});
+
 
 	$fileUpdateButton.onclick = function() {
 		if (selectedFile && selectedFile.id) {
@@ -283,7 +288,6 @@ function ready() {
 			flag('deleteComment', true);
 		}, 10);
 	}
-	
 }
 
 function deleteComment(id) {

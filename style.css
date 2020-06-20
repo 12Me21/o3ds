@@ -834,6 +834,14 @@ html:not(.f-fileUploading) .fileUploading {
 
 .fileBox {
 	border-bottom: 1px solid gray;
+	flex-shrink: 0;
+}
+
+#\$filePaste {
+	background-color: #EEE;
+	border: 1px solid gray;
+	color: black;
+	padding: 0 0.5rem;
 }
 
 /***********

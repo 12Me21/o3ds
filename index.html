@@ -15,11 +15,11 @@
 
 <!--START-->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?aA">
+<link rel="stylesheet" href="style.css?aB">
 <link rel="stylesheet" href="markup.css?x">
 <link rel="stylesheet" href="code.css?a">
 
-<script src="util.js?a"></script>
+<script src="util.js?b"></script>
 
 <script src="storage.js?a"></script>
 
@@ -31,9 +31,9 @@
 <script src="parse.js?I"></script>
 
 <script src="render.js?I"></script>
-<script src="view.js?O"></script>
+<script src="view.js?P"></script>
 <script src="resize.js?b"></script>
-<script src="main.js?ah"></script>
+<script src="main.js?ai"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -76,7 +76,11 @@
 			</div>
 
 			<div class="fileMode fileNav rem1-7 nav">
-				<div class="buttonContainer item"><a id="$filePrev"><button>&lt;</button></a></div><div class="buttonContainer item"><a id="$fileNext"><button>&gt;</button></a></div><span class="textItem" id="$filePageNumber"></span><input type="file" id="$fileUpload" accept="image/*" class="item loggedIn">
+				<div class="buttonContainer item"><a id="$filePrev"><button>&lt;</button></a></div>
+				<div class="buttonContainer item"><a id="$fileNext"><button>&gt;</button></a></div>
+				<span class="textItem" id="$filePageNumber"></span>
+				<input class="item" type="file" id="$fileUpload" accept="image/*" class="item loggedIn">
+				<span class="item" contenteditable="" id="$filePaste">paste image here</span>
 			</div>
 
 			<div class="fileMode fileBox bar" id="$fileBox">

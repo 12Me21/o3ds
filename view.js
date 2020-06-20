@@ -324,17 +324,50 @@ var selectedFile;
 function selectFile(file) {
 	selectedFile = null;
 	fillFileFields(file);
+	$fileView.src = "";
 	$fileView.src = me.imageURL(file.id);
 	var doSelect = true;
-	$fileView.onload = $fileView.onerror = function() {
+	//$fileView.onload = $fileView.onerror = function() {
 		if (!doSelect)
 			return;
 		doSelect = false
 		selectedFile = file;
 		flag('fileSelected', true);
 		flag('canEdit', /u/.test(file.myPerms));
-	}
+	//}
 	flag('fileUploading');
+}
+
+function detectFileType(buffer) {
+	var x = new Uint8Array(buffer);
+	if (x[0]==137 && x[1]==80 && x[2]==78 && x[3]==71)
+		return "image/png";
+	if (x[0]==0x42 && x[1]==0x4D)
+		return "image/bmp";
+	if (x[0]==0x47 && x[1]==0x49 && x[2]==0x46)
+		return "image/gif";
+	else
+		return "image/jpeg"
+}
+
+function getImageFile(url, callback) {
+	// todo: make this work better.
+	// at the very least, handle local urls specially
+	var x = new XMLHttpRequest();
+	x.open('GET', url);
+	x.responseType = "arraybuffer"
+	x.onload = function() {
+		var type = detectFileType(x.response);
+		var file = new Blob([x.response], {type:type});
+		file.name="name";
+		file.lastModifiedDate = new Date();
+		callback(file);
+	}
+	x.send();
+}
+
+function selectFileURL(url) {
+	getImageFile(url, selectUploadedFile);
 }
 
 function selectUploadedFile(file) {
@@ -344,6 +377,7 @@ function selectUploadedFile(file) {
 	$fileView.src = url;
 	$fileView.onload = function() {
 		selectedFile = file;
+		console.log("SELECLED");
 		flag('fileUploading', true);
 	}
 	flag('fileSelected');

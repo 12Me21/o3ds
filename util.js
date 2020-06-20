@@ -62,3 +62,19 @@ Object.assign = function(a, b) {
 	}
 	return a;
 }
+
+//Should be run once, when the page loads or when the element is created.
+function attachPaste(element, callback) {
+	"use strict";
+	element.addEventListener("load", function (event) {
+		var pastedImage = event.target;
+		if (pastedImage instanceof HTMLImageElement) {
+			console.log("Found image element", pastedImage);
+			var src = pastedImage.src;
+			try {
+				element.removeChild(pastedImage);
+			} catch (ignore) {}
+			callback(src);
+		}
+	}, true);
+}
