@@ -676,7 +676,7 @@ var views = {
 				$voteCount_g.textContent = page.about.votes.g.count;
 				["b","o","g"].forEach(function(vote) {
 					window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
-					attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "" : undefined);
+					attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "true" : undefined);
 				});
 				
 				var photos = page.values.photos;
