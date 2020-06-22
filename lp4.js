@@ -19,29 +19,33 @@ LongPoller.prototype.loop = function() {
 	var $=this;
 	$.setState("Idle (waiting)", true);//idle
 	$.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
-		console.log(resp);
-		$.setState("Handling response", false);
-		if (!e) {
-			$.lastId = resp.lastId;
-			if (resp.listeners) {
-				$.lastListeners = resp.listeners;
-				$.onListeners.call(this, resp.listeners, resp.chains.userMap);
-			}
-			var pageMap = {};
-			if (resp.chains) {
-				resp.chains.content && resp.chains.content.forEach(function(page) {
-					pageMap[page.id] = page;
-				});
-				if (resp.chains.comment) {
-					$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+		try {
+			console.log(resp);
+			$.setState("Handling response", false);
+			if (!e) {
+				$.lastId = resp.lastId;
+				if (resp.listeners) {
+					$.lastListeners = resp.listeners;
+					$.onListeners.call(this, resp.listeners, resp.chains.userMap);
 				}
-				if (resp.chains.activity) {
-					$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
+				var pageMap = {};
+				if (resp.chains) {
+					resp.chains.content && resp.chains.content.forEach(function(page) {
+						pageMap[page.id] = page;
+					});
+					if (resp.chains.comment) {
+						$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
+					}
+					if (resp.chains.activity) {
+						$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
 				}
-				if (resp.chains.commentdelete)
-					$.onDelete.call(this, resp.chains.commentdelete);
-				$.onBoth.call(this, resp);
+					if (resp.chains.commentdelete)
+						$.onDelete.call(this, resp.chains.commentdelete);
+					$.onBoth.call(this, resp);
+				}
 			}
+		} catch(e) {
+			console.error(e);
 		}
 		if (!e || e=='timeout' || e=='rate') {
 			$.setState("Queueing next request", true);
