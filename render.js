@@ -343,6 +343,7 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	if (comment) {
 		var x = document.createElement('div');
 		x.className = "activityCommentText";
+		console.log(decodeComment(comment)[0])
 		x.textContent = decodeComment(comment)[0].replace(/\n/g," ");
 		div.appendChild(x);
 	}
@@ -366,7 +367,9 @@ function renderActivityBlock(page) {
 	var box = document.createElement('div');
 	box.className = "activityContent";
 	div.appendChild(box);
-	div.setAttribute('data-id', page.id);
+	if (page) {
+		div.setAttribute('data-id', page.id);
+	}
 	return div;
 }
 
@@ -386,7 +389,7 @@ function renderActivityLine(user, text, comment) {
 		}[text] || "Unknown Action"
 	}
 	div.appendChild(textItem(comment ? ": " : " ", "pre"));
-	div.appendChild(textItem(text.replace('\n'," "), "pre"));
+	div.appendChild(textItem(text.replace(/\n/g," "), "pre"));
 	div.className = "rem1-5 bar ellipsis";
 	return div;
 }

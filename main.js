@@ -25,6 +25,13 @@ else {
 function setUserCSS(text) {
 	$userCSS.textContent = text;
 }
+function setUserJS(text) {
+	try {
+		eval(text);
+	} catch(e) {
+		alert("error in userJS "+e+"\n"+e.stack);
+	}
+}
 
 function ready() {
 	var userCSS = localStorage.userCSS;
@@ -48,7 +55,12 @@ function ready() {
 
 	me.getVariable("userCSS", function(css) {
 		if (css != null)
-			setUserCSS(userCSS);
+			setUserCSS(css);
+	});
+	
+	me.getVariable("userJS", function(css) {
+		if (css != null)
+			setUserJS(css);
 	});
 	
 	$loggedOut.$login.onclick = function() {
@@ -246,6 +258,13 @@ function ready() {
 		localStorage.userCSS = css;
 		me.setVariable("userCSS", css, function(){});
 		setUserCSS(css);
+	}
+
+	$saveUserJS.onclick = function() {
+		var css = $settingsUserJS.value;
+		localStorage.userJS = css;
+		me.setVariable("userJS", css, function(){});
+		setUserJS(css);
 	}
 
 	attachResize($m, $sidebarPinnedResize, true, function(w) {

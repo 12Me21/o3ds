@@ -27,6 +27,7 @@ function setTitle(text, icon) {
 	} else {
 		$pageTitleIcon.className = "";
 	}
+	changeFavicon("images/icon32.png?a");
 }
 
 function submitUserSettings() {
@@ -249,7 +250,27 @@ function displayMessage(c, user) {
 				b[0].className += " ownMessage";
 			return b;
 		});
+		var text = decodeComment(c.content);
+		document.title = text[0];
+		changeFavicon(user.avatarURL);
 	}
+}
+
+var currentFavicon = null;
+function changeFavicon(src) {
+	if (src == currentFavicon) {
+		return;
+	}
+	currentFavicon = src;
+	var link = document.createElement("link");
+	var oldLink = document.getElementById("dynamic-favicon");
+	link.id = "dynamic-favicon";
+	link.rel = "shortcut icon";
+	link.href = src;
+	if (oldLink) {
+		document.head.removeChild(oldLink);
+	}
+	document.head.appendChild(link);
 }
 
 function displayGap() {

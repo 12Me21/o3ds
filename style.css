@@ -592,6 +592,7 @@ html.f-deleteComment .messagePart:hover {
  ****************/
 .inputPane {
 	height: 3.25rem;
+	flex-basis:3.25rem;
 }
 
 #\$chatTextarea {
