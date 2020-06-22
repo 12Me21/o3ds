@@ -82,23 +82,31 @@ function attachPaste(element, callback) {
 
 function attachResize(element, tab, horiz,cb) {
 	var startX,startY,down,startW,startH;
-	tab.addEventListener('mousedown', function(e) {
+	function getPos(e) {
+		if (e.touches)
+			return {x:e.touches[0].pageX,y:e.touches[0].pageY};
+		else
+			return {x:e.clientX,y:clientY};
+	}
+	function down(e) {
 		tab.setAttribute('dragging',"");
-		startX = e.clientX;
-		startY = e.clientY;
+		var pos = getPos(e);
+		startX = pos.x;
+		startY = pos.y;
 		startW = element.offsetWidth;
 		startH = element.offsetHeight;
 		down = true;
-	});
-	document.addEventListener('mouseup', function() {
+	}
+	function up() {
 		down = false;
 		tab.removeAttribute('dragging');
-	});
-	document.addEventListener('mousemove', function(e) {
+	}
+	function move(e) {
 		if (!down)
 			return;
-		var vx = e.clientX - startX;
-		var vy = e.clientY - startY;
+		var pos = getPos(e);
+		var vx = pos.x - startX;
+		var vy = pos.y - startY;
 		if (horiz) {
 			element.style.width = startW+vx+"px";
 			cb(startW+vx)
@@ -106,5 +114,14 @@ function attachResize(element, tab, horiz,cb) {
 			element.style.height = startH+vy+"px";
 			cb(startH+vy);
 		}
-	});
+	}	
+	tab.addEventListener('mousedown', down);
+	document.addEventListener('mouseup', up);
+	document.addEventListener('mousemove', move);
+	
+	tab.addEventListener('touchstart', down);
+	document.addEventListener('touchend', up);
+	document.addEventListener('touchmove', move);
 }
+
+
