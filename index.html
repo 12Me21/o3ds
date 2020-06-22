@@ -14,26 +14,26 @@
 <meta name="theme-color" content="#009688">-->
 
 <!--START-->
+<!-- this is where files will be inlined -->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?aB">
-<link rel="stylesheet" href="markup.css?x">
+<link rel="stylesheet" href="style.css?aC">
+<link rel="stylesheet" href="markup.css?y">
 <link rel="stylesheet" href="code.css?a">
 
-<script src="util.js?b"></script>
+<script src="util.js?c"></script>
 
 <script src="storage.js?a"></script>
 
-<script src="myself.js?S"></script>
+<script src="myself.js?T"></script>
 
-<script src="lp4.js?c"></script>
+<script src="lp4.js?d"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?I"></script>
 
-<script src="render.js?I"></script>
-<script src="view.js?Q"></script>
-<script src="resize.js?b"></script>
-<script src="main.js?ai"></script>
+<script src="render.js?J"></script>
+<script src="view.js?R"></script>
+<script src="main.js?aj"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -257,14 +257,14 @@
 				 Bottom of the page
 			  -->
 			<div class="inputPane pageChatMode">
-				<table>
+				<table> <!-- YES it's a TABLE! sorry ... I'm not allowed to use flex so this is the only option -->
 					<tr>
 						<td rowspan="2" class="tableGrow"><textarea class="chatTextarea" id="$chatTextarea"></textarea></td>
 						<td rowspan="2"><div class="buttonContainer chatSend fill"><button id="$chatSend">Send</button></div></td>
 						<td style="white-space: nowrap"><div class="buttonContainer chatSend"><button id="$chatEdit">Edit</button></div><div class="buttonContainer chatSend"><button id="$chatDelete">Delete</button></div></td>
 					</tr>
 					<tr>
-						<td><select class="fill"><option>Plaintext</option><option>12y</option><option>BBCode</option></select></td>
+						<td><select class="fill" id="$chatMarkupSelect"><option value="plaintext">Plaintext</option><option value="12y">12y</option><option value="bbcode">BBCode</option></select></td>
 					</tr>
 				</table>
 			</div>
@@ -281,12 +281,12 @@
 			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
 				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
-			<div id="$sidebarPinned"></div>
-			<div id="$sidebarPinnedResize" class="resize">resize</div>
 			<div class="sidebarScroller" id="$sidebarScroller">
+				<div id="$sidebarNotifs"></div>
 				<div id="$sidebarActivity"></div>
 			</div>
-
+			<div id="$sidebarPinnedResize" class="resize">resize</div>
+			<div id="$sidebarPinned"></div>
 		</div>
 	</div>
 </body>

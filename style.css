@@ -8,7 +8,7 @@
 	overflow-wrap: break-word;
 }
 /* may need more things here */
-.textItem, .item, .buttonContainer button {
+.textItem, .item, .buttonContainer button, .avatar {
 	vertical-align: top;
 }
 /* all elements with user content, where whitespace should be preserved */
@@ -19,9 +19,13 @@
 
 a {
 	text-decoration: none;
+	color: rgba(0,60,54);
+}
+a:visited {
+	color: rgba(0,60,54);
 }
 a:hover {
-	color: #06F;
+	color: rgb(0,150,136);
 }
 
 textarea {
@@ -36,8 +40,17 @@ textarea {
 sup {vertical-align: super;}
 sub {vertical-align: sub;}
 
+.ellipsis {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ellipsis * {
+	white-space: pre !important;
+}
+
 .avatar {
-	border: 1px solid white;
+	border: 1px inset white;
 }
 .spacer {
 	-webkit-flex-grow: 1;
@@ -135,10 +148,6 @@ html {
 
 .loginField {
 	width: 5rem;
-}
-
-.listItem .avatar {
-	margin-right: 0.3ch;
 }
 
 .tableGrow {
@@ -289,10 +298,6 @@ html.f-loggedIn .loggedOut {
 	width: 2rem;
 }
 
-.titlePane .userLink img {
-	margin: 0 0.7ch;
-}
-
 .editingLabel {
 	padding-left: 0.3rem;
 	font-weight: bold;
@@ -352,7 +357,7 @@ header :first-child {
 	flex-grow: 1;
 	flex-shrink: 0;
 	flex-basis: 0;
-	background-color: rgba(204, 221, 238, 0.9);
+	/*background-color: rgba(0,150,136, 0.05);*/
 	border-left: 2px solid black;
 	/*-webkit-transition: margin-left 0.25s ease, transform 0.25s ease;
 	transition: margin-left 0.25s ease, transform 0.25s ease;*/
@@ -432,6 +437,26 @@ main {
 	width: 1rem;
 	margin-right: 0.2rem;
 }
+
+.rem1-5 {
+	min-height: 1.5rem;
+}
+.rem1-5 .item {
+	height: 1.5rem;
+	line-height: 1.5rem;
+}
+.rem1-5 .textItem {
+	min-height: 1.5rem;
+	line-height: 1.5rem;
+}
+.rem1-5 .avatar {
+	width: 1.5rem;
+}
+.rem1-5 .iconBg {
+	width: 1rem;
+	margin-right: 0.2rem;
+}
+
 .rem2-3 {
 	min-height: 2.3rem;
 }
@@ -509,9 +534,9 @@ main {
 	color: #666;
 	border-left: 0.5em solid rgb(187,187,187);
 }
-.ownMessage {
+/*.ownMessage {
 	background-color: rgba(255,153,153, 0.2);
-}
+}*/
 .messageTime {
 	float: right;
 	font-weight: normal;
@@ -542,7 +567,8 @@ main {
 	overflow: auto;
 }
 .messagePart.markup-root {
-	margin: .2rem;
+	padding: 0;
+	margin: 0.2em;
 }
 .messagePart img {
 	max-width: 100%;
@@ -878,11 +904,18 @@ html:not(.f-fileUploading) .fileUploading {
 	-ms-user-select: none;
 	user-select: none;
 	cursor: grab;
+	color: white;
+	background-color: #222;
+}
+
+.resize[dragging] {
+	cursor: grabbing;
 }
 
 #\$sidebarPinnedResize {
 	display: inline-block;
-	background-color: white;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;					 
 }
 
 .closeSidebar {
@@ -893,11 +926,26 @@ html:not(.f-fileUploading) .fileUploading {
 	width: 100%;
 }
 
-.sidebarScroller {
+#\$sidebarPinned {
 	flex-grow: 1;
-	overflow-y: scroll;
+	flex-shrink: 1;
 	flex-basis: 0;
+}
+/*.sidebarScroller {
+  						 box-shadow: 0 50px 50px -50px inset black;
+}						 */
+.sidebarScroller {
+	flex-shrink: 1;
+	overflow-y: scroll;
 	border-top: 1px solid gray;
+}
+
+#\$sidebarActivity > :last-child{
+	border-bottom: none;
+}
+
+#\$sidebarActivity > *{
+	border-bottom: 1px solid black;
 }
 
 .sidebarScroller .bar {
@@ -980,4 +1028,22 @@ html:not(.f-fileUploading) .fileUploading {
 	.inputPane textArea {
 		font-size: 1rem;
 	}
+}
+
+.sidebarPageTitle {
+	width: 100%;
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: top;
+	padding-left: 0.2rem;
+	background: linear-gradient(#EEE,white);
+}
+
+.activityContent > .bar {
+	border: none;
+}
+
+.sidebarPageTitle * {
+	white-space: pre
 }

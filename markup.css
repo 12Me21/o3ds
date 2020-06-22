@@ -15,7 +15,7 @@
 }
 
 .markup-root table {
-	margin: 0.25rem 0;
+	
 }
 
 /*.markup-root * {
@@ -30,10 +30,6 @@
 
 .markup-root h4 {
 	/*display: inline;*/
-}
-
-.markup-root > :first-child {
-	margin-top: 0;
 }
 
 .markup-root h2 {
@@ -71,7 +67,7 @@
 }
 
 .markup-root {
-	margin: 0.5rem;
+	padding: 0.5rem;
 }
 
 .markup-root img {
@@ -108,7 +104,7 @@
 }
 
 .markup-root .cell {
-	background-color: white;
+	background-color: white; /* needed to reset for nested tables */
 }
 
 .markup-root .cell[data-bgcolor="red"] {
@@ -192,6 +188,7 @@
 .markup-root .tableContainer {
 	overflow-x: auto;
 	max-width: 100%;
+	margin: 0.2rem 0;
 }
 
 /*.markup-root th.cell {
@@ -220,3 +217,10 @@
 	display: block;
 	margin-bottom: 0.2em;
 }*/
+
+.markup-root > :first-child {
+	margin-top: 0;
+}
+.markup-root > :last-child {
+	margin-bottom: 0;
+}

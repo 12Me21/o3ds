@@ -74,6 +74,7 @@ function userAvatar(user, cls, big) {
 		img = document.createElement('img');
 		img.className = cls+" avatar";
 	}
+	img.title = user.username;
 	if (big)
 		img.src = user.bigAvatarURL;
 	else
@@ -96,19 +97,27 @@ function textItem(text, cls) {
 function renderUserLink(user, nameFirst) {
 	var a = document.createElement('a');
 	a.className = 'textItem userLink ib';
-	if (user) {
-		a.href = "#user/"+user.id;
-		var name = textItem(user.username);
-		name.className = "username textItem pre"
-		var avatar = userAvatar(user, 'item');
-		if (nameFirst)
-			a.appendChild(name)
-		a.appendChild(avatar)
-		if (!nameFirst)
-			a.appendChild(name)
-	} else {
-		a.textContent = "MISSINGNO. "
+	if (!user) {
+		user = {
+			username: "MISSINGNO.",
+			avatar: "unknown-user.png",
+		}
 	}
+	a.href = "#user/"+user.id;
+	/*if (nameFirst)
+		var name = user.username + " ";
+	else
+	var name = " " + user.username;*/
+	var name = user.username;
+	var name = textItem(name);
+	name.className = "username textItem pre"
+	var avatar = userAvatar(user, 'item');
+	if (nameFirst == true)
+		a.appendChild(name)
+	a.appendChild(avatar)
+	if (nameFirst == false)
+		a.appendChild(name)
+	
 	return a;
 }
 
@@ -122,6 +131,16 @@ function renderTimeAgo(date) {
 	return time;
 }
 
+function renderTimeStamp(date) {
+	var time = document.createElement('time');
+	var d = parseDate(date)
+	time.setAttribute('datetime',date);
+	time.setAttribute('title',timeString(d));
+	time.textContent = timeAgo(d);
+	time.className = "textItem time";
+	return time;
+}
+
 function renderAuthorBox(page, users, element) {
 	element.innerHTML = "";
 	if (!page)
@@ -129,6 +148,7 @@ function renderAuthorBox(page, users, element) {
 	element.appendChild(textItem("Author:"));
 	element.appendChild(document.createTextNode(" "));
 	element.appendChild(renderUserLink(users[page.createUserId], true));
+	element.appendChild(document.createTextNode(" "));
 	element.appendChild(renderTimeAgo(page.createDate));
 	// page was edited by other user
 	if (page.editUserId != page.createUserId) {
@@ -329,8 +349,72 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	return div;
 }
 
-function renderActivityBlock(room) {
+function renderActivityBlock(page) {
+	var div = document.createElement('div');
+	div.className = "rem1-7";
+	var a = document.createElement('a');
+	a.className = "sidebarPageTitle";
+	div.appendChild(a);
 	
+	if (page) {
+		var name = renderContentName(page.name, pageIcon(page))
+		a.href = "#pages/"+page.id;
+	} else {
+		var name = renderContentName("UNKNOWN", "unknown")
+	}
+	a.appendChild(name);
+	var box = document.createElement('div');
+	box.className = "activityContent";
+	div.appendChild(box);
+	div.setAttribute('data-id', page.id);
+	return div;
+}
+
+function renderActivityLine(user, text, comment) {
+	var div = document.createElement('div');
+	div.appendChild(renderUserLink(user, false));
+	if (comment && user) {
+		text = decodeComment(text)[0];
+	} else if (!user) { //hack
+		text = "Deleted comment"
+		comment = false;
+	} else {
+		text = {
+			"c": "Created",
+			"u": "Edited",
+			"d": "Deleted",
+		}[text] || "Unknown Action"
+	}
+	div.appendChild(textItem(comment ? ": " : " ", "pre"));
+	div.appendChild(textItem(text.replace('\n'," "), "pre"));
+	div.className = "rem1-5 bar ellipsis";
+	return div;
+}
+
+function pageIcon(page) {
+	if (!page)
+		return "unknown"
+	if (!hasPerm(page.permissions, 0, 'r'))
+		return "hiddenpage";
+	return "page";
+}
+
+function renderNotifItem(notif, page, users) {
+	var div = document.createElement('a');
+	div.className = "listItem bar rem1-7";
+	console.log(users, notif.userIds)
+	notif.userIds.forEach(function(id) {
+		
+		div.appendChild(renderUserLink(users[id]));
+	});
+	div.appendChild(textItem(" ("+notif.count+") "));
+	div.appendChild(renderContentName(page && page.name, pageIcon(page)));
+	if (page)
+		div.href = "#pages/"+page.id;
+	var time = renderTimeStamp(notif.lastDate)
+	time.className += " rightAlign"
+	div.appendChild(time);
+	return div;
 }
 
 /*function renderActivityItem(action, user, comment) {
@@ -338,7 +422,7 @@ function renderActivityBlock(room) {
 }*/
 
 function renderMemberListUser(user) {
-	var div = renderUserLink(user)
+	var div = renderUserLink(user, false)
 	div.className = "member userLink rem2-3";
 	return div;
 }
@@ -351,6 +435,7 @@ function renderMessageGap() {
 
 function renderMessagePart(comment, sizedOnload){
 	var x = decodeComment(comment.content);
+	console.log("decoding", comment.content,x);
 	var text=x[0], markup=x[1];
 	element = parser(markup)(text);
 	element.className += ' messagePart';

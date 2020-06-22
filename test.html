@@ -12,10 +12,28 @@
 <script src="parse.js"></script>
 <script src="tree.js"></script>
 <textarea id="$t"></textarea>
+<button id="$b">cccccc</button>
 <div id="$o"><div class="markup-root"></div></div>
 <script>
 	$t.oninput = function() {
 	replaceTree($o,Parse.lang['12y']($t.value));
+	}
+	$b.onclick = function() {
+	var x = new XMLHttpRequest();
+	x.open("GET", "http://newdev.smilebasicsource.com/api/user");
+	x.onload=function(){console.log("try onload");if (x.aborted)return;console.log("loaded",x)};
+	x.onabort=function(){console.log("aborted")};
+	x.send();
+	
+	setTimeout(function(){
+	console.log("running");
+	var end=Date.now()+1000
+	while(Date.now() < end) {
+	}
+	console.log("running2");
+	x.abort();
+	x.aborted = true;
+	},0);
 	}
 	</script>
 

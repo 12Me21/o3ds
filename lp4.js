@@ -19,6 +19,7 @@ LongPoller.prototype.loop = function() {
 	var $=this;
 	$.setState("Idle (waiting)", true);//idle
 	$.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
+		console.log(resp);
 		$.setState("Handling response", false);
 		if (!e) {
 			$.lastId = resp.lastId;
@@ -42,7 +43,7 @@ LongPoller.prototype.loop = function() {
 				$.onBoth.call(this, resp);
 			}
 		}
-		if (!e || e=='timeout') {
+		if (!e || e=='timeout' || e=='rate') {
 			$.setState("Queueing next request", true);
 			var t = setTimeout(function() {
 				$.loop();

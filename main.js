@@ -77,7 +77,7 @@ function ready() {
 	
 	$chatSend.onclick = function() {
 		if ($chatTextarea.value && currentChatRoom) {
-			me.postComment(currentChatRoom, $chatTextarea.value, "", function(){});
+			sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value})
 			$chatTextarea.value = "";
 		}
 	}
@@ -254,11 +254,11 @@ function ready() {
 	if (localStorage.sidebarWidth)
 		$m.style.width = localStorage.sidebarWidth+"px";
 
-	attachResize($sidebarPinned, $sidebarPinnedResize, false, function(w) {
+	attachResize($sidebarScroller, $sidebarPinnedResize, false, function(w) {
 		localStorage.sidebarPinnedHeight = w;
 	});
 	if (localStorage.sidebarPinnedHeight)
-		$sidebarPinned.style.height = localStorage.sidebarPinnedHeight+"px";
+		$sidebarScroller.style.height = localStorage.sidebarPinnedHeight+"px";
 
 	
 /*	document.body.onclick = function(e) {
@@ -332,6 +332,7 @@ function hashChange(first) {
 		currentPath = fragment[0];
 		navigateTo(fragment[0], first, function() {
 			scrollTo(fragment[1])
+			$sidebarScroller.scrollTop = $sidebarScroller.scrollHeight;
 		}, fragment[1]);
 	}
 	
@@ -521,23 +522,39 @@ function onLogin(me) {
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
 	}
+	lp.lastId = -1;
+	lp.start();
 	me.doListenInitial(function(e, resp){
 		if (!e) {
-			var lastId = -1
-			resp.comment.forEach(function(comment) {
-				if (comment.id > lastId)
-					lastId = comment.id;
-			});
-			resp.activity.forEach(function(comment) {
-				if (comment.id > lastId)
-					lastId = comment.id;
-			});
 			sbm(resp);
-			lp.lastId = lastId
-			lp.start();
+			console.log(resp,"LISTEN INITIAL");
 		}
 	})
+	me.getNotifications(function(e, resp){
+		if (!e) {
+			resp.activityaggregate.forEach(function(aa) {
+				var page = {id: aa.id};
+				console.log(resp.content, aa.id);
+				for (i=0; i<resp.content.length; i++) {
+					if (resp.content[i].id == aa.id) {
+						page = resp.content[i];
+						break;
+					}
+				}
+				pushActivity(renderNotifItem(aa, page, resp.userMap), true);
+			});
+			console.log(resp, "NOTIFS");
+		}
+	});
 }
+
+function pushActivity(element, priority) {
+	var n = priority ? $sidebarNotifs : $sidebarActivity;
+	n.appendChild(element);
+	n.scrollTop = n.scrollHeight;
+}
+
+var activityLastPage 
 
 //todo: commentdelete
 function sbm(resp) {
@@ -546,10 +563,8 @@ function sbm(resp) {
 	var users = resp.userMap;
 	var last = {};
 	console.log("SBM",resp);
-	var all = megaAggregate(resp.activity, resp.comment, resp.content, resp.commentdelete);
+	var all = megaAggregate(resp.activity, resp.comment, resp.content);
 	all.reverse().forEach(function(activity){
-		/*if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {*/
-			//if (activity.content) {
 		if (activity.userId instanceof Array)
 			var user = activity.userId.map(function(x){
 				return users[x];
@@ -559,17 +574,18 @@ function sbm(resp) {
 		else
 			user = null;
 		
-		$sidebarActivity.insertBefore(renderActivityItem(activity, activity.content, user, true, activity.comment), $sidebarActivity.firstChild);
+		//pushActivity(renderActivityItem(activity, activity.content, user, true, activity.comment));
+		if ($sidebarActivity.lastChild && $sidebarActivity.lastChild.getAttribute('data-id') == activity.contentId) {
+		} else {
+			pushActivity(renderActivityBlock(activity.content));
+		}
+		var box = $sidebarActivity.lastChild.querySelector(".activityContent")
+		box.appendChild(renderActivityLine(user, activity.action == "p" ? activity.comment : activity.action, activity.action == "p"))
 		if ($sidebarActivity.children.length > 40) {
-			var c = $sidebarActivity.lastChild;
+			var c = $sidebarActivity.firstChild;
 			c.parentNode.removeChild(c);
 		}
-		
-		last = activity;
-
-		
-		//}
-		//}
+		$sidebarScroller.scrollTop = $sidebarScroller.scrollHeight;
 	});
 }
 

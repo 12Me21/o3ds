@@ -78,3 +78,33 @@ function attachPaste(element, callback) {
 		}
 	}, true);
 }
+
+
+function attachResize(element, tab, horiz,cb) {
+	var startX,startY,down,startW,startH;
+	tab.addEventListener('mousedown', function(e) {
+		tab.setAttribute('dragging',"");
+		startX = e.clientX;
+		startY = e.clientY;
+		startW = element.offsetWidth;
+		startH = element.offsetHeight;
+		down = true;
+	});
+	document.addEventListener('mouseup', function() {
+		down = false;
+		tab.removeAttribute('dragging');
+	});
+	document.addEventListener('mousemove', function(e) {
+		if (!down)
+			return;
+		var vx = e.clientX - startX;
+		var vy = e.clientY - startY;
+		if (horiz) {
+			element.style.width = startW+vx+"px";
+			cb(startW+vx)
+		} else {
+			element.style.height = startH+vy+"px";
+			cb(startH+vy);
+		}
+	});
+}

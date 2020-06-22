@@ -44,8 +44,8 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('timeout', resp);
 		} else if (code == 429) { // rate limit
 			window.setTimeout(function() {
-				callback('timeout', resp);
-			}, 100);
+				callback('rate', resp);
+			}, 200);
 		} else if (code==401) {
 			console.log(x);
 			callback('auth', resp);
@@ -674,8 +674,16 @@ Myself.prototype.deletePage = function(id, callback) {
 }
 
 Myself.prototype.postComment = function(id, message, f, callback) {
+	if (f)
+		message = JSON.stringify(f)+"\n"+message;
 	this.request("Comment", 'POST', callback, {
 		parentId: id,
+		content: message
+	});
+};
+Myself.prototype.editComment = function(id, parent, message, f, callback) {
+	this.request("Comment/"+id, 'PUT', callback, {
+		parentId: parent,
 		content: f+"\n"+message,
 	});
 };
@@ -882,7 +890,7 @@ Myself.prototype.getUserPage = function(id, callback) {
 	id = +id;
 	return $.read([
 		{user: {userIds: [id]}},
-		{content: {createUserIds: [id], type: '@user.page', limit: 1}}, //page
+		{"content~userpage": {createUserIds: [id], type: '@user.page', limit: 1}}, //page
 		{activity: {userIds: [id], limit: 20, reverse: true}},
 		{commentaggregate: {userIds: [id], limit: 100, reverse: true}},
 		"content.2contentId.3id"
@@ -895,9 +903,7 @@ Myself.prototype.getUserPage = function(id, callback) {
 			// to map Content to Activity
 			// you know, maybe this could be done automatically.... somehow
 			if (user) {
-				var page = resp.content[0];
-				if (page && page.type != "@user.page")
-					page = undefined;
+				var page = resp.userpage[0];
 				$.cb(callback, user, page, resp.activity, resp.commentaggregate, resp.content, resp.userMap);
 			} else
 				$.cb(callback, null, {}, [], [], [], {});
