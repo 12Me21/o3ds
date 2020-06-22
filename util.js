@@ -86,7 +86,7 @@ function attachResize(element, tab, horiz,cb) {
 		if (e.touches)
 			return {x:e.touches[0].pageX,y:e.touches[0].pageY};
 		else
-			return {x:e.clientX,y:clientY};
+			return {x:e.clientX,y:e.clientY};
 	}
 	function down(e) {
 		tab.setAttribute('dragging',"");

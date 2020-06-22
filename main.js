@@ -288,6 +288,12 @@ function ready() {
 			flag('deleteComment', true);
 		}, 10);
 	}
+
+	$sidebar.onclick = function() {
+		if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches && flags.mobileSidebar) {
+			flag('mobileSidebar');
+		}
+	}
 }
 
 function deleteComment(id) {
