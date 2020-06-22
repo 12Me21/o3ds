@@ -554,14 +554,12 @@ function onLogin(me) {
 	me.doListenInitial(function(e, resp){
 		if (!e) {
 			sbm(resp);
-			console.log(resp,"LISTEN INITIAL");
 		}
 	})
 	me.getNotifications(function(e, resp){
 		if (!e) {
 			resp.activityaggregate.forEach(function(aa) {
 				var page = {id: aa.id};
-				console.log(resp.content, aa.id);
 				for (i=0; i<resp.content.length; i++) {
 					if (resp.content[i].id == aa.id) {
 						page = resp.content[i];
@@ -570,7 +568,6 @@ function onLogin(me) {
 				}
 				pushActivity(renderNotifItem(aa, page, resp.userMap), true);
 			});
-			console.log(resp, "NOTIFS");
 		}
 	});
 }
@@ -589,7 +586,6 @@ function sbm(resp) {
 		return;
 	var users = resp.userMap;
 	var last = {};
-	console.log("SBM",resp);
 	var all = megaAggregate(resp.activity, resp.comment, resp.content);
 	all.reverse().forEach(function(activity){
 		if (activity.userId instanceof Array)

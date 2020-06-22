@@ -343,7 +343,6 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	if (comment) {
 		var x = document.createElement('div');
 		x.className = "activityCommentText";
-		console.log(decodeComment(comment)[0])
 		x.textContent = decodeComment(comment)[0].replace(/\n/g," ");
 		div.appendChild(x);
 	}
@@ -405,7 +404,6 @@ function pageIcon(page) {
 function renderNotifItem(notif, page, users) {
 	var div = document.createElement('a');
 	div.className = "listItem bar rem1-7";
-	console.log(users, notif.userIds)
 	notif.userIds.forEach(function(id) {
 		
 		div.appendChild(renderUserLink(users[id]));
@@ -438,7 +436,6 @@ function renderMessageGap() {
 
 function renderMessagePart(comment, sizedOnload){
 	var x = decodeComment(comment.content);
-	console.log("decoding", comment.content,x);
 	var text=x[0], markup=x[1];
 	element = parser(markup)(text);
 	element.className += ' messagePart';

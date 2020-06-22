@@ -402,7 +402,6 @@ function selectUploadedFile(file) {
 	$fileView.src = url;
 	$fileView.onload = function() {
 		selectedFile = file;
-		console.log("SELECLED");
 		flag('fileUploading', true);
 	}
 	flag('fileSelected');
