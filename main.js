@@ -289,7 +289,9 @@ function ready() {
 		}, 10);
 	}
 
-	$sidebar.onclick = function() {
+	$sidebar.onclick = function(e) {
+		if (e.target == $sidebarPinnedResize)
+			return
 		if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches && flags.mobileSidebar) {
 			flag('mobileSidebar');
 		}
