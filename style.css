@@ -36,6 +36,9 @@ textarea {
 	font-family: roboto, sans-serif;
 	font-size: 0.8em;
 }
+select {
+	font-size: 0.8em;
+}
 
 sup {vertical-align: super;}
 sub {vertical-align: sub;}
