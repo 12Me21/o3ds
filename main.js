@@ -297,8 +297,10 @@ function ready() {
 				if (id) {
 					if (flags.editComment) {
 						editComment(+id, element);
+						break;
 					} else {
 						deleteComment(+id, element);
+						break;
 					}
 				}
 				element = element.parentNode;
@@ -332,6 +334,11 @@ function ready() {
 				active.click();
 				e.preventDefault();
 			}
+		}
+		if (e.keyCode == 27) {
+			cancelEdit();
+			flag('editComment');
+			flag('deleteComment');
 		}
 	});
 	
@@ -370,15 +377,18 @@ function editComment(id, element) {
 }
 
 function cancelEdit() {
-	editingMessage = null;
-	if (editingElement) {
-		editingElement.removeAttribute('editing');
-		editingElement = null;
+	if (editingMessage) {
+		editingMessage = null;
+		if (editingElement) {
+			editingElement.removeAttribute('editing');
+			editingElement = null;
+		}
+		if (markupBefore)
+			$chatMarkupSelect.value = markupBefore;
+		markupBefore = null;
+		flag('editingComment');
+		$chatTextarea.focus();
 	}
-	if (markupBefore)
-		$chatMarkupSelect.value = markupBefore;
-	markupBefore = null;
-	flag('editingComment');
 }
 
 var editingMessage, editingElement, markupBefore;
