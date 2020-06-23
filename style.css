@@ -37,7 +37,7 @@ textarea {
 	font-size: 0.8em;
 }
 select {
-	font-size: 0.7em;
+	font-size: 0.9em;
 }
 
 sup {vertical-align: super;}
@@ -981,6 +981,7 @@ html:not(.f-fileUploading) .fileUploading {
 		right: 0;
 		left: 0;
 		border-left: none;
+		-webkit-transform: none;
 		transform: none;
 		-webkit-transition: -webkit-transform 0.2s ease;
 		-webkit-transition: transform 0.2s ease;
