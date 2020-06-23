@@ -669,6 +669,27 @@ function pushActivity(element, priority) {
 	n.appendChild(element);
 	n.scrollTop = n.scrollHeight;
 }
+// this is all a hack
+var activityLines = [];
+function pushActivityLine(element) {
+	var box = $sidebarActivity.lastChild
+	if (box) {
+		box = box.querySelector(".activityContent");
+	}
+	if (!box) {
+		box = $sidebarActivity;
+	}
+	
+	activityLines.push([element, $sidebarActivity.lastChild]);
+	if (activityLines.length > 500) {
+		var remove = activityLines.shift();
+		var parent = remove[0].parentElement;
+		remove[0].remove();
+		if (parent.children.length == 0 && remove[1]) {
+			remove[1].remove();
+		}
+	}
+}
 
 var activityLastPage 
 
@@ -694,12 +715,7 @@ function sbm(resp) {
 		} else {
 			pushActivity(renderActivityBlock(activity.content));
 		}
-		var box = $sidebarActivity.lastChild.querySelector(".activityContent")
-		box.appendChild(renderActivityLine(user, activity.action == "p" ? activity.comment : activity.action, activity.action == "p"))
-		if ($sidebarActivity.children.length > 40) {
-			var c = $sidebarActivity.firstChild;
-			c.parentNode.removeChild(c);
-		}
+		pushActivityLine(renderActivityLine(user, activity.action == "p" ? activity.comment : activity.action, activity.action == "p", users[activity.editUserId]))
 		$sidebarScroller.scrollTop = $sidebarScroller.scrollHeight;
 	});
 }

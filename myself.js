@@ -629,7 +629,7 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotif
 		chains: [
 			"comment.0id","activity.0id","watch.0id", //new stuff
 			"content.1parentId.2contentId.3contentId", //pages
-			"user.1createUserId.2userId" //users for comment and activity
+			"user.1createUserId.2userId.1editUserId" //users for comment and activity
 		]
 	}
 	if (clearNotifs)

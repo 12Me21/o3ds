@@ -79,6 +79,14 @@ function attachPaste(element, callback) {
 	}, true);
 }
 
+// FILL
+if (!HTMLElement.prototype.remove) {
+	HTMLElement.prototype.remove = function() {
+		if (this.parentElement) {
+			this.parentElement.removeChild(this);
+		}
+	}
+}
 
 function attachResize(element, tab, horiz,cb) {
 	var startX,startY,down,startW,startH;

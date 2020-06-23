@@ -192,6 +192,7 @@ function megaAggregate(activity, ca, contents) {
 				date: x.createDate,
 				id: x.id,
 				userId: x.createUserId,
+				editUserId: x.editUserId,
 				type: 'content',
 				comment: x.content
 			}

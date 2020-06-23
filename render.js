@@ -372,8 +372,12 @@ function renderActivityBlock(page) {
 	return div;
 }
 
-function renderActivityLine(user, text, comment) {
+function renderActivityLine(user, text, comment, edit) {
 	var div = document.createElement('div');
+	if (edit && edit != user) {
+		div.appendChild(renderUserLink(edit));
+		div.appendChild(textItem("edited"));
+	}
 	div.appendChild(renderUserLink(user, false));
 	if (comment && user) {
 		text = decodeComment(text)[0];
@@ -550,7 +554,7 @@ AutoScroller.prototype.remove = function(id) {
 		parent.removeChild(node);
 		// when removing the last comment in a block
 		if (parent.children.length == 0) {// todo: make this less of a hack
-			parent.parentNode.parentNode.removeChild(parent.parentNode);
+			parent.parentNode.remove();
 		}
 	}
 	this.nodes[id] = undefined;

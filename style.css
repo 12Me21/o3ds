@@ -162,8 +162,9 @@ html {
  **********************/
 button {
 	line-height: normal !important;
-	font-size: 0.8em;
+	font-size: 1em;
 	cursor: pointer;
+	font-family: roboto, sans-serif;
 }
 .buttonContainer {
 	padding: 1px;
