@@ -327,6 +327,10 @@ header :first-child {
 	display: inline-block;
 }
 
+#\$authorBox .username {
+	margin-right: 0.3rem;
+}
+
 /*******************************
  ** content+sidebar container **
  *******************************/
@@ -400,6 +404,10 @@ main {
 	
 	/*min-height: 300px;
 	height: 300px;*/
+}
+
+.categoryPage:focus {
+	background-color: white;
 }
 
 /*******************
