@@ -89,7 +89,12 @@ function ready() {
 	
 	$chatSend.onclick = function() {
 		if ($chatTextarea.value && currentChatRoom) {
-			sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value})
+			if (editingMessage) {
+				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value}, editingMessage)
+				cancelEdit();
+			} else {
+				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value});
+			}
 			$chatTextarea.value = "";
 		}
 	}
@@ -291,9 +296,9 @@ function ready() {
 				var id = element.getAttribute('data-id')
 				if (id) {
 					if (flags.editComment) {
-						editComment(+id);
+						editComment(+id, element);
 					} else {
-						deleteComment(+id);
+						deleteComment(+id, element);
 					}
 				}
 				element = element.parentNode;
@@ -303,11 +308,32 @@ function ready() {
 		}
 	}
 	$chatDelete.onclick = function() {
+		cancelEdit();
 		window.setTimeout(function() {
 			flag('deleteComment', true);
+			focusLastComment();
 		}, 10);
 	}
-
+	$chatEdit.onclick = function() {
+		cancelEdit();
+		window.setTimeout(function() {
+			flag('editComment', true);
+			focusLastComment();
+		}, 10);
+	}
+	$cancelEdit.onclick = function() {
+		cancelEdit();
+		$chatTextArea.focus();
+	}
+	document.addEventListener('keydown', function(e) {
+		if (e.keyCode == 32 || e.keyCode == 13) {
+			var active = document.activeElement;
+			if (active && active.getAttribute('data-id')) {
+				active.click();
+			}
+		}
+	});
+	
 	$sidebar.onclick = function(e) {
 		if (e.target == $sidebarPinnedResize || $loggedOut.contains(e.target))
 			return
@@ -317,14 +343,55 @@ function ready() {
 	}
 }
 
+function focusLastComment() {
+	var parts = $messageList.querySelectorAll(".messagePart");
+	if (parts) {
+		parts[parts.length-1].focus();
+	}
+}
+
+// enter edit mode
+function editComment(id, element) {
+	me.getComment(id, function(comment) {
+		if (comment) {
+			console.log("got for editing",comment);
+			var c = decodeComment(comment.content);
+			$chatTextarea.value = c[0];
+			markupBefore = $chatMarkupSelect.value;
+			$chatMarkupSelect.value = c[1] || "plaintext";
+			editingMessage = id;
+			flag('editingComment', true);
+			editingElement = element;
+			element.setAttribute('editing', "");
+			$chatTextarea.focus();
+		}
+	});
+}
+
+function cancelEdit() {
+	editingMessage = null;
+	if (editingElement) {
+		editingElement.removeAttribute('editing');
+		editingElement = null;
+	}
+	if (markupBefore)
+		$chatMarkupSelect.value = markupBefore;
+	markupBefore = null;
+	flag('editingComment');
+}
+
+var editingMessage, editingElement, markupBefore;
+
 function isFullscreenSidebar() {
 	return !window.matchMedia || window.matchMedia("(max-width: 700px)").matches;
 }
 
-function deleteComment(id) {
-	var resp = confirm("Are you sure you want to delete this message?");
-	if (resp)
+function deleteComment(id, element) {
+	var resp = confirm("Are you sure you want to delete this message?\n"+element.textContent);
+	if (resp) {
 		me.deleteComment(id, console.log);
+		$chatTextarea.focus();
+	}
 }
 
 function updateAvatar(file) {

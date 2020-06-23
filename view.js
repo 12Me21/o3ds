@@ -15,6 +15,7 @@ function cleanUp(type) {
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
 	}
+	cancelEdit();
 }
 
 var currentChatRoom;
@@ -164,14 +165,18 @@ function decodeComment(content) {
 	return [text,markup];
 }
 
-function sendMessage(room, text, params) {
-	me.postComment(room, text, params || {}, function(e, resp) {
-		if (e=="rate") {
-			debugMessage("You are sending messages too fast");
-		} else if (e) {
-			debugMessage("Failed to send message");
-		}
-	});
+function sendMessage(room, text, params, editId) {
+	if (editId) {
+		me.editComment(editId, text, params || {}, function(e, resp) {} );
+	} else {
+		me.postComment(room, text, params || {}, function(e, resp) {
+			if (e=="rate") {
+				debugMessage("You are sending messages too fast");
+			} else if (e) {
+				debugMessage("Failed to send message");
+			}
+		});
+	}
 }
 
 function megaAggregate(activity, ca, contents) {
@@ -220,7 +225,6 @@ function megaAggregate(activity, ca, contents) {
 		return 0;
 	});
 	//todo: trim all trailing of same type because that's when the other runs out
-	// also we can optimize merging of 2 sorted arrays here!
 	return allAct;
 }
 

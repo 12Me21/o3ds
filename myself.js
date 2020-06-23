@@ -614,8 +614,8 @@ Myself.prototype.getVariable = function(name, callback) {
 Myself.prototype.doListenInitial = function(callback) {
 	var $=this;
 	return $.read([
-		{comment:{reverse:true,limit:10}},
-		{activity:{reverse:true,limit:10}},
+		{comment:{reverse:true,limit:20}},
+		{activity:{reverse:true,limit:20}},
 		"content.0parentId.1contentId", //pages
 		"user.0createUserId.1userId" //users for comment and activity
 	],{content:"id,createUserId,name,permissions"},callback);
@@ -676,19 +676,29 @@ Myself.prototype.deletePage = function(id, callback) {
 Myself.prototype.postComment = function(id, message, f, callback) {
 	if (f)
 		message = JSON.stringify(f)+"\n"+message;
-	this.request("Comment", 'POST', callback, {
+	return this.request("Comment", 'POST', callback, {
 		parentId: id,
 		content: message
 	});
 };
-Myself.prototype.editComment = function(id, parent, message, f, callback) {
-	this.request("Comment/"+id, 'PUT', callback, {
-		parentId: parent,
-		content: f+"\n"+message,
+Myself.prototype.editComment = function(id, message, f, callback) {
+	if (f)
+		message = JSON.stringify(f)+"\n"+message;
+	return this.request("Comment/"+id, 'PUT', callback, {
+		content: message,
 	});
 };
 Myself.prototype.deleteComment = function(id, callback) {
-	this.request("Comment/"+id, 'DELETE', callback);
+	return this.request("Comment/"+id, 'DELETE', callback);
+}
+Myself.prototype.getComment = function(id, callback) {
+	var $=this;
+	return $.readSimple("Comment?ids="+id, 'comment', function(e, resp) {
+		if (!e && resp[0])
+			$.cb(callback,resp[0]);
+		else
+			$.cb(callback, null);
+	});
 }
 
 Myself.prototype.setWatch = function(id, state, callback) {

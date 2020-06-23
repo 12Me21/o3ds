@@ -16,7 +16,7 @@
 <!--START-->
 <!-- this is where files will be inlined -->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?aQ">
+<link rel="stylesheet" href="style.css?aR">
 <link rel="stylesheet" href="markup.css?y">
 <link rel="stylesheet" href="code.css?a">
 
@@ -24,16 +24,16 @@
 
 <script src="storage.js?a"></script>
 
-<script src="myself.js?T"></script>
+<script src="myself.js?U"></script>
 
 <script src="lp4.js?e"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?I"></script>
 
-<script src="render.js?L"></script>
-<script src="view.js?U"></script>
-<script src="main.js?ap"></script>
+<script src="render.js?M"></script>
+<script src="view.js?V"></script>
+<script src="main.js?aq"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -265,7 +265,7 @@
 					<tr>
 						<td rowspan="2" class="tableGrow"><textarea class="chatTextarea" id="$chatTextarea"></textarea></td>
 						<td rowspan="2"><div class="buttonContainer chatSend fill"><button id="$chatSend">Send</button></div></td>
-						<td style="white-space: nowrap"><div class="buttonContainer chatSend"><button id="$chatEdit">Edit</button></div><div class="buttonContainer chatSend"><button id="$chatDelete">Delete</button></div></td>
+						<td style="white-space: nowrap"><div class="buttonContainer chatSend hideWhenEdit"><button id="$chatEdit">Edit</button></div><div class="buttonContainer chatSend hideWhenEdit"><button id="$chatDelete">Delete</button></div><div class="buttonContainer chatSend showWhenEdit"><button id="$cancelEdit">Cancel Edit</button></div></td>
 					</tr>
 					<tr>
 						<td><select class="fill" id="$chatMarkupSelect"><option value="plaintext">Plaintext</option><option value="12y">12y</option><option value="bbcode">BBCode</option></select></td>

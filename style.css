@@ -295,6 +295,7 @@ html.f-loggedIn .loggedOut {
 	background-color: #DDD;
 	padding: 0 0.1rem;
 	border-bottom: 2px solid black;
+	background: linear-gradient(#DDD,white);
 }
 
 .titlePane .iconBg {
@@ -339,8 +340,6 @@ header :first-child {
 	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
 	overflow-x: hidden;
-
-	flex-basis: 10000px; /* @@@ */
 }
 
 .m {
@@ -584,6 +583,30 @@ main {
 
 html.f-deleteComment .messagePart:hover {
 	background-color: red;
+}
+
+html.f-editComment .messagePart:hover {
+	background-color: yellow;
+}
+
+html.f-deleteComment #\$chatDelete {
+	background-color: red;
+}
+
+html.f-editComment #\$chatEdit {
+	background-color: red;
+}
+
+.messagePart[editing] {
+	background-color: yellow;
+}
+
+html.f-editingComment .hideWhenEdit {
+	display:none;
+}
+
+html:not(.f-editingComment) .showWhenEdit {
+	display:none;
 }
 
 /****************

@@ -377,6 +377,7 @@ function renderActivityLine(user, text, comment) {
 	div.appendChild(renderUserLink(user, false));
 	if (comment && user) {
 		text = decodeComment(text)[0];
+		div.title = text;
 	} else if (!user) { //hack
 		text = "Deleted comment"
 		comment = false;
@@ -440,6 +441,7 @@ function renderMessagePart(comment, sizedOnload){
 	element = parser(markup)(text);
 	element.className += ' messagePart';
 	element.setAttribute('data-id', comment.id);
+	element.setAttribute('tabindex', "0");
 	return element;
 }
 
