@@ -216,7 +216,7 @@ body {
 	display: flex;
 	-webkit-flex-direction: column;
 	flex-direction: column;
-	position: fixed; /* changed from absolute (why?)*/
+	position: sticky; /* changed from absolute (why?)*/
 	top: 0;
 	left: 0;
 	right: 0;
