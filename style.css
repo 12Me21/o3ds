@@ -1048,6 +1048,7 @@ html:not(.f-fileUploading) .fileUploading {
 
 .activityContent > .bar {
 	border: none;
+	height: 1.5rem;
 }
 
 .sidebarPageTitle * {
