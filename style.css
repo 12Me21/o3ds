@@ -351,7 +351,7 @@ header :first-child {
 	display: flex;
 	-webkit-flex-direction: column;
 	flex-direction: column;
-	overflow-y: hidden; /* mmm */
+	/*overflow-y: hidden; /* mmm */
 }
 
 #\$sidebar {
@@ -1004,7 +1004,6 @@ html:not(.f-fileUploading) .fileUploading {
 	.m {
 		width: 100% !important;
 		max-width: 100% !important;
-		display: block;
 	}
 }
 
