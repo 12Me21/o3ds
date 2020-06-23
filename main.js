@@ -330,6 +330,7 @@ function ready() {
 			var active = document.activeElement;
 			if (active && active.getAttribute('data-id')) {
 				active.click();
+				e.preventDefault();
 			}
 		}
 	});
