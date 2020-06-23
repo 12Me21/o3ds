@@ -969,7 +969,8 @@ html:not(.f-fileUploading) .fileUploading {
 		display: block;
 		height: 2.3rem;
 	}
-	#\$sidebar {
+	html.f-mobileSidebar #\$sidebar {
+		display: block; /* for devices without flex */
 		display: flex;
 		border-left: none;
 		position: fixed;
