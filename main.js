@@ -309,7 +309,7 @@ function ready() {
 	}
 
 	$sidebar.onclick = function(e) {
-		if (e.target == $sidebarPinnedResize)
+		if (e.target == $sidebarPinnedResize || $loggedOut.contains(e.target))
 			return
 		if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches && flags.mobileSidebar) {
 			flag('mobileSidebar');
