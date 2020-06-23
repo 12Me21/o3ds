@@ -681,6 +681,7 @@ function pushActivityLine(element) {
 	}
 	
 	activityLines.push([element, $sidebarActivity.lastChild]);
+	box.appendChild(element);
 	if (activityLines.length > 500) {
 		var remove = activityLines.shift();
 		var parent = remove[0].parentElement;
