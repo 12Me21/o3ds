@@ -216,14 +216,14 @@ body {
 	display: flex;
 	-webkit-flex-direction: column;
 	flex-direction: column;
-	position: sticky; /* changed from absolute (why?)*/
+	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	background-color: white;
 
-	height: 100vh; /* @@@ */
+	/*height: 100vh;*/ /* @@@ */
 }
 
 /*************
@@ -971,6 +971,7 @@ html:not(.f-fileUploading) .fileUploading {
 @media (max-width: 700px) {
 	.closeSidebar {
 		display: block;
+		height: 2.3rem;
 	}
 	#\$sidebar {
 		width: 100%;
@@ -997,9 +998,13 @@ html:not(.f-fileUploading) .fileUploading {
 		-webkit-transform: translateX(100%);
 		transform: translateX(100%);
 	}
+	html.f-mobileSidebar .m {
+		display: none;
+	}
 	.m {
 		width: 100% !important;
 		max-width: 100% !important;
+		display: block;
 	}
 }
 
