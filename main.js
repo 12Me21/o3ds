@@ -68,9 +68,9 @@ function ready() {
 		me.logOut();
 		me.logIn($loggedOut.$username.value, $loggedOut.$password.value, function(){});
 	}
-	$logout.onclick = function() {
-		event.preventDefault();
+	$logout.onclick = function(e) {
 		me.logOut();
+		e.preventDefault();
 	}
 
 	$editorTextarea.oninput = function() {
@@ -96,8 +96,8 @@ function ready() {
 
 	$chatTextarea.onkeypress = function(e) {
 		if (!e.shiftKey && e.keyCode == 13) {
-			e.preventDefault();
 			$chatSend.onclick();
+			e.preventDefault();
 		}
 	};
 
@@ -311,10 +311,14 @@ function ready() {
 	$sidebar.onclick = function(e) {
 		if (e.target == $sidebarPinnedResize || $loggedOut.contains(e.target))
 			return
-		if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches && flags.mobileSidebar) {
-			flag('mobileSidebar');
+		if (isFullscreenSidebar() && flags.mobileSidebar) {
+			toggleSidebar();
 		}
 	}
+}
+
+function isFullscreenSidebar() {
+	return !window.matchMedia || window.matchMedia("(max-width: 700px)").matches;
 }
 
 function deleteComment(id) {
@@ -329,11 +333,21 @@ function updateAvatar(file) {
 }
 
 function toggleSidebar() {
-	if (!window.matchMedia || window.matchMedia("(max-width: 700px)").matches) {
+	var fullscreen = isFullscreenSidebar()
+	relocateSidebar(fullscreen);
+	if (fullscreen) {
 		flag('mobileSidebar', !flags.mobileSidebar);
 	} else {
 		flag('sidebar', !flags.sidebar);
 		localStorage.setItem('sbs-sidebar', flags.sidebar);
+	}
+}
+
+function relocateSidebar(fullscreen) {
+	if (fullscreen) {
+		document.body.insertBefore($sidebar, document.body.firstChild);
+	} else {
+		$sidebarContainer.appendChild($sidebar);
 	}
 }
 
