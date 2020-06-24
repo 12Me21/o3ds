@@ -15,9 +15,23 @@ LongPoller.prototype.setState = function(text, state) {
 	this.onStatus.call(this, text);
 }
 
+LongPoller.prototype.setStatus = function(id, status) {
+	if (status == null)
+		delete this.statuses[id];
+	//todo: need to remove lastListeners[id] IF the user isn't also viewing that room
+	else {
+		this.statuses[id] = status;
+		if (!this.lastListeners[id])
+			this.lastListeners[id] = {"0":""};
+	}
+}
+
 LongPoller.prototype.loop = function() {
 	var $=this;
 	$.setState("Idle (waiting)", true);//idle
+	// todo: we need to make sure that
+	// every value in .statuses is also in .lastListeners
+	// so we can sync clients and avoid status fighting
 	$.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
 		try {
 			console.log(resp);
@@ -26,6 +40,17 @@ LongPoller.prototype.loop = function() {
 				$.lastId = resp.lastId;
 				if (resp.listeners) {
 					$.lastListeners = resp.listeners;
+					for (var room in resp.listeners) {
+						for (var uid in resp.listeners[room]) {
+							if (uid == $.myself.uid) {
+								var status = resp.listeners[room][uid];
+								if ($.statuses[room] != status) {
+									console.log("updating own status from other client");
+									$.statuses[room] = status;
+								}
+							}
+						}
+					}
 					$.onListeners.call(this, resp.listeners, resp.chains.userMap);
 				}
 				var pageMap = {};
