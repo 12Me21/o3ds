@@ -12,6 +12,8 @@ var lp = new LongPoller(me, null);
 var currentPage;
 flag('sidebar', localStorage.getItem('sbs-sidebar') == 'true');
 
+window.onbeforeunload = function(){console.log("test")};
+
 debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
 }
