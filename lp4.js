@@ -1,9 +1,10 @@
 function LongPoller(myself) {
 	this.myself = myself;
 	this.cancel = [function(){}];
-	this.lastListeners = {"0":{"0":""}};
+	this.lastListeners = {"0":{},"-1":{}};
 	this.lastId = -1;
 	this.statuses = {"0":"online"};
+	this.countDown = 9999999;
 }
 
 LongPoller.prototype.start = function() {
@@ -15,6 +16,12 @@ LongPoller.prototype.setState = function(text, state) {
 	this.onStatus.call(this, text);
 }
 
+LongPoller.prototype.updateAvatar = function() {
+	this.setStatus(-1, ""+this.countDown);
+	this.countDown--;
+	this.refresh();
+}
+
 LongPoller.prototype.setStatus = function(id, status) {
 	if (status == null)
 		delete this.statuses[id];
@@ -23,6 +30,7 @@ LongPoller.prototype.setStatus = function(id, status) {
 		this.statuses[id] = status;
 		if (!this.lastListeners[id])
 			this.lastListeners[id] = {"0":""};
+		this.lastListeners[id][this.myself.uid] = status;
 	}
 }
 
@@ -40,21 +48,6 @@ LongPoller.prototype.loop = function() {
 				$.lastId = resp.lastId;
 				if (resp.listeners) {
 					$.lastListeners = resp.listeners;
-					for (var room in resp.listeners) {
-						for (var uid in resp.listeners[room]) {
-							if (uid == $.myself.uid) {
-								var status = resp.listeners[room][uid];
-								if ($.statuses[room] != status) {
-									if (status == "") {
-										console.log("other client left");
-									} else {
-										console.log("updating own status from other client");
-										$.statuses[room] = status;
-									}
-								}
-							}
-						}
-					}
 					$.onListeners.call(this, resp.listeners, resp.chains.userMap);
 				}
 				var pageMap = {};
@@ -106,7 +99,7 @@ LongPoller.prototype.setViewing = function(id) {
 		this.statuses[this.viewing]="";
 	}
 	if (id) {
-		this.lastListeners[id] = {"0":""};
+		this.lastListeners[id] = {};
 		this.statuses[id] = "active";
 	}
 	this.refresh();

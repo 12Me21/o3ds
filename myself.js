@@ -45,7 +45,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		} else if (code == 429) { // rate limit
 			window.setTimeout(function() {
 				callback('rate', resp);
-			}, 200);
+			}, 1000);
 		} else if (code==401) {
 			console.log(x);
 			callback('auth', resp);
@@ -371,7 +371,8 @@ Myself.prototype.getPage = function(id, callback) {
 		{comment: {parentIds: [id], limit: 50, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
 	], {
-		user: "id,username,avatar"
+		user: "id,username,avatar",
+		comment: "content,createuserid,deleted,editdate,edituserid,id,parentid"
 	}, function(e, resp) {
 		if (!e) {
 			var page = resp.content[0];
@@ -961,3 +962,8 @@ function buildCategoryTree(categories) {
 // but none of this will ever really work because
 // field filtering, etc.
 // nothing   is real
+
+
+
+
+

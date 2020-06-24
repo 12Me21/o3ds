@@ -210,6 +210,7 @@ function ready() {
 			me.setBasic({avatar: selectedFile.id}, function(e) {
 				if (!e) {
 					updateAvatar(selectedFile);
+					lp.updateAvatar();
 				}
 			});
 		}

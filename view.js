@@ -3,6 +3,9 @@
 
 // clean up stuff whenever switching pages
 function cleanUp(type) {
+	if (type != "pages") {
+		lp.setViewing();
+	}
 	flag('myUserPage');
 	flag('canEdit');
 	flag('page');
@@ -186,11 +189,11 @@ function megaAggregate(activity, ca, contents) {
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
-		if (x.createDate) {
+		if (x.editDate) {
 			return {
 				action: "p",
 				contentId: x.parentId,
-				date: x.createDate,
+				date: x.editDate,
 				id: x.id,
 				userId: x.createUserId,
 				editUserId: x.editUserId,
@@ -247,11 +250,15 @@ function displayMessage(c, user) {
 	if (c.deleted) {
 		scroller.remove(c.id);
 	} else {
+		var should = scroller.shouldScroll();
 		var node = renderMessagePart(c, function(){
-			scroller.autoScroll();
+			if (should) {
+				console.log('img onload autoscroll');
+				scroller.autoScroll();
+			}
 		});
 		scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderUserBlock(user, parseDate(c.createDate));
+			var b = renderUserBlock(user, parseDate(c.editDate));
 			if (c.createUserId == me.uid)
 				b[0].className += " ownMessage";
 			return b;

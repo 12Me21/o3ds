@@ -446,6 +446,10 @@ function renderMessagePart(comment, sizedOnload){
 	element.className += ' messagePart';
 	element.setAttribute('data-id', comment.id);
 	element.setAttribute('tabindex', "0");
+	var imgs = element.querySelectorAll('img');
+	for(var i=0;i<imgs.length;i++) {
+		imgs[i].onload = sizedOnload;
+	}
 	return element;
 }
 
