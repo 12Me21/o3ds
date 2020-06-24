@@ -623,7 +623,6 @@ html:not(.f-editingComment) .showWhenEdit {
  ****************/
 .inputPane {
 	height: 3.25rem;
-	flex-basis:3.25rem;
 }
 
 #\$chatTextarea {
@@ -638,7 +637,7 @@ html:not(.f-editingComment) .showWhenEdit {
 
 .inputPane > table {
 	width: 100%;
-	height: 100%;
+	height: 99%; /* crying */
 	border-collapse: collapse;
 }
 
