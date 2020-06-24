@@ -612,6 +612,8 @@ function updateEditorPreview(preview) {
 	}
 }
 
+var onUserPage;
+
 // "generate" functions operate implicitly on specific html elements, and should be in view.js
 // "render" functions often are similar but more general, and are in render.js
 // I feel like the names are backwards, sorry...
@@ -633,6 +635,9 @@ function onLogin(me) {
 	}
 	lp.onListeners = function(lists, users) {
 		updateUserlist($sidebarUserlist, lists[1], users);
+		if (onUserPage) {
+			$userPageStatus.textContent = lp.lastListeners[1][onUserPage] || "";
+		}
 	}
 	lp.onDelete = function(comments) {}
 	lp.onActivity = function(activity, users, pages) {

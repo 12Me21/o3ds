@@ -16,6 +16,7 @@ function cleanUp(type) {
 		nodes[i].innerHTML = "";
 	}
 	cancelEdit();
+	onUserPage = null;
 }
 
 var currentChatRoom;
@@ -616,6 +617,7 @@ var views = {
 				flag('canEdit', true);
 			}
 			if (user) {
+				onUserPage = user.id;
 				generatePath([["#users","Users"], ["#user/"+id, user.username]]);
 				if (user.id == me.uid)
 					flag('myUserPage', true);
@@ -651,6 +653,9 @@ var views = {
 				console.log(lists);
 				updateUserlist($chatUserlist, lists[id], users);
 				updateUserlist($sidebarUserlist, lists[1], users);
+				if (onUserPage) {
+					$userPageStatus.textContent = lp.lastListeners[1][onUserPage] || "";
+				}
 			}
 			lp.onMessages = function(messages, users, pages) {
 				messages.forEach(function(comment) {
