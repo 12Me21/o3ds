@@ -246,11 +246,11 @@ function updateUserlist(list, listeners, userMap) {
 	})
 }
 
-function displayMessage(c, user) {
+function displayMessage(c, user, force) {
 	if (c.deleted) {
 		scroller.remove(c.id);
 	} else {
-		var should = scroller.shouldScroll();
+		var should = force || scroller.shouldScroll();
 		var node = renderMessagePart(c, function(){
 			if (should) {
 				console.log('img onload autoscroll');
@@ -708,7 +708,7 @@ var views = {
 				displayGap();
 				comments && comments.reverse().forEach(function(comment) {
 					if (comment.parentId == page.id)
-						displayMessage(comment, users[comment.createUserId]);
+						displayMessage(comment, users[comment.createUserId], true);
 				});
 				$editButton.href = "#pages/edit/"+page.id;
 				$voteCount_b.textContent = page.about.votes.b.count;
