@@ -510,6 +510,7 @@ main {
 .userlist {
 	background-color: #EEE;
 	border-bottom: 1px solid gray;
+	flex-shrink: 0;
 }
 
 /***********************

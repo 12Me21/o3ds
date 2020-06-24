@@ -234,11 +234,11 @@ function generatePath(path) {
 }
 // function generatePagePath - category tree paths
 
-function updateUserlist(listeners, userMap) {
-	$chatUserlist.innerHTML = "";
+function updateUserlist(list, listeners, userMap) {
+	list.innerHTML = "";
 	listeners && forDict(listeners, function(status, user) {
 		if (status)
-			$chatUserlist.appendChild(renderUserListAvatar(userMap[user]));
+			list.appendChild(renderUserListAvatar(userMap[user]));
 	})
 }
 
@@ -647,7 +647,8 @@ var views = {
 	pages: {
 		start: function(id, query, callback) {
 			lp.onListeners = function(lists, users) {
-				updateUserlist(lists[id], users)
+				updateUserlist($chatUserlist, lists[id], users);
+				updateUserlist($sidebarUserlist, lists[1], users);
 			}
 			lp.onMessages = function(messages, users, pages) {
 				messages.forEach(function(comment) {

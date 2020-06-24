@@ -12,8 +12,6 @@ var lp = new LongPoller(me, null);
 var currentPage;
 flag('sidebar', localStorage.getItem('sbs-sidebar') == 'true');
 
-window.onbeforeunload = function(){console.log("test")};
-
 debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
 }
@@ -364,7 +362,6 @@ function focusLastComment() {
 function editComment(id, element) {
 	me.getComment(id, function(comment) {
 		if (comment) {
-			console.log("got for editing",comment);
 			var c = decodeComment(comment.content);
 			$chatTextarea.value = c[0];
 			markupBefore = $chatMarkupSelect.value;
