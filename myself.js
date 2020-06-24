@@ -79,7 +79,7 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 			callback('fail');
 		}
 	}
-	//x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
+	x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate");
 	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
 	if (auth)
 		x.setRequestHeader('Authorization', "Bearer "+auth);
