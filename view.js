@@ -629,7 +629,7 @@ var views = {
 				}
 				userAvatar(user, $userPageAvatar, true);
 				$userPageAvatarLink.href = user.rawAvatarURL;
-				$userPageStatus.textContent = lp.lastListeners[1][user.id] || "";
+				$userPageStatus.textContent = lp.lastListeners[0][user.id] || "";
 				var lastId, lastAction;
 				megaAggregate(activity, ca, pages).forEach(function(activity){
 					if (activity.contentId != lastId || activity.action != lastAction) {
@@ -652,9 +652,9 @@ var views = {
 			lp.onListeners = function(lists, users) {
 				console.log(lists);
 				updateUserlist($chatUserlist, lists[id], users);
-				updateUserlist($sidebarUserlist, lists[1], users);
+				updateUserlist($sidebarUserlist, lists[0], users);
 				if (onUserPage) {
-					$userPageStatus.textContent = lp.lastListeners[1][onUserPage] || "";
+					$userPageStatus.textContent = lp.lastListeners[0][onUserPage] || "";
 				}
 			}
 			lp.onMessages = function(messages, users, pages) {

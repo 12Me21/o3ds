@@ -1,9 +1,9 @@
 function LongPoller(myself) {
 	this.myself = myself;
 	this.cancel = [function(){}];
-	this.lastListeners = {"1":{"0":""}};
+	this.lastListeners = {"0":{"0":""}};
 	this.lastId = -1;
-	this.statuses = {"1":"online"};
+	this.statuses = {"0":"online"};
 }
 
 LongPoller.prototype.start = function() {
@@ -45,8 +45,12 @@ LongPoller.prototype.loop = function() {
 							if (uid == $.myself.uid) {
 								var status = resp.listeners[room][uid];
 								if ($.statuses[room] != status) {
-									console.log("updating own status from other client");
-									$.statuses[room] = status;
+									if (status == "") {
+										console.log("other client left");
+									} else {
+										console.log("updating own status from other client");
+										$.statuses[room] = status;
+									}
 								}
 							}
 						}
@@ -98,12 +102,16 @@ LongPoller.prototype.refresh = function() {
 LongPoller.prototype.setViewing = function(id) {
 	if (this.viewing) {
 		delete this.lastListeners[this.viewing];
-		delete this.statuses[this.viewing];
+		console.log("setting old status to ''");
+		this.statuses[this.viewing]="";
 	}
 	if (id) {
 		this.lastListeners[id] = {"0":""};
 		this.statuses[id] = "active";
 	}
-	this.viewing = id;
 	this.refresh();
+	if (this.viewing) {
+		delete this.statuses[this.viewing];
+	}
+	this.viewing = id;
 }

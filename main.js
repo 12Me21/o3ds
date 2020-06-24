@@ -634,9 +634,9 @@ function onLogin(me) {
 	lp.onMessages = function(messages, users, pages) {
 	}
 	lp.onListeners = function(lists, users) {
-		updateUserlist($sidebarUserlist, lists[1], users);
+		updateUserlist($sidebarUserlist, lists[0], users);
 		if (onUserPage) {
-			$userPageStatus.textContent = lp.lastListeners[1][onUserPage] || "";
+			$userPageStatus.textContent = lp.lastListeners[0][onUserPage] || "";
 		}
 	}
 	lp.onDelete = function(comments) {}
