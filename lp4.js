@@ -3,7 +3,7 @@ function LongPoller(myself) {
 	this.cancel = [function(){}];
 	this.lastListeners = {};
 	this.lastId = -1;
-	this.statuses = {};
+	this.statuses = {"0":"online"};
 }
 
 LongPoller.prototype.start = function() {

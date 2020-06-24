@@ -162,7 +162,7 @@ html {
  **********************/
 button {
 	line-height: normal !important;
-	font-size: 1em;
+	font-size: 0.8em;
 	cursor: pointer;
 	font-family: roboto, sans-serif;
 }
@@ -526,7 +526,7 @@ main {
 
 /** Chat Messages **/
 .message {
-	font-size: 0.9rem;
+	font-size: 1em;
 	padding: 0.4rem 0.5rem;
 	white-space: pre-wrap;
 	border-left-width: 0.5em;
