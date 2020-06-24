@@ -46,7 +46,6 @@ sub {vertical-align: sub;}
 .ellipsis {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	white-space: pre !important;
 }
 
 .ellipsis * {
@@ -1068,6 +1067,8 @@ html:not(.f-fileUploading) .fileUploading {
 
 .activityContent > .bar {
 	border: none;
+	height: 1.5rem;
+	white-space: pre;
 }
 
 .sidebarPageTitle * {
