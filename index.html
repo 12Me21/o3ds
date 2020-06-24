@@ -32,8 +32,8 @@
 <script src="parse.js?I"></script>
 
 <script src="render.js?N"></script>
-<script src="view.js?X"></script>
-<script src="main.js?aw"></script>
+<script src="view.js?Y"></script>
+<script src="main.js?ax"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -49,7 +49,7 @@
 	</nav>
 	
 	<header class="titlePane bar rem2-3" id="$titlePane">
-		<span id="$pageTitleIcon"></span><h1 class="pageTitle textItem pre" id="$pageTitle"></h1><span class="buttonContainer item categoryMode"><a id="$categoryCreatePage"><button tabindex="-1">Create Page</button></a></span><a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><div class="buttonContainer item loggedIn myUserPage"><button id="$logout">Log Out</button></div><input class="item editorMode" id="$titleInput" placeholder="Page Title" required><input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required><div class="buttonContainer item editorMode"><button id="$submitEdit" >Submit</button></div><span class="cateditMode textItem"><div class="buttonContainer item"><button id="$cateditSubmit">Submit</button></div></span><span class="textItem pageMode" id="$voteBox"><div class="buttonContainer item"><button id="$voteButton_b" class="voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_o" class="voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_g" class="voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></div></span>
+		<span id="$pageTitleIcon"></span><h1 class="pageTitle textItem pre" id="$pageTitle"></h1><span class="buttonContainer item categoryMode"><a id="$categoryCreatePage"><button tabindex="-1">Create Page</button></a></span><a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><div class="buttonContainer item loggedIn myUserPage"><button id="$logout">Log Out</button></div><div id="$userPageStatus" class="textItem"></div><input class="item editorMode" id="$titleInput" placeholder="Page Title" required><input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required><div class="buttonContainer item editorMode"><button id="$submitEdit" >Submit</button></div><span class="cateditMode textItem"><div class="buttonContainer item"><button id="$cateditSubmit">Submit</button></div></span><span class="textItem pageMode" id="$voteBox"><div class="buttonContainer item"><button id="$voteButton_b" class="voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_o" class="voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_g" class="voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></div></span>
 		<label for="$watchCheck" class="textItem pageItem loggedIn">Watching:</label>
 		<input type="checkbox" id="$watchCheck" class="item pageItem loggedIn">
 

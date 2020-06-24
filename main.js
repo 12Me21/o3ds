@@ -631,6 +631,9 @@ function onLogin(me) {
 	/*hashChange(false);*/
 	lp.onMessages = function(messages, users, pages) {
 	}
+	lp.onListeners = function(lists, users) {
+		updateUserlist($sidebarUserlist, lists[1], users);
+	}
 	lp.onDelete = function(comments) {}
 	lp.onActivity = function(activity, users, pages) {
 	}
