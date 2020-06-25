@@ -765,7 +765,10 @@ var views = {
 		render: function(id, query, callback) {
 			$main.className = "homeMode";
 			generatePath();
-			setTitle("Welcome to smilebnasic source! 2");
+			var text = "Welcome to SmileBASIC Source 2!"
+			var index = Math.random()*(text.length-1)|0;
+			text = text.substring(0,index)+text[index+1]+text[index]+text.substr(index+2);
+			setTitle(text);
 		}
 	},
 	'categories/edit': {
