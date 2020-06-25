@@ -16,7 +16,7 @@
 <!--START-->
 <!-- this is where files will be inlined -->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?aX">
+<link rel="stylesheet" href="style.css?aY">
 <link rel="stylesheet" href="markup.css?y">
 <link rel="stylesheet" href="code.css?a">
 
@@ -24,16 +24,16 @@
 
 <script src="storage.js?a"></script>
 
-<script src="myself.js?X"></script>
+<script src="myself.js?Y"></script>
 
-<script src="lp4.js?i"></script>
+<script src="lp4.js?j"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?I"></script>
 
 <script src="render.js?O"></script>
-<script src="view.js?ac"></script>
-<script src="main.js?aC"></script>
+<script src="view.js?ad"></script>
+<script src="main.js?aD"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -45,11 +45,12 @@
 		<a href="#" class="textItem"><img class="item" src="images/iconbig.png?a" alt="SBS"></a> <span id="$navPane" class="path textItem"></span>
 		<span class="rightAlign textItem">
 			<div class="buttonContainer item"><button id="$openSidebar">|||</button></div><!--<button id="$reload" class="item">Reload</button>--><!--<input id="$search" placeholder="Search" class="item">--><div class="loggedIn textItem" id="$loggedIn"><a class="item userLink" id="$myUserLink"><span class="myName username textItem" id="$myName" class="item"></span><img class="myAvatar item avatar" id="$myAvatar"></a></div>
+			<div class="loggedOut textItem"><a href="#login" class="textItem">Log In or Register</a></div>
 		</span>
 	</nav>
 	
 	<header class="titlePane bar rem2-3" id="$titlePane">
-		<span id="$pageTitleIcon"></span><h1 class="pageTitle textItem pre" id="$pageTitle"></h1><span class="buttonContainer item categoryMode"><a id="$categoryCreatePage"><button tabindex="-1">Create Page</button></a></span><a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><div class="buttonContainer item loggedIn myUserPage"><button id="$logout">Log Out</button></div><div id="$userPageStatus" class="textItem"></div><input class="item editorMode" id="$titleInput" placeholder="Page Title" required><input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required><div class="buttonContainer item editorMode"><button id="$submitEdit" >Submit</button></div><span class="cateditMode textItem"><div class="buttonContainer item"><button id="$cateditSubmit">Submit</button></div></span><span class="textItem pageMode" id="$voteBox"><div class="buttonContainer item"><button id="$voteButton_b" class="voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_o" class="voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_g" class="voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></div></span>
+		<span id="$pageTitleIcon"></span><h1 class="pageTitle textItem pre" id="$pageTitle"></h1><span class="buttonContainer item categoryMode"><a id="$categoryCreatePage"><button tabindex="-1">Create Page</button></a></span><a class="textItem userMode loggedIn myUserPage" href="#usersettings">Settings</a><div class="buttonContainer item loggedIn myUserPage"><button id="$logout">Log Out</button></div><div id="$userPageStatus" class="textItem userMode"></div><input class="item editorMode" id="$titleInput" placeholder="Page Title" required><input class="item cateditMode" id="$cateditTitle" placeholder="Category Title" required><div class="buttonContainer item editorMode"><button id="$submitEdit" >Submit</button></div><span class="cateditMode textItem"><div class="buttonContainer item"><button id="$cateditSubmit">Submit</button></div></span><span class="textItem pageMode" id="$voteBox"><div class="buttonContainer item"><button id="$voteButton_b" class="voteButton" data-vote="b">Bad<br><span id="$voteCount_b">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_o" class="voteButton" data-vote="o">Ok<br><span id="$voteCount_o">x</span></button></div><div class="buttonContainer item"><button id="$voteButton_g" class="voteButton" data-vote="g">Great<br><span id="$voteCount_g">x</span></button></div></span>
 		<label for="$watchCheck" class="textItem pageItem loggedIn">Watching:</label>
 		<input type="checkbox" id="$watchCheck" class="item pageItem loggedIn">
 
@@ -88,6 +89,7 @@
 
 			<div class="fileMode">
 				<div class="buttonContainer fileUploading"><button id="$fileUploadButton">Upload Image!</button></div>
+				Click an image to select
 				<div class="fileSelected">
 					<div class="buttonContainer loggedIn"><button id="$setAvatarButton">Use As Avatar</button></div>
 					<table class="form">
@@ -207,17 +209,33 @@
 					<div id="$memberList"></div>
 				</div>
 
-				<div class="registerMode">
-					<form id="$registerForm">
-						<input name="username" type="username" placeholder="Username" required minlength="3"><br>
-						<input name="password" type="password" placeholder="Password" minlength="8" required><br>
-						<input name="email" type="email" placeholder="Email" required><br>
-						<button id="$register" onclick="event.preventDefault()">Register</button>
-					</form>
-					<button id="$resendEmail" onclick="event.preventDefault()">Resend Email</button>
-					<div id="$registerError" class="pre"></div>
-					<input id="$emailCode" placeholder="Confirmation Code"><br>
-					<button id="$registerConfirm">Confirm</button>
+				<div class="registerMode loggedIn">
+					Logged In
+				</div>
+				
+				<div class="registerMode loggedOut">
+					<div class="registerBox">
+						<h2>Log In</h2>
+						<form id="$loginForm">
+							<input placeholder="Username" name="username" id="$username"><br>
+							<input placeholder="Password" name="password" type="password" id="$password"><br>
+							<div class="buttonContainer"><button id="$login" onclick="event.preventDefault()">Log In</button></div>
+						</form>
+						<div id="$loginError"></div>
+					</div>
+					<div class="registerBox">
+						<h2>Register</h2>
+						<form id="$registerForm" autocomplete="off">
+							<input placeholder="Username" name="username" type="username" id="$registerUsername" minlength="3" maxlength="20"> 3 to 20 characters, no spaces<br>
+							<input placeholder="Password" name="password" type="password" id="$registerPassword" minlength="8"><input placeholder="Confirm Password" name="password2" type="password" id="$registerPassword2" minlength="8"> At least 8 characters<br>
+							<input placeholder="Email" name="email" type="email" id="$registerPassword"><input placeholder="Confirm Email" name="email2" type="email" id="$registerEmail2"> Confirmation code will be sent<br>
+							<div class="buttonContainer" style="width: 100%"><button id="$registerButton" onclick="event.preventDefault()">Register</button></div></form>
+						<div class="buttonContainer"><button id="$resendEmail" onclick="event.preventDefault()">Resend Email</button></div>
+						<div id="$registerError" class="pre"> </div>
+						<h3>Confirm Registration</h3>
+						<input placeholder="Confirmation Code" id="$emailCode">
+						<div class="buttonContainer"><button id="$registerConfirm">Confirm</button></div>
+					</div>
 				</div>
 
 				<div class="settingsMode loggedIn">
@@ -281,9 +299,9 @@
 					<span id="$longPollStatus"></span>
 				</span>
 			</div>
-			<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
+			<!--<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
 				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
-				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>
+				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>-->
 			<div class="sidebarScroller" id="$sidebarScroller">
 				<div id="$sidebarNotifs"></div>
 				<div id="$sidebarActivity"></div>

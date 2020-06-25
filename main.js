@@ -63,10 +63,24 @@ function ready() {
 			setUserJS(css);
 	});
 	
-	$loggedOut.$login.onclick = function() {
-		event.preventDefault();
+	$loginForm.$login.onclick = function(e) {
+		e.preventDefault();
+		$loginError.textContent = "logging in...";
 		me.logOut();
-		me.logIn($loggedOut.$username.value, $loggedOut.$password.value, function(){});
+		me.logIn($loginForm.$username.value, $loginForm.$password.value, function(e, resp){
+			if (!e) {
+				$loginError.textContent = "";
+			} else if (e == 'error' && resp) {
+				var errors = ["Login failed:"];
+				if (resp.errors) {
+					for (var key in resp.errors) {
+						errors.push(resp.errors[key].join(" "));
+					}
+				} else
+					errors.push(resp);
+				$loginError.textContent = errors.join("\n").replace(" or email", "");//sorry
+			}
+		});
 	}
 	$logout.onclick = function(e) {
 		me.logOut();
@@ -149,9 +163,17 @@ function ready() {
 		});
 	}
 	
-	$registerForm.$register.onclick = function(e) {
+	$registerForm.$registerButton.onclick = function(e) {
 		e.preventDefault();
-		$registerError.textContent = "";
+		$registerError.textContent = " ";
+		if ($registerForm.email.value != $registerForm.email2.value) {
+			$registerError.textContent = "Emails don't match";
+			return;
+		}
+		if ($registerForm.password.value != $registerForm.password2.value) {
+			$registerError.textContent = "Passwords don't match";
+			return;
+		}
 		var email = $registerForm.email.value;
 		me.register($registerForm.username.value, $registerForm.password.value, email, function(e, resp) {
 			if (e == 'error' && resp) {
@@ -164,34 +186,39 @@ function ready() {
 					errors.push(resp);
 				$registerError.textContent = errors.join("\n");
 			} else if (!e) {
-				$registerError.textContent = "Sending email...";
-				me.sendEmail(email, function(e, resp){
-					if (!e) {
-						$registerError.textContent = "Confirmation email sent";
-					} else {
-						$registerError.textContent = "Error sending confirmation email";
-					}
-				});
+				sendConfirmationEmail();
 			}
 		});
+	}
+	function sendConfirmationEmail() {
+		var email = $registerForm.email.value;
+		if (!email) {
+			$registerError.textContent = "No email";
+		} else {
+			$registerError.textContent = "Sending email...";
+			me.sendEmail(email, function(e, resp){
+				if (!e) {
+					$registerError.textContent = "Confirmation email sent";
+				} else {
+					$registerError.textContent = "Error sending confirmation email:\n"+resp;
+				}
+			});
+		}
 	}
 	$resendEmail.onclick = function(e) {
-		me.sendEmail($registerForm.email.value, function(e, resp){
-			if (!e) {
-				$registerError.textContent = "Confirmation email sent";
-			} else {
-				$registerError.textContent = "Error sending confirmation email";
-			}
-		});
+		e.preventDefault();
+		sendConfirmationEmail();
 	}
-	$registerConfirm.onclick = function() {
+	$registerConfirm.onclick = function(e) {
+		e.preventDefault();
+		$registerError.textContent = "Confirming...";
 		// todo: validate the key client-side maybe
 		me.confirmRegister($emailCode.value, function(e, resp) {
 			if (!e) {
 				$registerError.textContent = "Registration Complete";
 				window.location.hash = "#user/"+me.uid;
 			} else {
-				$registerError.textContent = "Failed to confirm registration";
+				$registerError.textContent = "Failed to confirm registration:\n"+resp;
 			}
 		});
 	}
@@ -220,6 +247,7 @@ function ready() {
 		if (selectedFile instanceof File || selectedFile instanceof Blob) {
 			me.uploadFile(selectedFile, function(e, resp) {
 				if (!e) {
+					$fileBox.insertBefore(renderFileThumbnail(resp),$fileBox.firstChild);
 					selectFile(resp);
 				}
 			});
@@ -344,7 +372,7 @@ function ready() {
 	});
 	
 	$sidebar.onclick = function(e) {
-		if (e.target == $sidebarPinnedResize || $loggedOut.contains(e.target))
+		if (e.target == $sidebarPinnedResize)
 			return
 		if (isFullscreenSidebar() && flags.mobileSidebar) {
 			toggleSidebar();
@@ -730,7 +758,7 @@ function sbm(resp) {
 }
 
 function onLogout() {
-	lp.cancel[0]();
+	lp.stop();
 	$myAvatar.src = "";
 	$myName.textContent = "";
 	flag("loggedIn");

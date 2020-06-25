@@ -13,7 +13,8 @@ LongPoller.prototype.start = function() {
 
 LongPoller.prototype.setState = function(text, state) {
 	this.running = state;
-	this.onStatus.call(this, text);
+	if (this.onStatus)
+		this.onStatus.call(this, text);
 }
 
 LongPoller.prototype.updateAvatar = function() {
@@ -83,6 +84,11 @@ LongPoller.prototype.loop = function() {
 			console.log("LONG POLLED FAILED", e, resp);
 		}
 	});
+}
+
+LongPoller.prototype.stop = function() {
+	this.setState("Stopped.", false);
+	this.cancel[0]();
 }
 
 LongPoller.prototype.refresh = function() {

@@ -178,7 +178,7 @@ button {
 	height: 100%;
 	overflow-y: hidden;
 	border-style: outset;
-	border-radius: 2px;
+	border-radius: 0px;
 }
 .buttonContainer > a {
 	width: 100%;
@@ -748,6 +748,10 @@ html:not(.f-editingComment) .showWhenEdit {
 	flex-basis: 0;
 }
 
+table.form {
+	border-collapse: collapse;
+}
+
 table.form td:first-child {
 	text-align:right;
 }
@@ -1074,4 +1078,13 @@ html:not(.f-fileUploading) .fileUploading {
 
 .sidebarPageTitle * {
 	white-space: pre
+}
+
+.registerBox {
+	padding: 0 0.5rem;
+	border-bottom: 1px solid gray;
+}
+
+.registerBox input {
+	margin: 1px;
 }

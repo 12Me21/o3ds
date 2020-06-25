@@ -16,7 +16,7 @@
 // but keep list of joined rooms uh, somewhere I guess.
 // user variable I suppose
 
-function sbs2Request(url, method, callback, data, auth, cancel) {
+function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 	var x = new XMLHttpRequest();
 	if (cancel)
 		cancel[0] = function() {x.abort();console.log("aborted")};
@@ -52,9 +52,12 @@ function sbs2Request(url, method, callback, data, auth, cancel) {
 		} else if (code==404) {
 			console.warn("got 404");
 			callback('404', resp);
-		} else if (code==500 && /^System.InvalidOperationException\b/.test(x.responseText)) {
-			console.warn("server page edit error");
-			callback('timeout', resp);
+		} else if (ignore400 && code==400) {
+			try {
+				resp = JSON.parse(resp);
+			} catch(e) {
+			}
+			callback('error', resp);
 		} else {
 			alert("Request failed! "+code+" "+url);
 			//console.log("sbs2Request: request failed! "+code);
@@ -152,7 +155,7 @@ Myself.prototype.selectServer = function(isDev) {
 	}
 }
 
-Myself.prototype.request = function(url, method, callback, data, cancel) {
+Myself.prototype.request = function(url, method, callback, data, cancel, ignore400) {
 	var $=this;
 	$.openRequests++;
 	$.loadStart(!!cancel);
@@ -163,7 +166,7 @@ Myself.prototype.request = function(url, method, callback, data, cancel) {
 			$.logOut();
 		}*/
 		$.cb(callback, e, resp);
-	}, data, $.auth, cancel);
+	}, data, $.auth, cancel, ignore400);
 }
 
 Myself.prototype.loadStart = function(lp) {
@@ -300,12 +303,12 @@ Myself.prototype.handle = function(e, resp) {
 
 Myself.prototype.logOut = function(soft) {
 	if (this.auth) {
+		if (this.onLogout)
+			this.onLogout(this);
 		this.auth = 'undefined'
 		if (!soft) {
 			localStorage.removeItem(this.lsKey);
 		}
-		if (this.onLogout)
-			this.onLogout(this);
 	}
 }
 
@@ -339,7 +342,7 @@ Myself.prototype.logIn = function(username, password, callback) {
 			$.readSimple("User/me", 'user', callback);
 		}
 		$.cb(callback, e, resp);
-	}, {username: username, password: password});
+	}, {username: username, password: password}, undefined, true);
 }
 
 // try to log in with cached auth token
@@ -726,7 +729,7 @@ Myself.prototype.register = function(username, password, email, callback) {
 		username: username,
 		password: password,
 		email: email
-	});
+	},undefined,true);
 }
 
 Myself.prototype.setSensitive = function(data, callback) {
@@ -736,7 +739,7 @@ Myself.prototype.setSensitive = function(data, callback) {
 Myself.prototype.sendEmail = function(email, callback) {
 	this.request("User/register/sendemail", 'POST', callback, {
 		email: email
-	});
+	},undefined,true);
 }
 
 Myself.prototype.confirmRegister = function(key, callback) {
@@ -748,9 +751,7 @@ Myself.prototype.confirmRegister = function(key, callback) {
 			$.readSimple("User/me", 'user', function(){});
 		}
 		$.cb(callback, e, resp);
-	}, {
-		confirmationKey: key
-	});
+	}, {confirmationKey: key}, undefined, true);
 }
 
 Myself.prototype.getSettings = function(callback) {

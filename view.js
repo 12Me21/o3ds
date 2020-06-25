@@ -479,10 +479,10 @@ var views = {
 			}
 		}
 	},
-	register: {
+	login: {
 		render: function(id, query, callback) {
 			$main.className = "registerMode";
-			setTitle("Create an account");
+			setTitle("Log-in or Create an Account");
 		}
 	},
 	activity: {
