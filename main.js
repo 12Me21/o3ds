@@ -10,7 +10,7 @@ me.loadCachedAuth(function(){});
 var scroller;
 var lp = new LongPoller(me, null);
 var currentPage;
-flag('sidebar', localStorage.getItem('sbs-sidebar') == 'true');
+flag('sidebar', localStorage.getItem('sbs-sidebar') != 'false');
 
 debugMessage = function(text) {
 	scroller.embed(renderSystemMessage(String(text)));
@@ -417,7 +417,7 @@ function toggleSidebar() {
 		flag('mobileSidebar', !flags.mobileSidebar);
 	} else {
 		flag('sidebar', !flags.sidebar);
-		localStorage.setItem('sbs-sidebar', flags.sidebar);
+		localStorage.setItem('sbs-sidebar', !!flags.sidebar);
 	}
 }
 
