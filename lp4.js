@@ -36,6 +36,8 @@ LongPoller.prototype.setStatus = function(id, status) {
 }
 
 LongPoller.prototype.blockCancel = function() {
+	// todo: prevent request from being cancelled, but
+	// make sure .loop() doesn't get called, if something tries
 }
 
 LongPoller.prototype.loop = function() {

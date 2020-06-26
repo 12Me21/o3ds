@@ -680,7 +680,10 @@ function onLogin(me) {
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
 	}
-	me.doListenInitial(function(e, resp){
+	lp.lastId = -20
+	lp.start();
+	lp.blockCancel();
+	/*me.doListenInitial(function(e, resp){
 		if (!e) {
 			var lastId = -1
 			resp.comment.forEach(function(comment) {
@@ -692,10 +695,8 @@ function onLogin(me) {
 					lastId = comment.id;
 			});
 			sbm(resp);
-			lp.lastId = lastId
-			lp.start();
 		}
-	})
+	})*/
 	me.getNotifications(function(e, resp){
 		if (!e) {
 			resp.activityaggregate.forEach(function(aa) {
