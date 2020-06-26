@@ -142,7 +142,7 @@ if (!HTMLElement.prototype.remove) {
 }
 
 function attachResize(element, tab, horiz,cb) {
-	var startX,startY,down,startW,startH;
+	var startX,startY,held,startW,startH;
 	function getPos(e) {
 		if (e.touches)
 			return {x:e.touches[0].pageX,y:e.touches[0].pageY};
@@ -156,14 +156,14 @@ function attachResize(element, tab, horiz,cb) {
 		startY = pos.y;
 		startW = element.offsetWidth;
 		startH = element.offsetHeight;
-		down = true;
+		held = true;
 	}
 	function up() {
-		down = false;
+		held = false;
 		tab.removeAttribute('dragging');
 	}
 	function move(e) {
-		if (!down)
+		if (!held)
 			return;
 		var pos = getPos(e);
 		var vx = pos.x - startX;
