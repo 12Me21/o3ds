@@ -490,6 +490,10 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 					category = cat;
 			});
 			var pages = resp.content;
+			if (!category) {
+				$.cb(callback, null, childs, pages, resp.userMap, []);
+				return;
+			}
 			//if (req2) {
 			if (id) {
 				var values = category.values;
@@ -631,7 +635,7 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotif
 		lastId: lastId,
 		statuses: statuses,
 		chains: [
-			"comment.0id","activity.0id","watch.0id", //new stuff
+			"comment.0id",'activity.0id-{"includeAnonymous":true}',"watch.0id", //new stuff
 			"content.1parentId.2contentId.3contentId", //pages
 			"user.1createUserId.2userId.1editUserId" //users for comment and activity
 		]
