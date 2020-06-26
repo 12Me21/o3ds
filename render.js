@@ -209,6 +209,7 @@ function renderUserListAvatar(user) {
 	a.title = user.username;
 	a.className = "item";
 	a.href = "#user/"+user.id;
+	a.setAttribute('data-uid', user.id);
 	return a;
 }
 

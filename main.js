@@ -238,8 +238,8 @@ function ready() {
 		if (selectedFile && selectedFile.id) {
 			me.setBasic({avatar: selectedFile.id}, function(e) {
 				if (!e) {
-					updateAvatar(selectedFile);
-					lp.updateAvatar();
+					/*updateAvatar(selectedFile);*/
+					/*lp.updateAvatar();*/
 				}
 			});
 		}
@@ -433,11 +433,6 @@ function deleteComment(id, element) {
 		me.deleteComment(id, console.log);
 		$chatTextarea.focus();
 	}
-}
-
-function updateAvatar(file) {
-	$myAvatar.src = me.avatarURL(file.id);
-	//todo;
 }
 
 function toggleSidebar() {
@@ -673,6 +668,12 @@ function onLogin(me) {
 	}
 	lp.onDelete = function(comments) {}
 	lp.onActivity = function(activity, users, pages) {
+		//check for updated users
+		activity.forEach(function(act) {
+			if (act.type=="user") {
+				userUpdated(users[act.contentId]);
+			}
+		});
 	}
 	lp.onBoth = function(resp) {
 		sbm(resp.chains);
@@ -711,6 +712,17 @@ function onLogin(me) {
 			});
 		}
 	});
+}
+
+function userUpdated(user) {
+	[$chatUserlist, $sidebarUserlist].forEach(function(list) {
+		var e = list.querySelector('[data-uid="'+user.id+'"]');
+		if (e)
+			list.replaceChild(renderUserListAvatar(user), e);
+	});
+	if (user.id == me.uid) {
+		$myAvatar.src = user.avatarURL;
+	}
 }
 
 //todo: commentdelete

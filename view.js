@@ -260,8 +260,9 @@ function generatePath(path) {
 function updateUserlist(list, listeners, userMap) {
 	list.innerHTML = "";
 	listeners && forDict(listeners, function(status, user) {
-		if (status)
+		if (status) {
 			list.appendChild(renderUserListAvatar(userMap[user]));
+		}
 	})
 }
 
