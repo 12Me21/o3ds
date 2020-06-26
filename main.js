@@ -8,6 +8,7 @@
 var me = new Myself(true);
 me.loadCachedAuth(function(){});
 var scroller;
+var activityScroller;
 var lp = new LongPoller(me, null);
 var currentPage;
 flag('sidebar', localStorage.getItem('sbs-sidebar') != 'false');
@@ -224,6 +225,7 @@ function ready() {
 	}
 	
 	scroller = new AutoScroller($messageList);
+	activityScroller = new AutoScroller($sidebarActivity);
 
 	hashChange(true);
 	/*$reload.onclick = function(){
@@ -480,6 +482,7 @@ function hashChange(first) {
 		navigateTo(fragment[0], first, function() {
 			scrollTo(fragment[1])
 			$sidebarScroller.scrollTop = $sidebarScroller.scrollHeight;
+			$sidebarActivity.scrollTop = $sidebarActivity.scrollHeight;
 		}, fragment[1]);
 	}
 	
@@ -677,11 +680,20 @@ function onLogin(me) {
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
 	}
-	lp.lastId = -1;
-	lp.start();
 	me.doListenInitial(function(e, resp){
 		if (!e) {
+			var lastId = -1
+			resp.comment.forEach(function(comment) {
+				if (comment.id > lastId)
+					lastId = comment.id;
+			});
+			resp.activity.forEach(function(comment) {
+				if (comment.id > lastId)
+					lastId = comment.id;
+			});
 			sbm(resp);
+			lp.lastId = lastId
+			lp.start();
 		}
 	})
 	me.getNotifications(function(e, resp){
@@ -700,36 +712,6 @@ function onLogin(me) {
 	});
 }
 
-function pushActivity(element, priority) {
-	var n = priority ? $sidebarNotifs : $sidebarActivity;
-	n.appendChild(element);
-	n.scrollTop = n.scrollHeight;
-}
-// this is all a hack
-var activityLines = [];
-function pushActivityLine(element) {
-	var box = $sidebarActivity.lastChild
-	if (box) {
-		box = box.querySelector(".activityContent");
-	}
-	if (!box) {
-		box = $sidebarActivity;
-	}
-	
-	activityLines.push([element, $sidebarActivity.lastChild]);
-	box.appendChild(element);
-	if (activityLines.length > 500) {
-		var remove = activityLines.shift();
-		var parent = remove[0].parentElement;
-		remove[0].remove();
-		if (parent.children.length == 0 && remove[1]) {
-			remove[1].remove();
-		}
-	}
-}
-
-var activityLastPage 
-
 //todo: commentdelete
 function sbm(resp) {
 	if (!(resp.comment && resp.content && resp.activity))
@@ -738,22 +720,22 @@ function sbm(resp) {
 	var last = {};
 	var all = megaAggregate(resp.activity, resp.comment, resp.content);
 	all.reverse().forEach(function(activity){
-		if (activity.userId instanceof Array)
-			var user = activity.userId.map(function(x){
-				return users[x];
-			})
-		else if (activity.userId)
-			user = users[activity.userId];
-		else
-			user = null;
-		
-		//pushActivity(renderActivityItem(activity, activity.content, user, true, activity.comment));
-		if ($sidebarActivity.lastChild && $sidebarActivity.lastChild.getAttribute('data-id') == activity.contentId) {
-		} else {
-			pushActivity(renderActivityBlock(activity.content));
-		}
-		pushActivityLine(renderActivityLine(user, activity.action == "p" ? activity.comment : activity.action, activity.action == "p", users[activity.editUserId]))
-		$sidebarScroller.scrollTop = $sidebarScroller.scrollHeight;
+		displayActivity(activity, users);
+	});
+}
+
+function displayActivity(activity, users) {
+	if (activity.userId instanceof Array)
+		var user = activity.userId.map(function(x){
+			return users[x];
+		})
+	else if (activity.userId)
+		user = users[activity.userId];
+	else
+		user = null;
+
+	activityScroller.insert(activity.id, renderActivityLine(user, activity.action == "p" ? activity.comment : activity.action, activity.action == "p", users[activity.editUserId]), activity.contentId, function() {
+		return renderActivityBlock(activity.content);
 	});
 }
 

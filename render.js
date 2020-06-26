@@ -367,9 +367,9 @@ function renderActivityBlock(page) {
 	box.className = "activityContent";
 	div.appendChild(box);
 	if (page) {
-		div.setAttribute('data-id', page.id);
+		div.setAttribute('data-uid', page.id);
 	}
-	return div;
+	return [div, box];
 }
 
 function renderActivityLine(user, text, comment, edit) {
@@ -464,13 +464,11 @@ function AutoScroller(element) {
 	this.nodes = {};
 	this.blocks = {};
 	var $=this;
-	function onresize() {
-		//todo: make this only happen when the element was previously scrolled to bottom
-		// may need to detect onscroll to keep track
-		// I'd like to avoid onscroll for o3ds though (especially since window can't even be resized so it doesn't matter) (also does o3DS EVEN HAVE onscroll lol)
-		$.autoScroll(true);
-	};
-	//window.addEventListener('resize', onresize); //todo: only do this whe nin chat mode!!
+	// handle resizing
+	trackResize(element.parentNode, function(old, ne) {
+		if ($.shouldScroll(old))
+			$.autoScroll(true);
+	});
 }
 // do autoscroll
 AutoScroller.prototype.autoScroll = function(instant) {
@@ -486,13 +484,13 @@ AutoScroller.prototype.autoScroll = function(instant) {
 }
 // check if element is scrolled to near the bottom (within 0.25*height)
 // this threshold can probably be decreased...
-AutoScroller.prototype.shouldScroll = function() {
-	return this.scrollDistance() < this.element.parentNode.clientHeight*0.25;
+AutoScroller.prototype.shouldScroll = function(oldHeight) {
+	return this.scrollDistance(oldHeight) < (oldHeight || this.element.parentNode.clientHeight)*0.25;
 }
 // check distance to bottom
-AutoScroller.prototype.scrollDistance = function() {
+AutoScroller.prototype.scrollDistance = function(oldHeight) {
 	var parent = this.element.parentNode;
-	return parent.scrollHeight-parent.clientHeight-parent.scrollTop;
+	return parent.scrollHeight-(oldHeight || parent.clientHeight)-parent.scrollTop;
 }
 
 // scrolls down until reaching bottom
@@ -538,7 +536,7 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 			this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
 			// insert a new line to the last block
 		} else if (uid && lastUid == uid && lastUidBlock) {
-			lastUidBlock.querySelector('.messageContents').appendChild(node);
+			lastUidBlock.querySelector('.messageContents, .activityContent').appendChild(node);
 			// create a new block
 		} else {
 			var b = makeBlock();

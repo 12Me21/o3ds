@@ -32,6 +32,59 @@ function parseJSON(json) {
 	}
 }
 
+function trackResize(element, callback) {
+	var t = trackResize.tracking;
+	if (callback) {
+		var n = {
+			element: element,
+			callback: callback,
+			height: element.getBoundingClientRect().height,
+			width: element.getBoundingClientRect().width
+		}
+		t.push(n);
+		if (trackResize.observer)
+			trackResize.observer.observe(element);
+	} else {
+		if (trackResize.observer)
+			trackResize.observer.unobserve(element);
+		for (var i=0;i<n.length;i++) {
+			if (n[i].element == element) {
+				n.splice(i, 1);
+				break;
+			}
+		}
+	}
+}
+
+trackResize.tracking = [];
+if (window.ResizeObserver) {
+	trackResize.observer = new window.ResizeObserver(function(events) {
+		events.forEach(function(event) {
+			for (var i=0;i<trackResize.tracking.length;i++) {
+				var item = trackResize.tracking[i];
+				if (item.element == event.target) {
+					item.callback(item.height, event.contentRect.height);
+					item.height = event.contentRect.height;
+					break;
+				}
+			}
+		});
+	});
+} else {
+	trackResize.interval = window.setInterval(function() {
+		trackResize.tracking.forEach(function(item) {
+			var size = item.element.getBoundingClientRect();
+			if (size.height != item.height || size.width!=item.width) {
+				item.callback(item.height, size.height);
+				item.height = size.height;
+				item.width = size.width;
+			}
+		});
+	}, 200);
+}
+// need to fix: when width decreases, the content inside may wrap and increase in height
+// this throws off the autoscroller calculations which assume only the parent height changes
+
 var flags = {};
 function flag(flag, state) {
 	if (!flags[flag] != !state) {

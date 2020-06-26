@@ -146,6 +146,25 @@ function generatePagePath(page, users) {
 }
 
 function decodeComment(content) {
+	var newline = content.indexOf("\n");
+	try {
+		// try to parse the first line as JSON
+		var data = JSON.parse(newline>=0 ? content.substr(0, newline) : content);
+	} finally {
+		if (data && data.constructor == Object) { // new or legacy format
+			if (newline >= 0)
+				data.t = content.substr(newline+1); // new format
+		} else // raw
+			data = {t: content};
+		return data;
+	}
+}
+
+function encodeComment(text, metadata) {
+	return JSON.stringify(metadata || {})+"\n"+text;
+}
+
+function decodeComment(content) {
 	var text, markup;
 	var i = content.indexOf("\n");
 	if (i < 0) {
