@@ -59,14 +59,14 @@ function newPage(query) {
 		values: {
 			markupLang: "12y"
 		},
-		permissions: {
+		permissions: query.permissions || {
 			0: "cr"
 		},
 		keywords: []
 	};
 }
 
-function fillEditorFields(page) {
+function fillEditorFields(page, users) {
 	$titleInput.value = page.name || "";
 	if (page.values)
 		var markup = page.values.markupLang;
@@ -77,7 +77,8 @@ function fillEditorFields(page) {
 		$editorTextarea.value = page.content;
 	updateEditorPreview();
 	$keywords.value = page.keywords.join(" ");
-	$permissions.value = JSON.stringify(page.permissions);
+	/*$permissions.value = JSON.stringify(page.permissions);*/
+	fillPermissionFields($permissionBox, page.permissions, users);
 	$editPageType.value = page.type;
 	$editPageCategory.value = page.parentId;
 	
@@ -88,7 +89,7 @@ function readEditorFields(page) {
 	page.name = $titleInput.value;
 	page.values.markupLang = $markupSelect.value;
 	page.keywords = $keywords.value.split(" ");
-	page.permissions = JSON.parse($permissions.value);
+	page.permissions = readPermissionFields($permissionBox);//JSON.parse($permissions.value);
 	page.type = $editPageType.value;
 	page.content = $editorTextarea.value;
 	page.parentId = +$editPageCategory.value;
@@ -136,13 +137,37 @@ function attr(element, attr, value) {
 function generatePagePath(page, users) {
 	// user page (at root)
 	if (page.type == "@user.page" && !page.parentId) {
-		var creator = users[page.createUserId];
+		console.log(users);
+		var creator = users[page.createUserId] || me.me; //hack for user page creation
 		generatePath([["#users","Users"], ["#user/"+creator.id, creator.username], ["#pages/"+page.id, page.name]]);
 	} else if (page.id) {
 		generatePath(makeCategoryPath(me.categoryTree, page.parentId, page));
 	} else {
 		generatePath(makeCategoryPath(me.categoryTree, page.parentId));
 	}
+}
+
+function fillPermissionFields(element, perms, users) {
+	element.innerHTML = "";
+	if (!perms[0])
+		perms[0] = "";
+	forDict(perms, function(perm, id) {
+		element.appendChild(renderPermissionLine(users[id], perm));
+	});
+}
+
+function readPermissionFields(element) {
+	var perms = {};
+	element.querySelectorAll(".permissionRow").forEach(function(row) {
+		var uid = +row.getAttribute("data-uid");
+		var perm = "";
+		row.querySelectorAll('input[data-crud]').forEach(function(elem) {
+			if (elem.checked)
+				perm += elem.getAttribute("data-crud");
+		})
+		perms[uid] = perm;
+	});
+	return perms;
 }
 
 function decodeComment(content) {
@@ -202,7 +227,7 @@ function sendMessage(room, text, params, editId) {
 	}
 }
 
-function megaAggregate(activity, ca, contents) {
+function megaAggregate(activity, ca, contents, users) {
 	var contentMap = {};
 	contents.forEach(function(x){
 		contentMap[x.id] = x;
@@ -217,7 +242,8 @@ function megaAggregate(activity, ca, contents) {
 				userId: x.createUserId,
 				editUserId: x.editUserId,
 				type: 'content',
-				comment: x.content
+				comment: x.content,
+				deleted: x.deleted
 			}
 		}
 		return {
@@ -237,7 +263,9 @@ function megaAggregate(activity, ca, contents) {
 			x.content = contentMap[x.contentId];
 		else if (x.type == "category" && me.categoryTree)
 			x.content = me.categoryTree.map[x.contentId];
-		else
+		else if (x.type == "user" && x.action!="u") {
+			x.content = users[x.contentId];
+		} else
 			return; //some weird activity type
 		return x;
 	});
@@ -640,7 +668,7 @@ var views = {
 				$editButton.href = "#pages/edit/"+page.id;
 				flag('canEdit', true);
 			} else if (id == me.uid) {
-				$editButton.href = "#pages/edit?type=@user.page&name=User Page";
+				$editButton.href = "#pages/edit?type=@user.page&name="+encodeURIComponent(me.me.username+"'s User Page");
 				flag('canEdit', true);
 			}
 			if (user) {
@@ -840,7 +868,7 @@ var views = {
 				editingPage = newPage(query);
 				$titleInput.focus();
 			}
-			fillEditorFields(editingPage);
+			fillEditorFields(editingPage, users);
 		}
 	},
 	usersettings: {

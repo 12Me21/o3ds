@@ -141,6 +141,9 @@ if (!HTMLElement.prototype.remove) {
 	}
 }
 
+if (!NodeList.prototype.forEach)
+	NodeList.prototype.forEach = Array.prototype.forEach;
+
 function attachResize(element, tab, horiz,cb) {
 	var startX,startY,held,startW,startH;
 	function getPos(e) {

@@ -16,24 +16,24 @@
 <!--START-->
 <!-- this is where files will be inlined -->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?aY">
+<link rel="stylesheet" href="style.css?aZ">
 <link rel="stylesheet" href="markup.css?y">
 <link rel="stylesheet" href="code.css?a">
 
-<script src="util.js?g"></script>
+<script src="util.js?h"></script>
 
 <script src="storage.js?a"></script>
 
-<script src="myself.js?Y"></script>
+<script src="myself.js?Z"></script>
 
 <script src="lp4.js?m"></script>
 
 <script src="sbhighlight.js?a"></script>
 <script src="parse.js?I"></script>
 
-<script src="render.js?Q"></script>
-<script src="view.js?af"></script>
-<script src="main.js?aG"></script>
+<script src="render.js?R"></script>
+<script src="view.js?ag"></script>
+<script src="main.js?aH"></script>
 
 <!--END-->
 <style id="$userCSS"></style>
@@ -67,7 +67,12 @@
 				<label for="$keywords">Keywords:</label><input placeholder="(space separated, optional)" id="$keywords"><br>
 				<label for="$editPageType">Type:</label><input placeholder="@" id="$editPageType"><br>
 				<label for="$editPageCategory">Category id:</label><input type="number" placeholder="id" id="$editPageCategory"><br>
-				<label for="$permissions">Permissions:</label><input id="$permissions"><br>
+				<b>Permissions:</b>
+				<table>
+					<thead><th></th><th>View</th><th>Comment</th><th>Edit</th><th>Delete</th></thead>
+					<tbody id="$permissionBox"></tbody>
+				</table>
+				<input id="$permissionUserInput" placeholder="user ID" type="number"><div class="buttonContainer"><button id="$permissionAddButton">Add</button></div></br>
 				<label for="$markupSelect">Markup language:</label>
 				<select id="$markupSelect">
 					<option value="plaintext">plain text</option>
@@ -203,7 +208,6 @@
 					<a class="categoryPage bar rem2-3" href="#users"><span class="textItem">Users</span></a>
 					<a class="categoryPage bar rem2-3" href="#files"><span class="textItem">Images</span></a>
 					<a class="categoryPage bar rem2-3" href="#test"><span class="textItem">Test</span></a>
-					<a class="categoryPage bar rem2-3" href="#register"><span class="textItem">Register</span></a>
 				</div>
 				<div class="membersMode memberPane">
 					<div id="$memberList"></div>

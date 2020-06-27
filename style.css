@@ -873,6 +873,7 @@ html:not(.f-page) .pageItem {
 	border: 1px solid black;
 	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
+	vertical-align: top; /* what the fuck */
 }
 
 .fileView {
@@ -1069,6 +1070,9 @@ html:not(.f-fileUploading) .fileUploading {
 	padding-left: 0.2rem;
 	background: linear-gradient(#EEE,white);
 }
+.sidebarPageTitle > .userLink {
+	margin-left: -0.2rem;
+}
 
 .activityContent > .bar {
 	border: none;
@@ -1087,4 +1091,22 @@ html:not(.f-fileUploading) .fileUploading {
 
 .registerBox input {
 	margin: 1px;
+}
+
+th {
+	padding: 0 0.3rem;
+}
+
+.permissionRow > th {
+	padding: 0;
+	text-align: left;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+.permissionRow > td {
+	text-align: center;
+	padding: 0;
 }

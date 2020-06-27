@@ -222,7 +222,7 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 	});
 	for (var filter in filters)
 		query[filter] = filters[filter];
-	var needCategorys = !$.categoryTree && query.requests.length<5;
+	var needCategorys = !$.categoryTree && query.requests.length<10;
 	if (needCategorys) {
 		query.requests.push('category~tree');
 	}
@@ -256,7 +256,7 @@ Myself.prototype.listen = function(requests, filters, callback, cancel) {
 
 Myself.prototype.getUser = function(id, callback) {
 	var $=this;
-	return $.readSimple("User"+queryString(id), 'user', function(e, resp) {
+	return $.readSimple("User"+queryString({ids:id}), 'user', function(e, resp) {
 		if (!e) {
 			$.cb(callback, resp[0]);
 		} else {
@@ -450,80 +450,25 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 		sort: 'editDate',
 		reverse: true
 	}
-	if (id)
-		var childCategorysFilter = {parentIds: [id]};
-	else
-		childCategorysFilter = {};
-	var reading = [
+	return $.read([
+		{'category~main': {ids: [id]}},
 		{content: search},
-		{category: {ids: [id]}},
-		{category: childCategorysFilter},
-		"user.0createUserId"
-	];
-	
-	var pinned, req2;
-	if (id) {
-		if ($.categoryTree) {
-			var values = $.categoryTree.map[id].values;
-			if (values.pinned) {
-				pinned = values.pinned.split(",").map(function(x){return +x});
-				reading[3] = {"content~pinned": {ids: pinned}};
-				reading[4] = "user.0createUserId.3createUserId";
-			}
-		} else {
-			req2 = true;
-		}
-	}
-	
-	return $.read(reading, {
+		{category: {parentIds: [id]}},
+		"content.0values_pinned~pinned",
+		"user.1createUserId.3createUserId"
+	], {
 		content: "id,name,parentId,createUserId,editDate,permissions",
 		/*category: "id,name,description,parentId,values",*/
 		user: "id,username,avatar"
 	}, function(e, resp) {
 		if (!e) {
-			var category;
-			var childs = [];
-			resp.category.forEach(function(cat) {
-				if (cat.parentId == id)
-					childs.push(cat);
-				if (cat.id == id)
-					category = cat;
-			});
-			var pages = resp.content;
-			if (id!=0 && !category) {
-				$.cb(callback, null, childs, pages, resp.userMap, []);
-				return;
-			}
-			//if (req2) {
-			if (id) {
-				var values = category.values;
-				if (values.pinned) {
-					pinned = values.pinned.split(",").map(function(x){return +x});
-					$.readSimple("Content"+queryString({ids: pinned}), 'content', function(e, resp) {
-						if (!e) {
-							pinnedCallback(resp)
-						}
-					});
-				}
-			}
-			//}
-			if (pinned)
-				var pinnedPages = resp.pinned;
-			if (req2)
-				pinnedPages = null; //nO
-			// so here's an idea.
-			// with the first request, we get some pages, right
-			// our pinned pages MAY be included in there, depending on
-			// what info we knew, and if any were in the search.
-			// so, even if we couldn't specifically request the pinned pages,
-			// we still might get some! and can return that info, perhaps..
-			
-			if (id==0) {
-				$.cb(callback, rootCategory, childs, pages, resp.userMap, pinnedPages);
-			} else if (category)
-				$.cb(callback, category, childs, pages, resp.userMap, pinnedPages);
+			if (id == 0)
+				var category = rootCategory;
 			else
-				$.cb(callback, null, childs, pages, resp.userMap, pinnedPages);
+				category = resp.main[0];
+			$.cb(callback, category, resp.category, resp.content, resp.userMap, resp.pinned);
+		} else {
+			$.cb(callback, null, [], [], {}, []);
 		}
 	});
 }
@@ -551,7 +496,7 @@ Myself.prototype.getPageForEditing = function(id, callback) {
 		id = +id;
 		return $.read([
 			{content: {ids: [id]}},
-			"user.0createUserId.0editUserId",
+			"user.0createUserId.0editUserId.0permissions",
 		], {
 			user: "id,username,avatar"
 		}, function(e, resp) {

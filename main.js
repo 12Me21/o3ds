@@ -380,6 +380,18 @@ function ready() {
 			toggleSidebar();
 		}
 	}
+
+	$permissionAddButton.onclick = function() {
+		var uid = +$permissionUserInput.value;
+		if (!uid || uid == editingPage.createUserId || $permissionBox.querySelector('tr[data-uid="'+uid+'"]')) {
+			return;
+		}
+		me.getUser(uid, function(resp) {
+			if (resp) {
+				$permissionBox.appendChild(renderPermissionLine(resp, "cr"));
+			}
+		});
+	}
 }
 
 function focusLastComment() {
@@ -480,6 +492,8 @@ function hashChange(first) {
 			$sidebarActivity.scrollTop = $sidebarActivity.scrollHeight;
 		}, fragment[1]);
 	}
+
+
 	
 }
 
@@ -681,7 +695,7 @@ function onLogin(me) {
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
 	}
-	lp.lastId = -20
+	lp.lastId = -30
 	lp.start();
 	lp.blockCancel();
 	/*me.doListenInitial(function(e, resp){
@@ -731,7 +745,7 @@ function sbm(resp) {
 		return;
 	var users = resp.userMap;
 	var last = {};
-	var all = megaAggregate(resp.activity, resp.comment, resp.content);
+	var all = megaAggregate(resp.activity, resp.comment, resp.content, users);
 	all.reverse().forEach(function(activity){
 		displayActivity(activity, users);
 	});
@@ -747,8 +761,9 @@ function displayActivity(activity, users) {
 	else
 		user = null;
 
-	activityScroller.insert(activity.id, renderActivityLine(user, activity.action == "p" ? activity.comment : activity.action, activity.action == "p", users[activity.editUserId]), activity.contentId, function() {
-		return renderActivityBlock(activity.content);
+	var line = renderActivityLine(activity, users);
+	activityScroller.insert(activity.id, line, activity.contentId, function() {
+		return renderActivityBlock(activity);
 	});
 }
 

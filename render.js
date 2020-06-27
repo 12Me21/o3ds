@@ -350,16 +350,20 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	return div;
 }
 
-function renderActivityBlock(page) {
+function renderActivityBlock(activity) {
+	var page = activity.content;
 	var div = document.createElement('div');
 	div.className = "rem1-7";
 	var a = document.createElement('a');
 	a.className = "sidebarPageTitle";
 	div.appendChild(a);
-	
-	if (page) {
+
+	if (activity.type == "content") {
 		var name = renderContentName(page.name, pageIcon(page))
 		a.href = "#pages/"+page.id;
+	} else if (activity.type == "user") {
+		var name = renderUserLink(page, false);
+		a.href = "#user/"+page.id;
 	} else {
 		var name = renderContentName("UNKNOWN", "unknown")
 	}
@@ -373,29 +377,79 @@ function renderActivityBlock(page) {
 	return [div, box];
 }
 
-function renderActivityLine(user, text, comment, edit) {
+function renderButton() {
+	var container = document.createElement("div");
+	container.className = "buttonContainer";
+	var button = document.createElement("button");
+	container.appendChild(button);
+	return [container, button];
+}
+
+// 
+function renderPermissionLine(user, perms) {
+	var div = document.createElement("tr");
+	div.className = "permissionRow";
+	var td = document.createElement('th');
+	td.className = "rem1-5";
+	div.appendChild(td);
+	if (user) {
+		td.appendChild(renderUserLink(user, false));
+	} else {
+		td.appendChild(textItem("everyone"));
+	}
+	for (var i=0;i<4;i++) {
+		var check = document.createElement("input");
+		check.type = "checkbox";
+		check.checked = perms.indexOf("rcud"[i]) >= 0;
+		check.setAttribute("data-crud", "rcud"[i]);
+		var td = document.createElement('td');
+		td.appendChild(check);
+		div.appendChild(td);
+	}
+	if (user) {
+		var td = document.createElement('td');
+		td.className = "rem1-5"
+		var btn = renderButton();
+		btn[0].className += " item";
+		btn[1].textContent = "remove";
+		btn[1].onclick = function() {
+			div.remove();
+		}
+		td.appendChild(btn[0]);
+		div.appendChild(td);
+	}
+	div.setAttribute("data-uid", user ? user.id : 0);
+	return div;
+}
+
+function renderActivityLine(activity, users) {
 	var div = document.createElement('div');
-	if (edit && edit != user) {
-		div.appendChild(renderUserLink(edit));
+	div.className = "rem1-5 bar ellipsis";
+	var editor = activity.editUserId;
+	if (editor > 0 && editor != activity.userId) {
+		div.appendChild(renderUserLink(users[editor]));
 		div.appendChild(textItem("edited"));
 	}
-	div.appendChild(renderUserLink(user, false));
-	if (comment && user) {
-		text = decodeComment(text)[0];
-		div.title = text;
-	} else if (!user) { //hack
-		text = "Deleted comment"
-		comment = false;
-	} else {
-		text = {
-			"c": "Created",
-			"u": "Edited",
-			"d": "Deleted",
-		}[text] || "Unknown Action"
+	if (activity.userId > 0) {
+		div.appendChild(renderUserLink(users[activity.userId], false));
 	}
-	div.appendChild(textItem(comment ? ": " : " ", "pre"));
-	div.appendChild(textItem(text.replace(/\n/g," "), "pre"));
-	div.className = "rem1-5 bar ellipsis";
+	if (activity.action == "p") { //comment
+		if (activity.deleted) {
+			div.appendChild(textItem("Deleted Comment"));
+		} else {
+			div.appendChild(textItem(": ", "pre"));
+			var text = decodeComment(activity.comment)[0];
+			div.appendChild(textItem(text.replace(/\n/g," "), "pre"));
+			div.title = text;
+		}
+	} else {
+		var text = {
+			"c": " Created",
+			"u": " Edited",
+			"d": " Deleted",
+		}[activity.action] || " Unknown Action";
+		div.appendChild(textItem(text));
+	}
 	return div;
 }
 
