@@ -279,9 +279,9 @@ Myself.prototype.handle = function(e, resp) {
 		} else {
 			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./avatar.png";
 		}
-		if (user.id == 483) {
+		/*if (user.id == 483) {
 			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./idiot.png";
-		}
+		}*/
 		var uid = user.id;
 		if (uid) {
 			if (uid == $.uid)
