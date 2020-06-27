@@ -110,7 +110,7 @@ LongPoller.prototype.setViewing = function(id) {
 		this.statuses[this.viewing]="";
 	}
 	if (id) {
-		this.lastListeners[id] = {};
+		this.lastListeners[id] = {"0":""};
 		this.setStatus(id, "active");
 	}
 	this.refresh();
