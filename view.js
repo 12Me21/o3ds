@@ -13,7 +13,7 @@ function cleanUp(type) {
 	$authorBox.innerHTML = "";
 	$sbapiInfo.innerHTML = "";
 	$fileBox.innerHTML = "";
-	$chatUserlist.innerHTML = "";
+	/*$chatUserlist.innerHTML = "";*/
 	$fileView.src = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
