@@ -13,6 +13,7 @@ function cleanUp(type) {
 	$authorBox.innerHTML = "";
 	$sbapiInfo.innerHTML = "";
 	$fileBox.innerHTML = "";
+	$chatUserlist.innerHTML = "";
 	$fileView.src = "";
 	var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
@@ -302,7 +303,7 @@ function displayMessage(c, user, force) {
 		var node = renderMessagePart(c, function(){
 			if (should) {
 				console.log('img onload autoscroll');
-				scroller.autoScroll();
+				scroller.autoScroll(force);
 			}
 		});
 		scroller.insert(c.id, node, c.createUserId, function() {
