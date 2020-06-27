@@ -59,7 +59,7 @@ sub {vertical-align: sub;}
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
-.time {
+time {
 	color: #333;
 	font-size: 0.9em;
 	vertical-align: baseline;
@@ -296,7 +296,7 @@ html.f-loggedIn .loggedOut {
 	background-color: #DDD;
 	padding: 0 0.1rem;
 	border-bottom: 2px solid black;
-	background: linear-gradient(#DDD,white);
+	background: linear-gradient(#D8D8D8,#E8E8E8);
 }
 
 .titlePane .iconBg {
@@ -323,7 +323,7 @@ html:not(.f-canEdit) .canEdit {
 	font-family: monospace;
 }
 
-header :first-child {
+header > :first-child {
 	min-width: 0.3rem;
 	display: inline-block;
 }
@@ -1109,4 +1109,11 @@ table {
 .permissionRow > td {
 	text-align: center;
 	padding: 0;
+}
+
+.half {
+	text-align: right;
+	display:block;
+	line-height: 1.15rem;
+	min-height: 1.15rem;
 }

@@ -145,23 +145,35 @@ function renderAuthorBox(page, users, element) {
 	element.innerHTML = "";
 	if (!page)
 		return;
-	element.appendChild(textItem("Author:"));
+	element.appendChild(renderHalfBlock("Author:", page.createDate));
+
 	element.appendChild(document.createTextNode(" "));
 	element.appendChild(renderUserLink(users[page.createUserId], true));
-	element.appendChild(document.createTextNode(" "));
-	element.appendChild(renderTimeAgo(page.createDate));
 	// page was edited by other user
 	if (page.editUserId != page.createUserId) {
-		element.appendChild(textItem(", edited by: "));
-		var editedText = true;
+		element.appendChild(document.createTextNode(" "));
+		element.appendChild(renderHalfBlock("Edited by:", page.editDate));
+		element.appendChild(document.createTextNode(" "));
 		element.appendChild(renderUserLink(users[page.editUserId], true));
+	} else if (page.createDate != page.editDate) { //edited by same user
+		element.appendChild(document.createTextNode(" "));
+		element.appendChild(renderHalfBlock("Edited", page.editDate));
 	}
-	// page was edited
-	if (page.createDate != page.editDate) {
-		if (!editedText)
-			element.appendChild(textItem(", edited "));
-		element.appendChild(renderTimeAgo(page.editDate));
-	}
+}
+
+function renderHalfBlock(label, time) {
+	var b = document.createElement("span");
+	b.className = "item";
+	
+	var a = document.createElement("div");
+	a.className = "half";
+	a.textContent = label;
+	b.appendChild(a);
+
+	a = renderTimeAgo(time);
+	a.className = "half";
+	b.appendChild(a);
+	return b;
 }
 
 // Page in the list displayed on a category view
