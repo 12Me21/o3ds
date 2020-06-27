@@ -1397,7 +1397,8 @@ var Parse = {
 		var out = "", last = 0;
 		while (result = linkRegex.exec(text)) {
 			// text before link
-			options.append(root, options.text(text.substr(last, result.index)));
+			console.log("found link:",result,"before:",text.substring(last, result.index));
+			options.append(root, options.text(text.substring(last, result.index)));
 			// generate link
 			var link = options.link({"": result[0]});
 			options.append(link, options.text(result[0]));
