@@ -138,7 +138,6 @@ function attr(element, attr, value) {
 function generatePagePath(page, users) {
 	// user page (at root)
 	if (page.type == "@user.page" && !page.parentId) {
-		console.log(users);
 		var creator = users[page.createUserId] || me.me; //hack for user page creation
 		generatePath([["#users","Users"], ["#user/"+creator.id, creator.username], ["#pages/"+page.id, page.name]]);
 	} else if (page.id) {
@@ -228,9 +227,12 @@ function sendMessage(room, text, params, editId) {
 	}
 }
 
-function megaAggregate(activity, ca, contents, users) {
+function megaAggregate(activity, ca, contents, users, category) {
 	var contentMap = {};
 	contents.forEach(function(x){
+		contentMap[x.id] = x;
+	})
+	category && category.forEach(function(x){
 		contentMap[x.id] = x;
 	})
 	var allAct = activity.concat(ca.map(function(x){
@@ -262,9 +264,10 @@ function megaAggregate(activity, ca, contents, users) {
 			x.content = {name: x.extra, id: x.contentId, deleted: true};
 		else if (x.type == "content")
 			x.content = contentMap[x.contentId];
-		else if (x.type == "category" && me.categoryTree)
-			x.content = me.categoryTree.map[x.contentId];
-		else if (x.type == "user" && x.action!="u") {
+		else if (x.type == "category") {
+			
+			x.content = contentMap[x.contentId];
+		} else if (x.type == "user" && x.action!="u") {
 			x.content = users[x.contentId];
 		} else
 			return; //some weird activity type
@@ -278,6 +281,7 @@ function megaAggregate(activity, ca, contents, users) {
 		return 0;
 	});
 	//todo: trim all trailing of same type because that's when the other runs out
+	
 	return allAct;
 }
 
@@ -289,6 +293,7 @@ function generatePath(path) {
 function updateUserlist(list, listeners, userMap) {
 	list.innerHTML = "";
 	listeners && forDict(listeners, function(status, user) {
+		status = decodeStatus(status);
 		if (status) {
 			list.appendChild(renderUserListAvatar(userMap[user]));
 		}
@@ -299,11 +304,10 @@ function displayMessage(c, user, force) {
 	if (c.deleted) {
 		scroller.remove(c.id);
 	} else {
-		var should = force || scroller.shouldScroll();
+		var should = scroller.shouldScroll();
 		var node = renderMessagePart(c, function(){
 			if (should) {
-				console.log('img onload autoscroll');
-				scroller.autoScroll(force);
+				scroller.autoScroll();
 			}
 		});
 		scroller.insert(c.id, node, c.createUserId, function() {
@@ -316,6 +320,8 @@ function displayMessage(c, user, force) {
 		document.title = text[0];
 		changeFavicon(user.avatarURL);
 	}
+	if (force)
+		scroller.autoScroll(true);
 }
 
 var currentFavicon = null;
@@ -685,7 +691,7 @@ var views = {
 				}
 				userAvatar(user, $userPageAvatar, true);
 				$userPageAvatarLink.href = user.rawAvatarURL;
-				$userPageStatus.textContent = lp.lastListeners[0][user.id] || "";
+				$userPageStatus.textContent = decodeStatus(lp.lastListeners[0][user.id] || "");
 				var lastId, lastAction;
 				megaAggregate(activity, ca, pages).forEach(function(activity){
 					if (activity.contentId != lastId || activity.action != lastAction) {
@@ -706,11 +712,10 @@ var views = {
 	pages: {
 		start: function(id, query, callback) {
 			lp.onListeners = function(lists, users) {
-				console.log(lists);
 				updateUserlist($chatUserlist, lists[id], users);
 				updateUserlist($sidebarUserlist, lists[0], users);
 				if (onUserPage) {
-					$userPageStatus.textContent = lp.lastListeners[0][onUserPage] || "";
+					$userPageStatus.textContent = decodeStatus(lists[0][onUserPage]) || "";
 				}
 			}
 			lp.onMessages = function(messages, users, pages) {

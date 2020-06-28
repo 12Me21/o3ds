@@ -6,6 +6,14 @@ function show(element) {
 	element.style.display = '';
 }
 
+function split1(string, sep) {
+	var n = string.indexOf(sep);
+	if (n == -1)
+		return [string, null];
+	else
+		return [string.substr(0,n), string.substr(n+sep.length)];
+}
+
 function visible(element, state) {
 	element.style.display = state ? '' : 'none';
 }

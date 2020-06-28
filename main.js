@@ -392,6 +392,13 @@ function ready() {
 			}
 		});
 	}
+
+	$globalStatusInput.value = localStorage.globalStatus || lp.statuses[0];
+	$globalStatusButton.onclick = function() {
+		var status = $globalStatusInput.value || undefined;
+		lp.setGlobalStatus(status);
+		localStorage.globalStatus = status || "";
+	}
 }
 
 function focusLastComment() {
@@ -488,13 +495,8 @@ function hashChange(first) {
 		currentPath = fragment[0];
 		navigateTo(fragment[0], first, function() {
 			scrollTo(fragment[1])
-			$sidebarScroller.scrollTop = $sidebarScroller.scrollHeight;
-			$sidebarActivity.scrollTop = $sidebarActivity.scrollHeight;
 		}, fragment[1]);
 	}
-
-
-	
 }
 
 function scrollToAuto() {
@@ -527,14 +529,6 @@ window.onhashchange = function() {
 function getPath() {
 	var hash = decodeURIComponent(location.hash.substr(1));
 	return hash.split("#");
-}
-
-function split1(string, sep) {
-	var n = string.indexOf(sep);
-	if (n == -1)
-		return [string, null];
-	else
-		return [string.substr(0,n), string.substr(n+sep.length)];
 }
 
 var cancel;
@@ -586,14 +580,14 @@ function makeCategoryPath(tree, id, leaf) {
 }
 
 // These are used to signal to the user when content is loading
+var loadCount=0;
 function loadStart(lp) {
 	if (!lp)
 		flag('loading', true);
 }
 function loadEnd(lp, e) {
-	if (!lp) {
-		flag('loading');
-	}
+	if (!lp)
+		flag('loading'); //fix this when multiple requests
 }
 
 //maybe turn the title <h1> into an input box
@@ -662,6 +656,13 @@ function generateAuthorBox(page, users) {
 	renderAuthorBox(page, users, $authorBox);
 }
 
+function decodeStatus(status) {
+	var i = status.indexOf("\n");
+	if (i>=0)
+		return status.substr(i+1);
+	return status;
+}
+
 function onLogin(me) {
 	console.log("logged in");
 	//var me = this;
@@ -677,7 +678,7 @@ function onLogin(me) {
 	lp.onListeners = function(lists, users) {
 		updateUserlist($sidebarUserlist, lists[0], users);
 		if (onUserPage) {
-			$userPageStatus.textContent = lp.lastListeners[0][onUserPage] || "";
+			$userPageStatus.textContent = decodeStatus(lp.lastListeners[0][onUserPage]) || "";
 		}
 	}
 	lp.onDelete = function(comments) {}
@@ -695,23 +696,22 @@ function onLogin(me) {
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
 	}
-	lp.lastId = -30
-	lp.start();
-	lp.blockCancel();
-	/*me.doListenInitial(function(e, resp){
+	if (localStorage.globalStatus != null)
+		lp.statuses[0] = localStorage.globalStatus;
+	me.doListenInitial(function(e, resp){
 		if (!e) {
-			var lastId = -1
-			resp.comment.forEach(function(comment) {
-				if (comment.id > lastId)
-					lastId = comment.id;
+			console.log(resp.activityaggregate);
+			resp.systemaggregate.forEach(function(item) {
+				if (item.type == "actionMax")
+					lp.lastId = item.id;
 			});
-			resp.activity.forEach(function(comment) {
-				if (comment.id > lastId)
-					lastId = comment.id;
-			});
-			sbm(resp);
+			lp.start();
+			sbm(resp, true);
+			//todo:
+			// keep an updated list of recently active pages
+			//
 		}
-	})*/
+	})
 	me.getNotifications(function(e, resp){
 		if (!e) {
 			resp.activityaggregate.forEach(function(aa) {
@@ -740,18 +740,20 @@ function userUpdated(user) {
 }
 
 //todo: commentdelete
-function sbm(resp) {
+function sbm(resp, scroll) {
 	if (!(resp.comment && resp.content && resp.activity))
 		return;
 	var users = resp.userMap;
 	var last = {};
-	var all = megaAggregate(resp.activity, resp.comment, resp.content, users);
+	var all = megaAggregate(resp.activity, resp.comment, resp.content, users, resp.category);
 	all.reverse().forEach(function(activity){
-		displayActivity(activity, users);
+		displayActivity(activity, users, scroll);
 	});
+	if (scroll)
+		activityScroller.autoScroll(true);
 }
 
-function displayActivity(activity, users) {
+function displayActivity(activity, users, scroll) {
 	if (activity.userId instanceof Array)
 		var user = activity.userId.map(function(x){
 			return users[x];

@@ -297,6 +297,8 @@ Myself.prototype.handle = function(e, resp) {
 			}
 		}
 	});
+	resp.category && me.categoryTree && updateCategoryTree(me.categoryTree, resp.category);
+	
 	resp.userMap = userMap;
 	// parse dates
 	// (TODO)
@@ -358,12 +360,12 @@ Myself.prototype.loadCachedAuth = function(callback) {
 	var cached = localStorage.getItem($.lsKey);
 	if (cached) {
 		$.setAuth(cached);
-		$.readSimple("User/me", 'user', function(e, resp){
+		/*$.readSimple("User/me", 'user', function(e, resp){
 			if (e == 'auth' || e == 'error') {
 				$.logOut(); //auth was invalid
 			}
 			$.cb(callback, e, resp);
-		}); //this is used to test the auth
+		}); //this is used to test the auth*/
 		return true;
 	}
 	return false;
@@ -570,10 +572,13 @@ Myself.prototype.getVariable = function(name, callback) {
 Myself.prototype.doListenInitial = function(callback) {
 	var $=this;
 	return $.read([
+		"systemaggregate",
 		{comment:{reverse:true,limit:20}},
-		{activity:{reverse:true,limit:20}},
-		"content.0parentId.1contentId", //pages
-		"user.0createUserId.1userId" //users for comment and activity
+		{activity:{reverse:true,limit:10}},
+		{activityaggregate:{reverse:true,limit:10}},
+		"content.1parentId.2contentId.1id", //pages
+		"category.2contentId",
+		"user.1createUserId.2userId.3userIds", //users for comment and activity
 	],{content:"id,createUserId,name,permissions"},callback);
 }
 
@@ -585,7 +590,8 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotif
 		chains: [
 			"comment.0id",'activity.0id-{"includeAnonymous":true}',"watch.0id", //new stuff //changed
 			"content.1parentId.2contentId.3contentId", //pages
-			"user.1createUserId.2userId.1editUserId" //users for comment and activity
+			"user.1createUserId.2userId.1editUserId", //users for comment and activity
+			"category.2contentId" //todo: handle values returned by this
 		]
 	}
 	if (clearNotifs)
@@ -882,29 +888,32 @@ Myself.prototype.getUserPage = function(id, callback) {
 
 function buildCategoryTree(categories) {
 	var root = {childs: [], id: 0, name: "[root]", values: {}};
-	var orphans = [];
 	var map = {
 		'0': root
 	};
 	root.map = map;
+	updateCategoryTree(root, categories);
+	return root;
+}
+
+function updateCategoryTree(tree, categories) {
 	categories = categories.map(function(cat) {
 		var n = Object.assign({}, cat); //copy
 		n.childs = [];
-		map[n.id] = n;
+		tree.map[n.id] = n;
 		return n
 	});
 	categories.forEach(function(cat) {
 		if (cat.parentId < 0)
 			cat.parentId = 0;
-		var parent = map[cat.parentId];
+		var parent = tree.map[cat.parentId];
 		if (parent) {
 			cat.parent = parent;
 			parent.childs.push(cat);
 		} else {
-			orphans.push(cat);
+			//orphans.push(cat);
 		}
 	});
-	return root;
 }
 
 // so if I was a Good Programmer I would

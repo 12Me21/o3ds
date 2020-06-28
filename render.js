@@ -376,6 +376,9 @@ function renderActivityBlock(activity) {
 	} else if (activity.type == "user") {
 		var name = renderUserLink(page, false);
 		a.href = "#user/"+page.id;
+	} else if (activity.type == "category") {
+		var name = renderContentName(page.name, "category");
+		a.href = "#categories/"+page.id;
 	} else {
 		var name = renderContentName("UNKNOWN", "unknown")
 	}

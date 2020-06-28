@@ -1,7 +1,7 @@
 function LongPoller(myself) {
 	this.myself = myself;
 	this.cancel = [function(){}];
-	this.lastListeners = {"0":{}};
+	this.lastListeners = {"0":{"0":""}};
 	this.lastId = -1;
 	this.statuses = {"0":"online"};
 	//this.counter = 1;
@@ -11,6 +11,17 @@ LongPoller.prototype.start = function() {
 	this.loop();
 }
 
+LongPoller.prototype.setGlobalStatus = function(text) {
+	if (text == undefined) {
+		this.statuses[0] = "";
+	} else {
+		this.statuses[0] = text;
+	}
+	this.refresh();
+	if (text == undefined)
+		delete this.statuses[0];
+}
+	
 LongPoller.prototype.setState = function(text, state) {
 	this.running = state;
 	if (this.onStatus)
