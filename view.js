@@ -316,9 +316,11 @@ function displayMessage(c, user, force) {
 				b[0].className += " ownMessage";
 			return b;
 		});
-		var text = decodeComment(c.content);
-		document.title = text[0];
-		changeFavicon(user.avatarURL);
+		if (!force) {
+			var text = decodeComment(c.content);
+			document.title = text[0];
+			changeFavicon(user.avatarURL);
+		}
 	}
 	if (force)
 		scroller.autoScroll(true);
