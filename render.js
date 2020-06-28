@@ -74,7 +74,7 @@ function userAvatar(user, cls, big) {
 		img = document.createElement('img');
 		img.className = cls+" avatar";
 	}
-	img.title = user.username;
+	//img.title = user.username;
 	if (big)
 		img.src = user.bigAvatarURL;
 	else
@@ -112,6 +112,8 @@ function renderUserLink(user, nameFirst) {
 	var name = textItem(name);
 	name.className = "username textItem pre"
 	var avatar = userAvatar(user, 'item');
+	if (nameFirst == undefined)
+		avatar.title = user.username;
 	if (nameFirst == true)
 		a.appendChild(name)
 	a.appendChild(avatar)
@@ -371,8 +373,11 @@ function renderActivityBlock(activity) {
 	div.appendChild(a);
 
 	if (activity.type == "content") {
-		var name = renderContentName(page.name, pageIcon(page))
-		a.href = "#pages/"+page.id;
+		if (page) {
+			var name = renderContentName(page.name, pageIcon(page))
+			a.href = "#pages/"+page.id;
+		} else
+			var name = renderContentName("UNKNOWN", "unknown")
 	} else if (activity.type == "user") {
 		var name = renderUserLink(page, false);
 		a.href = "#user/"+page.id;
