@@ -145,8 +145,8 @@ var Parse = {
 		
 		//=====================
 		// nodes with children
-		root: function() {
-			var node = create('div');
+		root: function(element) {
+			var node = element || create('div');
 			node.className = 'markup-root';
 			return {block:true, node:node};
 		},
@@ -365,7 +365,7 @@ var Parse = {
 		}
 	}
 	
-	function init(scanFunc, myBlocks, text) {
+	function init(scanFunc, myBlocks, text, element) {
 		scan = scanFunc;
 		code = text;
 		for (type in cache)
@@ -378,7 +378,7 @@ var Parse = {
 		startOfLine = true;
 		skipnextLineBreak = false;
 		textBuffer = "";
-		output = curr = options.root();
+		output = curr = options.root(element);
 		stack = [{node:curr, type:'root'}];
 		stack.top = function() {
 			return stack[stack.length-1];
@@ -576,7 +576,7 @@ var Parse = {
 
 	var options = Parse.options;
 	
-	Parse.lang['12y'] = function(codeInput, preview) {
+	Parse.lang['12y'] = function(codeInput, preview, element) {
 		// so what happens here is
 		// when a video needs to be generated
 		// first, check the cache. if it exists there, insert it
@@ -600,7 +600,7 @@ var Parse = {
 				leadingSpaces++;
 			i++;
 			c = code.charAt(i);
-		}, options, codeInput);
+		}, options, codeInput, element);
 		
 		var tags = {
 			spoiler: "spoiler",
@@ -1140,7 +1140,7 @@ var Parse = {
 		
 	}
 
-	Parse.lang.bbcode = function(codeArg, preview) {
+	Parse.lang.bbcode = function(codeArg, preview, elem) {
 		var noNesting = {
 			spoiler:true
 		};
@@ -1176,7 +1176,7 @@ var Parse = {
 		init(function() {
 			i++;
 			c = code.charAt(i);
-		}, blocks, codeArg);
+		}, blocks, codeArg, element);
 		
 		var specialBlock = {
 			url: function(args, contents){
@@ -1394,9 +1394,9 @@ var Parse = {
 	}
 	
 	// "plain text" (with autolinker)
-	Parse.fallback = function(text) {
+	Parse.fallback = function(text, preview, element) {
 		var options = Parse.options;
-		var root = options.root();
+		var root = options.root(element);
 		i = 0;
 		code = text;
 		output = root;

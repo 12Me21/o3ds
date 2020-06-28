@@ -517,7 +517,8 @@ function renderMessageGap() {
 function renderMessagePart(comment, sizedOnload){
 	var x = decodeComment(comment.content);
 	var text=x[0], markup=x[1];
-	element = parser(markup)(text);
+	var element = document.createElement('p');
+	element = parser(markup)(text, false, element);
 	element.className += ' messagePart';
 	element.setAttribute('data-id', comment.id);
 	element.setAttribute('tabindex', "0");
