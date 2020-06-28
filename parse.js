@@ -134,6 +134,14 @@ var Parse = {
 				return {block:true, node:node};
 			}
 		},
+		bg: function(opt) {
+			var node=document.createElement("span");
+			var color = opt[""]
+			if (color) {
+				node.setAttribute("data-bgcolor", color);
+			}
+			return {node:node};
+		},
 		
 		//=====================
 		// nodes with children
@@ -600,6 +608,7 @@ var Parse = {
 			sub: "subscript",
 			sup: "superscript",
 			anchor: "anchor",
+			bg: "bg"
 		};
 		
 		while (c) {

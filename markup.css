@@ -107,27 +107,27 @@
 	background-color: white; /* needed to reset for nested tables */
 }
 
-.markup-root .cell[data-bgcolor="red"] {
+.markup-root [data-bgcolor="red"] {
 	background-color: #FCC;
 }
 
-.markup-root .cell[data-bgcolor="green"] {
+.markup-root [data-bgcolor="green"] {
 	background-color: #CFC;
 }
 
-.markup-root .cell[data-bgcolor="yellow"] {
-	background-color: #FFC;
+.markup-root [data-bgcolor="yellow"] {
+	background-color: #FF6;
 }
 
-.markup-root .cell[data-bgcolor="orange"] {
-	background-color: #FEC;
+.markup-root [data-bgcolor="orange"] {
+	background-color: #FEA;
 }
 
-.markup-root .cell[data-bgcolor="blue"] {
+.markup-root [data-bgcolor="blue"] {
 	background-color: #DEF;
 }
 
-.markup-root .cell[data-bgcolor="gray"] {
+.markup-root [data-bgcolor="gray"] {
 	background-color: #DDD;
 }
 
