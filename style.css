@@ -1030,6 +1030,9 @@ html:not(.f-fileUploading) .fileUploading {
 		width: 100% !important;
 		max-width: 100% !important;
 	}
+	#\$sidebarActivity {
+		height: 100vh;
+	}
 }
 
 
