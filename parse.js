@@ -101,7 +101,7 @@ var Parse = {
 		icode: function(args, contents) {
 			var node = create('code');
 			node.textContent = contents;
-			return {node:node};
+			return {node:node, block:false};
 		},
 		audio: function(args) {
 			var node = create('audio');
@@ -376,7 +376,7 @@ var Parse = {
 		blocks = myBlocks;
 		leadingSpaces = 0;
 		startOfLine = true;
-		skipnextLineBreak = false;
+		skipNextLineBreak = false;
 		textBuffer = "";
 		output = curr = options.root(element);
 		stack = [{node:curr, type:'root'}];
@@ -484,6 +484,7 @@ var Parse = {
 		if (skipNextLineBreak) {
 			skipNextLineBreak = false;
 		} else {
+			console.log("really adding");
 			flushText();
 			addBlock(options.lineBreak());
 		}
@@ -613,6 +614,7 @@ var Parse = {
 		
 		while (c) {
 			if (eatChar("\n")) {
+				console.log("got newline");
 				endLine();
 				//==========
 				// \ escape
@@ -838,6 +840,7 @@ var Parse = {
 					}
 					addBlock(options.icode({},codeText));
 					scan();
+					console.log("code block ended", c, "test");
 				}
 				//
 				//================
@@ -1084,6 +1087,7 @@ var Parse = {
 						break; //really?
 					}
 				} else {
+					console.log("adding linebreak");
 					addLineBreak();
 					break;
 				}
