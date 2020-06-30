@@ -484,7 +484,6 @@ var Parse = {
 		if (skipNextLineBreak) {
 			skipNextLineBreak = false;
 		} else {
-			console.log("really adding");
 			flushText();
 			addBlock(options.lineBreak());
 		}
@@ -614,7 +613,6 @@ var Parse = {
 		
 		while (c) {
 			if (eatChar("\n")) {
-				console.log("got newline");
 				endLine();
 				//==========
 				// \ escape
@@ -840,7 +838,6 @@ var Parse = {
 					}
 					addBlock(options.icode({},codeText));
 					scan();
-					console.log("code block ended", c, "test");
 				}
 				//
 				//================
@@ -1087,7 +1084,6 @@ var Parse = {
 						break; //really?
 					}
 				} else {
-					console.log("adding linebreak");
 					addLineBreak();
 					break;
 				}
