@@ -40,9 +40,10 @@ LongPoller.prototype.setStatus = function(id, status) {
 	//todo: need to remove lastListeners[id] IF the user isn't also viewing that room
 	else {
 		this.statuses[id] = status;
+		/*
 		if (!this.lastListeners[id])
 			this.lastListeners[id] = {"0":""};
-		this.lastListeners[id][this.myself.uid] = status;
+		this.lastListeners[id][this.myself.uid] = status;*/
 	}
 }
 

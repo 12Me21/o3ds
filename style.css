@@ -107,11 +107,6 @@ body.fileMode .bottomSpacer {
 input {
 	font-size: 0.8em;
 }
-body.pageMode main {
-	height: 90vh;
-	display: block;
-}
-
 html {
 	background-color: #FEE;
 	font-family: roboto, fontello, sans-serif;
@@ -517,9 +512,6 @@ main {
  ** Chat Message Pane **
  ***********************/
 /* ... */
-.messageList {
-	padding-bottom: 0.7rem;
-}
 
 .spacer {
 	border-bottom: 1px solid gray;
@@ -753,7 +745,7 @@ table.form {
 }
 
 table.form td:first-child {
-	text-align:right;
+	/*text-align:right;*/
 }
 table.form td {
 	padding: 0;
@@ -968,11 +960,9 @@ html:not(.f-fileUploading) .fileUploading {
 	flex-grow: 1;
 	flex-shrink: 1;
 	flex-basis: 0;
+	overflow-y: auto;
 }
-/*.sidebarScroller {
-  						 box-shadow: 0 50px 50px -50px inset black;
-}						 */
-.sidebarScroller {
+#\$sidebarActivity {
 	flex-shrink: 1;
 	overflow-y: scroll;
 	border-top: 1px solid gray;
@@ -986,18 +976,18 @@ html:not(.f-fileUploading) .fileUploading {
 	border-bottom: 1px solid black;
 }
 
-.sidebarScroller .bar {
+#\$sidebarActivity .bar {
 	display: block;
 	/*padding: 0.2rem; mmm*/
 	padding: 0 0.2rem;
-	border-bottom: 1px solid gray;
+	/*border-bottom: 1px solid gray;*/
 }
 
-.sidebarScroller .bar > .userLink:first-child {
+#\$sidebarActivity .bar > .userLink:first-child {
 	margin-left: -0.2rem;
 }
 
-.sidebarScroller .bar > :last-child {
+#\$sidebarActivity .bar > :last-child {
 	margin-right: -0.2rem;
 }
 
@@ -1117,4 +1107,41 @@ table {
 	display:block;
 	line-height: 1.15rem;
 	min-height: 1.15rem;
+}
+
+body.pageMode main {
+	display: flex;
+	height: 100%;
+}
+
+.chatScroller {
+	overflow-y: scroll;
+	flex-basis: 0;
+	flex-grow: 1;
+}
+
+.chatPane {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.messageList {
+	flex-grow:1;
+}
+
+#\$sidebarPinned {
+	width: 100%;
+}
+.wideCell {
+	width: 100%;
+}
+
+.wideCell > a {
+	display: block;
+}
+
+.zindex {
+	position: relative;
+	z-index: 10;
 }

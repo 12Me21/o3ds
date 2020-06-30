@@ -9,16 +9,15 @@ function cleanUp(type) {
 	flag('myUserPage');
 	flag('canEdit');
 	flag('page');
-	$messageList.innerHTML = "";
 	$authorBox.innerHTML = "";
 	$sbapiInfo.innerHTML = "";
 	$fileBox.innerHTML = "";
 	/*$chatUserlist.innerHTML = "";*/
 	$fileView.src = "";
-	var nodes = document.querySelectorAll(".markup-root");
+	/*var nodes = document.querySelectorAll(".markup-root");
 	for (var i=0;i<nodes.length;i++) {
 		nodes[i].innerHTML = "";
-	}
+	}*/
 	cancelEdit();
 	onUserPage = null;
 }
@@ -300,32 +299,6 @@ function updateUserlist(list, listeners, userMap) {
 	})
 }
 
-function displayMessage(c, user, force) {
-	if (c.deleted) {
-		scroller.remove(c.id);
-	} else {
-		var should = scroller.shouldScroll();
-		var node = renderMessagePart(c, function(){
-			if (should) {
-				scroller.autoScroll();
-			}
-		});
-		scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderUserBlock(user, parseDate(c.editDate));
-			if (c.createUserId == me.uid)
-				b[0].className += " ownMessage";
-			return b;
-		});
-		if (!force) {
-			var text = decodeComment(c.content);
-			document.title = text[0];
-			changeFavicon(user.avatarURL);
-		}
-	}
-	if (force)
-		scroller.autoScroll(true);
-}
-
 var currentFavicon = null;
 function changeFavicon(src) {
 	if (src == currentFavicon) {
@@ -343,14 +316,14 @@ function changeFavicon(src) {
 	document.head.appendChild(link);
 }
 
-function displayGap() {
+/*function displayGap() {
 	scroller.insert(null, renderMessageGap());
-}
+}*/
 
 function handlePinned(pinned) {
 	$categoryPinned.innerHTML = "";
 	pinned.forEach(function(content) {
-		$categoryPinned.appendChild(renderCategoryPage(content, users2, true));
+		$categoryPinned.appendChild(renderPinnedPage(content, users2, true));
 	});
 }
 
@@ -713,43 +686,32 @@ var views = {
 	},
 	pages: {
 		start: function(id, query, callback) {
-			lp.onListeners = function(lists, users) {
-				updateUserlist($chatUserlist, lists[id], users);
-				updateUserlist($sidebarUserlist, lists[0], users);
-				if (onUserPage) {
-					$userPageStatus.textContent = decodeStatus(lists[0][onUserPage]) || "";
-				}
-			}
-			lp.onMessages = function(messages, users, pages) {
-				messages.forEach(function(comment) {
-					var user = users[comment.createUserId];
-					if (comment.parentId == id)
-						displayMessage(comment, user);
-				})
-			}
-			lp.onDelete = function(comments) {
-				comments.forEach(function(comment) {
-					displayMessage({deleted: true, id:comment.id});
-				});
-			}
-			lp.setViewing(id);
+			var room = manager.rooms[id] || manager.add(id);
+			/*if (manager.rooms[id].loaded)
+				manager.show(id);*/
 			var linked = query["#"];
 			if (linked && /^comment-/.test(linked)) {
 				linked=+linked.substr(8);
 			} else {
 				linked = null;
 			}
-			return me.getPage(id, function(page, users, comments){
-				callback(page, users, comments, query);
-			});
+			if (manager.rooms[id].page) {
+				callback(manager.rooms[id].page, manager.rooms[id].users, [], {});
+			} else {
+				return me.getPageAndComments(id, function(page, users, comments){
+					callback(page, users, comments, query);
+				});
+			}
 		},
 		render: function(page, users, comments, query) {
 			$main.className = "pageMode";
 			generateAuthorBox(page, users);
 			flag('canEdit', !!page);
 			if (page) {
+				lp.setViewing(page.id);
 				flag('page', true);
-				scroller.switchRoom(page.id);
+				/*scroller.switchRoom(page.id);*/
+				manager.show(page.id);
 				generatePagePath(page, users);
 				currentPage = page.id;
 				currentChatRoom = page.id;
@@ -759,13 +721,21 @@ var views = {
 				setTitle(page.name, icon);
 				$watchCheck.checked = page.about.watching;
 				// todo: handle showing/hiding the vote box when logged in/out
-				renderPageContents(page, $pageContents)
-				handleLoads($pageContents);
-				displayGap();
-				comments && comments.reverse().forEach(function(comment) {
-					if (comment.parentId == page.id)
-						displayMessage(comment, users[comment.createUserId], true);
-				});
+				manager.rooms[page.id].updatePage(page);
+				/*renderPageContents(page, $pageContents)*/
+				handleLoads(manager.rooms[page.id].pageElement);
+				//displayGap();
+				if (manager.rooms[page.id] && !manager.rooms[page.id].loaded) {
+					manager.rooms[page.id].page = page;
+					manager.rooms[page.id].users = users;
+					addPinned(page);
+					comments && comments.reverse().forEach(function(comment) {
+						if (manager.rooms[page.id]) {
+							manager.rooms[page.id].displayMessage(comment, users[comment.createUserId], true);
+						}
+					});
+					manager.rooms[page.id].loaded = true;
+				}
 				$editButton.href = "#pages/edit/"+page.id;
 				$voteCount_b.textContent = page.about.votes.b.count;
 				$voteCount_o.textContent = page.about.votes.o.count;
@@ -915,3 +885,36 @@ var views = {
 	}
 }
 
+function addPinned(page) {
+	$sidebarPinned.appendChild(renderPinnedPage(page, function() {
+		manager.remove(page.id);
+	}))
+}
+
+function RoomManager(element) {
+	this.element = element;
+	this.rooms = {};
+}
+
+RoomManager.prototype.show = function(id) {
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid) 
+			room.hide();
+		else
+			room.show();
+	});
+}
+
+RoomManager.prototype.remove = function(id) {
+	if (this.rooms[id]) {
+		this.rooms[id].remove();
+		delete this.rooms[id];
+	}
+}
+
+RoomManager.prototype.add = function(id) {
+	var room = new ChatRoom();
+	this.element.appendChild(room.element);
+	this.rooms[id] = room;
+	return room;
+}

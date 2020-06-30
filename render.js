@@ -45,6 +45,34 @@ function renderContentName(name, icon) {
 	return span;
 }
 
+function renderPinnedPage(page, onremove) {
+	var div = document.createElement('a');
+	div.className = "rem1-7 bar ellipsis";
+	if (page) {
+		var icon = "page";
+		if (!hasPerm(page.permissions, 0, 'r'))
+			icon = "hiddenpage";
+		var name = renderContentName(page.name, icon)
+	} else {
+		var name = renderContentName("UNKNOWN", icon)
+	}
+	var bcc = document.createElement("span");
+	div.href = "#pages/"+page.id;
+	var close = renderButton();
+	close[1].textContent = "remove";
+	
+	close[1].onclick = function(e) {
+		div.remove();
+		onremove && onremove();
+		e.preventDefault();
+	}
+	bcc.appendChild(close[0]);
+	close[0].className += " item";
+	div.appendChild(bcc);
+	div.appendChild(name);
+	return div;
+}
+
 function renderPath(element, list) {
 	element.innerHTML = "";
 	if (!list)
@@ -238,7 +266,7 @@ function renderUserBlock(user, date) {
 	time.className = 'messageTime'
 	div.appendChild(time);
 
-	div.appendChild(userAvatar(user, 'avatar'));
+	div.appendChild(userAvatar(user,""));
 
 	var name = document.createElement('span');
 	name.className = 'username';
@@ -533,22 +561,32 @@ function parser(markup) {
 	return Parse.lang[markup] || Parse.fallback;
 }
 
+// There are 2 types of messages in the scroller
+// blocks, and embeds
+// blocks contain message parts and have data-uid, and embeds don't
+// if a new message is sent with the same uid as the neighboring block, it will be inserted into that block as a message part
+// embeds never merge
+// the first embed/messagepart will be removed when the number exceeds the limit
+// (if set), and blocks with no message parts left will be removed
+
 // Based on sbs chat autoscroller
-function AutoScroller(element) {
+function AutoScroller(element, limit) {
 	this.element = element;
 	this.smoothScroll = true;
 	this.nodes = {};
 	this.blocks = {};
+	this.limit = limit;
+	this.count = 0;
 	var $=this;
 	// handle resizing
-	trackResize(element.parentNode, function(old, ne) {
+	trackResize(element, function(old, ne) {
 		if ($.shouldScroll(old))
 			$.autoScroll(true);
 	});
 }
 // do autoscroll
 AutoScroller.prototype.autoScroll = function(instant) {
-	var parent = this.element.parentNode;
+	var parent = this.element;
 	if (!window.requestAnimationFrame || !this.smoothScroll || instant) {
 		parent.scrollTop = parent.scrollHeight - parent.clientHeight;
 	} else {
@@ -561,11 +599,11 @@ AutoScroller.prototype.autoScroll = function(instant) {
 // check if element is scrolled to near the bottom (within 0.25*height)
 // this threshold can probably be decreased...
 AutoScroller.prototype.shouldScroll = function(oldHeight) {
-	return this.scrollDistance(oldHeight) < (oldHeight || this.element.parentNode.clientHeight)*0.25;
+	return this.scrollDistance(oldHeight) < (oldHeight || this.element.clientHeight)*0.25;
 }
 // check distance to bottom
 AutoScroller.prototype.scrollDistance = function(oldHeight) {
-	var parent = this.element.parentNode;
+	var parent = this.element;
 	return parent.scrollHeight-(oldHeight || parent.clientHeight)-parent.scrollTop;
 }
 
@@ -573,7 +611,7 @@ AutoScroller.prototype.scrollDistance = function(oldHeight) {
 // stops if interrupted by user scrolling
 AutoScroller.prototype.autoScrollAnimation = function() {
 	var $=this;
-	var parent = this.element.parentNode;
+	var parent = this.element;
 
 	parent.scrollTop += Math.max(Math.ceil(this.scrollDistance()/4), 1);
 	
@@ -583,7 +621,7 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 		this.animationId = window.requestAnimationFrame(function(time) {
 			// only call again if scroll pos has not changed
 			// (if it has, that means the user probably scrolled manually)
-			if ($.expectedTop == $.element.parentNode.scrollTop) {
+			if ($.expectedTop == $.element.scrollTop) {
 				$.autoScrollAnimation();
 			} else {
 				$.animationId = null;
@@ -595,24 +633,27 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 }
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
-	var lastUidBlock = this.element.lastChild;
-	if (lastUidBlock) {
-		var lastUid = lastUidBlock.getAttribute('data-uid');
-		if (!lastUid)
-			lastUidBlock = null;
-		else
-			lastUid = +lastUid;
-	}
 	
 	if (id == null) {
 		this.element.appendChild(node);
+		this.count++;
 	} else {
+		var lastUidBlock = this.element.lastChild;
+		if (lastUidBlock) {
+			var lastUid = lastUidBlock.getAttribute('data-uid');
+			if (!lastUid)
+				lastUidBlock = null;
+			else
+				lastUid = +lastUid;
+		}
+		
 		// replace an existing message (we assume uid doesn't change)
 		if (this.nodes[id]) {
 			this.nodes[id].parentNode.replaceChild(node, this.nodes[id]);
+			this.count--;
 			// insert a new line to the last block
 		} else if (uid && lastUid == uid && lastUidBlock) {
-			lastUidBlock.querySelector('.messageContents, .activityContent').appendChild(node);
+			lastUidBlock.querySelector('.messageContents, .activityContent').appendChild(node);  // BAD! FIX!
 			// create a new block
 		} else {
 			var b = makeBlock();
@@ -620,10 +661,13 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 			this.element.appendChild(b[0]);
 		}
 		this.nodes[id] = node;
+		this.count++;
 	}
+	this.trimOld();
 	if (s)
 		this.autoScroll();
 }
+// this won't update the TIME on user blocks ugh whatever
 AutoScroller.prototype.remove = function(id) {
 	var node = this.nodes[id]
 	if (node) {
@@ -634,16 +678,16 @@ AutoScroller.prototype.remove = function(id) {
 		if (parent.children.length == 0) {// todo: make this less of a hack
 			parent.parentNode.remove();
 		}
+		this.count--;
 	}
-	this.nodes[id] = undefined;
+	delete this.nodes[id];
 }
 // currently just clears no matter what
 // in the future you might, if this is properly connected to a LongPoller,
 // cache messages when switching rooms, or something
 AutoScroller.prototype.switchRoom = function(id) {
 	this.element.innerHTML = "";
-	this.lastUid = undefined;
-	this.lastUidBlock = undefined;
+	this.count = 0;
 	this.nodes = {};
 	// probably needs more cleanup
 }
@@ -651,8 +695,105 @@ AutoScroller.prototype.switchRoom = function(id) {
 AutoScroller.prototype.embed = function(node) {
 	var s = this.shouldScroll();
 	this.element.appendChild(node);
-	this.lastUid = null;
-	this.lastUidBlock = null;
+	this.count++;
+	this.trimOld();
 	if (s)
 		this.autoScroll();
 }
+
+AutoScroller.prototype.trimOld = function() {
+	if (this.limit && this.count > this.limit) {
+		if (this.element.firstChild.getAttribute("data-uid")) {
+			// normal user-block
+			for (id in this.nodes) {
+				this.remove(id);
+				break;
+			}
+		} else {
+			// standalone element
+			this.element.firstChild.remove();
+			this.count--;
+		}
+	}
+}
+
+function ChatRoom() {
+	var box = document.createElement('div');
+	box.className = "chatPane";
+	var scrollerBox = document.createElement('div');
+	var scroller = document.createElement('div');
+	scroller.className="chatScroller";
+	scrollerBox.appendChild(scroller);
+	this.list = document.createElement('div');
+	this.list.className = "rem2-3 bar userlist";
+	box.appendChild(this.list);
+	box.appendChild(scroller);
+	this.scroller = new AutoScroller(scroller);
+	this.element = box;
+	this.pageElement = document.createElement('div');
+	this.scroller.element.appendChild(this.pageElement);
+	this.hide();
+}
+
+ChatRoom.prototype.updatePage = function(page, users) {
+	// todo: other fields
+	var s = this.scroller.shouldScroll();
+	this.page = page;
+	Parse.parseLang(page.content, page.values && page.values.markupLang, this.pageElement);
+	if (s)
+		this.scroller.autoScroll(true);
+}
+
+ChatRoom.prototype.hide = function() {
+	this.element.style.display = "none";
+}
+
+ChatRoom.prototype.show = function() {
+	this.element.style.display = "";
+}
+
+ChatRoom.prototype.remove = function() {
+	this.element.remove();
+	this.scroller.switchRoom();
+}
+
+ChatRoom.prototype.displayMessage = function(c, user, force) {
+	var $=this;
+	if (c.deleted) {
+		this.scroller.remove(c.id);
+	} else {
+		var should = this.scroller.shouldScroll();
+		console.log("SHOULD", should);
+		var node = renderMessagePart(c, function(){
+			if (should) {
+				$.scroller.autoScroll();
+			}
+		});
+		this.scroller.insert(c.id, node, c.createUserId, function() {
+			var b = renderUserBlock(user, parseDate(c.editDate));
+			if (c.createUserId == me.uid)
+				b[0].className += " ownMessage";
+			return b;
+		});
+		if (!force) {
+			var text = decodeComment(c.content);
+			document.title = text[0];
+			changeFavicon(user.avatarURL);
+		}
+	}
+	if (force)
+		this.scroller.autoScroll(true);
+}
+
+ChatRoom.prototype.updateUserlist = function(list, users) {
+	var $=this;
+	$.list.innerHTML = "";
+	list && forDict(list, function(status, user) {
+		var status = decodeStatus(status);
+		if (status) {
+			$.list.appendChild(renderUserListAvatar(users[user]));
+		}
+	})
+}
+// idea: show recently active (from activityaggregate) pages somewhere
+// maybe an option to switch between activity/recently active/notification? etc.

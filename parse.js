@@ -1420,12 +1420,15 @@ var Parse = {
 		return root.node;
 	}
 	
-	Parse.parseLang = function(text, lang) {
+	Parse.parseLang = function(text, lang, element) {
+		if (element) {
+			element.innerHTML = "";
+		}
 		i=0;
 		code = text;
 		try {
 			var parser = Parse.lang[lang] || Parse.fallback;
-			return parser(text);
+			return parser(text, false, element);
 		} catch(e) {
 			try {
 				options.append(output, options.error(e,e.stack));

@@ -373,6 +373,19 @@ Myself.prototype.loadCachedAuth = function(callback) {
 
 Myself.prototype.getPage = function(id, callback) {
 	var $=this;
+	return $.read([
+		{content: {ids: [+id]}},
+		"user.0createUserId.0editUserId",
+	], {}, function(e, resp) {
+		if (!e && resp.content[0])
+			$.cb(callback, resp.content[0], resp.userMap);
+		else
+			$.cb(callback, null, {});
+	});
+}
+
+Myself.prototype.getPageAndComments = function(id, callback) {
+	var $=this;
 	id = +id;
 	return $.read([
 		{content: {ids: [id]}},

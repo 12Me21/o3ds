@@ -11,6 +11,7 @@ var scroller;
 var activityScroller;
 var lp = new LongPoller(me, null);
 var currentPage;
+var manager;
 flag('sidebar', localStorage.getItem('sbs-sidebar') != 'false');
 
 debugMessage = function(text) {
@@ -224,8 +225,9 @@ function ready() {
 		});
 	}
 	
-	scroller = new AutoScroller($messageList);
-	activityScroller = new AutoScroller($sidebarActivity);
+	/*scroller = new AutoScroller($messageList, 1000);*/
+	activityScroller = new AutoScroller($sidebarActivity, 500);
+	manager = new RoomManager($messageList);
 
 	hashChange(true);
 	/*$reload.onclick = function(){
@@ -309,11 +311,11 @@ function ready() {
 	if (localStorage.sidebarWidth)
 		$m.style.width = localStorage.sidebarWidth+"px";
 
-	attachResize($sidebarScroller, $sidebarPinnedResize, false, function(w) {
+	attachResize($sidebarActivity, $sidebarPinnedResize, false, function(w) {
 		localStorage.sidebarPinnedHeight = w;
 	});
 	if (localStorage.sidebarPinnedHeight)
-		$sidebarScroller.style.height = localStorage.sidebarPinnedHeight+"px";
+		$sidebarActivity.style.height = localStorage.sidebarPinnedHeight+"px";
 
 	
 /*	document.body.onclick = function(e) {
@@ -673,20 +675,17 @@ function onLogin(me) {
 	});
 	flag("loggedIn",true);
 	/*hashChange(false);*/
-	lp.onMessages = function(messages, users, pages) {
-	}
-	lp.onListeners = function(lists, users) {
-		updateUserlist($sidebarUserlist, lists[0], users);
-		if (onUserPage) {
-			$userPageStatus.textContent = decodeStatus(lp.lastListeners[0][onUserPage]) || "";
-		}
-	}
-	lp.onDelete = function(comments) {}
 	lp.onActivity = function(activity, users, pages) {
 		//check for updated users
 		activity.forEach(function(act) {
+			var id = act.contentId;
 			if (act.type=="user") {
 				userUpdated(users[act.contentId]);
+			}
+			if (act.type=="content" && manager.rooms[id]) {
+				me.getPage(id, function(page, users) {
+					manager.rooms[id].updatePage(page, users);
+				});
 			}
 		});
 	}
@@ -695,6 +694,31 @@ function onLogin(me) {
 	}
 	lp.onStatus = function(text) {
 		$longPollStatus.textContent = text;
+	}
+	lp.onListeners = function(lists, users) {
+		forDict(lists, function(list, id) {
+			if (manager.rooms[id]) {
+				manager.rooms[id].updateUserlist(list, users);
+			}
+		});
+		updateUserlist($sidebarUserlist, lists[0], users);
+		if (onUserPage) {
+			$userPageStatus.textContent = decodeStatus(lists[0][onUserPage]) || "";
+		}
+	}
+	lp.onMessages = function(messages, users, pages) {
+		messages.forEach(function(comment) {
+			if (manager.rooms[comment.parentId]) {
+				manager.rooms[comment.parentId].displayMessage(comment, users[comment.createUserId]);
+			}
+		})
+	}
+	lp.onDelete = function(comments) {
+		comments.forEach(function(comment) {
+			if (manager.rooms[comment.parentId]) {
+				manager.rooms.displayMessage({deleted: true, id:comment.id});
+			}
+		})
 	}
 	if (localStorage.globalStatus != null)
 		lp.statuses[0] = localStorage.globalStatus;
@@ -722,11 +746,12 @@ function onLogin(me) {
 						break;
 					}
 				}
-				pushActivity(renderNotifItem(aa, page, resp.userMap), true);
+				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true);*/
 			});
 		}
 	});
 }
+
 
 function userUpdated(user) {
 	[$chatUserlist, $sidebarUserlist].forEach(function(list) {
