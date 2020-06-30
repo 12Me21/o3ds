@@ -16,7 +16,7 @@
 <!--START-->
 <!-- this is where files will be inlined -->
 <link rel="stylesheet" href="fonts.css?a">
-<link rel="stylesheet" href="style.css?bd">
+<link rel="stylesheet" href="style.css?be">
 <link rel="stylesheet" href="markup.css?y">
 <link rel="stylesheet" href="code.css?a">
 
@@ -292,21 +292,23 @@
 			  -->
 		</div>
 		<div id="$sidebar">
-			<div>
-				<!--<div id="$sidebarResize" class="resize">&lt;-&gt;</div>-->
-				<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
-				<span class="loggedIn">
-					<span id="$longPollStatus"></span>
-				</span>
+			<div class="sidebarInside">
+				<div>
+					<!--<div id="$sidebarResize" class="resize">&lt;-&gt;</div>-->
+					<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
+					<span class="loggedIn">
+						<span id="$longPollStatus"></span>
+					</span>
+				</div>
+				<!--<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
+					 <input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
+					 <button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>-->
+				<div id="$sidebarActivity"></div>
+				<div id="$sidebarPinnedResize" class="resize">resize</div>
+				<div id="$sidebarUserlist" class="userlist bar rem1-5"></div>
+				<input placeholder="status" id="$globalStatusInput"><div class="buttonContainer"><button id="$globalStatusButton">Set Global Status</button></div>
+				<div id="$sidebarPinned" class="form"></div>
 			</div>
-			<!--<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
-				<input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
-				<button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>-->
-			<div id="$sidebarActivity"></div>
-			<div id="$sidebarPinnedResize" class="resize">resize</div>
-			<div id="$sidebarUserlist" class="userlist bar rem1-5"></div>
-			<input placeholder="status" id="$globalStatusInput"><div class="buttonContainer"><button id="$globalStatusButton">Set Global Status</button></div>
-			<div id="$sidebarPinned" class="form"></div>
 		</div>
 	</div>
 </body>
