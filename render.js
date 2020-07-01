@@ -261,7 +261,8 @@ function renderUserBlock(user, date) {
 	div.className = 'message';
 	div.setAttribute('data-uid', user.id);
 
-	var time = document.createElement('span');
+	var time = document.createElement('time');
+	time.setAttribute("datetime", date+"");
 	time.textContent = timeString(date);
 	time.className = 'messageTime'
 	div.appendChild(time);

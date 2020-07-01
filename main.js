@@ -305,13 +305,13 @@ function ready() {
 		setUserJS(css);
 	}
 
-	attachResize($m, $sidebarPinnedResize, true, function(w) {
+	attachResize($sidebar, $sidebarPinnedResize, true, -1, function(w) {
 		localStorage.sidebarWidth = w;
 	});
 	if (localStorage.sidebarWidth)
-		$m.style.width = localStorage.sidebarWidth+"px";
+		$sidebar.style.width = localStorage.sidebarWidth+"px";
 
-	attachResize($sidebarActivity, $sidebarPinnedResize, false, function(w) {
+	attachResize($sidebarActivity, $sidebarPinnedResize, false, 1, function(w) {
 		localStorage.sidebarPinnedHeight = w;
 	});
 	if (localStorage.sidebarPinnedHeight)

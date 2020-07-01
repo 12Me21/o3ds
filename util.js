@@ -152,7 +152,7 @@ if (!HTMLElement.prototype.remove) {
 if (!NodeList.prototype.forEach)
 	NodeList.prototype.forEach = Array.prototype.forEach;
 
-function attachResize(element, tab, horiz,cb) {
+function attachResize(element, tab, horiz,dir,cb) {
 	var startX,startY,held,startW,startH;
 	function getPos(e) {
 		if (e.touches)
@@ -177,8 +177,8 @@ function attachResize(element, tab, horiz,cb) {
 		if (!held)
 			return;
 		var pos = getPos(e);
-		var vx = pos.x - startX;
-		var vy = pos.y - startY;
+		var vx = (pos.x - startX) * dir;
+		var vy = (pos.y - startY) * dir;
 		if (horiz) {
 			element.style.width = startW+vx+"px";
 			cb(startW+vx)
