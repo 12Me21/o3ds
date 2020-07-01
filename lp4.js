@@ -118,11 +118,11 @@ LongPoller.prototype.refresh = function() {
 LongPoller.prototype.setViewing = function(id) {
 	if (this.viewing) {
 		delete this.lastListeners[this.viewing];
-		//this.statuses[this.viewing]="";
+		this.statuses[this.viewing]="";
 	}
 	if (id) {
 		this.lastListeners[id] = {"0":""};
-		//this.setStatus(id, "active");
+		this.setStatus(id, "active");
 	}
 	this.refresh();
 	if (this.viewing) {

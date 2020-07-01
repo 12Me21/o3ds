@@ -8,7 +8,7 @@
 	overflow-wrap: break-word;
 }
 /* may need more things here */
-.textItem, .item, .buttonContainer button, .avatar {
+.textItem, .item, .buttonContainer button, .avatar, tbody {
 	vertical-align: top;
 }
 /* all elements with user content, where whitespace should be preserved */
