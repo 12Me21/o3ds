@@ -763,7 +763,6 @@ ChatRoom.prototype.displayMessage = function(c, user, force) {
 		this.scroller.remove(c.id);
 	} else {
 		var should = this.scroller.shouldScroll();
-		console.log("SHOULD", should);
 		var node = renderMessagePart(c, function(){
 			if (should) {
 				$.scroller.autoScroll();

@@ -114,6 +114,7 @@ function fillCateditFields(cat) {
 	$cateditCategory.value = cat.parentId;
 	$cateditPermissions.value = JSON.stringify(cat.permissions);
 	$cateditDescription.value = cat.description;
+	$cateditLocalSupers.value = JSON.stringify(cat.localSupers);
 	generatePath(makeCategoryPath(me.categoryTree, cat.id));
 }
 
@@ -122,6 +123,7 @@ function readCateditFields(cat) {
 	cat.values.pinned = $cateditPinned.value;
 	cat.parentId = +$cateditCategory.value;
 	cat.permissions = parseJSON($cateditPermissions.value);
+	cat.localSupers = parseJSON($cateditLocalSupers.value);
 	cat.description = $cateditDescription.value;
 }
 
@@ -695,7 +697,10 @@ var views = {
 			} else {
 				linked = null;
 			}
-			if (manager.rooms[id].page) {
+			// (if logged out, never load pages from cache)
+			// (because we can't listen to activity so the data might be old)
+			// (it would be possible to show the (possibly old) cached data while page is loading, but this is for logged-out users, whatever)
+			if (me.auth && manager.rooms[id].page) {
 				callback(manager.rooms[id].page, manager.rooms[id].users, [], {});
 			} else {
 				return me.getPageAndComments(id, function(page, users, comments){
@@ -720,11 +725,10 @@ var views = {
 					icon = "hiddenpage"
 				setTitle(page.name, icon);
 				$watchCheck.checked = page.about.watching;
-				// todo: handle showing/hiding the vote box when logged in/out
+
 				manager.rooms[page.id].updatePage(page);
-				/*renderPageContents(page, $pageContents)*/
 				handleLoads(manager.rooms[page.id].pageElement);
-				//displayGap();
+				/*renderPageContents(page, $pageContents)*/
 				if (manager.rooms[page.id] && !manager.rooms[page.id].loaded) {
 					manager.rooms[page.id].page = page;
 					manager.rooms[page.id].users = users;
@@ -737,6 +741,7 @@ var views = {
 					manager.rooms[page.id].loaded = true;
 				}
 				$editButton.href = "#pages/edit/"+page.id;
+				// todo: handle showing/hiding the vote box when logged in/out
 				$voteCount_b.textContent = page.about.votes.b.count;
 				$voteCount_o.textContent = page.about.votes.o.count;
 				$voteCount_g.textContent = page.about.votes.g.count;
@@ -905,6 +910,14 @@ RoomManager.prototype.show = function(id) {
 	});
 }
 
+RoomManager.prototype.logOut = function() {
+	/*var $=this;
+	forDict($.rooms, function(room, rid) {
+		room.remove();
+		delete $.rooms[rid];
+	});*/
+}
+
 RoomManager.prototype.remove = function(id) {
 	if (this.rooms[id]) {
 		this.rooms[id].remove();
@@ -918,3 +931,21 @@ RoomManager.prototype.add = function(id) {
 	this.rooms[id] = room;
 	return room;
 }
+
+RoomManager.prototype.updateUser = function(user) {
+	forDict(this.rooms, function(room, rid) {
+		updateListAvatar(room.list, user);
+	});
+}
+
+//todo:
+// - should user pages, categories be cached too?
+// - should pages be cached by default, or only when pinned by the user?
+// - preload pinned pages when loading the site?
+// - save cached pages between tabs with localstorage (when available)?
+// - save pinned pages
+// - AAA KEEP IT SIMPLE!
+// - WE ARE NOT DOING CACHING!
+// - the purpose of this system was to eliminate load times when switching
+//   between CHAT ROOMS, not to cache CONTENT
+// - the pages are not CACHED, they are actively loaded/updated

@@ -675,7 +675,7 @@ function onLogin(me) {
 	});
 	flag("loggedIn",true);
 	/*hashChange(false);*/
-	lp.onActivity = function(activity, users, pages) {
+	lp.onActivity = function(activity, users, pages, chains) {
 		//check for updated users
 		activity.forEach(function(act) {
 			var id = act.contentId;
@@ -724,7 +724,6 @@ function onLogin(me) {
 		lp.statuses[0] = localStorage.globalStatus;
 	me.doListenInitial(function(e, resp){
 		if (!e) {
-			console.log(resp.activityaggregate);
 			resp.systemaggregate.forEach(function(item) {
 				if (item.type == "actionMax")
 					lp.lastId = item.id;
@@ -752,13 +751,15 @@ function onLogin(me) {
 	});
 }
 
+function updateListAvatar(list, user) {
+	var e = list.querySelector('[data-uid="'+user.id+'"]');
+	if (e)
+		list.replaceChild(renderUserListAvatar(user), e);
+}
 
 function userUpdated(user) {
-	[$chatUserlist, $sidebarUserlist].forEach(function(list) {
-		var e = list.querySelector('[data-uid="'+user.id+'"]');
-		if (e)
-			list.replaceChild(renderUserListAvatar(user), e);
-	});
+	updateListAvatar($sidebarUserlist, user);
+	manager.updateUser(user);
 	if (user.id == me.uid) {
 		$myAvatar.src = user.avatarURL;
 	}
@@ -796,6 +797,8 @@ function displayActivity(activity, users, scroll) {
 
 function onLogout() {
 	lp.stop();
+	if (manager)
+		manager.logOut();
 	$myAvatar.src = "";
 	$myName.textContent = "";
 	flag("loggedIn");

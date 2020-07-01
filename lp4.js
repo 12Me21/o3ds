@@ -77,7 +77,7 @@ LongPoller.prototype.loop = function() {
 						$.onMessages.call(this, resp.chains.comment, resp.chains.userMap, pageMap);
 					}
 					if (resp.chains.activity) {
-						$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap);
+						$.onActivity.call(this, resp.chains.activity, resp.chains.userMap, pageMap, resp.chains);
 				}
 					if (resp.chains.commentdelete)
 						$.onDelete.call(this, resp.chains.commentdelete);
@@ -118,12 +118,11 @@ LongPoller.prototype.refresh = function() {
 LongPoller.prototype.setViewing = function(id) {
 	if (this.viewing) {
 		delete this.lastListeners[this.viewing];
-		console.log("setting old status to ''");
-		this.statuses[this.viewing]="";
+		//this.statuses[this.viewing]="";
 	}
 	if (id) {
 		this.lastListeners[id] = {"0":""};
-		this.setStatus(id, "active");
+		//this.setStatus(id, "active");
 	}
 	this.refresh();
 	if (this.viewing) {

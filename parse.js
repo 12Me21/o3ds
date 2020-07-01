@@ -617,9 +617,10 @@ var Parse = {
 				//==========
 				// \ escape
 			} else if (eatChar("\\")) {
-				if (c == "\n")
-					addLineBreak();
-				else
+				if (c == "\n") {
+					flushText();
+					addBlock(options.lineBreak());
+				} else
 					addText(c);
 				scan();
 				//===============
@@ -1140,7 +1141,7 @@ var Parse = {
 		
 	}
 
-	Parse.lang.bbcode = function(codeArg, preview, elem) {
+	Parse.lang.bbcode = function(codeArg, preview, element) {
 		var noNesting = {
 			spoiler:true
 		};

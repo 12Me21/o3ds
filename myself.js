@@ -603,7 +603,7 @@ Myself.prototype.doListen = function(lastId, statuses, lastListeners, clearNotif
 		chains: [
 			"comment.0id",'activity.0id-{"includeAnonymous":true}',"watch.0id", //new stuff //changed
 			"content.1parentId.2contentId.3contentId", //pages
-			"user.1createUserId.2userId.1editUserId", //users for comment and activity
+			"user.1createUserId.2userId.1editUserId.2contentId", //users for comment and activity
 			"category.2contentId" //todo: handle values returned by this
 		]
 	}
@@ -937,8 +937,3 @@ function updateCategoryTree(tree, categories) {
 // but none of this will ever really work because
 // field filtering, etc.
 // nothing   is real
-
-
-
-
-
