@@ -228,6 +228,19 @@ function renderCategoryPage(page, users, pinned) {
 	return div;
 }
 
+function renderLinkButton(text, url) {
+	var div = document.createElement('div');
+	div.className = "buttonContainer";
+	var a = document.createElement('a');
+	a.href = url;
+	var btn = document.createElement('button');
+	btn.setAttribute('tabindex', -1);
+	btn.textContent = text;
+	div.appendChild(a);
+	a.appendChild(btn);
+	return div;
+}
+
 // HH:MM AM/PM
 function timeString(date) {
 	if (new Date()-date > 1000*60*60*12) {
@@ -573,6 +586,9 @@ function parser(markup) {
 // Based on sbs chat autoscroller
 function AutoScroller(element, limit) {
 	this.element = element;
+	this.inner = document.createElement('div');
+	element.appendChild(this.inner);
+	this.inner.className = "scrollInner";
 	this.smoothScroll = true;
 	this.nodes = {};
 	this.blocks = {};
@@ -636,10 +652,10 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
 	
 	if (id == null) {
-		this.element.appendChild(node);
+		this.inner.appendChild(node);
 		this.count++;
 	} else {
-		var lastUidBlock = this.element.lastChild;
+		var lastUidBlock = this.inner.lastChild;
 		if (lastUidBlock) {
 			var lastUid = lastUidBlock.getAttribute('data-uid');
 			if (!lastUid)
@@ -659,7 +675,7 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 		} else {
 			var b = makeBlock();
 			b[1].appendChild(node);
-			this.element.appendChild(b[0]);
+			this.inner.appendChild(b[0]);
 		}
 		this.nodes[id] = node;
 		this.count++;
@@ -687,7 +703,7 @@ AutoScroller.prototype.remove = function(id) {
 // in the future you might, if this is properly connected to a LongPoller,
 // cache messages when switching rooms, or something
 AutoScroller.prototype.switchRoom = function(id) {
-	this.element.innerHTML = "";
+	this.inner.innerHTML = "";
 	this.count = 0;
 	this.nodes = {};
 	// probably needs more cleanup
@@ -695,7 +711,7 @@ AutoScroller.prototype.switchRoom = function(id) {
 
 AutoScroller.prototype.embed = function(node) {
 	var s = this.shouldScroll();
-	this.element.appendChild(node);
+	this.inner.appendChild(node);
 	this.count++;
 	this.trimOld();
 	if (s)
@@ -704,7 +720,7 @@ AutoScroller.prototype.embed = function(node) {
 
 AutoScroller.prototype.trimOld = function() {
 	if (this.limit && this.count > this.limit) {
-		if (this.element.firstChild.getAttribute("data-uid")) {
+		if (this.inner.firstChild.getAttribute("data-uid")) {
 			// normal user-block
 			for (id in this.nodes) {
 				this.remove(id);
@@ -712,27 +728,30 @@ AutoScroller.prototype.trimOld = function() {
 			}
 		} else {
 			// standalone element
-			this.element.firstChild.remove();
+			this.inner.firstChild.remove();
 			this.count--;
 		}
 	}
 }
 
 function ChatRoom() {
-	var box = document.createElement('div');
-	box.className = "chatPane";
+	this.element = document.createElement('div');
+	this.element.className = "chatPane";
+
+	this.list = document.createElement('div');
+	this.list.className = "rem2-3 bar userlist";
+	this.element.appendChild(this.list);
+
 	var scrollerBox = document.createElement('div');
 	var scroller = document.createElement('div');
 	scroller.className="chatScroller";
 	scrollerBox.appendChild(scroller);
-	this.list = document.createElement('div');
-	this.list.className = "rem2-3 bar userlist";
-	box.appendChild(this.list);
-	box.appendChild(scroller);
+	this.element.appendChild(scroller);
+	
 	this.scroller = new AutoScroller(scroller);
-	this.element = box;
 	this.pageElement = document.createElement('div');
-	this.scroller.element.appendChild(this.pageElement);
+	this.scroller.element.insertBefore(this.pageElement, this.scroller.inner);
+	
 	this.hide();
 }
 

@@ -648,13 +648,6 @@ var views = {
 			
 			$userPageAvatar.src = "";
 			$userActivity.innerHTML = "";
-			if (page) {
-				$editButton.href = "#pages/edit/"+page.id;
-				flag('canEdit', true);
-			} else if (id == me.uid) {
-				$editButton.href = "#pages/edit?type=@user.page&name="+encodeURIComponent(me.me.username+"'s User Page");
-				flag('canEdit', true);
-			}
 			if (user) {
 				onUserPage = user.id;
 				generatePath([["#users","Users"], ["#user/"+id, user.username]]);
@@ -663,6 +656,12 @@ var views = {
 				setTitle(user.username);
 				if (page) {
 					renderPageContents(page, $userPageContents)
+					$editButton.href = "#pages/edit/"+page.id;
+					flag('canEdit', true);
+				} else if (user.id == me.uid) {
+					$userPageContents.innerHTML = "";
+					$userPageContents.appendChild(renderLinkButton("Create User Page", "#pages/edit?type=@user.page&name="+encodeURIComponent(me.me.username+"'s User Page")));
+					flag('canEdit', false);
 				} else {
 					$userPageContents.innerHTML = "";
 				}
@@ -923,6 +922,8 @@ RoomManager.prototype.remove = function(id) {
 		this.rooms[id].remove();
 		delete this.rooms[id];
 	}
+	// todo: this gets called when a room is deleted, but doesn't remove sidebar link
+	// need to handle that too
 }
 
 RoomManager.prototype.add = function(id) {

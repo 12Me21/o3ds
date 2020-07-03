@@ -344,10 +344,11 @@ header > :first-child {
 
 .m {
 	width:100%;
-	-webkit-flex-grow: 0;
-	flex-grow: 0;
 	display: -webkit-flex;
 	display: flex;
+	flex-grow: 1;
+	flex-shrink: 0;
+	flex-basis: 0;
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	/*overflow-y: hidden; /* mmm */
@@ -356,12 +357,13 @@ header > :first-child {
 #\$sidebar {
 	display: flex;
 	flex-direction: column;
-	flex-grow: 1;
-	flex-shrink: 0;
-	flex-basis: 0;
+	-webkit-flex-grow: 0;
+	flex-grow: 0;
 	border-left: 2px solid black;
 	overflow:auto;
 	background-color: white;
+	width: 30vw;
+	min-width: 10vw;
 }
 
 html:not(.f-sidebar) #\$sidebar {
@@ -369,8 +371,6 @@ html:not(.f-sidebar) #\$sidebar {
 }
 
 html.f-sidebar .m {
-	max-width: 90vw;
-	width: 70vw;
 	overflow:auto;
 }
 
@@ -617,6 +617,7 @@ html:not(.f-editingComment) .showWhenEdit {
 .inputPane {
 	height: 3.25rem;
 	overflow-y: hidden;
+	border-top: 1px solid gray;
 }
 
 #\$chatTextarea {
@@ -1165,4 +1166,8 @@ body.pageMode main {
 
 .chatScroller {
 	height: 100vh;
+}
+
+.chatScroller > .scrollInner {
+	padding-bottom: 0.5rem;
 }

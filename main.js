@@ -683,9 +683,13 @@ function onLogin(me) {
 				userUpdated(users[act.contentId]);
 			}
 			if (act.type=="content" && manager.rooms[id]) {
-				me.getPage(id, function(page, users) {
-					manager.rooms[id].updatePage(page, users);
-				});
+				if (act.action=="d") {
+					manager.remove(id);
+				} else {
+					me.getPage(id, function(page, users) {
+						manager.rooms[id].updatePage(page, users);
+					});
+				}
 			}
 		});
 	}
@@ -765,7 +769,7 @@ function userUpdated(user) {
 	}
 }
 
-//todo: commentdelete
+// display activity data in sidebar
 function sbm(resp, scroll) {
 	if (!(resp.comment && resp.content && resp.activity))
 		return;
@@ -804,9 +808,6 @@ function onLogout() {
 	flag("loggedIn");
 }
 
-// maybe at bottom of sidebar (or top?)
-// put list of active pages
-//
 // also still need to deal with
 // old message deletion and old room clearing
 // ugh
