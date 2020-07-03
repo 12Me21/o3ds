@@ -46,6 +46,7 @@ sub {vertical-align: sub;}
 .ellipsis {
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: pre !important;
 }
 
 .ellipsis * {
