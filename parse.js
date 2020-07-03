@@ -347,7 +347,8 @@ var Parse = {
 	/***********
 	 ** STATE **
     ***********/
-	var c,i,cache = {video:{},audio:{},youtube:{}},code;
+	var c,i,cache = null,code;
+	var editorCache = {video:{},audio:{},youtube:{}};
 	var skipNextLineBreak;
 	var textBuffer;
 	var curr, output;
@@ -368,11 +369,12 @@ var Parse = {
 	function init(scanFunc, myBlocks, text, element) {
 		scan = scanFunc;
 		code = text;
-		for (type in cache)
-			for (arg in cache[type])
-				cache[type][arg].forEach(function(x){
-					x.used = false;
-				});
+		if (cache)
+			for (type in cache)
+				for (arg in cache[type])
+					cache[type][arg].forEach(function(x){
+						x.used = false;
+					});
 		blocks = myBlocks;
 		leadingSpaces = 0;
 		startOfLine = true;
@@ -507,14 +509,6 @@ var Parse = {
 	/*****************
     ** cache stuff **
     *****************/
-	function markCacheUnused() {
-		for (type in cache)
-			for (arg in cache[type])
-				cache[type][arg].forEach(function(x){
-					x.used = false;
-				});
-	}
-	
 	function findUnusedCached(cache, type, arg) {
 		var list = cache[type][arg]
 		if (!list)
@@ -555,7 +549,6 @@ var Parse = {
 	// will get nodes where `type` and `arg` matches
 	// if not found, returns make(), and adds to cache
 	function tryGetCached(cache, type, arg, make) {
-		console.log("cache get", type, arg);
 		var node;
 		if (cache && type && cache[type]) {
 			var item = findUnusedCached(cache, type, arg);
@@ -1422,12 +1415,17 @@ var Parse = {
 		return root.node;
 	}
 	
-	Parse.parseLang = function(text, lang, element) {
+	Parse.parseLang = function(text, lang, element, preview) {
 		if (element) {
 			element.innerHTML = "";
 		}
 		i=0;
 		code = text;
+		if (preview) {
+			cache = editorCache;
+		} else {
+			cache = null;
+		}
 		try {
 			var parser = Parse.lang[lang] || Parse.fallback;
 			return parser(text, false, element);
