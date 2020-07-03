@@ -530,7 +530,7 @@ var Parse = {
 		data.type = type;
 		if (type) {
 			
-			var node = tryGetCached(cache, type, arg, function() {
+			var node = tryGetCached(cache, type, arg[""], function() {
 				return blocks[type](arg);
 			});
 			data.node = node;
@@ -555,6 +555,7 @@ var Parse = {
 	// will get nodes where `type` and `arg` matches
 	// if not found, returns make(), and adds to cache
 	function tryGetCached(cache, type, arg, make) {
+		console.log("cache get", type, arg);
 		var node;
 		if (cache && type && cache[type]) {
 			var item = findUnusedCached(cache, type, arg);
