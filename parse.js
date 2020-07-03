@@ -524,7 +524,7 @@ var Parse = {
 		data.type = type;
 		if (type) {
 			
-			var node = tryGetCached(cache, type, arg[""], function() {
+			var node = tryGetCached(cache, type, arg && arg[""], function() {
 				return blocks[type](arg);
 			});
 			data.node = node;
