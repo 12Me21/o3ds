@@ -1156,6 +1156,7 @@ body.pageMode main {
 	flex-basis: 0;
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
+	height: 300px;
 }
 
 .chatPane {
@@ -1168,6 +1169,7 @@ body.pageMode main {
 .messageList {
 	-webkit-flex-grow: 1;
 	flex-grow:1;
+	flex-basis: 0;
 }
 
 #\$sidebarPinned {
