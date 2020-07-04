@@ -976,8 +976,6 @@ html:not(.f-fileUploading) .fileUploading {
 	flex-grow: 1;
 	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
-	-webkit-flex-basis: 0;
-	flex-basis: 0;
 	overflow-y: auto;
 }
 #\$sidebarActivity {
