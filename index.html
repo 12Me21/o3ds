@@ -59,8 +59,8 @@
 		</div>
 	</header>
 
-	<div class="sideBarContainer" id="$sidebarContainer">
-		<div class="m" id="$m">
+	<div class="sideBarContainer grow" id="$sidebarContainer">
+		<div class="m grow" id="$m">
 			<div class="infoPane editorMode">
 				<label for="$keywords">Keywords:</label><input placeholder="(space separated, optional)" id="$keywords"><br>
 				<label for="$editPageType">Type:</label><input placeholder="@" id="$editPageType"><br>
@@ -155,7 +155,7 @@
 				 one of them will be visible at a time, depending on the view mode
 			  -->
 			
-			<main>
+			<main class="grow">
 				<div class="cateditMode">
 					<label for="$cateditPinned">Pinned pages:</label><input id="$cateditPinned"><br>
 					<label for="$cateditCategory">Parent category:</label><input id="$cateditCategory" type="number"><br>
@@ -194,7 +194,7 @@
 					<div class="editorTextarea">
 						<textarea id="$editorTextarea" minlength="2" required=""></textarea>
 					</div>
-					<div class="editorPreview" id="$editorPreview"><div class="markup-root" ></div></div>
+					<div class="editorPreview grow" id="$editorPreview"><div class="markup-root" ></div></div>
 				</div>
 				
 				<div class="homeMode homePane">
@@ -261,7 +261,7 @@
 				</div>
 
 
-				<div class="fileMode fileViewPane">
+				<div class="fileMode fileViewPane grow">
 					<img id="$fileView" class="fileView">
 				</div>
 
@@ -273,7 +273,7 @@
 				
 				<div class="bottomSpacer"></div>
 			
-			<div id="$messageList" class="messageList pageChatMode">
+			<div id="$messageList" class="messageList pageChatMode grow">
 			</div>
 			</main>
 			<div class="inputPane pageChatMode">

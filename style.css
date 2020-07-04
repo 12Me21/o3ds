@@ -11,6 +11,16 @@
 .textItem, .item, .buttonContainer button, .avatar, tbody {
 	vertical-align: top;
 }
+
+.grow {
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	-webkit-flex-shrink: 1;
+	flex-shrink: 1;
+	-webkit-flex-basis: 0;
+	flex-basis: 0;
+}
+
 /* all elements with user content, where whitespace should be preserved */
 .pre {
 	white-space: pre-wrap;
@@ -336,10 +346,6 @@ header > :first-child {
 	display: -webkit-flex;
 	-webkit-flex-direction: row;
 	flex-direction: row;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	-webkit-flex-shrink: 1;
-	flex-shrink: 1;
 	overflow-x: hidden;
 }
 
@@ -347,12 +353,6 @@ header > :first-child {
 	width:100%;
 	display: -webkit-flex;
 	display: flex;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	-webkit-flex-shrink: 0;
-	flex-shrink: 0;
-	-webkit-flex-basis: 0;
-	flex-basis: 0;
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	/*overflow-y: hidden; /* mmm */
@@ -392,15 +392,8 @@ main {
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	overflow-y: auto;
-	-webkit-flex-basis: 0;
-	flex-basis: 0;
-
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	-webkit-flex-shrink: 1;
-	flex-shrink: 1;
-
-	min-height: 100px;
+	
+	
 	/*padding: 0.5rem;*/
 	/*overflow-y: scroll;*/
 	
@@ -666,13 +659,7 @@ html:not(.f-editingComment) .showWhenEdit {
 }
 
 .editorPreview {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
-	-webkit-flex-shrink: 1;
-	flex-shrink: 1;
 	overflow-y: auto;
-	-webkit-flex-basis: 0;
-	flex-basis: 0;
 	min-height: 4rem;
 }
 
@@ -887,11 +874,7 @@ html:not(.f-page) .pageItem {
 }
 
 .fileViewPane {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
 	overflow: auto;
-	-webkit-flex-basis: 0;
-	flex-basis: 0;
 }
 
 html:not(.f-fileSelected) .fileSelected {
@@ -1152,10 +1135,6 @@ body.pageMode main {
 
 .chatScroller {
 	overflow-y: scroll;
-	-webkit-flex-basis: 0;
-	flex-basis: 0;
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
 	height: 300px;
 }
 
@@ -1164,12 +1143,6 @@ body.pageMode main {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-}
-
-.messageList {
-	-webkit-flex-grow: 1;
-	flex-grow:1;
-	flex-basis: 0;
 }
 
 #\$sidebarPinned {

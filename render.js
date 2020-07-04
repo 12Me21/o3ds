@@ -741,7 +741,7 @@ function ChatRoom() {
 
 	var scrollerBox = document.createElement('div');
 	var scroller = document.createElement('div');
-	scroller.className="chatScroller";
+	scroller.className="chatScroller grow";
 	scrollerBox.appendChild(scroller);
 	this.element.appendChild(scroller);
 	
