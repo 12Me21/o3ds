@@ -349,7 +349,9 @@ header > :first-child {
 	display: flex;
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 	-webkit-flex-direction: column;
 	flex-direction: column;
@@ -357,6 +359,7 @@ header > :first-child {
 }
 
 #\$sidebar {
+	display: -webkit-flex;
 	display: flex;
 	flex-direction: column;
 	-webkit-flex-grow: 0;
@@ -389,6 +392,7 @@ main {
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	overflow-y: auto;
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 
 	-webkit-flex-grow: 1;
@@ -507,6 +511,7 @@ main {
 .userlist {
 	background-color: #EEE;
 	border-bottom: 1px solid gray;
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
@@ -741,6 +746,7 @@ html:not(.f-editingComment) .showWhenEdit {
 
 .userPageBox .pageContents {
 	/*width: 10rem;*/
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 }
 
@@ -778,6 +784,7 @@ html:not(.f-myUserPage) .myUserPage {
 	}
 	.userPageBox .userPageContents {
 		width: 100%;
+		-webkit-flex-basis: auto;
 		flex-basis: auto;
 	}
 }
@@ -800,6 +807,7 @@ html:not(.f-myUserPage) .myUserPage {
 .pageInfoPane {
 	background-color: #EEE;
 	overflow: auto;
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
@@ -882,6 +890,7 @@ html:not(.f-page) .pageItem {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 	overflow: auto;
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 }
 
@@ -895,6 +904,7 @@ html:not(.f-fileUploading) .fileUploading {
 
 .fileBox {
 	border-bottom: 1px solid gray;
+	-webkit-flex-shrink: 0;
 	flex-shrink: 0;
 }
 
@@ -964,11 +974,14 @@ html:not(.f-fileUploading) .fileUploading {
 #\$sidebarPinned {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
+	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 	overflow-y: auto;
 }
 #\$sidebarActivity {
+	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
 	overflow-y: scroll;
 	border-top: 1px solid gray;
@@ -998,6 +1011,7 @@ html:not(.f-fileUploading) .fileUploading {
 }
 
 .sidebarInside{
+	display: -webkit-flex;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -1021,6 +1035,7 @@ html:not(.f-fileUploading) .fileUploading {
 	}
 	html.f-mobileSidebar #\$sidebar {
 		display: block; /* for devices without flex */
+		display: -webkit-flex;
 		display: flex;
 		border-left: none;
 		/*position: fixed;*/
@@ -1132,18 +1147,21 @@ table {
 }
 
 body.pageMode main {
+	display: -webkit-flex;
 	display: flex;
 	height: 100%;
 }
 
 .chatScroller {
 	overflow-y: scroll;
+	-webkit-flex-basis: 0;
 	flex-basis: 0;
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
 }
 
 .chatPane {
+	display: -webkit-flex;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
