@@ -568,9 +568,18 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 
 Myself.prototype.setVariable = function(name, value, callback) {
 	var s = new String(value);
-	s.constructor = Object;
+	s.constructor = Object; // this is to make my request function convert to json lol
 	return this.request("Variable/"+name, 'POST', callback, s);
 }
+
+Myself.prototype.getVariables = function(names, callback) {
+	var $=this;
+	return $.request("Variable/multi"+queryString({keys:names}), 'GET', function(e, resp) {
+		if (!e)
+			$.cb(callback, resp);
+	});
+};
+
 
 Myself.prototype.getVariable = function(name, callback) {
 	var $=this;

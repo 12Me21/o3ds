@@ -28,6 +28,7 @@ function setUserCSS(text) {
 	$userCSS.textContent = text;
 }
 function setUserJS(text) {
+	
 	try {
 		eval(text);
 	} catch(e) {
@@ -55,14 +56,12 @@ function ready() {
 	me.onLogin = onLogin;
 	me.onLogout = onLogout;
 
-	me.getVariable("userCSS", function(css) {
-		if (css != null)
-			setUserCSS(css);
-	});
-	
-	me.getVariable("userJS", function(css) {
-		if (css != null)
-			setUserJS(css);
+	console.error("Failed to load resource: the server responded with a status of 404 (Not Found)"); // wwww
+	me.getVariables(["userCSS", "userJS"], function(vars) {
+		if (vars.userCSS != null)
+			setUserCSS(vars.userCSS);
+		if (vars.userJS != null)
+			setUserJS(vars.userJS);
 	});
 	
 	$loginForm.$login.onclick = function(e) {

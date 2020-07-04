@@ -869,6 +869,13 @@ var views = {
 				generateAuthorBox();
 				generatePath([["#usersettings","Settings"]]);
 				setTitle("User Settings: " + user.username);
+				me.getVariables(["userCSS", "userJS"], function(vars) {
+					console.log(vars);
+					if (vars.userCSS != null)
+						$settingsUserCSS.value = vars.userCSS;
+					if (vars.userJS != null)
+						$settingsUserJS.value = vars.userJS;
+				});
 			} else {
 				$main.className = "errorMode";
 				setTitle("WHAT IS YOUR NAME?");
