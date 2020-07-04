@@ -4,6 +4,7 @@ function LongPoller(myself) {
 	this.lastListeners = {"0":{"0":""}};
 	this.lastId = -1;
 	this.statuses = {"0":"online"};
+	this.defaultStatus = "active";
 	//this.counter = 1;
 }
 
@@ -12,6 +13,7 @@ LongPoller.prototype.start = function() {
 }
 
 LongPoller.prototype.setGlobalStatus = function(text) {
+	this.defaultStatus = text;
 	if (text == undefined) {
 		this.statuses[0] = "";
 	} else {
@@ -127,11 +129,12 @@ LongPoller.prototype.refresh = function() {
 LongPoller.prototype.setViewing = function(id) {
 	if (this.viewing) {
 		delete this.lastListeners[this.viewing];
-		this.statuses[this.viewing]="";
+		if (this.statuses[this.viewing] != undefined)
+			this.statuses[this.viewing]="";
 	}
 	if (id) {
 		this.lastListeners[id] = {"0":""};
-		this.setStatus(id, "active");
+		this.setStatus(id, this.defaultStatus);
 	}
 	this.refresh();
 	if (this.viewing) {
