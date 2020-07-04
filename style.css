@@ -1006,7 +1006,8 @@ html:not(.f-fileUploading) .fileUploading {
 		
 	}
 	#\$sidebar {
-		 overflow-y: auto;
+		overflow-y: auto;
+		width: 100% !important;
 	}
 	.closeSidebar {
 		display: block;
@@ -1030,7 +1031,6 @@ html:not(.f-fileUploading) .fileUploading {
 		display: none;
 	}
 	.m {
-		width: 100% !important;
 		max-width: 100% !important;
 	}
 	#\$sidebarActivity {
