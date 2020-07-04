@@ -375,13 +375,13 @@ function ready() {
 		}
 	});
 	
-	$sidebar.onclick = function(e) {
+	/*$sidebar.onclick = function(e) {
 		if (e.target == $sidebarPinnedResize)
 			return
 		if (isFullscreenSidebar() && flags.mobileSidebar) {
 			toggleSidebar();
 		}
-	}
+	}*/
 
 	$permissionAddButton.onclick = function() {
 		var uid = +$permissionUserInput.value;
@@ -485,6 +485,9 @@ function silentSetFragment(fragment) {
 
 // todo: add a "force" flag
 function hashChange(first) {
+	if (isFullscreenSidebar() && flags.mobileSidebar) {
+		toggleSidebar();
+	}
 	var fragment = getPath();
 	// append # to the end of fragment links,
 	// and it will be removed, so every time you clikc the link it will scroll
