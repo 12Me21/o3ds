@@ -321,6 +321,11 @@ function addEvents() {
 			var room = manager.rooms[currentChatRoom];
 			if (room) {
 				room.status = $currentStatus.value;
+				lp.statuses[currentChatRoom] = room.status;
+				lp.refresh();
+				if (!$currentStatus.value) {
+					delete lp.statuses[currentChatRoom];
+				}
 			}
 		}
 	}
@@ -329,7 +334,4 @@ function addEvents() {
 		lp.setGlobalStatus(status);
 		optionalStorage.set('globalStatus', status || "");
 	}
-
-
-	
 }
