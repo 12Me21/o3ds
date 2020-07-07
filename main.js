@@ -339,6 +339,8 @@ function generateAuthorBox(page, users) {
 }
 
 function decodeStatus(status) {
+	if (!status)
+		return status;
 	var i = status.indexOf("\n");
 	if (i>=0)
 		return status.substr(i+1);
@@ -385,9 +387,9 @@ function onLogin(me) {
 				manager.rooms[id].updateUserlist(list, users);
 			}
 		});
-		updateUserlist($sidebarUserlist, lists[0], users);
+		updateUserlist($sidebarUserlist, lists[-1], users);
 		if (onUserPage) {
-			$userPageStatus.textContent = decodeStatus(lists[0][onUserPage]) || ""; //um why is this .. error     hhhh
+			$userPageStatus.textContent = decodeStatus(lists[-1][onUserPage]) || ""; //um why is this .. error     hhhh
 		}
 	}
 	lp.onMessages = function(messages, users, pages) {

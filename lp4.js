@@ -1,9 +1,9 @@
 function LongPoller(myself) {
 	this.myself = myself;
 	this.cancel = [function(){}];
-	this.lastListeners = {"0":{"0":""}};
+	this.lastListeners = {"-1":{"0":""}};
 	this.lastId = -1;
-	this.statuses = {"0":"online"};
+	this.statuses = {"-1":"online","0":"online"};
 	this.defaultStatus = "active";
 	//this.counter = 1;
 }
@@ -15,12 +15,16 @@ LongPoller.prototype.start = function() {
 LongPoller.prototype.setGlobalStatus = function(text) {
 	if (text == undefined) {
 		this.statuses[0] = "";
+		this.statuses[-1] = "";
 	} else {
 		this.statuses[0] = text;
+		this.statuses[-1] = text;
 	}
 	this.refresh();
-	if (text == undefined)
+	if (text == undefined) {
 		delete this.statuses[0];
+		delete this.statuses[-1];
+	}
 }
 	
 LongPoller.prototype.setState = function(text, state) {
@@ -28,12 +32,6 @@ LongPoller.prototype.setState = function(text, state) {
 	if (this.onStatus)
 		this.onStatus.call(this, text);
 }
-
-/*LongPoller.prototype.updateAvatar = function() {
-	this.setStatus(-1, ""+this.counter);
-	this.counter++;
-	this.refresh();
-}*/
 
 LongPoller.prototype.setStatus = function(id, status) {
 	if (status == null)
