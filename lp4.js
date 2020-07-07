@@ -58,7 +58,6 @@ LongPoller.prototype.loop = function() {
 	// every value in .statuses is also in .lastListeners
 	// so we can sync clients and avoid status fighting
 	var cancelled;
-	console.log("MAKING REQUEST. lastlisteners:", $.lastListeners);
 	var x = $.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
 		if (cancelled) {
 			console.warn("long poller tried to run after being aborted!");
@@ -70,7 +69,6 @@ LongPoller.prototype.loop = function() {
 			if (!e) {
 				$.lastId = resp.lastId;
 				if (resp.listeners) {
-					console.log("GOT LISTENERS:",resp.listeners);
 					$.lastListeners = resp.listeners;
 					$.onListeners.call(this, resp.listeners, resp.chains.userMap);
 				}
@@ -104,7 +102,7 @@ LongPoller.prototype.loop = function() {
 		} else {
 			$.setState("Error!", false);
 			alert("LONG POLLER FAILED:"+resp);
-			console.log("LONG POLLED FAILED", e, resp);
+			console.log("LONG POLLER FAILED", e, resp);
 		}
 	});
 	this.cancel[0] = function() {
