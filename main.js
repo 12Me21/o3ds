@@ -65,7 +65,7 @@ function ready() {
 	addEvents();
 	
 	activityScroller = new AutoScroller($sidebarActivity, 500);
-	manager = new RoomManager($messageList);
+	manager = new RoomManager($messageList, lp);
 
 	hashChange(true);
 	
@@ -394,9 +394,7 @@ function onLogin(me) {
 	}
 	lp.onMessages = function(messages, users, pages) {
 		messages.forEach(function(comment) {
-			if (manager.rooms[comment.parentId]) {
-				manager.rooms[comment.parentId].displayMessage(comment, users[comment.createUserId]);
-			}
+			manager.displayMessage(comment, users);
 		})
 	}
 	lp.onDelete = function(comments) {

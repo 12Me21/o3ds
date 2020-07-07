@@ -805,27 +805,34 @@ function addPinned(page) {
 	}))
 }
 
-function RoomManager(element) {
+function RoomManager(element, poller) {
 	this.element = element;
 	this.rooms = {};
+	this.lp = poller;
 }
 
 RoomManager.prototype.updateStatuses = function(id) {
-	lp.setListening([id]);
+	this.lp.setListening([id]);
 	forDict(this.rooms, function(room, rid) {
 		if (id != rid)
-			if (lp.statuses[rid])
-				lp.statuses[rid] = ""
+			if (this.lp.statuses[rid])
+				this.lp.statuses[rid] = ""
 	});
-	lp.refresh();
+	this.lp.refresh();
 	forDict(this.rooms, function(room, rid) {
 		if (id != rid) {
-			if (lp.statuses[rid] = "")
-				delete lp.statuses[rid];
+			if (this.lp.statuses[rid] = "")
+				delete this.lp.statuses[rid];
 			room.hide();
 		} else
 			room.show();
 	});
+}
+
+RoomManager.prototype.displayMessage = function(comment, users) {
+	var room = this.rooms[comment.parentId]
+	if (room)
+		room.displayMessage(comment, users[comment.createUserId]);
 }
 
 RoomManager.prototype.show = function(id) {
