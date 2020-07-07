@@ -766,11 +766,17 @@ ChatRoom.prototype.updatePage = function(page, users) {
 }
 
 ChatRoom.prototype.hide = function() {
+	if (this.element.style.display != "none")
+		this.atBottom = this.scroller.shouldScroll();
 	this.element.style.display = "none";
 }
 
 ChatRoom.prototype.show = function() {
 	this.element.style.display = "";
+	if (this.atBottom) {
+		this.scroller.autoScroll(true);
+		this.atBottom = null;
+	}
 }
 
 ChatRoom.prototype.remove = function() {
