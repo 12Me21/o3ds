@@ -147,7 +147,8 @@ var Parse = {
 		// nodes with children
 		root: function(element) {
 			var node = element || create('div');
-			node.className = 'markup-root';
+			if (!element)
+				node.className = 'markup-root';
 			return {block:true, node:node};
 		},
 		bold: creator('b'),

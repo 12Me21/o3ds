@@ -66,76 +66,6 @@ function newPage(query) {
 	};
 }
 
-function fillEditorFields(page, users) {
-	$titleInput.value = page.name || "";
-	if (page.values)
-		var markup = page.values.markupLang;
-	if (!markup)
-		markup = "12y";
-	$markupSelect.value = markup;
-	if (page.content)
-		$editorTextarea.value = page.content;
-	updateEditorPreview();
-	$keywords.value = page.keywords.join(" ");
-	/*$permissions.value = JSON.stringify(page.permissions);*/
-	fillPermissionFields($permissionBox, page.permissions, users);
-	$editPageType.value = page.type;
-	$editPageCategory.value = page.parentId;
-	
-	generatePagePath(page, me.userCache); //usercache is hack lol
-}
-
-function readEditorFields(page) {
-	page.name = $titleInput.value;
-	page.values.markupLang = $markupSelect.value;
-	page.keywords = $keywords.value.split(" ");
-	page.permissions = readPermissionFields($permissionBox);//JSON.parse($permissions.value);
-	page.type = $editPageType.value;
-	page.content = $editorTextarea.value;
-	page.parentId = +$editPageCategory.value;
-}
-
-function newCategory(query) {
-	return {
-		parentId: +query.cid || 0,
-		name: "untitled",
-		values: {},
-		permissions: {
-			0: "cr"
-		},
-		description: ""
-	};
-}
-
-function fillCateditFields(cat) {
-	$cateditTitle.value = cat.name;
-	var pinned = cat.values.pinned || "";
-	$cateditPinned.value = pinned;
-	$cateditCategory.value = cat.parentId;
-	$cateditPermissions.value = JSON.stringify(cat.permissions);
-	$cateditDescription.value = cat.description;
-	$cateditLocalSupers.value = JSON.stringify(cat.localSupers);
-	generatePath(makeCategoryPath(me.categoryTree, cat.id));
-}
-
-function readCateditFields(cat) {
-	cat.name = $cateditTitle.value;
-	cat.values.pinned = $cateditPinned.value;
-	cat.parentId = +$cateditCategory.value;
-	cat.permissions = parseJSON($cateditPermissions.value);
-	cat.localSupers = parseJSON($cateditLocalSupers.value);
-	cat.description = $cateditDescription.value;
-}
-
-var editingCategory;
-
-function attr(element, attr, value) {
-	if (value == undefined)
-		element.removeAttribute(attr)
-	else
-		element.setAttribute(attr, value);
-}
-
 function generatePagePath(page, users) {
 	// user page (at root)
 	if (page.type == "@user.page" && !page.parentId) {
@@ -146,29 +76,6 @@ function generatePagePath(page, users) {
 	} else {
 		generatePath(makeCategoryPath(me.categoryTree, page.parentId));
 	}
-}
-
-function fillPermissionFields(element, perms, users) {
-	element.innerHTML = "";
-	if (!perms[0])
-		perms[0] = "";
-	forDict(perms, function(perm, id) {
-		element.appendChild(renderPermissionLine(users[id], perm));
-	});
-}
-
-function readPermissionFields(element) {
-	var perms = {};
-	element.querySelectorAll(".permissionRow").forEach(function(row) {
-		var uid = +row.getAttribute("data-uid");
-		var perm = "";
-		row.querySelectorAll('input[data-crud]').forEach(function(elem) {
-			if (elem.checked)
-				perm += elem.getAttribute("data-crud");
-		})
-		perms[uid] = perm;
-	});
-	return perms;
 }
 
 function decodeComment(content) {
@@ -282,7 +189,6 @@ function megaAggregate(activity, ca, contents, users, category) {
 		return 0;
 	});
 	//todo: trim all trailing of same type because that's when the other runs out
-	
 	return allAct;
 }
 
@@ -303,9 +209,8 @@ function updateUserlist(list, listeners, userMap) {
 
 var currentFavicon = null;
 function changeFavicon(src) {
-	if (src == currentFavicon) {
+	if (src == currentFavicon)
 		return;
-	}
 	currentFavicon = src;
 	var link = document.createElement("link");
 	var oldLink = document.getElementById("dynamic-favicon");
@@ -687,7 +592,7 @@ var views = {
 	},
 	pages: {
 		start: function(id, query, callback) {
-			var room = manager.rooms[id] || manager.add(id);
+			var room = manager.rooms[id] || manager.add(id, $defaultStatus.value);
 			/*if (manager.rooms[id].loaded)
 				manager.show(id);*/
 			var linked = query["#"];
@@ -712,7 +617,7 @@ var views = {
 			generateAuthorBox(page, users);
 			flag('canEdit', !!page);
 			if (page) {
-				lp.setViewing(page.id);
+				room = manager.rooms[page.id]
 				flag('page', true);
 				/*scroller.switchRoom(page.id);*/
 				manager.show(page.id);
@@ -725,19 +630,17 @@ var views = {
 				setTitle(page.name, icon);
 				$watchCheck.checked = page.about.watching;
 
-				manager.rooms[page.id].updatePage(page);
-				handleLoads(manager.rooms[page.id].pageElement);
+				room.updatePage(page);
+				handleLoads(room.pageElement);
 				/*renderPageContents(page, $pageContents)*/
-				if (manager.rooms[page.id] && !manager.rooms[page.id].loaded) {
-					manager.rooms[page.id].page = page;
-					manager.rooms[page.id].users = users;
+				if (!room.loaded) {
+					room.page = page;
+					room.users = users;
 					addPinned(page);
 					comments && comments.reverse().forEach(function(comment) {
-						if (manager.rooms[page.id]) {
-							manager.rooms[page.id].displayMessage(comment, users[comment.createUserId], true);
-						}
+						room.displayMessage(comment, users[comment.createUserId], true);
 					});
-					manager.rooms[page.id].loaded = true;
+					room.loaded = true;
 				}
 				$editButton.href = "#pages/edit/"+page.id;
 				// todo: handle showing/hiding the vote box when logged in/out
@@ -907,11 +810,40 @@ function RoomManager(element) {
 	this.rooms = {};
 }
 
-RoomManager.prototype.show = function(id) {
+RoomManager.prototype.updateStatuses = function(id) {
+	lp.setListening([id]);
 	forDict(this.rooms, function(room, rid) {
-		if (id != rid) 
+		if (id != rid)
+			if (lp.statuses[rid])
+				lp.statuses[rid] = ""
+	});
+	lp.refresh();
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid) {
+			if (lp.statuses[rid] = "")
+				delete lp.statuses[rid];
 			room.hide();
-		else
+		} else
+			room.show();
+	});
+}
+
+RoomManager.prototype.show = function(id) {
+	lp.setListening([id]);
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid)
+			if (lp.statuses[rid])
+				lp.statuses[rid] = ""
+	});
+	lp.statuses[id] = this.rooms[id].status;
+	$currentStatus.value = this.rooms[id].status;
+	lp.refresh();
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid) {
+			if (lp.statuses[rid] = "")
+				delete lp.statuses[rid];
+			room.hide();
+		} else
 			room.show();
 	});
 }
@@ -933,10 +865,11 @@ RoomManager.prototype.remove = function(id) {
 	// need to handle that too
 }
 
-RoomManager.prototype.add = function(id) {
+RoomManager.prototype.add = function(id, status) {
 	var room = new ChatRoom();
 	this.element.appendChild(room.element);
 	this.rooms[id] = room;
+	room.status = status;
 	return room;
 }
 
@@ -957,3 +890,89 @@ RoomManager.prototype.updateUser = function(user) {
 // - the purpose of this system was to eliminate load times when switching
 //   between CHAT ROOMS, not to cache CONTENT
 // - the pages are not CACHED, they are actively loaded/updated
+
+function fillEditorFields(page, users) {
+	$titleInput.value = page.name || "";
+	if (page.values)
+		var markup = page.values.markupLang;
+	if (!markup)
+		markup = "12y";
+	$markupSelect.value = markup;
+	if (page.content)
+		$editorTextarea.value = page.content;
+	updateEditorPreview();
+	$keywords.value = page.keywords.join(" ");
+	/*$permissions.value = JSON.stringify(page.permissions);*/
+	fillPermissionFields($permissionBox, page.permissions, users);
+	$editPageType.value = page.type;
+	$editPageCategory.value = page.parentId;
+	
+	generatePagePath(page, me.userCache); //usercache is hack lol
+}
+
+function readEditorFields(page) {
+	page.name = $titleInput.value;
+	page.values.markupLang = $markupSelect.value;
+	page.keywords = $keywords.value.split(" ");
+	page.permissions = readPermissionFields($permissionBox);//JSON.parse($permissions.value);
+	page.type = $editPageType.value;
+	page.content = $editorTextarea.value;
+	page.parentId = +$editPageCategory.value;
+}
+
+function newCategory(query) {
+	return {
+		parentId: +query.cid || 0,
+		name: "untitled",
+		values: {},
+		permissions: {
+			0: "cr"
+		},
+		description: ""
+	};
+}
+
+function fillCateditFields(cat) {
+	$cateditTitle.value = cat.name;
+	var pinned = cat.values.pinned || "";
+	$cateditPinned.value = pinned;
+	$cateditCategory.value = cat.parentId;
+	$cateditPermissions.value = JSON.stringify(cat.permissions);
+	$cateditDescription.value = cat.description;
+	$cateditLocalSupers.value = JSON.stringify(cat.localSupers);
+	generatePath(makeCategoryPath(me.categoryTree, cat.id));
+}
+
+function readCateditFields(cat) {
+	cat.name = $cateditTitle.value;
+	cat.values.pinned = $cateditPinned.value;
+	cat.parentId = +$cateditCategory.value;
+	cat.permissions = parseJSON($cateditPermissions.value);
+	cat.localSupers = parseJSON($cateditLocalSupers.value);
+	cat.description = $cateditDescription.value;
+}
+
+var editingCategory;
+
+function fillPermissionFields(element, perms, users) {
+	element.innerHTML = "";
+	if (!perms[0])
+		perms[0] = "";
+	forDict(perms, function(perm, id) {
+		element.appendChild(renderPermissionLine(users[id], perm));
+	});
+}
+
+function readPermissionFields(element) {
+	var perms = {};
+	element.querySelectorAll(".permissionRow").forEach(function(row) {
+		var uid = +row.getAttribute("data-uid");
+		var perm = "";
+		row.querySelectorAll('input[data-crud]').forEach(function(elem) {
+			if (elem.checked)
+				perm += elem.getAttribute("data-crud");
+		})
+		perms[uid] = perm;
+	});
+	return perms;
+}

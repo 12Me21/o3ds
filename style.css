@@ -955,8 +955,6 @@ html:not(.f-fileUploading) .fileUploading {
 }
 
 #\$sidebarPinned {
-	-webkit-flex-grow: 1;
-	flex-grow: 1;
 	-webkit-flex-shrink: 1;
 	flex-shrink: 1;
 	overflow-y: auto;
@@ -966,6 +964,7 @@ html:not(.f-fileUploading) .fileUploading {
 	flex-shrink: 1;
 	overflow-y: scroll;
 	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
 }
 
 #\$sidebarActivity > :last-child{
@@ -1102,6 +1101,14 @@ html:not(.f-fileUploading) .fileUploading {
 	margin: 1px;
 }
 
+input {
+	min-width: 0;
+}
+
+table.form input {
+	width: 100%;
+}
+
 th {
 	padding: 0 0.3rem;
 }
@@ -1167,4 +1174,8 @@ body.pageMode main {
 
 .chatScroller > .scrollInner {
 	padding-bottom: 0.5rem;
+}
+
+#\$longPollStatus {
+	border-bottom: 1px solid gray;
 }

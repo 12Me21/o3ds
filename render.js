@@ -558,7 +558,7 @@ function renderMessagePart(comment, sizedOnload){
 	var text=x[0], markup=x[1];
 	var element = document.createElement('p');
 	element = parser(markup)(text, false, element);
-	element.className += ' messagePart';
+	element.className += 'markup-root messagePart';
 	element.setAttribute('data-id', comment.id);
 	element.setAttribute('tabindex', "0");
 	var imgs = element.querySelectorAll('img');
@@ -594,7 +594,11 @@ function AutoScroller(element, limit) {
 	var $=this;
 	// handle resizing
 	trackResize(element, function(old, ne) {
-		if ($.shouldScroll(old))
+		if (!$.animationId && $.shouldScroll(old))
+			$.autoScroll(true);
+	});
+	trackResize(this.inner, function(old, ne) {
+		if (!$.animationId && $.shouldScroll())
 			$.autoScroll(true);
 	});
 }
@@ -632,6 +636,7 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 	if (this.scrollDistance() > 0) {
 		// save scroll position
 		this.expectedTop = parent.scrollTop;
+		
 		this.animationId = window.requestAnimationFrame(function(time) {
 			// only call again if scroll pos has not changed
 			// (if it has, that means the user probably scrolled manually)
@@ -647,7 +652,6 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 }
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
-	
 	if (id == null) {
 		this.inner.appendChild(node);
 		this.count++;
@@ -747,8 +751,8 @@ function ChatRoom() {
 	
 	this.scroller = new AutoScroller(scroller);
 	this.pageElement = document.createElement('div');
+	this.pageElement.className = "markup-root";
 	this.scroller.element.insertBefore(this.pageElement, this.scroller.inner);
-	
 	this.hide();
 }
 

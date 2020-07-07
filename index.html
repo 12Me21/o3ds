@@ -33,6 +33,7 @@
 
 <script src="render.js?aa"></script>
 <script src="view.js?an"></script>
+<script src="events.js?aN"></script>
 <script src="main.js?aN"></script>
 
 <!--END-->
@@ -147,7 +148,7 @@
 
 			<div class="userPageBox userMode">
 				<a id="$userPageAvatarLink"><img id="$userPageAvatar" class="userPageAvatar avatar"></a>
-				<div class="pageContents pre userPageContents" id="$userPageContents"></div>
+				<div class="pageContents pre userPageContents markup-root" id="$userPageContents"></div>
 			</div>
 			
 			<!--
@@ -164,7 +165,7 @@
 					<textarea id="$cateditDescription"></textarea><br>
 				</div>
 				
-				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode"></div>
+				<div id="$categoryDescription" class="categoryDescription pre pageContents categoryMode markup-root"></div>
 				<div id="$categoryCategories" class="categoryMode"></div>
 				<div id="$categoryPinned" class="categoryMode"></div>
 				<div class="categoryMode categoryNav rem1-7 bar">
@@ -274,8 +275,7 @@
 				
 				<div class="bottomSpacer"></div>
 			
-			<div id="$messageList" class="messageList pageChatMode grow">
-			</div>
+				<div id="$messageList" class="messageList pageChatMode grow"></div>
 			</main>
 			<div class="inputPane pageChatMode">
 				<table> <!-- YES it's a TABLE! sorry ... I'm not allowed to use flex so this is the only option -->
@@ -295,21 +295,29 @@
 		</div>
 		<div id="$sidebar">
 			<div class="sidebarInside">
-				<div>
-					<!--<div id="$sidebarResize" class="resize">&lt;-&gt;</div>-->
-					<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
-					<span class="loggedIn">
-						<span id="$longPollStatus"></span>
-					</span>
-				</div>
-				<!--<form class="textItem loggedOut" id="$loggedOut"><a href="#register">Register</a><br>
-					 <input id="$username" placeholder="username" name="username" class="item loginField"><input id="$password" type="password" name="password" placeholder="password" class="item loginField"><br>
-					 <button class="item" id="$login" onclick="event.preventDefault()">Log In</button></form>-->
-				<div id="$sidebarActivity"></div>
+				<div class="buttonContainer closeSidebar"><button id="$closeSidebar">Close Sidebar</button></div>
+				
+				<div id="$sidebarPinned"></div>
+				
 				<div id="$sidebarPinnedResize" class="resize">resize</div>
+				
+				<div id="$sidebarActivity" class="grow"></div>
 				<div id="$sidebarUserlist" class="userlist bar rem1-5"></div>
-				<input placeholder="status" id="$globalStatusInput"><div class="buttonContainer"><button id="$globalStatusButton">Set Global Status</button></div>
-				<div id="$sidebarPinned" class="form"></div>
+				<span id="$longPollStatus"></span>
+				<table class="form" style="width: 100%;">
+					<tr>
+						<td><div class="buttonContainer"><button id="$globalStatusButton">Set Global Status</button></div></td>
+						<td><input placeholder="status" id="$globalStatusInput"></td>
+					</tr>
+					<tr>
+						<td><label for="$defaultStatus">Default room status:</label></td>
+						<td><input id="$defaultStatus"></td>
+					</tr>
+					<tr>
+						<td><div class="buttonContainer"><button id="$currentStatusButton">Set Room Status</button></div></td>
+						<td><input id="$currentStatus"></td>
+					</tr>
+				</table>
 			</div>
 		</div>
 	</div>

@@ -6,6 +6,13 @@ function show(element) {
 	element.style.display = '';
 }
 
+function attr(element, attr, value) {
+	if (value == undefined)
+		element.removeAttribute(attr)
+	else
+		element.setAttribute(attr, value);
+}
+
 function split1(string, sep) {
 	var n = string.indexOf(sep);
 	if (n == -1)
@@ -40,6 +47,10 @@ function parseJSON(json) {
 	}
 }
 
+// need to fix later
+// eventually what we really need is
+// - detect changes to inner and outer heights
+// - trigger autoscroll if animation is not already running
 function trackResize(element, callback) {
 	var t = trackResize.tracking;
 	if (callback) {
@@ -71,8 +82,13 @@ if (window.ResizeObserver) {
 			for (var i=0;i<trackResize.tracking.length;i++) {
 				var item = trackResize.tracking[i];
 				if (item.element == event.target) {
-					item.callback(item.height, event.contentRect.height);
-					item.height = event.contentRect.height;
+					if (event.contentRect.width==0 && event.contentRect.height==0) {
+						// was hidden
+					} else {
+						item.callback(item.height, event.contentRect.height);
+						
+						item.height = event.contentRect.height;
+					}
 					break;
 				}
 			}
@@ -124,6 +140,22 @@ Object.assign = function(a, b) {
 	return a;
 }
 
+var optionalStorage = {
+	get: function(key) {
+		if (localStorage)
+			return localStorage.getItem(key);
+	},
+	set: function(key, value) {
+		if (!localStorage)
+			return false;
+		if (value == undefined)
+			localStorage.removeItem(key);
+		else
+			localStorage.setItem(key, value);
+		return true;
+	}
+}
+
 //Should be run once, when the page loads or when the element is created.
 function attachPaste(element, callback) {
 	"use strict";
@@ -152,7 +184,7 @@ if (!HTMLElement.prototype.remove) {
 if (!NodeList.prototype.forEach)
 	NodeList.prototype.forEach = Array.prototype.forEach;
 
-function attachResize(element, tab, horiz,dir,cb) {
+function attachResize(element, tab, horiz,dir,save) {
 	var startX,startY,held,startW,startH;
 	function getPos(e) {
 		if (e.touches)
@@ -180,11 +212,13 @@ function attachResize(element, tab, horiz,dir,cb) {
 		var vx = (pos.x - startX) * dir;
 		var vy = (pos.y - startY) * dir;
 		if (horiz) {
-			element.style.width = startW+vx+"px";
-			cb(startW+vx)
+			element.style.width = Math.max(0, startW+vx)+"px";
+			if (save)
+				optionalStorage.set(save, startW+vx);
 		} else {
-			element.style.height = startH+vy+"px";
-			cb(startH+vy);
+			element.style.height = Math.max(0, startH+vy)+"px";
+			if (save)
+				optionalStorage.set(save, startH+vy);
 		}
 	}	
 	tab.addEventListener('mousedown', down);
@@ -194,6 +228,16 @@ function attachResize(element, tab, horiz,dir,cb) {
 	tab.addEventListener('touchstart', down);
 	document.addEventListener('touchend', up);
 	document.addEventListener('touchmove', move);
+	if (save) {
+		var size = optionalStorage.get(save);
+		if (size) {
+			size = Math.max(0, +size);
+			if (horiz)
+				element.style.width = size+"px";
+			else
+				element.style.height = size+"px";
+		}
+	}
 }
 
 

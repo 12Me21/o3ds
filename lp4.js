@@ -13,7 +13,6 @@ LongPoller.prototype.start = function() {
 }
 
 LongPoller.prototype.setGlobalStatus = function(text) {
-	this.defaultStatus = text;
 	if (text == undefined) {
 		this.statuses[0] = "";
 	} else {
@@ -126,15 +125,26 @@ LongPoller.prototype.refresh = function() {
 	}
 }
 
-LongPoller.prototype.setViewing = function(id) {
+LongPoller.prototype.setListening = function(ids) {
+	var $=this;
+	var newListeners = {"0":$.lastListeners[0]};
+	ids.forEach(function(id) {
+		newListeners[id] = $.lastListeners[id] || {"0":""};
+	});
+	$.lastListeners = newListeners;
+}
+
+LongPoller.prototype.setViewing = function(id, status) {
 	if (this.viewing) {
 		delete this.lastListeners[this.viewing];
 		if (this.statuses[this.viewing] != undefined)
 			this.statuses[this.viewing]="";
 	}
+	if (typeof status == "undefined")
+		status = this.defaultStatus;
 	if (id) {
 		this.lastListeners[id] = {"0":""};
-		this.setStatus(id, this.defaultStatus);
+		this.setStatus(id, status);
 	}
 	this.refresh();
 	if (this.viewing) {

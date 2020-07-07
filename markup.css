@@ -80,6 +80,10 @@
 }
 
 .markup-root img:focus {
+	/*max-height: 75vh;*/
+}
+
+.markup-root img[bigImage] {
 	max-height: 75vh;
 }
 
