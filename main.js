@@ -387,9 +387,10 @@ function onLogin(me) {
 				manager.rooms[id].updateUserlist(list, users);
 			}
 		});
-		updateUserlist($sidebarUserlist, lists[-1], users);
+		var global = lp.getGlobalStatuses();
+		updateUserlist($sidebarUserlist, global, users);
 		if (onUserPage) {
-			$userPageStatus.textContent = decodeStatus(lists[-1][onUserPage]) || ""; //um why is this .. error     hhhh
+			$userPageStatus.textContent = decodeStatus(global[onUserPage]) || ""; //um why is this .. error     hhhh
 		}
 	}
 	lp.onMessages = function(messages, users, pages) {

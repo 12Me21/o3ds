@@ -12,6 +12,10 @@ LongPoller.prototype.start = function() {
 	this.loop();
 }
 
+LongPoller.prototype.getGlobalStatuses = function() {
+	return this.lastListeners[-1] || {};
+}
+
 LongPoller.prototype.setGlobalStatus = function(text) {
 	if (text == undefined) {
 		this.statuses[0] = "";

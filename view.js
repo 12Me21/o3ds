@@ -572,7 +572,7 @@ var views = {
 				}
 				userAvatar(user, $userPageAvatar, true);
 				$userPageAvatarLink.href = user.rawAvatarURL;
-				$userPageStatus.textContent = decodeStatus(lp.lastListeners[0][user.id] || "");
+				$userPageStatus.textContent = decodeStatus(lp.getGlobalStatuses[user.id] || "");
 				var lastId, lastAction;
 				megaAggregate(activity, ca, pages).forEach(function(activity){
 					if (activity.contentId != lastId || activity.action != lastAction) {
