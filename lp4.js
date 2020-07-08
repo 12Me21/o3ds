@@ -68,7 +68,6 @@ LongPoller.prototype.loop = function() {
 			return;
 		}
 		try {
-			console.log(resp);
 			$.setState("Handling response", false);
 			if (!e) {
 				$.lastId = resp.lastId;
