@@ -63,6 +63,9 @@ function ready() {
 	});
 	
 	addEvents();
+	readyFuncs.forEach(function(func){
+		func();
+	});
 	
 	activityScroller = new AutoScroller($sidebarActivity, 500);
 	manager = new RoomManager($messageList, lp);
@@ -351,7 +354,7 @@ function onLogin(me) {
 	console.log("logged in");
 	//var me = this;
 	me.whenUser(me.uid, function(user) {
-		userAvatar(user, $myAvatar);
+		$myAvatar.src = user.avatarURL;
 		$myName.textContent = user.username;
 		$myUserLink.href = "#user/"+user.id;
 	});

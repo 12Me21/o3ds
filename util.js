@@ -1,6 +1,10 @@
-// Source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Local_storage
+var readyFuncs = [];
+function onReady(func) {
+	readyFuncs.push(func);
+}
 
 if (!window.localStorage) {
+	// Source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Local_storage
 	window.localStorage = {
 		getItem: function (sKey) {
 			if (!sKey || !this.hasOwnProperty(sKey)) { return null; }

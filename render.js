@@ -4,20 +4,26 @@
 // OR some other way to solve the issue of
 // fragment links not working when clicked again
 
-function renderKeyInfo(key, data, element) {
-	element = element || document.createElement('span');
-	element.innerHTML = "";
+function renderKeyInfo(key, data) {
+	var element = document.createDocumentFragment();
 	
 	var icon = document.createElement('img');
 	icon.src = protocol()+"//sbapi.me/get/"+data.path+"/META/icon";
 	icon.className = "metaIcon";
-
+	
 	element.appendChild(icon);
 	
 	element.appendChild(textItem(data.filename, "pre metaTitle"));
 	
 	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
 	return element;
+}
+
+function renderEntity(x, type) {
+	var a = document.createElement("a");
+	if (type=="user") {
+		
+	}
 }
 
 function renderSidebarItem(page, user, comment) {
@@ -73,8 +79,8 @@ function renderPinnedPage(page, onremove) {
 	return div;
 }
 
-function renderPath(element, list) {
-	element.innerHTML = "";
+function renderPath(list) {
+	var element = document.createDocumentFragment();
 	if (!list)
 		return;
 	list.forEach(function(item, i, list) {
@@ -93,6 +99,16 @@ function renderPath(element, list) {
 			element.appendChild(slash);
 		}
 	});
+	return element;
+}
+
+// create a user avatar image
+function renderAvatar(user) {
+	var img = document.createElement('img');
+	img.className = "avatar";
+	img.src = user.avatarURL;
+	img.alt = "";
+	return img;
 }
 
 function userAvatar(user, cls, big) {
@@ -139,7 +155,8 @@ function renderUserLink(user, nameFirst) {
 	var name = user.username;
 	var name = textItem(name);
 	name.className = "username textItem pre"
-	var avatar = userAvatar(user, 'item');
+	var avatar = renderAvatar(user);
+	avatar.className += " item";
 	if (nameFirst == undefined)
 		avatar.title = user.username;
 	if (nameFirst == true)
@@ -260,7 +277,7 @@ function renderSystemMessage(text) {
 
 function renderUserListAvatar(user) {
 	var a = document.createElement('a');
-	a.appendChild(userAvatar(user,""));
+	a.appendChild(renderAvatar(user));
 	a.title = user.username;
 	a.className = "item";
 	a.href = "#user/"+user.id;
@@ -280,7 +297,7 @@ function renderUserBlock(user, date) {
 	time.className = 'messageTime'
 	div.appendChild(time);
 
-	div.appendChild(userAvatar(user,""));
+	div.appendChild(renderAvatar(user));
 
 	var name = document.createElement('span');
 	name.className = 'username';

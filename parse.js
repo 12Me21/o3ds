@@ -1114,7 +1114,7 @@ var Parse = {
 		function canStartMarkup(type) {
 			return (
 				(!code[i-2] || char_in(code[i-2], " \t\n({'\"")) && //prev char is one of these (or start of text)
-				!char_in(c, " \t\n,'\"") && //next char is not one of these
+				(c && !char_in(c, " \t\n,'\"")) && //next char is not one of these
 				!stackContains(type)
 			);
 		}
@@ -1128,7 +1128,7 @@ var Parse = {
 		function char_in(chr, list) {
 			return chr && list.indexOf(chr) != -1;
 		}
-
+		
 		function lineStart() {
 			startOfLine = true;
 			leadingSpaces = 0;

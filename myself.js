@@ -877,6 +877,25 @@ Myself.prototype.putFile = function(file, callback) {
 	return this.request("File/"+file.id, 'PUT', callback, file);
 }
 
+Myself.prototype.search = function(text, page, callback) {
+	var like = text.replace(/%/g,"_"); //the best we can do...
+	var count = 20;
+	page = page*count;
+	var $=this;
+	return $.read([
+		{user: {limit: count, skip: page, usernameLike: like+"%"}}, 
+		{content: {limit: count, skip: page, nameLike: "%"+like+"%"}},
+		{content: {limit: count, skip: page, keyword: "%"+like+"%"}},
+	],{
+		content: "name,id,type,permissions"
+	},function(e, resp){
+		if (!e)
+			$.cb(callback, resp.user, resp.content);
+		else
+			$.cb(callback, null);
+	});
+}
+
 Myself.prototype.getUserPage = function(id, callback) {
 	var $=this;
 	id = +id;

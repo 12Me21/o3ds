@@ -14,10 +14,9 @@ function cleanUp(type) {
 	$fileBox.innerHTML = "";
 	/*$chatUserlist.innerHTML = "";*/
 	$fileView.src = "";
-	/*var nodes = document.querySelectorAll(".markup-root");
-	for (var i=0;i<nodes.length;i++) {
-		nodes[i].innerHTML = "";
-	}*/
+	
+	//todo: when switching, clear content of old whatever
+	
 	cancelEdit();
 	onUserPage = null;
 }
@@ -193,7 +192,7 @@ function megaAggregate(activity, ca, contents, users, category) {
 }
 
 function generatePath(path) {
-	renderPath($navPane, path);
+	setChild($navPane, renderPath(path));
 }
 // function generatePagePath - category tree paths
 
@@ -224,8 +223,8 @@ function changeFavicon(src) {
 }
 
 /*function displayGap() {
-	scroller.insert(null, renderMessageGap());
-}*/
+  scroller.insert(null, renderMessageGap());
+  }*/
 
 function handlePinned(pinned) {
 	$categoryPinned.innerHTML = "";
@@ -294,12 +293,12 @@ function selectFile(file) {
 	var doSelect = true;
 	$fileView.onload = null
 	//$fileView.onerror = function() {
-		if (!doSelect)
-			return;
-		doSelect = false
-		selectedFile = file;
-		flag('fileSelected', true);
-		flag('canEdit', /u/.test(file.myPerms));
+	if (!doSelect)
+		return;
+	doSelect = false
+	selectedFile = file;
+	flag('fileSelected', true);
+	flag('canEdit', /u/.test(file.myPerms));
 	//}
 	flag('fileUploading');
 }
@@ -457,6 +456,110 @@ var views = {
 			}
 		}
 	},
+	pages: {
+		start: function(id, query, callback) {
+			var room = manager.rooms[id] || manager.add(id, $defaultStatus.value);
+			/*if (manager.rooms[id].loaded)
+			  manager.show(id);*/
+			var linked = query["#"];
+			if (linked && /^comment-/.test(linked)) {
+				linked=+linked.substr(8);
+			} else {
+				linked = null;
+			}
+			// (if logged out, never load pages from cache)
+			// (because we can't listen to activity so the data might be old)
+			// (it would be possible to show the (possibly old) cached data while page is loading, but this is for logged-out users, whatever)
+			if (me.auth && manager.rooms[id].page) {
+				callback(manager.rooms[id].page, manager.rooms[id].users, [], {});
+			} else {
+				return me.getPageAndComments(id, function(page, users, comments){
+					callback(page, users, comments, query);
+				});
+			}
+		},
+		render: function(page, users, comments, query) {
+			$main.className = "pageMode";
+			generateAuthorBox(page, users);
+			flag('canEdit', !!page);
+			if (page) {
+				room = manager.rooms[page.id]
+				flag('page', true);
+				/*scroller.switchRoom(page.id);*/
+				manager.show(page.id);
+				generatePagePath(page, users);
+				currentPage = page.id;
+				currentChatRoom = page.id;
+				var icon = "page";
+				if (!hasPerm(page.permissions, 0, 'r'))
+					icon = "hiddenpage"
+				setTitle(page.name, icon);
+				$watchCheck.checked = page.about.watching;
+
+				room.updatePage(page);
+				handleLoads(room.pageElement);
+				/*renderPageContents(page, $pageContents)*/
+				if (!room.loaded) {
+					room.page = page;
+					room.users = users;
+					addPinned(page);
+					comments && comments.reverse().forEach(function(comment) {
+						room.displayMessage(comment, users[comment.createUserId], true);
+					});
+					room.loaded = true;
+				}
+				$editButton.href = "#pages/edit/"+page.id;
+				// todo: handle showing/hiding the vote box when logged in/out
+				$voteCount_b.textContent = page.about.votes.b.count;
+				$voteCount_o.textContent = page.about.votes.o.count;
+				$voteCount_g.textContent = page.about.votes.g.count;
+				["b","o","g"].forEach(function(vote) {
+					window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
+					attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "true" : undefined);
+				});
+				
+				var photos = page.values.photos;
+				visible($gallery, photos);
+				if (photos) {
+					photos = photos.split(",").map(function(x){return +x});
+					$galleryImage.src = me.fileUrl(photos[0]);
+				}
+				var keyinfo = parseJSON(page.values.keyinfo);
+				var key = page.values.key;
+				var supported = parseJSON(page.values.supported);
+				flag('hasKey', !!key);
+				
+				if (key) {
+					$metaKey.textContent = key;
+					$metaKey.className = "metaKey textItem";
+					
+					sbapi(key, function(data) {
+						if (!data) {
+							$metaKey.className += " invalidKey";
+						} else if (!data.available) {
+							$metaKey.className += " brokenKey";
+						}
+						setChild($sbapiInfo, renderKeyInfo(key, data));
+					})
+				} else {
+					$metaKey.textContent = "";
+					$sbapiInfo.innerHTML = "";
+				}
+				if (query["#"]) {
+					var comment=document.getElementById("_anchor_"+query["#"])
+					if (comment) {
+						comment.scrollIntoView()
+						comment.setAttribute("data-linked", "");
+					}
+				}
+			} else {
+				currentPage = null;
+				setTitle("Page not found");
+				generatePath();
+				$main.className = "errorMode";
+			}
+		}
+	},
 	users: {
 		start: function(id, query, callback) {
 			var page = (+query.page-1) || 0;
@@ -570,7 +673,7 @@ var views = {
 				} else {
 					$userPageContents.innerHTML = "";
 				}
-				userAvatar(user, $userPageAvatar, true);
+				$userPageAvatar.src = user.bigAvatarURL;
 				$userPageAvatarLink.href = user.rawAvatarURL;
 				$userPageStatus.textContent = decodeStatus(lp.getGlobalStatuses[user.id] || "");
 				var lastId, lastAction;
@@ -587,110 +690,6 @@ var views = {
 				generatePath([["#users","Users"], undefined]);
 				$main.className = "errorMode";
 				setTitle("User Not Found");
-			}
-		}
-	},
-	pages: {
-		start: function(id, query, callback) {
-			var room = manager.rooms[id] || manager.add(id, $defaultStatus.value);
-			/*if (manager.rooms[id].loaded)
-				manager.show(id);*/
-			var linked = query["#"];
-			if (linked && /^comment-/.test(linked)) {
-				linked=+linked.substr(8);
-			} else {
-				linked = null;
-			}
-			// (if logged out, never load pages from cache)
-			// (because we can't listen to activity so the data might be old)
-			// (it would be possible to show the (possibly old) cached data while page is loading, but this is for logged-out users, whatever)
-			if (me.auth && manager.rooms[id].page) {
-				callback(manager.rooms[id].page, manager.rooms[id].users, [], {});
-			} else {
-				return me.getPageAndComments(id, function(page, users, comments){
-					callback(page, users, comments, query);
-				});
-			}
-		},
-		render: function(page, users, comments, query) {
-			$main.className = "pageMode";
-			generateAuthorBox(page, users);
-			flag('canEdit', !!page);
-			if (page) {
-				room = manager.rooms[page.id]
-				flag('page', true);
-				/*scroller.switchRoom(page.id);*/
-				manager.show(page.id);
-				generatePagePath(page, users);
-				currentPage = page.id;
-				currentChatRoom = page.id;
-				var icon = "page";
-				if (!hasPerm(page.permissions, 0, 'r'))
-					icon = "hiddenpage"
-				setTitle(page.name, icon);
-				$watchCheck.checked = page.about.watching;
-
-				room.updatePage(page);
-				handleLoads(room.pageElement);
-				/*renderPageContents(page, $pageContents)*/
-				if (!room.loaded) {
-					room.page = page;
-					room.users = users;
-					addPinned(page);
-					comments && comments.reverse().forEach(function(comment) {
-						room.displayMessage(comment, users[comment.createUserId], true);
-					});
-					room.loaded = true;
-				}
-				$editButton.href = "#pages/edit/"+page.id;
-				// todo: handle showing/hiding the vote box when logged in/out
-				$voteCount_b.textContent = page.about.votes.b.count;
-				$voteCount_o.textContent = page.about.votes.o.count;
-				$voteCount_g.textContent = page.about.votes.g.count;
-				["b","o","g"].forEach(function(vote) {
-					window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
-					attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "true" : undefined);
-				});
-				
-				var photos = page.values.photos;
-				visible($gallery, photos);
-				if (photos) {
-					photos = photos.split(",").map(function(x){return +x});
-					$galleryImage.src = me.fileUrl(photos[0]);
-				}
-				var keyinfo = parseJSON(page.values.keyinfo);
-				var key = page.values.key;
-				var supported = parseJSON(page.values.supported);
-				flag('hasKey', !!key);
-				
-				if (key) {
-					$metaKey.textContent = key;
-					$metaKey.className = "metaKey textItem";
-					
-					sbapi(key, function(data) {
-						if (!data) {
-							$metaKey.className += " invalidKey";
-						} else if (!data.available) {
-							$metaKey.className += " brokenKey";
-						}
-						renderKeyInfo(key, data, $sbapiInfo)
-					})
-				} else {
-					$metaKey.textContent = "";
-					$sbapiInfo.innerHTML = "";
-				}
-				if (query["#"]) {
-					var comment=document.getElementById("_anchor_"+query["#"])
-					if (comment) {
-						comment.scrollIntoView()
-						comment.setAttribute("data-linked", "");
-					}
-				}
-			} else {
-				currentPage = null;
-				setTitle("Page not found");
-				generatePath();
-				$main.className = "errorMode";
 			}
 		}
 	},
@@ -756,6 +755,11 @@ var views = {
 			fillEditorFields(editingPage, users);
 		}
 	},
+	search: {
+		render: function(id, query) {
+			$main.className = "searchMode";
+		}
+	},
 	usersettings: {
 		start: function(id, query, render) {
 			if (me.auth) {
@@ -797,93 +801,6 @@ var views = {
 			setTitle("[404] I DON'T KNOW WHAT A \""+type+"\" IS");
 		}
 	}
-}
-
-function addPinned(page) {
-	$sidebarPinned.appendChild(renderPinnedPage(page, function() {
-		manager.remove(page.id);
-	}))
-}
-
-function RoomManager(element, poller) {
-	this.element = element;
-	this.rooms = {};
-	this.lp = poller;
-}
-
-RoomManager.prototype.updateStatuses = function(id) {
-	this.lp.setListening([id]);
-	forDict(this.rooms, function(room, rid) {
-		if (id != rid)
-			if (this.lp.statuses[rid])
-				this.lp.statuses[rid] = ""
-	});
-	this.lp.refresh();
-	forDict(this.rooms, function(room, rid) {
-		if (id != rid) {
-			if (this.lp.statuses[rid] = "")
-				delete this.lp.statuses[rid];
-			room.hide();
-		} else
-			room.show();
-	});
-}
-
-RoomManager.prototype.displayMessage = function(comment, users) {
-	var room = this.rooms[comment.parentId]
-	if (room)
-		room.displayMessage(comment, users[comment.createUserId]);
-}
-
-RoomManager.prototype.show = function(id) {
-	lp.setListening([id]);
-	forDict(this.rooms, function(room, rid) {
-		if (id != rid)
-			if (lp.statuses[rid])
-				lp.statuses[rid] = ""
-	});
-	lp.statuses[id] = this.rooms[id].status;
-	$currentStatus.value = this.rooms[id].status;
-	lp.refresh();
-	forDict(this.rooms, function(room, rid) {
-		if (id != rid) {
-			if (lp.statuses[rid] = "")
-				delete lp.statuses[rid];
-			room.hide();
-		} else
-			room.show();
-	});
-}
-
-RoomManager.prototype.logOut = function() {
-	/*var $=this;
-	forDict($.rooms, function(room, rid) {
-		room.remove();
-		delete $.rooms[rid];
-	});*/
-}
-
-RoomManager.prototype.remove = function(id) {
-	if (this.rooms[id]) {
-		this.rooms[id].remove();
-		delete this.rooms[id];
-	}
-	// todo: this gets called when a room is deleted, but doesn't remove sidebar link
-	// need to handle that too
-}
-
-RoomManager.prototype.add = function(id, status) {
-	var room = new ChatRoom();
-	this.element.appendChild(room.element);
-	this.rooms[id] = room;
-	room.status = status;
-	return room;
-}
-
-RoomManager.prototype.updateUser = function(user) {
-	forDict(this.rooms, function(room, rid) {
-		updateListAvatar(room.list, user);
-	});
 }
 
 //todo:
@@ -983,3 +900,90 @@ function readPermissionFields(element) {
 	});
 	return perms;
 }
+
+function addPinned(page) {
+	$sidebarPinned.appendChild(renderPinnedPage(page, function() {
+		manager.remove(page.id);
+	}))
+}
+
+function RoomManager(element, poller) {
+	this.element = element;
+	this.rooms = {};
+	this.lp = poller;
+}
+
+RoomManager.prototype.updateStatuses = function(id) {
+	this.lp.setListening([id]);
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid)
+			if (this.lp.statuses[rid])
+				this.lp.statuses[rid] = ""
+	});
+	this.lp.refresh();
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid) {
+			if (this.lp.statuses[rid] = "")
+				delete this.lp.statuses[rid];
+			room.hide();
+		} else
+			room.show();
+	});
+}
+
+RoomManager.prototype.displayMessage = function(comment, users) {
+	var room = this.rooms[comment.parentId]
+	if (room)
+		room.displayMessage(comment, users[comment.createUserId]);
+}
+
+RoomManager.prototype.show = function(id) {
+	lp.setListening([id]);
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid)
+			if (lp.statuses[rid])
+				lp.statuses[rid] = ""
+	});
+	lp.statuses[id] = this.rooms[id].status;
+	$currentStatus.value = this.rooms[id].status;
+	lp.refresh();
+	forDict(this.rooms, function(room, rid) {
+		if (id != rid) {
+			if (lp.statuses[rid] = "")
+				delete lp.statuses[rid];
+			room.hide();
+		} else
+			room.show();
+	});
+}
+
+RoomManager.prototype.logOut = function() {
+	/*var $=this;
+	forDict($.rooms, function(room, rid) {
+		room.remove();
+		delete $.rooms[rid];
+	});*/
+}
+
+RoomManager.prototype.remove = function(id) {
+	if (this.rooms[id]) {
+		this.rooms[id].remove();
+		delete this.rooms[id];
+	}
+	// todo: this gets called when a room is deleted, but doesn't remove sidebar link
+	// need to handle that too
+}
+
+RoomManager.prototype.add = function(id, status) {
+	var room = new ChatRoom();
+	this.element.appendChild(room.element);
+	this.rooms[id] = room;
+	room.status = status;
+	return room;
+};
+
+RoomManager.prototype.updateUser = function(user) {
+	forDict(this.rooms, function(room, rid) {
+		updateListAvatar(room.list, user);
+	});
+};

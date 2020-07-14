@@ -214,6 +214,7 @@ body:not(.cateditMode) .cateditMode,
 body:not(.userMode):not(.pageMode) .pageUserMode,
 body:not(.homeMode) .homeMode,
 body:not(.testMode) .testMode,
+body:not(.searchMode) .searchMode,
 body:not(.fileMode) .fileMode {
 	display: none;
 }
