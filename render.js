@@ -794,19 +794,21 @@ function ChatRoom(id) {
 	btn[1].onclick = function() {
 		if (lock)
 			return;
-		if (!$.firstId)
+		for (var firstId in $.scroller.nodes)
+			break;
+		if (!firstId)
 			return;
 		lock = true;
 		// WAIT what is fucking `me` doing here WHAT
 		// SHIT WHY IS THIS IN RENDER.JS
 		// NO NO NO
-		me.getCommentsBefore(id, $.firstId, 10, function(comments, users) {
+		me.getCommentsBefore(id, firstId, 10, function(comments, users) {
 			lock = false;
 			if (comments) {
-				if (comments.length)
+				/*if (comments.length)
 					$.firstId = comments[comments.length-1].id;
 				else
-					$.firstId = false; // no more  to load
+					$.firstId = false; // no more  to load*/
 				comments.forEach(function(comment) {
 					$.displayOldMessage(comment, users[comment.createUserId]);
 				});
