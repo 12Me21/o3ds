@@ -6,15 +6,11 @@
 
 function renderKeyInfo(key, data) {
 	var element = document.createDocumentFragment();
-	
 	var icon = document.createElement('img');
 	icon.src = protocol()+"//sbapi.me/get/"+data.path+"/META/icon";
 	icon.className = "metaIcon";
-	
 	element.appendChild(icon);
-	
 	element.appendChild(textItem(data.filename, "pre metaTitle"));
-	
 	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
 	return element;
 }
@@ -82,7 +78,7 @@ function renderPinnedPage(page, onremove) {
 function renderPath(list) {
 	var element = document.createDocumentFragment();
 	if (!list)
-		return;
+		return element;
 	list.forEach(function(item, i, list) {
 		if (item) {
 			var link = document.createElement('a');
@@ -136,8 +132,9 @@ function textItem(text, cls) {
 	return s;
 }
 
-// todo: this should probably be like
-// <a><figure><img><figcaption>
+// [avatar] - nameFirst = undefined
+// [avatar] username - nameFirst = false
+// username [avatar] - nameFirst = true
 function renderUserLink(user, nameFirst) {
 	var a = document.createElement('a');
 	a.className = 'textItem userLink ib';
@@ -148,13 +145,10 @@ function renderUserLink(user, nameFirst) {
 		}
 	}
 	a.href = "#user/"+user.id;
-	/*if (nameFirst)
-		var name = user.username + " ";
-	else
-	var name = " " + user.username;*/
-	var name = user.username;
-	var name = textItem(name);
-	name.className = "username textItem pre"
+	if (nameFirst != undefined) {
+		var name = textItem(user.username);
+		name.className += " username pre"
+	}
 	var avatar = renderAvatar(user);
 	avatar.className += " item";
 	if (nameFirst == undefined)
@@ -164,20 +158,22 @@ function renderUserLink(user, nameFirst) {
 	a.appendChild(avatar)
 	if (nameFirst == false)
 		a.appendChild(name)
-	
 	return a;
 }
 
+// eg. "10 days ago"
+// these functions take a DATE STRING as input
 function renderTimeAgo(date) {
 	var time = document.createElement('time');
 	var d = parseDate(date)
-	time.setAttribute('datetime',date);
-	time.setAttribute('title',readableDate(d));
+	time.setAttribute('datetime', date);
+	time.setAttribute('title', readableDate(d));
 	time.textContent = timeAgo(d);
 	time.className = "textItem time";
 	return time;
 }
 
+// just hours/minutes, unless date is older than 12 hours
 function renderTimeStamp(date) {
 	var time = document.createElement('time');
 	var d = parseDate(date)
@@ -188,12 +184,12 @@ function renderTimeStamp(date) {
 	return time;
 }
 
-function renderAuthorBox(page, users, element) {
-	element.innerHTML = "";
+function renderAuthorBox(page, users) {
+	var element = document.createDocumentFragment();
 	if (!page)
 		return;
+	
 	element.appendChild(renderHalfBlock("Author:", page.createDate));
-
 	element.appendChild(document.createTextNode(" "));
 	element.appendChild(renderUserLink(users[page.createUserId], true));
 	// page was edited by other user
@@ -206,6 +202,7 @@ function renderAuthorBox(page, users, element) {
 		element.appendChild(document.createTextNode(" "));
 		element.appendChild(renderHalfBlock("Edited", page.editDate));
 	}
+	return element;
 }
 
 function renderHalfBlock(label, time) {
@@ -285,8 +282,7 @@ function renderUserListAvatar(user) {
 	return a;
 }
 
-// chat message block
-function renderUserBlock(user, date) {
+function renderChatBlock(user, date) {
 	var div = document.createElement('div');
 	div.className = 'message';
 	div.setAttribute('data-uid', user.id);
@@ -342,12 +338,10 @@ function timeAgo(date) {
 	return Math.round(seconds) + " seconds ago";
 }
 
-function renderPageContents(page, element) {
-	if (page.values) {
+function renderPageContents(page) {
+	if (page.values)
 		var lang = page.values.markupLang;
-	}
-	var out = Parse.parseLang(page.content, lang, element, true);
-	return out;
+	return Parse.parseLang(page.content, lang, true);
 }
 
 // as far as I know, the o3DS doesn't support parsing ISO 8601 timestamps
@@ -361,7 +355,7 @@ function parseDate(str) {
 	return new Date(0);
 }
 
-function renderActivityItem(activity, page, user, noTime,comment) {
+function renderActivityItem(activity, page, user, noTime, comment) {
 	if (!user)
 		user = [];
 	else if (!(user instanceof Array))
@@ -414,7 +408,7 @@ function renderActivityItem(activity, page, user, noTime,comment) {
 	if (comment) {
 		var x = document.createElement('div');
 		x.className = "activityCommentText";
-		x.textContent = decodeComment(comment)[0].replace(/\n/g," ");
+		x.textContent = decodeComment(comment).t.replace(/\n/g," ");
 		div.appendChild(x);
 	}
 	return div;
@@ -514,7 +508,7 @@ function renderActivityLine(activity, users) {
 			div.appendChild(textItem("Deleted Comment"));
 		} else {
 			div.appendChild(textItem(": ", "pre"));
-			var text = decodeComment(activity.comment)[0];
+			var text = decodeComment(activity.comment).t;
 			div.appendChild(textItem(text.replace(/\n/g," "), "pre"));
 			div.title = text;
 		}
@@ -572,21 +566,17 @@ function renderMessageGap() {
 
 function renderMessagePart(comment, sizedOnload){
 	var x = decodeComment(comment.content);
-	var text=x[0], markup=x[1];
 	var element = document.createElement('p');
-	element = parser(markup)(text, false, element);
-	element.className += 'markup-root messagePart';
+	element.className = 'markup-root messagePart';
 	element.setAttribute('data-id', comment.id);
 	element.setAttribute('tabindex', "0");
-	var imgs = element.querySelectorAll('img');
-	for(var i=0;i<imgs.length;i++) {
+	var contents = Parse.parseLang(x.t, x.m, false)
+	var imgs = contents.querySelectorAll('img');
+	for(var i=0; i<imgs.length; i++) {
 		imgs[i].onload = sizedOnload;
 	}
+	element.replaceChildren(contents);
 	return element;
-}
-
-function parser(markup) {
-	return Parse.lang[markup] || Parse.fallback;
 }
 
 // There are 2 types of messages in the scroller
@@ -667,6 +657,30 @@ AutoScroller.prototype.autoScrollAnimation = function() {
 		this.animationId = null;
 	}
 }
+
+// should be called in reverse order etc. etc. you know
+// times will be incorrect oh well
+AutoScroller.prototype.insertTop = function(id, node, uid, makeBlock) {
+	var firstUidBlock = this.inner.firstChild;
+	if (firstUidBlock) {
+		var firstUid = firstUidBlock.getAttribute('data-uid');
+		if (!firstUid)
+			firstUidBlock = null;
+		else
+			firstUid = +firstUid;
+	}
+	if (uid && firstUid == uid && firstUidBlock) {
+		var contents = firstUidBlock.querySelector('.messageContents, .activityContent')// BAD! FIX!
+		contents.insertBefore(node, contents.firstChild);
+	} else {
+		var b = makeBlock();
+		b[1].appendChild(node);
+		this.inner.insertBefore(b[0], this.inner.firstChild);
+	}
+	this.nodes[id] = node;
+	this.count++;
+}
+
 AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 	var s = this.shouldScroll();
 	if (id == null) {
@@ -752,14 +766,14 @@ AutoScroller.prototype.trimOld = function() {
 	}
 }
 
-function ChatRoom() {
+function ChatRoom(id) {
 	this.element = document.createElement('div');
 	this.element.className = "chatPane";
-
+	
 	this.list = document.createElement('div');
 	this.list.className = "rem2-3 bar userlist";
 	this.element.appendChild(this.list);
-
+	
 	var scrollerBox = document.createElement('div');
 	var scroller = document.createElement('div');
 	scroller.className="chatScroller grow";
@@ -770,14 +784,53 @@ function ChatRoom() {
 	this.pageElement = document.createElement('div');
 	this.pageElement.className = "markup-root";
 	this.scroller.element.insertBefore(this.pageElement, this.scroller.inner);
+	
 	this.hide();
+	var btn = renderButton();
+	btn[1].appendChild(document.createTextNode("load older messages"));
+	this.scroller.element.insertBefore(btn[0], this.scroller.inner);
+	var lock;
+	var $=this;
+	btn[1].onclick = function() {
+		if (lock)
+			return;
+		if (!$.firstId)
+			return;
+		lock = true;
+		// WAIT what is fucking `me` doing here WHAT
+		// SHIT WHY IS THIS IN RENDER.JS
+		// NO NO NO
+		me.getCommentsBefore(id, $.firstId, 10, function(comments, users) {
+			lock = false;
+			if (comments) {
+				if (comments.length)
+					$.firstId = comments[comments.length-1].id;
+				else
+					$.firstId = false; // no more  to load
+				comments.forEach(function(comment) {
+					$.displayOldMessage(comment, users[comment.createUserId]);
+				});
+			}
+		});
+	}
+}
+
+ChatRoom.prototype.displayOldMessage = function(c, user) {
+	var node = renderMessagePart(c, function(){
+	});
+	this.scroller.insertTop(c.id, node, c.createUserId, function() {
+		var b = renderChatBlock(user, parseDate(c.editDate));
+		if (c.createUserId == me.uid)
+			b[0].className += " ownMessage";
+		return b;
+	});
 }
 
 ChatRoom.prototype.updatePage = function(page, users) {
 	// todo: other fields
 	var s = this.scroller.shouldScroll();
 	this.page = page;
-	Parse.parseLang(page.content, page.values && page.values.markupLang, this.pageElement);
+	this.pageElement.replaceChildren(Parse.parseLang(page.content, page.values && page.values.markupLang));
 	if (s)
 		this.scroller.autoScroll(true);
 }
@@ -802,6 +855,8 @@ ChatRoom.prototype.remove = function() {
 }
 
 ChatRoom.prototype.displayMessage = function(c, user, force) {
+	if (!this.firstId)
+		this.firstId = c.id;
 	var $=this;
 	if (c.deleted) {
 		this.scroller.remove(c.id);
@@ -813,14 +868,13 @@ ChatRoom.prototype.displayMessage = function(c, user, force) {
 			}
 		});
 		this.scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderUserBlock(user, parseDate(c.editDate));
+			var b = renderChatBlock(user, parseDate(c.editDate));
 			if (c.createUserId == me.uid)
 				b[0].className += " ownMessage";
 			return b;
 		});
 		if (!force) {
-			var text = decodeComment(c.content);
-			document.title = text[0];
+			document.title = decodeComment(c.content).t;
 			changeFavicon(user.avatarURL);
 		}
 	}

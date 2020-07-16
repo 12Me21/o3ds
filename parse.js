@@ -146,9 +146,7 @@ var Parse = {
 		//=====================
 		// nodes with children
 		root: function(element) {
-			var node = element || create('div');
-			if (!element)
-				node.className = 'markup-root';
+			var node = document.createDocumentFragment();
 			return {block:true, node:node};
 		},
 		bold: creator('b'),
@@ -1416,10 +1414,7 @@ var Parse = {
 		return root.node;
 	}
 	
-	Parse.parseLang = function(text, lang, element, preview) {
-		if (element) {
-			element.innerHTML = "";
-		}
+	Parse.parseLang = function(text, lang, preview) {
 		i=0;
 		code = text;
 		if (preview) {
@@ -1429,7 +1424,7 @@ var Parse = {
 		}
 		try {
 			var parser = Parse.lang[lang] || Parse.fallback;
-			return parser(text, false, element);
+			return parser(text, false);
 		} catch(e) {
 			try {
 				options.append(output, options.error(e,e.stack));

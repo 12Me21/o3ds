@@ -3,6 +3,15 @@ function onReady(func) {
 	readyFuncs.push(func);
 }
 
+if (!HTMLElement.prototype.replaceChildren) {
+	// note: only supports 1 child element, which must be a node (not a string)
+	HTMLElement.prototype.replaceChildren = function(child) {
+		this.innerHTML = "";
+		if (child)
+			this.appendChild(child);
+	}
+}
+
 if (!window.localStorage) {
 	// Source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Local_storage
 	window.localStorage = {

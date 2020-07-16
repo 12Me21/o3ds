@@ -9,10 +9,9 @@ function cleanUp(type) {
 	flag('myUserPage');
 	flag('canEdit');
 	flag('page');
-	$authorBox.innerHTML = "";
-	$sbapiInfo.innerHTML = "";
-	$fileBox.innerHTML = "";
-	/*$chatUserlist.innerHTML = "";*/
+	$authorBox.replaceChildren();
+	$sbapiInfo.replaceChildren();
+	$fileBox.replaceChildren();
 	$fileView.src = "";
 	
 	//todo: when switching, clear content of old whatever
@@ -96,30 +95,6 @@ function encodeComment(text, metadata) {
 	return JSON.stringify(metadata || {})+"\n"+text;
 }
 
-function decodeComment(content) {
-	var text, markup;
-	var i = content.indexOf("\n");
-	if (i < 0) {
-		if (content[0] == "{") {
-			var j = parseJSON(content);
-			if (j) {
-				text = j.t;
-				markup = j.m;
-			} else
-				text = content;
-		} else {
-			text = content;
-		}
-	} else {
-		var j = parseJSON(content.substr(0,i));
-		if (j) {
-			markup = j.m
-		}
-		text = content.substr(i+1);
-	}
-	return [text,markup];
-}
-
 function sendMessage(room, text, params, editId) {
 	if (editId) {
 		me.editComment(editId, text, params || {}, function(e, resp) {} );
@@ -132,6 +107,13 @@ function sendMessage(room, text, params, editId) {
 			}
 		});
 	}
+}
+
+// "generate" functions operate implicitly on specific html elements, and should be in view.js
+// "render" functions often are similar but more general, and are in render.js
+// I feel like the names are backwards, sorry...
+function generateAuthorBox(page, users) {
+	$authorBox.replaceChildren(renderAuthorBox(page, users));
 }
 
 function megaAggregate(activity, ca, contents, users, category) {
@@ -172,7 +154,6 @@ function megaAggregate(activity, ca, contents, users, category) {
 		else if (x.type == "content")
 			x.content = contentMap[x.contentId];
 		else if (x.type == "category") {
-			
 			x.content = contentMap[x.contentId];
 		} else if (x.type == "user" && x.action!="u") {
 			x.content = users[x.contentId];
@@ -192,12 +173,12 @@ function megaAggregate(activity, ca, contents, users, category) {
 }
 
 function generatePath(path) {
-	setChild($navPane, renderPath(path));
+	$navPane.replaceChildren(renderPath(path));
 }
 // function generatePagePath - category tree paths
 
 function updateUserlist(list, listeners, userMap) {
-	list.innerHTML = "";
+	list.replaceChildren();
 	listeners && forDict(listeners, function(status, user) {
 		status = decodeStatus(status);
 		if (status) {
@@ -222,12 +203,8 @@ function changeFavicon(src) {
 	document.head.appendChild(link);
 }
 
-/*function displayGap() {
-  scroller.insert(null, renderMessageGap());
-  }*/
-
 function handlePinned(pinned) {
-	$categoryPinned.innerHTML = "";
+	$categoryPinned.replaceChildren();
 	pinned.forEach(function(content) {
 		$categoryPinned.appendChild(renderPinnedPage(content, users2, true));
 	});
@@ -239,12 +216,7 @@ function sbapi(key, callback) {
 	x.onload = function() {
 		var code = x.status;
 		if (code == 200) {
-			var resp = null;
-			try {
-				resp = JSON.parse(x.responseText);
-			} catch(e) {
-			}
-			callback(resp);
+			callback(parseJSON(x.responseText));
 		} else {
 			callback(null);
 		}
@@ -437,7 +409,7 @@ var views = {
 			if (activity) {
 				setTitle("Activity");
 				var last = {};
-				$activity.innerHTML = "";
+				$activity.replaceChildren();
 				
 				megaAggregate(activity, ca, pages).forEach(function(activity){
 					if (activity.contentId != last.contentId || activity.action != last.action || activity.userId != last.userId) {
@@ -498,7 +470,6 @@ var views = {
 
 				room.updatePage(page);
 				handleLoads(room.pageElement);
-				/*renderPageContents(page, $pageContents)*/
 				if (!room.loaded) {
 					room.page = page;
 					room.users = users;
@@ -539,11 +510,11 @@ var views = {
 						} else if (!data.available) {
 							$metaKey.className += " brokenKey";
 						}
-						setChild($sbapiInfo, renderKeyInfo(key, data));
+						$sbapiInfo.replaceChildren(renderKeyInfo(key, data));
 					})
 				} else {
 					$metaKey.textContent = "";
-					$sbapiInfo.innerHTML = "";
+					$sbapiInfo.replaceChildren();
 				}
 				if (query["#"]) {
 					var comment=document.getElementById("_anchor_"+query["#"])
@@ -569,7 +540,7 @@ var views = {
 		},
 		render: function(users, page) {
 			$main.className = 'membersMode';
-			$memberList.innerHTML = "";
+			$memberList.replaceChildren();
 			$membersPrev.href = "#users?page="+Math.max(1,page);
 			$membersNext.href = "#users?page="+(page+2);
 			// we need better pagination :(
@@ -599,10 +570,10 @@ var views = {
 			
 			users2 = users;
 			$main.className = 'categoryMode';
-			$categoryPages.innerHTML = "";
-			$categoryCategories.innerHTML = "";
-			$categoryDescription.textContent = "";
-			$categoryPinned.innerHTML = "";
+			$categoryPages.replaceChildren();
+			$categoryCategories.replaceChildren();
+			$categoryDescription.replaceChildren();
+			$categoryPinned.replaceChildren();
 			flag('canEdit', !!category);
 			visible($categoryDescription, category && category.id);
 			if (category) {
@@ -611,10 +582,7 @@ var views = {
 				generatePath(makeCategoryPath(me.categoryTree, category.id));
 				setTitle(category.name, 'category');
 				if (category.id && category.description)
-					renderPageContents({
-						content: category.description,
-						values: category.values
-					}, $categoryDescription);
+					$categoryDescription.replaceChildren(Parse.parseLang(category.description, category.values.markupLang));
 				childs.forEach(function(cat) {
 					$categoryCategories.appendChild(renderCategory(cat, users));
 				});
@@ -655,7 +623,7 @@ var views = {
 			generateAuthorBox(user && page, userMap);
 			
 			$userPageAvatar.src = "";
-			$userActivity.innerHTML = "";
+			$userActivity.replaceChildren();
 			if (user) {
 				onUserPage = user.id;
 				generatePath([["#users","Users"], ["#user/"+id, user.username]]);
@@ -663,15 +631,14 @@ var views = {
 					flag('myUserPage', true);
 				setTitle(user.username);
 				if (page) {
-					renderPageContents(page, $userPageContents)
+					$userPageContents.replaceChildren(renderPageContents(page));
 					$editButton.href = "#pages/edit/"+page.id;
 					flag('canEdit', true);
 				} else if (user.id == me.uid) {
-					$userPageContents.innerHTML = "";
-					$userPageContents.appendChild(renderLinkButton("Create User Page", "#pages/edit?type=@user.page&name="+encodeURIComponent(me.me.username+"'s User Page")));
+					$userPageContents.replaceChildren(renderLinkButton("Create User Page", "#pages/edit?type=@user.page&name="+encodeURIComponent(me.me.username+"'s User Page")));
 					flag('canEdit', false);
 				} else {
-					$userPageContents.innerHTML = "";
+					$userPageContents.replaceChildren();
 				}
 				$userPageAvatar.src = user.bigAvatarURL;
 				$userPageAvatarLink.href = user.rawAvatarURL;
@@ -879,7 +846,7 @@ function readCateditFields(cat) {
 var editingCategory;
 
 function fillPermissionFields(element, perms, users) {
-	element.innerHTML = "";
+	element.replaceChildren();
 	if (!perms[0])
 		perms[0] = "";
 	forDict(perms, function(perm, id) {
@@ -975,7 +942,7 @@ RoomManager.prototype.remove = function(id) {
 }
 
 RoomManager.prototype.add = function(id, status) {
-	var room = new ChatRoom();
+	var room = new ChatRoom(id);
 	this.element.appendChild(room.element);
 	this.rooms[id] = room;
 	room.status = status;

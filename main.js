@@ -96,9 +96,9 @@ function editComment(id, element) {
 	me.getComment(id, function(comment) {
 		if (comment) {
 			var c = decodeComment(comment.content);
-			$chatTextarea.value = c[0];
+			$chatTextarea.value = c.t;
 			markupBefore = $chatMarkupSelect.value;
-			$chatMarkupSelect.value = c[1] || "plaintext";
+			$chatMarkupSelect.value = c.m || "plaintext";
 			editingMessage = id;
 			flag('editingComment', true);
 			editingElement = element;
@@ -320,12 +320,7 @@ function deletePage() {
 function updateEditorPreview(preview) {
 	var parent = $editorPreview;
 	var shouldScroll = parent.scrollHeight-parent.clientHeight-parent.scrollTop < 10
-	renderPageContents({
-		values: {
-			markupLang: $markupSelect.value
-		},
-		content: $editorTextarea.value
-	}, $editorPreview);
+	setChild($editorPreview, Parse.parseLang($editorTextarea.value, $markupSelect.value));
 	// auto scroll down when adding new lines to the end (presumably)
 	if (shouldScroll) {
 		parent.scrollTop = parent.scrollHeight-parent.clientHeight;
@@ -333,13 +328,6 @@ function updateEditorPreview(preview) {
 }
 
 var onUserPage;
-
-// "generate" functions operate implicitly on specific html elements, and should be in view.js
-// "render" functions often are similar but more general, and are in render.js
-// I feel like the names are backwards, sorry...
-function generateAuthorBox(page, users) {
-	renderAuthorBox(page, users, $authorBox);
-}
 
 function decodeStatus(status) {
 	if (!status)

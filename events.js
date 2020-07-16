@@ -132,7 +132,7 @@ function addEvents() {
 	attachPaste($filePaste, function(url) {
 		selectFileURL(url);
 	});
-
+	
 	$fileUpdateButton.onclick = function() {
 		if (selectedFile && selectedFile.id) {
 			readFileFields(selectedFile);

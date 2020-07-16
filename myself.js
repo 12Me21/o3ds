@@ -684,6 +684,19 @@ Myself.prototype.getComment = function(id, callback) {
 			$.cb(callback, null);
 	});
 }
+Myself.prototype.getCommentsBefore = function(room, id, count, callback) {
+	var $=this;
+	return $.read([
+		{comment: {maxId: id-1, reverse: true, limit: count, parentIds: [room]}},
+		"user.0createUserId.0editUserId",
+	], {}, function(e, resp) {
+		if (!e) {
+			$.cb(callback, resp.comment, resp.userMap);
+		} else {
+			$.cb(callback, null, {});
+		}
+	});
+}
 
 Myself.prototype.setWatch = function(id, state, callback) {
 	if (state)

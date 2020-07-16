@@ -62,7 +62,7 @@ LongPoller.prototype.loop = function() {
 	// every value in .statuses is also in .lastListeners
 	// so we can sync clients and avoid status fighting
 	var cancelled;
-	var x = $.myself.doListen($.lastId, {}, $.lastListeners, undefined, this.cancel, function(e, resp) {
+	var x = $.myself.doListen($.lastId, $.statuses, $.lastListeners, undefined, this.cancel, function(e, resp) {
 		if (cancelled) {
 			console.warn("long poller tried to run after being aborted!");
 			return;
