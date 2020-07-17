@@ -1180,3 +1180,7 @@ body.pageMode main {
 #\$longPollStatus {
 	border-bottom: 1px solid gray;
 }
+
+#\$searchResults > .bar {
+	border-bottom: 1px solid gray;
+}

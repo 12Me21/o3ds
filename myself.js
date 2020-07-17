@@ -684,6 +684,7 @@ Myself.prototype.getComment = function(id, callback) {
 			$.cb(callback, null);
 	});
 }
+
 Myself.prototype.getCommentsBefore = function(room, id, count, callback) {
 	var $=this;
 	return $.read([
@@ -901,12 +902,16 @@ Myself.prototype.search = function(text, page, callback) {
 		{content: {limit: count, skip: page, keyword: "%"+like+"%"}},
 	],{
 		content: "name,id,type,permissions"
-	},function(e, resp){
+	}, function(e, resp){
 		if (!e)
 			$.cb(callback, resp.user, resp.content);
 		else
 			$.cb(callback, null);
 	});
+}
+
+Myself.prototype.searchUsers = function(text, page, callback) {
+	
 }
 
 Myself.prototype.getUserPage = function(id, callback) {

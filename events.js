@@ -345,9 +345,9 @@ function addEvents() {
 
 	$searchButton.onclick = function() {
 		me.search($searchInput.value, 0, function(user, content) {
-			if (user) {
-				
-			}
+			if (!user)
+				return;
+			generateSearchResults(user, content);
 		});
 	};
 }

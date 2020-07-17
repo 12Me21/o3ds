@@ -15,11 +15,17 @@ function renderKeyInfo(key, data) {
 	return element;
 }
 
-function renderEntity(x, type) {
+function renderSearchItem(x, type) {
 	var a = document.createElement("a");
+	a.className = "bar rem2-3 categoryPage";
 	if (type=="user") {
-		
+		a.href = "#user/"+x.id;
+		a.appendChild(renderUserLink(x, false));
+	} else if (type=="content") {
+		a.href = "#pages/"+x.id;
+		a.appendChild(renderContentName(x.name, pageIcon(x)));
 	}
+	return a;
 }
 
 function renderSidebarItem(page, user, comment) {
@@ -795,7 +801,7 @@ function ChatRoom(id) {
 		if (lock)
 			return;
 		for (var firstId in $.scroller.nodes)
-			break;
+			break; //lol
 		if (!firstId)
 			return;
 		lock = true;
@@ -818,8 +824,7 @@ function ChatRoom(id) {
 }
 
 ChatRoom.prototype.displayOldMessage = function(c, user) {
-	var node = renderMessagePart(c, function(){
-	});
+	var node = renderMessagePart(c, function(){});
 	this.scroller.insertTop(c.id, node, c.createUserId, function() {
 		var b = renderChatBlock(user, parseDate(c.editDate));
 		if (c.createUserId == me.uid)

@@ -13,7 +13,7 @@ function cleanUp(type) {
 	$sbapiInfo.replaceChildren();
 	$fileBox.replaceChildren();
 	$fileView.src = "";
-	
+	$searchResults.replaceChildren();
 	//todo: when switching, clear content of old whatever
 	
 	cancelEdit();
@@ -954,3 +954,13 @@ RoomManager.prototype.updateUser = function(user) {
 		updateListAvatar(room.list, user);
 	});
 };
+
+function generateSearchResults(users, pages) {
+	$searchResults.replaceChildren();
+	users.forEach(function(user) {
+		$searchResults.appendChild(renderSearchItem(user, "user"));
+	});
+	pages.forEach(function(page) {
+		$searchResults.appendChild(renderSearchItem(page, "content"));
+	});
+}
