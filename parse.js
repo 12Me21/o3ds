@@ -861,7 +861,7 @@ var Parse = {
 					var url = readUrl(true)
 					if (eatChar("]")) {
 						if (eatChar("]"))
-							
+							;
 						else if (eatChar("["))
 							part2 = true
 					}
@@ -922,7 +922,7 @@ var Parse = {
 			
 			startBlock('cell', {row: row}, props)
 			while (eatChar(" "))
-				
+				;
 		}
 
 		// split string on first occurance
