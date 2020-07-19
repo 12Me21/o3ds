@@ -3,6 +3,14 @@ function onReady(func) {
 	readyFuncs.push(func);
 }
 
+function arrayToggle(array, value) {
+	var i = array.indexOf(value);
+	if (i<0)
+		array.push(value);
+	else
+		array.splice(i, 1);
+}
+
 if (!HTMLElement.prototype.replaceChildren) {
 	// note: only supports 1 child element, which must be a node (not a string)
 	HTMLElement.prototype.replaceChildren = function(child) {

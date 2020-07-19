@@ -75,13 +75,6 @@ function ready() {
 	var s = optionalStorage.get('globalStatus');
 	$globalStatusInput.value = s==undefined ? "online" : s;
 	lp.setGlobalStatus($globalStatusInput.value || undefined);
-
-	var s = optionalStorage.get('defaultStatus');
-	if (s == undefined) {
-		$defaultStatus.value = "active";
-	} else {
-		$defaultStatus.value = s;
-	}
 }
 
 function focusLastComment() {

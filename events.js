@@ -227,23 +227,6 @@ function addEvents() {
 			}
 		});
 	}
-	$defaultStatus.onchange = function() {
-		lp.defaultStatus = $defaultStatus.value || undefined;
-		optionalStorage.set('defaultStatus', $defaultStatus.value);
-	}
-	$currentStatusButton.onclick = function() {
-		if (currentChatRoom) {
-			var room = manager.rooms[currentChatRoom];
-			if (room) {
-				room.status = $currentStatus.value;
-				lp.statuses[currentChatRoom] = room.status;
-				lp.refresh();
-				if (!$currentStatus.value) {
-					delete lp.statuses[currentChatRoom];
-				}
-			}
-		}
-	}
 	$globalStatusButton.onclick = function() {
 		var status = $globalStatusInput.value || undefined;
 		lp.setGlobalStatus(status);

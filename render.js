@@ -776,9 +776,34 @@ function ChatRoom(id) {
 	this.element = document.createElement('div');
 	this.element.className = "chatPane";
 	
-	this.list = document.createElement('div');
-	this.list.className = "rem2-3 bar userlist";
-	this.element.appendChild(this.list);
+	
+	var list = document.createElement('div');
+	list.className = "rem2-3 bar userlist";
+	this.element.appendChild(list);
+	
+	var hideButton = renderButton();
+	hideButton[1].textContent = "hide";
+	list.appendChild(hideButton[0]);
+	hideButton[0].className += " item";
+	this.list = document.createElement('span');
+	list.appendChild(this.list);
+	var hideLock
+	hideButton[1].onclick = function() {
+		if (hideLock)
+			return;
+		hideLock = true;
+		// no no no you can't--
+		me.getMe(function(e, resp) {
+			if (!e) {
+				var hiding = resp.hidelist;
+				arrayToggle(hiding, id);
+				me.setBasic({hidelist:hiding}, function(){
+					hideLock = false;
+				});
+			} else
+				hideLock = false;
+		});
+	}
 	
 	var scrollerBox = document.createElement('div');
 	var scroller = document.createElement('div');

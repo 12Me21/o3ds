@@ -430,7 +430,7 @@ var views = {
 	},
 	pages: {
 		start: function(id, query, callback) {
-			var room = manager.rooms[id] || manager.add(id, $defaultStatus.value);
+			var room = manager.rooms[id] || manager.add(id, "active");
 			/*if (manager.rooms[id].loaded)
 			  manager.show(id);*/
 			var linked = query["#"];
@@ -642,7 +642,7 @@ var views = {
 				}
 				$userPageAvatar.src = user.bigAvatarURL;
 				$userPageAvatarLink.href = user.rawAvatarURL;
-				$userPageStatus.textContent = decodeStatus(lp.getGlobalStatuses[user.id] || "");
+				$userPageStatus.textContent = decodeStatus(lp.getGlobalStatuses()[user.id] || "");
 				var lastId, lastAction;
 				megaAggregate(activity, ca, pages).forEach(function(activity){
 					if (activity.contentId != lastId || activity.action != lastAction) {
@@ -724,6 +724,8 @@ var views = {
 	},
 	search: {
 		render: function(id, query) {
+			setTitle("Search");
+			generatePath([["#search","Search"]]);
 			$main.className = "searchMode";
 		}
 	},
@@ -912,7 +914,6 @@ RoomManager.prototype.show = function(id) {
 				lp.statuses[rid] = ""
 	});
 	lp.statuses[id] = this.rooms[id].status;
-	$currentStatus.value = this.rooms[id].status;
 	lp.refresh();
 	forDict(this.rooms, function(room, rid) {
 		if (id != rid) {

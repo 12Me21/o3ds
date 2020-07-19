@@ -782,6 +782,10 @@ Myself.prototype.setBasic = function(data, callback) {
 	this.request("User/basic", 'PUT', callback, data);
 }
 
+Myself.prototype.getMe = function(callback) {
+	this.request("User/me", 'GET', callback);
+}
+
 Myself.prototype.getActivity = function(page, callback) {
 	var $=this;
 	var day = 1000*60*60*24
