@@ -11,7 +11,7 @@ function renderKeyInfo(key, data) {
 	icon.className = "metaIcon"
 	element.appendChild(icon)
 	element.appendChild(textItem(data.filename, "pre metaTitle"))
-	element.appendChild(textItem(data.author.name, "pre metaAuthor")); //todo: link with sbs account somehow?
+	element.appendChild(textItem(data.author.name, "pre metaAuthor")) //todo: link with sbs account somehow?
 	return element
 }
 
@@ -382,7 +382,7 @@ function renderActivityItem(activity, page, user, noTime, comment) {
 
 	if (activity.type == 'content') {
 		if (activity.action == "p")
-			div.href = "#pages/"+activity.contentId+"#comment-"+activity.id; //todo: comment link
+			div.href = "#pages/"+activity.contentId+"#comment-"+activity.id //todo: comment link
 		else if (activity.contentId)
 			div.href = "#pages/"+activity.contentId
 
@@ -708,7 +708,7 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 			this.count--
 			// insert a new line to the last block
 		} else if (uid && lastUid == uid && lastUidBlock) {
-			lastUidBlock.querySelector('.messageContents, .activityContent').appendChild(node);  // BAD! FIX!
+			lastUidBlock.querySelector('.messageContents, .activityContent').appendChild(node)  // BAD! FIX!
 			// create a new block
 		} else {
 			var b = makeBlock()
@@ -820,7 +820,7 @@ function ChatRoom(id) {
 		if (lock)
 			return
 		for (var firstId in $.scroller.nodes)
-			break; //lol
+			break //lol
 		if (!firstId)
 			return
 		lock = true

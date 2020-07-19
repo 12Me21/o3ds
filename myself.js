@@ -19,7 +19,10 @@
 function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 	var x = new XMLHttpRequest()
 	if (cancel)
-		cancel[0] = function() {x.abort();console.log("aborted")}
+		cancel[0] = function() {
+			x.abort()
+			console.log("aborted")
+		}
 	x.open(method, url)
 
 	var start = Date.now()
@@ -83,7 +86,7 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 		}
 	}
 	x.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate")
-	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
+	x.setRequestHeader('Pragma', "no-cache") // for internet explorer
 	if (auth)
 		x.setRequestHeader('Authorization', "Bearer "+auth)
 	
@@ -362,10 +365,10 @@ Myself.prototype.loadCachedAuth = function(callback) {
 		$.setAuth(cached)
 		/*$.readSimple("User/me", 'user', function(e, resp){
 			if (e == 'auth' || e == 'error') {
-				$.logOut(); //auth was invalid
+				$.logOut() //auth was invalid
 			}
 			$.cb(callback, e, resp)
-		}); //this is used to test the auth*/
+		}) //this is used to test the auth*/
 		return true
 	}
 	return false
@@ -568,7 +571,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 
 Myself.prototype.setVariable = function(name, value, callback) {
 	var s = new String(value)
-	s.constructor = Object; // this is to make my request function convert to json lol
+	s.constructor = Object // this is to make my request function convert to json lol
 	return this.request("Variable/"+name, 'POST', callback, s)
 }
 
@@ -813,7 +816,7 @@ Myself.prototype.getActivity = function(page, callback) {
 		"user.0userId.1userIds"
 	]
 	/*if ($.categoryTree)
-		reading.push("category.0contentId");*/
+		reading.push("category.0contentId")*/
 	return $.read(reading, {
 		content: "name,id,permissions"
 	},function(e, resp) {
@@ -910,7 +913,7 @@ Myself.prototype.putFile = function(file, callback) {
 }
 
 Myself.prototype.search = function(text, page, callback) {
-	var like = text.replace(/%/g,"_"); //the best we can do...
+	var like = text.replace(/%/g,"_") //the best we can do...
 	var count = 20
 	page = page*count
 	var $=this
@@ -975,7 +978,7 @@ function buildCategoryTree(categories) {
 
 function updateCategoryTree(tree, categories) {
 	categories = categories.map(function(cat) {
-		var n = Object.assign({}, cat); //copy
+		var n = Object.assign({}, cat) //copy
 		n.childs = []
 		tree.map[n.id] = n
 		return n

@@ -671,7 +671,7 @@ var Parse = {
 				//==============
 				// -... list/hr
 			} else if (startOfLine && eatChar("-")) {
-				textBuffer = ""; //hack:
+				textBuffer = "" //hack:
 				//----------
 				// --... hr
 				if (eatChar("-")) {
@@ -682,7 +682,7 @@ var Parse = {
 					// ---<EOL> hr
 					if (c == "\n" || !c) { //this is kind of bad
 						addBlock(options.line())
-						skipNextLineBreak = true; //hack
+						skipNextLineBreak = true //hack
 						//----------
 						// ---... normal text
 					} else {
@@ -726,7 +726,7 @@ var Parse = {
 						if (table.columns == null)
 							table.columns = row.cells
 						// end blocks
-						endBlock(); //cell
+						endBlock() //cell
 						if (top_is('row')) //always
 							endBlock()
 						// start row
@@ -745,21 +745,21 @@ var Parse = {
 						// | next cell or table end
 					} else {
 						row.cells++
-						textBuffer = textBuffer.replace(/ *$/,""); //strip trailing spaces (TODO: allow \<space>)
+						textBuffer = textBuffer.replace(/ *$/,"") //strip trailing spaces (TODO: allow \<space>)
 						// end of table
 						// table ends when number of cells in current row = number of cells in first row
 						// single-row tables are not easily possible ..
 						// TODO: fix single row tables
 						if (table.columns != null && row.cells > table.columns) {
-							endBlock(); //end cell
+							endBlock() //end cell
 							if (top_is('row')) //always
-								endBlock(); //row
+								endBlock() //row
 							if (top_is('table')) //always
-								endBlock(); //table
+								endBlock() //table
 							if (eaten)
 								addLineBreak()
 						} else { // next cell
-							endBlock(); //cell
+							endBlock() //cell
 							startCell(row)
 						}
 					}
@@ -860,9 +860,8 @@ var Parse = {
 					var part2 = false
 					var url = readUrl(true)
 					if (eatChar("]")) {
-						if (eatChar("]"))
-							;
-						else if (eatChar("["))
+						if (eatChar("]")){
+						}else if (eatChar("["))
 							part2 = true
 					}
 					startBlock(embed ? urlType(url) : 'link', {big: true}, {"":url}, preview)
@@ -921,8 +920,8 @@ var Parse = {
 				props.h = true
 			
 			startBlock('cell', {row: row}, props)
-			while (eatChar(" "))
-				;
+			while (eatChar(" ")){
+			}
 		}
 
 		// split string on first occurance
@@ -1052,7 +1051,7 @@ var Parse = {
 							// next item has larger indent; start nested list	
 						} else if (indent > top.level) {
 							startBlock('list', {level: indent}, {})
-							startBlock('item', {level: indent}); // then made the first item of the new list
+							startBlock('item', {level: indent}) // then made the first item of the new list
 							// OPTION 4:
 							// next item has less indent; try to exist 1 or more layers of nested lists
 							// if this fails, fall back to just creating a new item in the current list
@@ -1075,7 +1074,7 @@ var Parse = {
 							}
 							startBlock('item', {level: indent})
 						}
-						break; //really?
+						break //really?
 					}
 				} else {
 					addLineBreak()

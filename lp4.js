@@ -46,7 +46,7 @@ LongPoller.prototype.setStatus = function(id, status) {
 		/*
 		if (!this.lastListeners[id])
 			this.lastListeners[id] = {"0":""}
-		this.lastListeners[id][this.myself.uid] = status;*/
+		this.lastListeners[id][this.myself.uid] = status*/
 	}
 }
 
@@ -57,7 +57,7 @@ LongPoller.prototype.blockCancel = function() {
 
 LongPoller.prototype.loop = function() {
 	var $=this
-	$.setState("Idle (waiting)", true);//idle
+	$.setState("Idle (waiting)", true)//idle
 	// todo: we need to make sure that
 	// every value in .statuses is also in .lastListeners
 	// so we can sync clients and avoid status fighting

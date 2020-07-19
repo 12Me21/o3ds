@@ -67,7 +67,7 @@ function newPage(query) {
 function generatePagePath(page, users) {
 	// user page (at root)
 	if (page.type == "@user.page" && !page.parentId) {
-		var creator = users[page.createUserId] || me.me; //hack for user page creation
+		var creator = users[page.createUserId] || me.me //hack for user page creation
 		generatePath([["#users","Users"], ["#user/"+creator.id, creator.username], ["#pages/"+page.id, page.name]])
 	} else if (page.id) {
 		generatePath(makeCategoryPath(me.categoryTree, page.parentId, page))
@@ -84,7 +84,7 @@ function decodeComment(content) {
 	} finally {
 		if (data && data.constructor == Object) { // new or legacy format
 			if (newline >= 0)
-				data.t = content.substr(newline+1); // new format
+				data.t = content.substr(newline+1) // new format
 		} else // raw
 			data = {t: content}
 		return data
@@ -158,7 +158,7 @@ function megaAggregate(activity, ca, contents, users, category) {
 		} else if (x.type == "user" && x.action!="u") {
 			x.content = users[x.contentId]
 		} else
-			return; //some weird activity type
+			return //some weird activity type
 		return x
 	})
 	allAct = allAct.sort(function(a, b) {
@@ -224,7 +224,7 @@ function sbapi(key, callback) {
 	x.onerror = function() {
 		callback(null)
 	}
-	x.setRequestHeader('Pragma', "no-cache"); // for internet explorer
+	x.setRequestHeader('Pragma', "no-cache") // for internet explorer
 	x.send()
 }
 
@@ -303,7 +303,7 @@ function getImageFile(url, callback) {
 				file.lastModifiedDate = new Date()
 				callback(file)
 			} else {
-				alert("can't get this file!");	
+				alert("can't get this file!")	
 			}
 		}
 		x.send()
@@ -319,7 +319,7 @@ function selectFileURL(url) {
 function selectUploadedFile(file) {
 	selectedFile = null
 	var url = URL.createObjectURL(file)
-	URL.revokeObjectURL($fileView.src); //should probably only do this when it's actually a blob url lol
+	URL.revokeObjectURL($fileView.src) //should probably only do this when it's actually a blob url lol
 	$fileView.src = url
 	$fileView.onload = function() {
 		selectedFile = file
@@ -432,7 +432,7 @@ var views = {
 		start: function(id, query, callback) {
 			var room = manager.rooms[id] || manager.add(id, "active")
 			/*if (manager.rooms[id].loaded)
-			  manager.show(id);*/
+			  manager.show(id)*/
 			var linked = query["#"]
 			if (linked && /^comment-/.test(linked)) {
 				linked=+linked.substr(8)
@@ -457,7 +457,7 @@ var views = {
 			if (page) {
 				room = manager.rooms[page.id]
 				flag('page', true)
-				/*scroller.switchRoom(page.id);*/
+				/*scroller.switchRoom(page.id)*/
 				manager.show(page.id)
 				generatePagePath(page, users)
 				currentPage = page.id
@@ -795,19 +795,19 @@ function fillEditorFields(page, users) {
 		$editorTextarea.value = page.content
 	updateEditorPreview()
 	$keywords.value = page.keywords.join(" ")
-	/*$permissions.value = JSON.stringify(page.permissions);*/
+	/*$permissions.value = JSON.stringify(page.permissions)*/
 	fillPermissionFields($permissionBox, page.permissions, users)
 	$editPageType.value = page.type
 	$editPageCategory.value = page.parentId
 	
-	generatePagePath(page, me.userCache); //usercache is hack lol
+	generatePagePath(page, me.userCache) //usercache is hack lol
 }
 
 function readEditorFields(page) {
 	page.name = $titleInput.value
 	page.values.markupLang = $markupSelect.value
 	page.keywords = $keywords.value.split(" ")
-	page.permissions = readPermissionFields($permissionBox);//JSON.parse($permissions.value)
+	page.permissions = readPermissionFields($permissionBox)//JSON.parse($permissions.value)
 	page.type = $editPageType.value
 	page.content = $editorTextarea.value
 	page.parentId = +$editPageCategory.value
@@ -930,7 +930,7 @@ RoomManager.prototype.logOut = function() {
 	forDict($.rooms, function(room, rid) {
 		room.remove()
 		delete $.rooms[rid]
-	});*/
+	})*/
 }
 
 RoomManager.prototype.remove = function(id) {

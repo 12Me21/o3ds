@@ -183,6 +183,7 @@ function hasPerm(perms, id, perm) {
 	return perms && perms[id] && perms[id].indexOf(perm) != -1
 }
 
+// limited
 Object.assign = function(a, b) {
 	for (key in b) {
 		a[key] = b[key]

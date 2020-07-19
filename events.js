@@ -15,7 +15,7 @@ function addEvents() {
 					}
 				} else
 					errors.push(resp)
-				$loginError.textContent = errors.join("\n").replace(" or email", "");//sorry
+				$loginError.textContent = errors.join("\n").replace(" or email", "")//sorry
 			}
 		})
 	}
@@ -104,8 +104,8 @@ function addEvents() {
 		if (selectedFile && selectedFile.id) {
 			me.setBasic({avatar: selectedFile.id}, function(e) {
 				if (!e) {
-					/*updateAvatar(selectedFile);*/
-					/*lp.updateAvatar();*/
+					/*updateAvatar(selectedFile)*/
+					/*lp.updateAvatar()*/
 				}
 			})
 		}

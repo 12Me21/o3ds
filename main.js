@@ -227,11 +227,11 @@ function navigateTo(path, first, callback, hash) {
 			}
 		})
 	}
-	path = path[0].split("/").filter(function(x){return x;})
+	path = path[0].split("/").filter(function(x){return x})
 
 	var type = path[0] || ""
 	var id = +(path[1]) || 0
-	var name;	
+	var name	
 	if (path[1] == 'edit') {
 		id = path[2]!=undefined && +path[2]
 		type = type + "/" + path[1]
@@ -266,7 +266,7 @@ function loadStart(lp) {
 }
 function loadEnd(lp, e) {
 	if (!lp)
-		flag('loading'); //fix this when multiple requests
+		flag('loading') //fix this when multiple requests
 }
 
 //maybe turn the title <h1> into an input box
@@ -340,7 +340,7 @@ function onLogin(me) {
 		$myUserLink.href = "#user/"+user.id
 	})
 	flag("loggedIn",true)
-	/*hashChange(false);*/
+	/*hashChange(false)*/
 	lp.onActivity = function(activity, users, pages, chains) {
 		//check for updated users
 		activity.forEach(function(act) {
@@ -374,7 +374,7 @@ function onLogin(me) {
 		var global = lp.getGlobalStatuses()
 		updateUserlist($sidebarUserlist, global, users)
 		if (onUserPage) {
-			$userPageStatus.textContent = decodeStatus(global[onUserPage]) || ""; //um why is this .. error     hhhh
+			$userPageStatus.textContent = decodeStatus(global[onUserPage]) || "" //um why is this .. error     hhhh
 		}
 	}
 	lp.onMessages = function(messages, users, pages) {
@@ -414,7 +414,7 @@ function onLogin(me) {
 						break
 					}
 				}
-				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true);*/
+				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true)*/
 			})
 		}
 	})
