@@ -782,6 +782,20 @@ Myself.prototype.setBasic = function(data, callback) {
 	this.request("User/basic", 'PUT', callback, data);
 }
 
+Myself.prototype.toggleHiding = function(id, callback) {
+	var $=this;
+	$.getMe(function(e, resp) {
+		if (!e) {
+			var hiding = resp.hidelist;
+			arrayToggle(hiding, id);
+			$.setBasic({hidelist:hiding}, function(){
+				$.cb(callback, hiding);
+			});
+		} else
+			$.cb(callback, null);
+	});
+}
+
 Myself.prototype.getMe = function(callback) {
 	this.request("User/me", 'GET', callback);
 }

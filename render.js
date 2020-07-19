@@ -787,21 +787,15 @@ function ChatRoom(id) {
 	hideButton[0].className += " item";
 	this.list = document.createElement('span');
 	list.appendChild(this.list);
-	var hideLock
+
+	var hideLock;
 	hideButton[1].onclick = function() {
 		if (hideLock)
 			return;
 		hideLock = true;
 		// no no no you can't--
-		me.getMe(function(e, resp) {
-			if (!e) {
-				var hiding = resp.hidelist;
-				arrayToggle(hiding, id);
-				me.setBasic({hidelist:hiding}, function(){
-					hideLock = false;
-				});
-			} else
-				hideLock = false;
+		me.toggleHiding(id, function() {
+			hideLock = false;
 		});
 	}
 	
@@ -836,10 +830,6 @@ function ChatRoom(id) {
 		me.getCommentsBefore(id, firstId, 10, function(comments, users) {
 			lock = false;
 			if (comments) {
-				/*if (comments.length)
-					$.firstId = comments[comments.length-1].id;
-				else
-					$.firstId = false; // no more  to load*/
 				comments.forEach(function(comment) {
 					$.displayOldMessage(comment, users[comment.createUserId]);
 				});

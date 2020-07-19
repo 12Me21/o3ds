@@ -484,7 +484,7 @@ var views = {
 				$voteCount_b.textContent = page.about.votes.b.count;
 				$voteCount_o.textContent = page.about.votes.o.count;
 				$voteCount_g.textContent = page.about.votes.g.count;
-				["b","o","g"].forEach(function(vote) {
+				;["b","o","g"].forEach(function(vote) {
 					window['$voteCount_'+vote].textContent = page.about.votes[vote].count;
 					attr(window['$voteButton_'+vote], 'data-selected', page.about.myVote == vote ? "true" : undefined);
 				});

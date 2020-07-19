@@ -18,7 +18,7 @@ var Parse = {
 // args without a value are set to true
 // for example, `[tag=test key=value option]` would pass
 // {"":"test", key:"value", option:true}
-(function() {
+;(function() {
 	function create(x) {
 		return document.createElement(x);
 	}
@@ -340,9 +340,9 @@ var Parse = {
 			}
 		}
 	}
-})();
+})()
 
-(function(){
+;(function(){
 	/***********
 	 ** STATE **
     ***********/
