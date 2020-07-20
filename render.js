@@ -570,13 +570,13 @@ function renderMessageGap() {
 	return div
 }
 
-function renderMessagePart(comment, sizedOnload, onSizeChange){
+function renderMessagePart(comment, sizedOnload){
 	var x = decodeComment(comment.content)
 	var element = document.createElement('p')
 	element.className = 'markup-root messagePart'
 	element.setAttribute('data-id', comment.id)
 	element.setAttribute('tabindex', "0")
-	var contents = Parse.parseLang(x.t, x.m, false, onSizeChange)
+	var contents = Parse.parseLang(x.t, x.m, false)
 	var imgs = contents.querySelectorAll('img')
 	for(var i=0; i<imgs.length; i++) {
 		imgs[i].onload = sizedOnload
@@ -776,7 +776,6 @@ function ChatRoom(id) {
 	this.element = document.createElement('div')
 	this.element.className = "chatPane"
 	
-	
 	var list = document.createElement('div')
 	list.className = "rem2-3 bar userlist"
 	this.element.appendChild(list)
@@ -809,13 +808,25 @@ function ChatRoom(id) {
 	this.pageElement = document.createElement('div')
 	this.pageElement.className = "markup-root"
 	this.scroller.element.insertBefore(this.pageElement, this.scroller.inner)
+
+	var $=this;
+	var should;
+	this.scroller.inner.addEventListener('beforeSizeChange', function(e) {
+		e.stopPropagation()
+		should = $.scroller.shouldScroll()
+	})
+	this.scroller.inner.addEventListener('afterSizeChange', function(e) {
+		e.stopPropagation()
+		if (should) {
+			$.scroller.autoScroll(true)
+		}
+	})
 	
 	this.hide()
 	var btn = renderButton()
 	btn[1].appendChild(document.createTextNode("load older messages"))
 	this.scroller.element.insertBefore(btn[0], this.scroller.inner)
 	var lock
-	var $=this
 	btn[1].onclick = function() {
 		if (lock)
 			return
@@ -888,11 +899,6 @@ ChatRoom.prototype.displayMessage = function(c, user, force) {
 			if (should) {
 				$.scroller.autoScroll()
 			}
-		}, function(x) {
-			if (x == undefined)
-				return $.scroller.shouldScroll()
-			else if (x)
-				$.scroller.autoScroll(true)
 		})
 		this.scroller.insert(c.id, node, c.createUserId, function() {
 			var b = renderChatBlock(user, parseDate(c.editDate))

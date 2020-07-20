@@ -1,3 +1,10 @@
+// TODO:
+// the system for handling resizes (for autoscroll) is a big mess
+// maybe try creating a custom event that gets triggered whenever
+// an element's height will be changed (when clicking an image, activating a youtube player, etc.)
+// and listen for it on the root element externally
+// see: document.createEvent
+
 var Parse = {
 	lang:{}
 }
@@ -29,6 +36,11 @@ var Parse = {
 		return function() {
 			return {node:create(tag)}
 		}
+	}
+	function newEvent(name) {
+		var event = document.createEvent("Event");
+		event.initEvent(name, true, true);
+		return event;
 	}
 	function getYoutube(id, callback) {
 		var x = new XMLHttpRequest
@@ -130,7 +142,7 @@ var Parse = {
 			node.setAttribute('src', url)
 			return {block:true, node:node}
 		},
-		youtube: function(args, preview, sizeChange) {
+		youtube: function(args, preview) {
 			var url = args[""]
 			var protocol = defaultProtocol()
 			var match = getYoutubeID(url)
@@ -161,7 +173,7 @@ var Parse = {
 				link.appendChild(ifc)
 				link.onclick = function(e) {
 					e.preventDefault()
-					var x = sizeChange()
+					div.dispatchEvent(newEvent("beforeSizeChange"));
 					var iframe = create('iframe')
 					var src = "https://www.youtube-nocookie.com/embed/"+match+"?autoplay=1";
 					if (time)
@@ -173,16 +185,16 @@ var Parse = {
 					iframe.src = src;
 					ifc.appendChild(iframe)
 					div.className = "youtube playingYoutube"
-					sizeChange(x)
+					div.dispatchEvent(newEvent("afterSizeChange"));
 				}
 				var stop = create('button')
 				stop.textContent = "x"
 				stop.onclick = function(e) {
 					e.preventDefault()
-					var x = sizeChange()
+					div.dispatchEvent(newEvent("beforeSizeChange"));
 					ifc.innerHTML = ""
 					div.className = "youtube"
-					sizeChange(x)
+					div.dispatchEvent(newEvent("afterSizeChange"));
 				}
 				div.appendChild(stop)
 			}
@@ -623,7 +635,7 @@ var Parse = {
 
 	var options = Parse.options
 	
-	Parse.lang['12y'] = function(codeInput, preview, sizeChange) {
+	Parse.lang['12y'] = function(codeInput, preview) {
 		// so what happens here is
 		// when a video needs to be generated
 		// first, check the cache. if it exists there, insert it
@@ -923,7 +935,7 @@ var Parse = {
 					else
 						type = 'link';
 					if (type == "youtube") {
-						addBlock(options.youtube({"":url}, preview, sizeChange));
+						addBlock(options.youtube({"":url}, preview));
 						if (part2)
 							addText("[") // scary
 					} else {
@@ -1065,7 +1077,7 @@ var Parse = {
 				else
 					type = 'link';
 				if (type == "youtube") {
-					addBlock(options.youtube({"":url}, preview, sizeChange));
+					addBlock(options.youtube({"":url}, preview));
 					if (after)
 						addText("[") // scary
 				} else {
@@ -1206,7 +1218,7 @@ var Parse = {
 		
 	}
 
-	Parse.lang.bbcode = function(codeArg, preview, sizeChange) {
+	Parse.lang.bbcode = function(codeArg, preview) {
 		var noNesting = {
 			spoiler:true
 		}
@@ -1261,7 +1273,7 @@ var Parse = {
 				return options.code(args, contents)
 			},
 			youtube: function(args, contents) {
-				return options.youtube({"":contents}, preview, sizeChange)
+				return options.youtube({"":contents}, preview)
 			},
 			img: function(args, contents) {
 				return options.image({"":contents})
@@ -1460,8 +1472,7 @@ var Parse = {
 	}
 	
 	// "plain text" (with autolinker)
-	Parse.fallback = function(text, preview, sizeChange) {
-		sizeChange = sizeChange || function(){}
+	Parse.fallback = function(text, preview) {
 		var options = Parse.options
 		var root = options.root()
 		i = 0
@@ -1487,7 +1498,7 @@ var Parse = {
 		return root.node
 	}
 	
-	Parse.parseLang = function(text, lang, preview, sizeChange) {
+	Parse.parseLang = function(text, lang, preview) {
 		i=0
 		code = text
 		if (preview) {
@@ -1497,7 +1508,7 @@ var Parse = {
 		}
 		try {
 			var parser = Parse.lang[lang] || Parse.fallback
-			return parser(text, preview, sizeChange)
+			return parser(text, preview)
 		} catch(e) {
 			try {
 				if (!output) {
