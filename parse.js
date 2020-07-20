@@ -142,6 +142,8 @@ var Parse = {
 			
 			if (match) {
 				link.style.backgroundImage = 'url("'+protocol+"//i.ytimg.com/vi/"+match+"/mqdefault.jpg"+'")'
+				var time = url.match(/[&?](?:t|start)=(\w+)/);
+				var end = url.match(/[&?](?:end)=(\w+)/);
 				if (!preview)
 					getYoutube(match, function(data) {
 						var title = create('div')
@@ -160,7 +162,12 @@ var Parse = {
 					e.preventDefault()
 					var x = sizeChange()
 					var iframe = create('iframe')
-					iframe.src = "https://www.youtube-nocookie.com/embed/"+match+"?autoplay=1";
+					var src = "https://www.youtube-nocookie.com/embed/"+match+"?autoplay=1";
+					if (time)
+						src += "&start="+time[1];
+					if (end)
+						src += "&end="+end[1];
+					iframe.src = src;
 					ifc.appendChild(iframe)
 					div.className = "youtube playingYoutube"
 					sizeChange(x)
