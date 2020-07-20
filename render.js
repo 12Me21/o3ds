@@ -570,13 +570,13 @@ function renderMessageGap() {
 	return div
 }
 
-function renderMessagePart(comment, sizedOnload){
+function renderMessagePart(comment, sizedOnload, onSizeChange){
 	var x = decodeComment(comment.content)
 	var element = document.createElement('p')
 	element.className = 'markup-root messagePart'
 	element.setAttribute('data-id', comment.id)
 	element.setAttribute('tabindex', "0")
-	var contents = Parse.parseLang(x.t, x.m, false)
+	var contents = Parse.parseLang(x.t, x.m, false, onSizeChange)
 	var imgs = contents.querySelectorAll('img')
 	for(var i=0; i<imgs.length; i++) {
 		imgs[i].onload = sizedOnload
@@ -839,7 +839,7 @@ function ChatRoom(id) {
 }
 
 ChatRoom.prototype.displayOldMessage = function(c, user) {
-	var node = renderMessagePart(c, function(){})
+	var node = renderMessagePart(c, function(){}, function(){})
 	this.scroller.insertTop(c.id, node, c.createUserId, function() {
 		var b = renderChatBlock(user, parseDate(c.editDate))
 		if (c.createUserId == me.uid)
@@ -884,10 +884,15 @@ ChatRoom.prototype.displayMessage = function(c, user, force) {
 		this.scroller.remove(c.id)
 	} else {
 		var should = this.scroller.shouldScroll()
-		var node = renderMessagePart(c, function(){
+		var node = renderMessagePart(c, function(type){
 			if (should) {
 				$.scroller.autoScroll()
 			}
+		}, function(x) {
+			if (x == undefined)
+				return $.scroller.shouldScroll()
+			else if (x)
+				$.scroller.autoScroll(true)
 		})
 		this.scroller.insert(c.id, node, c.createUserId, function() {
 			var b = renderChatBlock(user, parseDate(c.editDate))

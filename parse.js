@@ -30,6 +30,20 @@ var Parse = {
 			return {node:create(tag)}
 		}
 	}
+	function getYoutube(id, callback) {
+		var x = new XMLHttpRequest
+		x.open("GET", "https://www.googleapis.com/youtube/v3/videos?part=snippet&id="+id+"&key=AIzaSyBKka_xlF5pV4SMKLtQGIhOgyQsjF7UI-U");
+		x.onload = function() {
+			if (x.status != 200)
+				return
+			try {
+				var json = JSON.parse(x.responseText)
+				var video = json.items[0]
+				callback(video);
+			} catch(e){}
+		}
+		x.send();
+	}
 	function defaultProtocol() {
 		if (window.location.protocol == 'http:')
 			return 'http:'
@@ -116,23 +130,53 @@ var Parse = {
 			node.setAttribute('src', url)
 			return {block:true, node:node}
 		},
-		youtube: function(args) {
+		youtube: function(args, preview, sizeChange) {
 			var url = args[""]
 			var protocol = defaultProtocol()
 			var match = getYoutubeID(url)
-			if (true) {
-				var node = create('img')
-				node.className = "youtube"
-				if (match)
-					node.src = protocol+"//i.ytimg.com/vi/"+match+"/mqdefault.jpg"
-				return {block:true, node:node}
-			} else {
-				var node = create('iframe')
-				node.className = "youtube"
-				if (match)
-					node.src = protocol+"//www.youtube-nocookie.com/embed/"+match
-				return {block:true, node:node}
+			var link = create('a')
+			var div = create('div')
+			div.className = "youtube"
+			div.appendChild(link)
+			link.href = url
+			
+			if (match) {
+				link.style.backgroundImage = 'url("'+protocol+"//i.ytimg.com/vi/"+match+"/mqdefault.jpg"+'")'
+				if (!preview)
+					getYoutube(match, function(data) {
+						var title = create('div')
+						title.className = 'pre videoTitle'
+						title.textContent = data.snippet.title
+						link.appendChild(title)
+						link.appendChild(create('br'));
+						title = create('div')
+						title.className = 'pre videoAuthor'
+						title.textContent = data.snippet.channelTitle
+						link.appendChild(title)
+					})
+				var ifc = create('span')
+				link.appendChild(ifc)
+				link.onclick = function(e) {
+					e.preventDefault()
+					var x = sizeChange()
+					var iframe = create('iframe')
+					iframe.src = "https://www.youtube-nocookie.com/embed/"+match+"?autoplay=1";
+					ifc.appendChild(iframe)
+					div.className = "youtube playingYoutube"
+					sizeChange(x)
+				}
+				var stop = create('button')
+				stop.textContent = "x"
+				stop.onclick = function(e) {
+					e.preventDefault()
+					var x = sizeChange()
+					ifc.innerHTML = ""
+					div.className = "youtube"
+					sizeChange(x)
+				}
+				div.appendChild(stop)
 			}
+			return {block:true, node:div}
 		},
 		bg: function(opt) {
 			var node=document.createElement("span")
@@ -145,7 +189,7 @@ var Parse = {
 		
 		//=====================
 		// nodes with children
-		root: function(element) {
+		root: function() {
 			var node = document.createDocumentFragment()
 			return {block:true, node:node}
 		},
@@ -365,7 +409,7 @@ var Parse = {
 		}
 	}
 	
-	function init(scanFunc, myBlocks, text, element) {
+	function init(scanFunc, myBlocks, text) {
 		scan = scanFunc
 		code = text
 		if (cache)
@@ -379,7 +423,7 @@ var Parse = {
 		startOfLine = true
 		skipNextLineBreak = false
 		textBuffer = ""
-		output = curr = options.root(element)
+		output = curr = options.root()
 		stack = [{node:curr, type:'root'}]
 		stack.top = function() {
 			return stack[stack.length-1]
@@ -569,7 +613,7 @@ var Parse = {
 
 	var options = Parse.options
 	
-	Parse.lang['12y'] = function(codeInput, preview, element) {
+	Parse.lang['12y'] = function(codeInput, preview, sizeChange) {
 		// so what happens here is
 		// when a video needs to be generated
 		// first, check the cache. if it exists there, insert it
@@ -593,7 +637,7 @@ var Parse = {
 				leadingSpaces++
 			i++
 			c = code.charAt(i)
-		}, options, codeInput, element)
+		}, options, codeInput)
 		
 		var tags = {
 			spoiler: "spoiler",
@@ -864,12 +908,22 @@ var Parse = {
 						}else if (eatChar("["))
 							part2 = true
 					}
-					startBlock(embed ? urlType(url) : 'link', {big: true}, {"":url}, preview)
-					if (part2)
-						stack.top().inBrackets = true
-					else {
-						addText(url)
-						endBlock()
+					if (embed)
+						var type = urlType(url);
+					else
+						type = 'link';
+					if (type == "youtube") {
+						addBlock(options.youtube({"":url}, preview, sizeChange));
+						if (part2)
+							addText("[") // scary
+					} else {
+						startBlock(type, {big: true}, {"":url}, preview)
+						if (part2)
+							stack.top().inBrackets = true
+						else {
+							addText(url)
+							endBlock()
+						}
 					}
 					return true
 				} else {
@@ -995,12 +1049,21 @@ var Parse = {
 			if (isUrlStart()) {
 				var url = readUrl()
 				var after = eatChar("[")
-				startBlock(embed ? urlType(url) : 'link', {
-					inBrackets: after
-				}, {"":url}, preview)
-				if (!after) {
-					addText(url)
-					endBlock()
+				
+				if (embed)
+					var type = urlType(url);
+				else
+					type = 'link';
+				if (type == "youtube") {
+					addBlock(options.youtube({"":url}, preview, sizeChange));
+					if (after)
+						addText("[") // scary
+				} else {
+					startBlock(type, {inBrackets: after}, {"":url}, preview)
+					if (!after) {
+						addText(url)
+						endBlock()
+					}
 				}
 				return true
 			}
@@ -1133,7 +1196,7 @@ var Parse = {
 		
 	}
 
-	Parse.lang.bbcode = function(codeArg, preview, element) {
+	Parse.lang.bbcode = function(codeArg, preview, sizeChange) {
 		var noNesting = {
 			spoiler:true
 		}
@@ -1169,7 +1232,7 @@ var Parse = {
 		init(function() {
 			i++
 			c = code.charAt(i)
-		}, blocks, codeArg, element)
+		}, blocks, codeArg)
 		
 		var specialBlock = {
 			url: function(args, contents){
@@ -1188,7 +1251,7 @@ var Parse = {
 				return options.code(args, contents)
 			},
 			youtube: function(args, contents) {
-				return options.youtube({"":contents}, preview)
+				return options.youtube({"":contents}, preview, sizeChange)
 			},
 			img: function(args, contents) {
 				return options.image({"":contents})
@@ -1387,9 +1450,10 @@ var Parse = {
 	}
 	
 	// "plain text" (with autolinker)
-	Parse.fallback = function(text, preview, element) {
+	Parse.fallback = function(text, preview, sizeChange) {
+		sizeChange = sizeChange || function(){}
 		var options = Parse.options
-		var root = options.root(element)
+		var root = options.root()
 		i = 0
 		code = text
 		output = root
@@ -1413,7 +1477,7 @@ var Parse = {
 		return root.node
 	}
 	
-	Parse.parseLang = function(text, lang, preview) {
+	Parse.parseLang = function(text, lang, preview, sizeChange) {
 		i=0
 		code = text
 		if (preview) {
@@ -1423,14 +1487,17 @@ var Parse = {
 		}
 		try {
 			var parser = Parse.lang[lang] || Parse.fallback
-			return parser(text, false)
+			return parser(text, preview, sizeChange)
 		} catch(e) {
 			try {
-				options.append(output, options.error(e,e.stack))
+				if (!output) {
+					output = options.root();
+				}
+				options.append(output, options.error(e, e.stack))
 				options.append(output, options.text(code.substr(i)))
 				return output.node
 			} catch (e) {
-				alert("Unrecoverable parser error! please report this!\n"+e)
+				alert("Unrecoverable parser error! please report this!\n"+e.stack)
 			}
 		}
 	}
