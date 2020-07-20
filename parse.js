@@ -144,6 +144,7 @@ var Parse = {
 				link.style.backgroundImage = 'url("'+protocol+"//i.ytimg.com/vi/"+match+"/mqdefault.jpg"+'")'
 				var time = url.match(/[&?](?:t|start)=(\w+)/);
 				var end = url.match(/[&?](?:end)=(\w+)/);
+				var loop = url.match(/[&?]loop(=|&|$)/);
 				if (!preview)
 					getYoutube(match, function(data) {
 						var title = create('div')
@@ -167,6 +168,8 @@ var Parse = {
 						src += "&start="+time[1];
 					if (end)
 						src += "&end="+end[1];
+					if (loop)
+						src += "&loop=1&playlist="+match;
 					iframe.src = src;
 					ifc.appendChild(iframe)
 					div.className = "youtube playingYoutube"
