@@ -224,13 +224,14 @@ function attachPaste(element, callback) {
 }
 
 // FILL
-if (!HTMLElement.prototype.remove) {
-	HTMLElement.prototype.remove = function() {
-		if (this.parentElement) {
-			this.parentElement.removeChild(this)
+;[Element, CharacterData, DocumentType].forEach(function(cls){
+	if (cls && !cls.prototype.remove) {
+		cls.prototype.remove = function() {
+			if (this.parentNode)
+				this.parentNode.removeChild(this)
 		}
 	}
-}
+})
 
 if (!NodeList.prototype.forEach)
 	NodeList.prototype.forEach = Array.prototype.forEach

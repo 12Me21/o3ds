@@ -169,11 +169,17 @@ function addEvents() {
 	}
 	attachResize($sidebar, $sidebarPinnedResize, true, -1, "sidebarWidth")
 	attachResize($sidebarPinned, $sidebarPinnedResize, false, 1, "sidebarPinnedHeight")
-	var embiggenedImage
+	
+	document.addEventListener('videoclicked', function(e) {
+		imageFocusClickHandler(e.target)
+	})
 	document.onmousedown = function(e) {
-		var element = e.target
-		if (element instanceof HTMLImageElement) {
-			if (embiggenedImage) {
+		imageFocusClickHandler(e.target)
+	}
+	var embiggenedImage
+	function imageFocusClickHandler(element) {
+		if (element.hasAttribute('shrink')) {
+			if (embiggenedImage && embiggenedImage != element) {
 				attr(embiggenedImage, "bigImage", undefined)
 				embiggenedImage = null
 			} else {
@@ -181,12 +187,14 @@ function addEvents() {
 				embiggenedImage = element
 			}
 		} else if (!(element instanceof HTMLTextAreaElement)) {
-			if (embiggenedImage) {
+			if (embiggenedImage && element != embiggenedImage) {
+				console.log("shrinking");
 				attr(embiggenedImage, "bigImage", undefined)
 				embiggenedImage = null
 			}
 		}
 	}
+	
 	document.onclick = function(e) {
 		var element = e.target
 		if (flags.editComment || flags.deleteComment) {

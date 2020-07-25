@@ -98,6 +98,17 @@ var Parse = {
 			else
 				parent.appendChild(child.node)
 		},
+
+		//sorry
+		// removes all of `node`'s children and inserts them in its place
+		// and inserts `before` before them
+		kill: function(node, before) {
+			var parent = node.parentNode
+			parent.insertBefore(before, node)
+			while (node.childNodes.length)
+				parent.insertBefore(node.firstChild, node)
+			parent.removeChild(node)
+		},
 		
 		//========================
 		// nodes without children:
@@ -140,6 +151,11 @@ var Parse = {
 			var node = create('video')
 			node.setAttribute('controls', "")
 			node.setAttribute('src', url)
+			node.setAttribute('shrink', "")
+			node.onplaying = function() {
+				console.log("playing")
+				node.dispatchEvent(newEvent('videoclicked'))
+			}
 			return {block:true, node:node}
 		},
 		youtube: function(args, preview) {
@@ -335,6 +351,11 @@ var Parse = {
 			var node = create('img')
 			node.setAttribute('src', url)
 			node.setAttribute('tabindex', "-1")
+			node.setAttribute('shrink', "")
+			node.setAttribute('loading', "")
+			node.onerror = node.onload = function() {
+				node.removeAttribute('loading')
+			}
 			/*node.onload = function() {
 			  if (window.scrollToAuto)
 			  scrollToAuto()
@@ -914,7 +935,19 @@ var Parse = {
 		// END
 		endAll()
 		return output.node
-		
+
+		function endAll() {
+			flushText()
+			while (stack.length) {
+				var top = stack.top();
+				if (top.type == "bold") {
+					options.kill(curr.node, options.text("*").node);
+				} else if (top.type == "italic") {
+					options.kill(curr.node, options.text("/").node);
+				}
+				endBlock()
+			}
+		}
 		
 		// ###################################
 		
