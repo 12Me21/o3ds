@@ -26,15 +26,37 @@ var Parse = {
 // for example, `[tag=test key=value option]` would pass
 // {"":"test", key:"value", option:true}
 ;(function() {
-	function create(x) {
-		return document.createElement(x)
-	}
-	function createText(x) {
-		return document.createTextNode(x)
+	var document = window.document
+	// methods used:
+	// document.createElement
+	// document.createTextNode
+	// document.createDocumentFragment
+	// document.createEvent
+	
+	var parserElement = document.createElement('a')
+	function parseURL(url) {
+		if (!(/^[a-z][a-z0-9+\.\-]:/i.test(url))) //relative reference
+			return null
+		parserElement.href = url
+		try {
+			var pathname = parserElement.pathname
+			if (pathname && pathname[0] != "/")
+				pathname = "/"+pathname // IE bug where pathname is missing the initial /
+			return {
+				protocol: parserElement.protocol,
+				hostname: parserElement.hostname,
+				port: parserElement.port,
+				pathname: pathname,
+				search: parserElement.search,
+				hash: parserElement.hash,
+			}
+		} catch(e) { //failed (if url has username/password in IE)
+			return null
+		}
 	}
 	function creator(tag) {
 		return function() {
-			return {node:create(tag)}
+			return {node:document.createElement(tag)}
 		}
 	}
 	function newEvent(name) {
@@ -90,13 +112,7 @@ var Parse = {
 	Parse.options = {
 		append: function (parent, child) {
 			parent = parent.branch || parent.node
-
-			if (child.nodes)
-				child.nodes.forEach(function(x){
-					parent.appendChild(x)
-				})
-			else
-				parent.appendChild(child.node)
+			parent.appendChild(child.node)
 		},
 
 		//sorry
@@ -113,14 +129,14 @@ var Parse = {
 		//========================
 		// nodes without children:
 		text: function(text) {
-			return {node: createText(text)}
+			return {node: document.createTextNode(text)}
 		},
 		lineBreak: creator('br'),
 		line: creator('hr'),
 		// used for displaying invalid markup
 		// reason is currently unused
 		invalid: function(text, reason) {
-			var node = create('span')
+			var node = document.createElement('span')
 			node.className = 'invalid'
 			node.title = reason
 			node.textContent = text
@@ -129,26 +145,26 @@ var Parse = {
 		// code block
 		code: function(args, contents) {
 			var language = args[""]
-			var node = create('pre')
+			var node = document.createElement('pre')
 			node.setAttribute('data-lang', language)
 			node.innerHTML = highlightSB(contents, language)
 			return {block:true, node:node}
 		},
 		// inline code
 		icode: function(args, contents) {
-			var node = create('code')
+			var node = document.createElement('code')
 			node.textContent = contents
 			return {node:node, block:false}
 		},
 		audio: function(args) {
-			var node = create('audio')
+			var node = document.createElement('audio')
 			node.setAttribute('controls', "")
 			node.setAttribute('src', args[""])
 			return {block:true, node:node}
 		},
 		video: function(args) {
 			var url = args[""]
-			var node = create('video')
+			var node = document.createElement('video')
 			node.setAttribute('controls', "")
 			node.setAttribute('src', url)
 			node.setAttribute('shrink', "")
@@ -162,8 +178,8 @@ var Parse = {
 			var url = args[""]
 			var protocol = defaultProtocol()
 			var match = getYoutubeID(url)
-			var link = create('a')
-			var div = create('div')
+			var link = document.createElement('a')
+			var div = document.createElement('div')
 			div.className = "youtube"
 			div.appendChild(link)
 			link.href = url
@@ -175,22 +191,22 @@ var Parse = {
 				var loop = url.match(/[&?]loop(=|&|$)/);
 				if (!preview)
 					getYoutube(match, function(data) {
-						var title = create('div')
+						var title = document.createElement('div')
 						title.className = 'pre videoTitle'
 						title.textContent = data.snippet.title
 						link.appendChild(title)
-						link.appendChild(create('br'));
-						title = create('div')
+						link.appendChild(document.createElement('br'));
+						title = document.createElement('div')
 						title.className = 'pre videoAuthor'
 						title.textContent = data.snippet.channelTitle
 						link.appendChild(title)
 					})
-				var ifc = create('span')
+				var ifc = document.createElement('span')
 				link.appendChild(ifc)
 				link.onclick = function(e) {
 					e.preventDefault()
 					div.dispatchEvent(newEvent("beforeSizeChange"));
-					var iframe = create('iframe')
+					var iframe = document.createElement('iframe')
 					var src = "https://www.youtube-nocookie.com/embed/"+match+"?autoplay=1";
 					if (time)
 						src += "&start="+time[1];
@@ -203,7 +219,7 @@ var Parse = {
 					div.className = "youtube playingYoutube"
 					div.dispatchEvent(newEvent("afterSizeChange"));
 				}
-				var stop = create('button')
+				var stop = document.createElement('button')
 				stop.textContent = "x"
 				stop.onclick = function(e) {
 					e.preventDefault()
@@ -237,32 +253,32 @@ var Parse = {
 		strikethrough: creator('s'),
 		heading: function(level) { // input: 1, 2, or 3
 			// output: h2-h4
-			return {block:true, node:create('h'+(level+1))}
+			return {block:true, node:document.createElement('h'+(level+1))}
 		},
 		
 		quote: function(args) {
 			// <blockquote><cite> arg </cite><br> ... </blockquote>
 			var name = args[""]
-			var node = create('blockquote')
+			var node = document.createElement('blockquote')
 			if (name) {
-				var cite = create('cite')
+				var cite = document.createElement('cite')
 				cite.textContent = name
 				node.appendChild(cite)
-				node.appendChild(create('br'))
+				node.appendChild(document.createElement('br'))
 			}
 			return {block:true, node:node}
 		},
 		list: function(args) {
 			// <ul> ... </ul>
 			if (args[""]!=undefined) {
-				var list = create('ol')
+				var list = document.createElement('ol')
 				list.style.listStyleType = args[""]
 			} else
-				list = create('ul')
+				list = document.createElement('ul')
 			return {block:true, node:list}
 		},
 		item: function(index) {
-			return {block:true, node:create('li')}
+			return {block:true, node:document.createElement('li')}
 		},
 		//creator('li'), // (list item)
 		
@@ -273,7 +289,7 @@ var Parse = {
 			if (/^ *javascript:/i.test(url))
 				url = ""
 			
-			var node = create('a')
+			var node = document.createElement('a')
 			
 			var protocol = urlProtocol(url)
 			node.setAttribute('target', "_blank")
@@ -311,9 +327,9 @@ var Parse = {
 		
 		table: function(opts) {
 			// <div class="tableContainer"><table> ... </table></div>
-			var container = create('div')
+			var container = document.createElement('div')
 			container.className = "tableContainer"
-			var node = create('table')
+			var node = document.createElement('table')
 			container.appendChild(node)
 			return {
 				block: true,
@@ -327,8 +343,8 @@ var Parse = {
 		cell: function (opt) {
 			// <td> ... </td> etc.
 			var node = opt.h ?
-				 create('th') :
-				 create('td')
+				 document.createElement('th') :
+				 document.createElement('td')
 			if (opt.rs)
 				node.rowSpan = opt.rs
 			if (opt.cs)
@@ -348,7 +364,7 @@ var Parse = {
 		image: function(args) {
 			// <img src= arg tabindex="-1">
 			var url = args[""]
-			var node = create('img')
+			var node = document.createElement('img')
 			node.setAttribute('src', url)
 			node.setAttribute('tabindex', "-1")
 			node.setAttribute('shrink', "")
@@ -366,15 +382,15 @@ var Parse = {
 		// parser error message
 		error: function(e, stack) {
 			// <div class="error">Error while parsing:<pre> stack trace </pre>Please report this</div>
-			var node = create('div')
+			var node = document.createElement('div')
 			node.className = "error"
-			node.appendChild(createText("Markup parsing error: "))
-			var err = create('code')
+			node.appendChild(document.createTextNode("Markup parsing error: "))
+			var err = document.createElement('code')
 			err.textContent = e
 			node.appendChild(err)
-			node.appendChild(createText("\nPlease report this!"))
+			node.appendChild(document.createTextNode("\nPlease report this!"))
 			if (stack) {
-				var pre = create('pre')
+				var pre = document.createElement('pre')
 				pre.textContent = stack
 				node.appendChild(pre)
 			}
@@ -382,7 +398,7 @@ var Parse = {
 		},
 		
 		align: function(args) {
-			var node = create('div')
+			var node = document.createElement('div')
 			var arg = args[""]
 			if (arg == 'left' || arg == 'right' || arg == 'center')
 				node.style.textAlign = arg
@@ -392,7 +408,7 @@ var Parse = {
 		subscript: creator('sub'),
 		anchor: function(args) {
 			var name = args[""]
-			var node = create('a')
+			var node = document.createElement('a')
 			// put your anchor name handler here
 			// I prefix the names to avoid collision with node ids
 			// which use the same namespace as name
@@ -404,7 +420,7 @@ var Parse = {
 			// I'd use <summary>/<details> but it's not widely supported
 			// and impossible to style with css
 			// this probably needs some aria attribute or whatever
-			var button = create('button')
+			var button = document.createElement('button')
 			button.onclick = function() {
 				if (this.getAttribute('data-show') == null)
 					this.setAttribute('data-show',"")
@@ -417,12 +433,16 @@ var Parse = {
 				name = "spoiler"
 			button.textContent = name
 			
-			var box = create('div')
+			var box = document.createElement('div')
 			box.className = "spoiler"
+
+			var node = document.createDocumentFragment()
+			node.appendChild(button)
+			node.appendChild(box)
 			
 			return {
 				block: true,
-				nodes: [button, box],
+				node: node,
 				branch: box
 			}
 		}

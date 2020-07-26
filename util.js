@@ -291,5 +291,3 @@ function attachResize(element, tab, horiz,dir,save) {
 		}
 	}
 }
-
-

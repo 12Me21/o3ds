@@ -179,17 +179,19 @@ function addEvents() {
 	var embiggenedImage
 	function imageFocusClickHandler(element) {
 		if (element.hasAttribute('shrink')) {
-			if (embiggenedImage && embiggenedImage != element) {
-				attr(embiggenedImage, "bigImage", undefined)
+			// if click on image that's already big:
+			if (embiggenedImage && embiggenedImage == element) {
+				embiggenedImage.removeAttribute('bigImage')
 				embiggenedImage = null
-			} else {
-				attr(element, "bigImage", "")
+			} else if (element != embiggenedImage) { // if click on new iamge
+				if (embiggenedImage)
+					embiggenedImage.removeAttribute('bigImage')
+				element.setAttribute('bigImage', "")
 				embiggenedImage = element
 			}
 		} else if (!(element instanceof HTMLTextAreaElement)) {
 			if (embiggenedImage && element != embiggenedImage) {
-				console.log("shrinking");
-				attr(embiggenedImage, "bigImage", undefined)
+				embiggenedImage.removeAttribute('bigImage')
 				embiggenedImage = null
 			}
 		}
