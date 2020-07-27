@@ -296,7 +296,7 @@ function renderChatBlock(user, date) {
 		}
 	var div = document.createElement('div')
 	div.className = 'message'
-	div.setAttribute('data-uid', user.id)
+	//div.setAttribute('data-uid', user.id)
 	
 	var time = document.createElement('time')
 	time.setAttribute("datetime", date+"")
@@ -453,7 +453,7 @@ function renderActivityBlock(activity) {
 	box.className = "activityContent"
 	div.appendChild(box)
 	if (page) {
-		div.setAttribute('data-uid', page.id)
+		//div.setAttribute('data-uid', page.id)
 	}
 	return [div, box]
 }
@@ -681,6 +681,7 @@ AutoScroller.prototype.insertTop = function(id, node, uid, makeBlock) {
 		contents.insertBefore(node, contents.firstChild)
 	} else {
 		var b = makeBlock()
+		b[0].setAttribute('data-uid', uid)
 		b[1].appendChild(node)
 		this.inner.insertBefore(b[0], this.inner.firstChild)
 	}
@@ -713,6 +714,7 @@ AutoScroller.prototype.insert = function(id, node, uid, makeBlock) {
 			// create a new block
 		} else {
 			var b = makeBlock()
+			b[0].setAttribute('data-uid', uid)
 			b[1].appendChild(node)
 			this.inner.appendChild(b[0])
 		}
