@@ -959,12 +959,12 @@ var Parse = {
 		function endAll() {
 			flushText()
 			while (stack.length) {
-				var top = stack.top();
+				/*var top = stack.top();
 				if (top.type == "bold") {
 					options.kill(curr.node, options.text("*").node);
 				} else if (top.type == "italic") {
 					options.kill(curr.node, options.text("/").node);
-				}
+				}*/
 				endBlock()
 			}
 		}
