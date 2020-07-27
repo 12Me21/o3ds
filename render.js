@@ -289,10 +289,15 @@ function renderUserListAvatar(user) {
 }
 
 function renderChatBlock(user, date) {
+	if (!user)
+		user = { //ugh whatever
+			id: -1,
+			username: "MISSINGNO."
+		}
 	var div = document.createElement('div')
 	div.className = 'message'
 	div.setAttribute('data-uid', user.id)
-
+	
 	var time = document.createElement('time')
 	time.setAttribute("datetime", date+"")
 	time.textContent = timeString(date)
