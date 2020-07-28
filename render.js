@@ -827,8 +827,14 @@ function ChatRoom(id) {
 	
 	this.hide()
 	var btn = renderButton()
+	var input = document.createElement('input');
+	input.setAttribute('type', "number");
+	input.setAttribute('min', "10");
+	input.setAttribute('max', "10");
+	input.value=10;
 	btn[1].appendChild(document.createTextNode("load older messages"))
 	this.scroller.element.insertBefore(btn[0], this.scroller.inner)
+	this.scroller.element.insertBefore(input, this.scroller.inner)
 	var lock
 	btn[1].onclick = function() {
 		if (lock)
@@ -841,7 +847,7 @@ function ChatRoom(id) {
 		// WAIT what is fucking `me` doing here WHAT
 		// SHIT WHY IS THIS IN RENDER.JS
 		// NO NO NO
-		me.getCommentsBefore(id, firstId, 10, function(comments, users) {
+		me.getCommentsBefore(id, firstId, +input.value, function(comments, users) {
 			lock = false
 			if (comments) {
 				comments.forEach(function(comment) {
