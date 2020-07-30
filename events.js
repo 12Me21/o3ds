@@ -291,7 +291,13 @@ function addEvents() {
 			$chatTextarea.value = ""
 		}
 	}
-
+	$chatTextarea.onkeypress = function(e) {
+		if (!e.shiftKey && e.keyCode == 13) {
+			$chatSend.onclick()
+			e.preventDefault()
+		}
+	}
+	
 	$chatDelete.onclick = function() {
 		cancelEdit()
 		window.setTimeout(function() {
