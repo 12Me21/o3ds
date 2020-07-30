@@ -169,7 +169,6 @@ var Parse = {
 			node.setAttribute('src', url)
 			node.setAttribute('shrink', "")
 			node.onplaying = function() {
-				console.log("playing")
 				node.dispatchEvent(newEvent('videoclicked'))
 			}
 			return {block:true, node:node}
@@ -574,6 +573,8 @@ var Parse = {
 	function addBlock(node) {
 		flushText()
 		options.append(curr, node)
+		if (node.block)
+			skipNextLineBreak = true;
 	}
 
 	// output contents of text buffer
