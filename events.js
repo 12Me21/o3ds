@@ -237,18 +237,7 @@ function addEvents() {
 			}
 		})
 	}
-	$globalStatusButton.onclick = function() {
-		var status = $globalStatusInput.value || undefined
-		lp.setGlobalStatus(status)
-		optionalStorage.set('globalStatus', status || "")
-	}
-
-		$chatTextarea.onkeypress = function(e) {
-		if (!e.shiftKey && e.keyCode == 13) {
-			$chatSend.onclick()
-			e.preventDefault()
-		}
-	}
+	
 	var voteBtns = [$voteButton_b, $voteButton_o, $voteButton_g]
 	var voteCounts = [$voteCount_b, $voteCount_o, $voteCount_g]
 	// todo: update counts when changing
@@ -343,4 +332,23 @@ function addEvents() {
 			generateSearchResults(user, content)
 		})
 	}
+
+	var hideLock1
+	$hideGlobalStatusButton.onclick = function() {
+		if (hideLock1)
+			return
+		hideLock1 = true
+		me.toggleHiding(-1, function() {
+			hideLock1 = false
+		})
+	}
+	/*var hideLock2
+	$hideAllStatusButton.onclick = function() {
+		if (hideLock2)
+			return
+		hideLock2 = true
+		me.toggleHiding(0, function() {
+			hideLock2 = false
+		})
+	}*/
 }

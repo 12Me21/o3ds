@@ -71,10 +71,6 @@ function ready() {
 	manager = new RoomManager($messageList, lp)
 
 	hashChange(true)
-	
-	var s = optionalStorage.get('globalStatus')
-	$globalStatusInput.value = s==undefined ? "online" : s
-	lp.setGlobalStatus($globalStatusInput.value || undefined)
 }
 
 function focusLastComment() {
@@ -339,7 +335,7 @@ function onLogin(me) {
 		$myName.textContent = user.username
 		$myUserLink.href = "#user/"+user.id
 	})
-	flag("loggedIn",true)
+	flag("loggedIn", true)
 	/*hashChange(false)*/
 	lp.onActivity = function(activity, users, pages, chains) {
 		//check for updated users
@@ -389,8 +385,6 @@ function onLogin(me) {
 			}
 		})
 	}
-	if (localStorage.globalStatus != null)
-		lp.statuses[0] = localStorage.globalStatus
 	me.doListenInitial(function(e, resp){
 		if (!e) {
 			resp.systemaggregate.forEach(function(item) {

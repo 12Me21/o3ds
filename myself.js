@@ -368,7 +368,7 @@ Myself.prototype.loadCachedAuth = function(callback) {
 				$.logOut() //auth was invalid
 			}
 			$.cb(callback, e, resp)
-		}) //this is used to test the auth*/
+		})*/
 		return true
 	}
 	return false
