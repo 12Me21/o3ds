@@ -206,7 +206,7 @@ function changeFavicon(src) {
 function handlePinned(pinned) {
 	$categoryPinned.replaceChildren()
 	pinned.forEach(function(content) {
-		$categoryPinned.appendChild(renderPinnedPage(content, users2, true))
+		$categoryPinned.appendChild(renderCategoryPage(content, users2, true))
 	})
 }
 
