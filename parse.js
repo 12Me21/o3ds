@@ -766,16 +766,16 @@ var Parse = {
 				// need to add a way to add information to quotes:
 				// - user ID
 				// - post ID
-				start = i
+				/*start = i
 				while (eatChar(" "))
 					
 				while (c && !char_in(c, " \n{:"))
 					scan()
 				var name = code.substring(start, i).trim()
 				eatChar(":")
-				while (eatChar(" "))
-					
-				startBlock('quote', {}, {"":name})
+				while (eatChar(" "))*/
+				
+				startBlock('quote', {}, {/*"":name*/})
 				//==============
 				// -... list/hr
 			} else if (startOfLine && eatChar("-")) {
