@@ -18,6 +18,15 @@
 	
 }
 
+.markup-root a {
+	color: rgb(0, 80, 150);
+	text-decoration: underline;
+}
+
+.markup-root a:visited {
+	color: rgb(0, 80, 150);
+}
+
 /*.markup-root * {
 	vertical-align: baseline;
 }*/
