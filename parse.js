@@ -529,7 +529,7 @@ var Parse = {
 		// removed ) because interferes with stuff too much
 		// other problems common are
 		// - period, comma, etc. after url
-		return c && (/[-\w\$\.+!*'(,;/\?:@=&#%]/).test(c)
+		return c && (/[-\w\$\.+!*'(,;/\?:@=&#%~]/).test(c)
 	}
 	/***********
     ** stack **
