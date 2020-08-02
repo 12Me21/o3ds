@@ -174,7 +174,8 @@ function addEvents() {
 		imageFocusClickHandler(e.target)
 	})
 	document.onmousedown = function(e) {
-		imageFocusClickHandler(e.target)
+		if (!e.button) // 0 or none (prevent right click etc.)
+			imageFocusClickHandler(e.target)
 	}
 	var embiggenedImage
 	function imageFocusClickHandler(element) {
