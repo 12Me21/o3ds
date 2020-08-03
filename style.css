@@ -382,6 +382,7 @@ html.f-sidebar .m {
 
 html:not(.f-sidebar) .m {
 	width: 100% !important;
+	overflow:auto;
 }
 
 /**********
