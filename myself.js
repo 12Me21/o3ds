@@ -49,7 +49,7 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 			window.setTimeout(function() {
 				callback('rate', resp)
 			}, 1000)
-		} else if (code==401) {
+		} else if (code==401 || code==403) {
 			console.log(x)
 			callback('auth', resp)
 		} else if (code==404) {
@@ -165,9 +165,9 @@ Myself.prototype.request = function(url, method, callback, data, cancel, ignore4
 	return sbs2Request($.server+"/"+url, method, function(e, resp) {
 		$.openRequests--
 		$.loadEnd(!!cancel, e)
-		/*if (e=='auth') {
+		if (e=='auth') {
 			$.logOut()
-		}*/
+		}
 		$.cb(callback, e, resp)
 	}, data, $.auth, cancel, ignore400)
 }
