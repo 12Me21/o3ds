@@ -50,6 +50,7 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 				callback('rate', resp)
 			}, 1000)
 		} else if (code==401 || code==403) {
+alert("auth bad")
 			console.log(x)
 			callback('auth', resp)
 		} else if (code==404) {
