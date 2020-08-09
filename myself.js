@@ -325,8 +325,10 @@ Myself.prototype.logOut = function(soft) {
 // also calculates your own UID (thank you random â¥)
 Myself.prototype.setAuth = function(auth) {
 	this.auth = auth
+ try{
 	var x = JSON.parse(atob(auth.split(".")[1]))
 	this.uid = +x.uid
+}catch(e){ this.logOut() }
 	if (this.onLogin)
 		this.onLogin(this)
 }
