@@ -53,14 +53,6 @@ function ready() {
 
 	me.onLogin = onLogin
 	me.onLogout = onLogout
-
-	me.getVariable("wwww",function(){})
-	me.getVariables(["userCSS", "userJS"], function(vars) {
-		if (vars.userCSS != null)
-			setUserCSS(vars.userCSS)
-		if (vars.userJS != null)
-			setUserJS(vars.userJS)
-	})
 	
 	addEvents()
 	readyFuncs.forEach(function(func){
@@ -329,6 +321,13 @@ function decodeStatus(status) {
 
 function onLogin(me) {
 	console.log("logged in")
+	me.getVariable("wwww",function(){})
+	me.getVariables(["userCSS", "userJS"], function(vars) {
+		if (vars.userCSS != null)
+			setUserCSS(vars.userCSS)
+		if (vars.userJS != null)
+			setUserJS(vars.userJS)
+	})
 	//var me = this
 	me.whenUser(me.uid, function(user) {
 		$myAvatar.src = user.avatarURL
