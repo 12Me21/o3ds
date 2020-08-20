@@ -518,7 +518,7 @@ function renderActivityLine(activity, users) {
 		if (activity.deleted) {
 			div.appendChild(textItem("Deleted Comment"))
 		} else {
-			div.appendChild(textItem(": ", "pre"))
+			div.appendChild(textItem(": ", "pre2"))
 			var text = decodeComment(activity.comment).t
 			div.appendChild(textItem(text.replace(/\n/g," "), "pre"))
 			div.title = text
@@ -581,7 +581,7 @@ function renderMessagePart(comment){
 	element.className = 'markup-root messagePart'
 	element.setAttribute('data-id', comment.id)
 	element.setAttribute('tabindex', "0")
-	var contents = Parse.parseLang(x.t, x.m, false)
+	var contents = Parse.parseLang(x.t, 'plaintext', false)
 	element.replaceChildren(contents)
 	return element
 }

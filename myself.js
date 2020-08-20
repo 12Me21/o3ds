@@ -283,6 +283,7 @@ Myself.prototype.handle = function(e, resp) {
 		} else {
 			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./avatar.png"
 		}
+		user.username = user.username//+"#"+user.id
 		/*if (user.id == 483) {
 			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./idiot.png"
 		}*/
