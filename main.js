@@ -469,3 +469,11 @@ function onLogout() {
 // also still need to deal with
 // old message deletion and old room clearing
 // ugh
+
+var Nav = {
+	link: function(path, element) {
+		var a = element || document.createElement('a')
+		a.href = "#"+path
+		return a
+	}
+}
