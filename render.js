@@ -15,15 +15,21 @@ function renderKeyInfo(key, data) {
 	return element
 }
 
-function renderSearchItem(x, type) {
-	var a = document.createElement("a")
-	a.className = "bar rem2-3 categoryPage"
+function renderSearchItem(x, type, users) {
 	if (type=="user") {
+		var a = document.createElement("a")
+		a.className = "bar rem2-3 categoryPage"
 		a.href = "#user/"+x.id
 		a.appendChild(renderUserLink(x, false))
 	} else if (type=="content") {
+		var a = document.createElement("a")
+		a.className = "bar rem2-3 categoryPage"
 		a.href = "#pages/"+x.id
 		a.appendChild(renderContentName(x.name, pageIcon(x)))
+	} else if (type=="comment") {
+		var m = renderChatBlock(users[x.createUserId], parseDate(x.createDate))
+		m[1].appendChild(renderMessagePart(x))
+		var a = m[0]
 	}
 	return a
 }
@@ -581,7 +587,7 @@ function renderMessagePart(comment){
 	element.className = 'markup-root messagePart'
 	element.setAttribute('data-id', comment.id)
 	element.setAttribute('tabindex', "0")
-	var contents = Parse.parseLang(x.t, 'plaintext', false)
+	var contents = Parse.parseLang(x.t, x.m, false)
 	element.replaceChildren(contents)
 	return element
 }

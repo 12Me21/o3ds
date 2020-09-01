@@ -151,9 +151,11 @@ function megaAggregate(activity, ca, contents, users, category) {
 	allAct = allAct.filter(function(x) {
 		if (x.action == 'd')
 			x.content = {name: x.extra, id: x.contentId, deleted: true}
-		else if (x.type == "content")
+	   else if (x.type == "content") {
 			x.content = contentMap[x.contentId]
-		else if (x.type == "category") {
+			if (x.contentType == "@user.page")
+				return
+		} else if (x.type == "category") {
 			x.content = contentMap[x.contentId]
 		} else if (x.type == "user" && x.action!="u") {
 			x.content = users[x.contentId]
@@ -262,6 +264,7 @@ function selectFile(file) {
 	fillFileFields(file)
 	$fileView.src = ""
 	$fileView.src = me.imageURL(file.id)
+	$fileURL.value = me.imageURL(file.id)
 	var doSelect = true
 	$fileView.onload = null
 	//$fileView.onerror = function() {
@@ -963,5 +966,12 @@ function generateSearchResults(users, pages) {
 	})
 	pages.forEach(function(page) {
 		$searchResults.appendChild(renderSearchItem(page, "content"))
+	})
+}
+
+function generateChatSearchResults(messages, users) {
+	$searchResults.replaceChildren()
+	messages.forEach(function(message) {
+		$searchResults.appendChild(renderSearchItem(message, "comment", users))
 	})
 }

@@ -287,7 +287,10 @@ function addEvents() {
 				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value}, editingMessage)
 				cancelEdit()
 			} else {
-				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value})
+			    var meta = {m:$chatMarkupSelect.value}
+			    if (me && me.me)
+				meta.a = me.me.avatar
+				sendMessage(currentChatRoom, $chatTextarea.value, meta)
 			}
 			$chatTextarea.value = ""
 		}
@@ -339,7 +342,16 @@ function addEvents() {
 			generateSearchResults(user, content)
 		})
 	}
-
+	
+	$searchChatButton.onclick = function() {
+		var search = "%\n%"+$searchInput.value+"%"
+		me.searchChat($searchInput.value, 0, function(messages, users) {
+			if (!messages)
+				return
+			generateChatSearchResults(messages, users)
+		})
+	}
+	
 	var hideLock1
 	$hideGlobalStatusButton.onclick = function() {
 		if (hideLock1)

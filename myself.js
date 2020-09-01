@@ -916,6 +916,19 @@ Myself.prototype.putFile = function(file, callback) {
 	return this.request("File/"+file.id, 'PUT', callback, file)
 }
 
+Myself.prototype.searchChat = function(text, page, callback) {
+	var $=this
+	return $.read([
+		{comment: {contentLike: text}},
+		"user.0createUserId"
+	], {}, function(e, resp) {
+		if (!e)
+			$.cb(callback, resp.comment, resp.userMap)
+		else
+			$.cb(callback, null, {})
+	})
+}
+
 Myself.prototype.search = function(text, page, callback) {
 	var like = text.replace(/%/g,"_") //the best we can do...
 	var count = 20
