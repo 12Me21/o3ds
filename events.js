@@ -345,7 +345,7 @@ function addEvents() {
 	
 	$searchChatButton.onclick = function() {
 		var search = "%\n%"+$searchInput.value+"%"
-		me.searchChat($searchInput.value, 0, function(messages, users) {
+		me.searchChat(search, 0, function(messages, users) {
 			if (!messages)
 				return
 			generateChatSearchResults(messages, users)
