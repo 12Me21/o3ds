@@ -902,7 +902,7 @@ ChatRoom.prototype.remove = function() {
 	this.scroller.switchRoom()
 }
 
-ChatRoom.prototype.displayMessage = function(c, user, force) {
+ChatRoom.prototype.displayMessage = function(c, user, force, last) {
 	if (!this.firstId)
 		this.firstId = c.id
 	var $=this
@@ -916,7 +916,7 @@ ChatRoom.prototype.displayMessage = function(c, user, force) {
 				b[0].className += " ownMessage"
 			return b
 		})
-		if (!force) {
+		if (!force && last) {
 			document.title = decodeComment(c.content).t
 			changeFavicon(user.avatarURL)
 		}

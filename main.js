@@ -373,8 +373,8 @@ function onLogin(me) {
 		}
 	}
 	lp.onMessages = function(messages, users, pages) {
-		messages.forEach(function(comment) {
-			manager.displayMessage(comment, users)
+		messages.forEach(function(comment, i, m) {
+			manager.displayMessage(comment, users, i == m.length-1)
 		})
 	}
 	lp.onDelete = function(comments) {

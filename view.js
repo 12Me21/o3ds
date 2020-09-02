@@ -477,8 +477,8 @@ var views = {
 					room.page = page
 					room.users = users
 					addPinned(page)
-					comments && comments.reverse().forEach(function(comment) {
-						room.displayMessage(comment, users[comment.createUserId], true)
+					comments && comments.reverse().forEach(function(comment, i, m) {
+						room.displayMessage(comment, users[comment.createUserId], true, i == m.length-1)
 					})
 					room.loaded = true
 				}
@@ -903,10 +903,10 @@ RoomManager.prototype.updateStatuses = function(id) {
 	})
 }
 
-RoomManager.prototype.displayMessage = function(comment, users) {
+RoomManager.prototype.displayMessage = function(comment, users, last) {
 	var room = this.rooms[comment.parentId]
 	if (room)
-		room.displayMessage(comment, users[comment.createUserId])
+		room.displayMessage(comment, users[comment.createUserId], false, last)
 }
 
 RoomManager.prototype.show = function(id) {
