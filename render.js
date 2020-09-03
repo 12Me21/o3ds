@@ -589,6 +589,8 @@ function renderMessagePart(comment){
 	element.setAttribute('tabindex', "0")
 	var contents = Parse.parseLang(x.t, x.m, false)
 	element.replaceChildren(contents)
+	if (comment.createDate != comment.editDate)
+		element.className += " edited"
 	return element
 }
 

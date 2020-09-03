@@ -400,7 +400,7 @@ Myself.prototype.getPageAndComments = function(id, callback) {
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
 	], {
 		user: "id,username,avatar",
-		comment: "content,createuserid,deleted,editdate,edituserid,id,parentid"
+		comment: "content,createuserid,deleted,editdate,edituserid,id,parentid,createdate"
 	}, function(e, resp) {
 		if (!e) {
 			var page = resp.content[0]
