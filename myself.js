@@ -605,7 +605,7 @@ Myself.prototype.doListenInitial = function(callback) {
 		{comment:{reverse:true,limit:20}},
 		{activity:{reverse:true,limit:10}},
 		{activityaggregate:{reverse:true,limit:10}},
-		"content.1parentId.2contentId.1id", //pages
+		"content.1parentId.2contentId.3id", //pages
 		"category.2contentId",
 		"user.1createUserId.2userId.3userIds", //users for comment and activity
 	],{content:"id,createUserId,name,permissions"},callback)
@@ -905,7 +905,7 @@ Myself.prototype.thumbnailURL = function(id) {
 }
 
 Myself.prototype.avatarURL = function(id) {
-	return this.server+"/File/raw/"+id+"?size=120"
+	return this.server+"/File/raw/"+id+"?size=120&crop=true"
 }
 
 Myself.prototype.imageURL = function(id) {
