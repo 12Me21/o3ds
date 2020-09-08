@@ -197,13 +197,14 @@ function addEvents() {
 			}
 		}
 	}
-	
-	document.onclick = function(e) {
+
+	document.addEventListener('click', function(e) {
 		var element = e.target
 		if (flags.editComment || flags.deleteComment) {
 			while (element && element instanceof HTMLElement) {
 				var id = element.getAttribute('data-id')
 				if (id) {
+					e.preventDefault() // stop clicks from activating links or whatever
 					if (flags.editComment) {
 						editComment(+id, element)
 						break
@@ -217,7 +218,7 @@ function addEvents() {
 			flag('editComment')
 			flag('deleteComment')
 		}
-	}
+	}, true) // event is triggered on root element first (I think?)
 	
 	/*$sidebar.onclick = function(e) {
 		if (e.target == $sidebarPinnedResize)
