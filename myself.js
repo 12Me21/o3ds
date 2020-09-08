@@ -381,7 +381,7 @@ Myself.prototype.loadCachedAuth = function(callback) {
 Myself.prototype.getPage = function(id, callback) {
 	var $=this
 	return $.read([
-		{content: {ids: [+id]}},
+		{content: {ids: [+id], includeAbout: true}},
 		"user.0createUserId.0editUserId",
 	], {}, function(e, resp) {
 		if (!e && resp.content[0])
@@ -395,12 +395,11 @@ Myself.prototype.getPageAndComments = function(id, callback) {
 	var $=this
 	id = +id
 	return $.read([
-		{content: {ids: [id]}},
+		{content: {ids: [id], includeAbout: true}},
 		{comment: {parentIds: [id], limit: 50, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
 	], {
 		user: "id,username,avatar",
-		comment: "content,createuserid,deleted,editdate,edituserid,id,parentid,createdate"
 	}, function(e, resp) {
 		if (!e) {
 			var page = resp.content[0]
@@ -408,26 +407,6 @@ Myself.prototype.getPageAndComments = function(id, callback) {
 				$.cb(callback, page, resp.userMap, resp.comment, resp.old)
 			else
 				$.cb(callback, null, {}, [], [])
-		}
-	})
-}
-
-Myself.prototype.getDiscussion = function(id, callback) {
-	var $=this
-	id = +id
-	return $.read([
-		{content: {ids: [id]}},
-		{comment: {parentIds: [id], limit: 30, reverse: true}},
-		"user.0createUserId.0editUserId.1createUserId.1editUserId",
-	], {
-		user: "id,username,avatar"
-	}, function(e, resp) {
-		if (!e) {
-			var page = resp.content[0]
-			if (page)
-				$.cb(callback, page, resp.comment.reverse(), resp.userMap)
-			else
-				$.cb(callback, null, [], {})
 		}
 	})
 }
