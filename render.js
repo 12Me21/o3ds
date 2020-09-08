@@ -27,7 +27,7 @@ function renderSearchItem(x, type, users) {
 		a.href = "#pages/"+x.id
 		a.appendChild(renderContentName(x.name, pageIcon(x)))
 	} else if (type=="comment") {
-		var m = renderChatBlock(users[x.createUserId], parseDate(x.createDate))
+		var m = renderChatBlock(users[x.createUserId], parseDate(x.createDate), x)
 		m[1].appendChild(renderMessagePart(x))
 		var a = m[0]
 	}
@@ -294,12 +294,20 @@ function renderUserListAvatar(user) {
 	return a
 }
 
-function renderChatBlock(user, date) {
+function renderChatBlock(user, date, comment) {
 	if (!user)
 		user = { //ugh whatever
 			id: -1,
 			username: "MISSINGNO."
 		}
+	if (comment) {
+		var data = decodeComment(comment.content)
+		if (data.a) {
+			user = Object.create(user, {avatarURL: {
+				value: me.avatarURL(+data.a)
+			}})
+		}
+	}
 	var div = document.createElement('div')
 	div.className = 'message'
 	//div.setAttribute('data-uid', user.id)
@@ -869,7 +877,7 @@ function ChatRoom(id) {
 ChatRoom.prototype.displayOldMessage = function(c, user) {
 	var node = renderMessagePart(c)
 	this.scroller.insertTop(c.id, node, c.createUserId, function() {
-		var b = renderChatBlock(user, parseDate(c.editDate))
+		var b = renderChatBlock(user, parseDate(c.editDate), c)
 		if (c.createUserId == me.uid)
 			b[0].className += " ownMessage"
 		return b
@@ -913,7 +921,7 @@ ChatRoom.prototype.displayMessage = function(c, user, force, last) {
 	} else {
 		var node = renderMessagePart(c)
 		this.scroller.insert(c.id, node, c.createUserId, function() {
-			var b = renderChatBlock(user, parseDate(c.editDate))
+			var b = renderChatBlock(user, parseDate(c.editDate), c)
 			if (c.createUserId == me.uid)
 				b[0].className += " ownMessage"
 			return b

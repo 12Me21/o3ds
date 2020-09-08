@@ -309,6 +309,9 @@ function getImageFile(url, callback) {
 				alert("can't get this file!")	
 			}
 		}
+		x.onerror = function() {
+			alert("can't download from that url. try saving the image locally and uploading")
+		}
 		x.send()
 	} catch (e) {
 		alert("can't upload this file!")
