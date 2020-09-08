@@ -205,6 +205,7 @@ function addEvents() {
 				var id = element.getAttribute('data-id')
 				if (id) {
 					e.preventDefault() // stop clicks from activating links or whatever
+					e.stopPropagation()
 					if (flags.editComment) {
 						editComment(+id, element)
 						break
