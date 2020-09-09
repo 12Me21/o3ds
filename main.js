@@ -397,7 +397,7 @@ function onLogin(me) {
 			//
 		}
 	})
-	me.getNotifications(function(e, resp){
+	/*me.getNotifications(function(e, resp){
 		if (!e) {
 			resp.activityaggregate.forEach(function(aa) {
 				var page = {id: aa.id}
@@ -407,10 +407,10 @@ function onLogin(me) {
 						break
 					}
 				}
-				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true)*/
+				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true)
 			})
 		}
-	})
+	})*/
 }
 
 function updateListAvatar(list, user) {
