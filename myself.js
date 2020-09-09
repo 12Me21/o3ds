@@ -232,7 +232,7 @@ Myself.prototype.read = function(requests, filters, callback, cancel, doCat) {
 	}
 	
 	return $.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
-		if (needCategorys) {
+		if (needCategorys && doCat) {
 			$.categoryTree = buildCategoryTree(resp.tree)
 		}
 		$.handle(e, resp)
@@ -569,10 +569,9 @@ Myself.prototype.doListenInitial = function(callback) {
 		"systemaggregate",
 		{comment:{reverse:true,limit:20}},
 		{activity:{reverse:true,limit:10}},
-		{activityaggregate:{reverse:true,limit:10}},
-		"content.1parentId.2contentId.3id", //pages
+		"content.1parentId.2contentId", //pages
 		"category.2contentId",
-		"user.1createUserId.2userId.3userIds", //users for comment and activity
+		"user.1createUserId.2userId", //users for comment and activity
 	],{content:"id,createUserId,name,permissions"},callback)
 }
 
