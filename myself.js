@@ -213,7 +213,7 @@ Myself.prototype.readSimple = function(url, type, callback) {
 	})
 }
 
-Myself.prototype.read = function(requests, filters, callback, cancel) {
+Myself.prototype.read = function(requests, filters, callback, cancel, doCat) {
 	var $=this
 	var query = {}
 	query.requests = requests.map(function(req) {
@@ -227,7 +227,7 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 	for (var filter in filters)
 		query[filter] = filters[filter]
 	var needCategorys = !$.categoryTree && query.requests.length<10
-	if (needCategorys) {
+	if (needCategorys && doCat) {
 		query.requests.push('category~tree')
 	}
 	
@@ -388,7 +388,7 @@ Myself.prototype.getPage = function(id, callback) {
 			$.cb(callback, resp.content[0], resp.userMap)
 		else
 			$.cb(callback, null, {})
-	})
+	}, undefined, true)
 }
 
 Myself.prototype.getPageAndComments = function(id, callback) {
@@ -408,7 +408,7 @@ Myself.prototype.getPageAndComments = function(id, callback) {
 			else
 				$.cb(callback, null, {}, [], [])
 		}
-	})
+	}, undefined, true)
 }
 
 // This runs a callback when a user object is available
@@ -421,20 +421,6 @@ Myself.prototype.whenUser = function(id, callback) {
 	} else {
 		this.userRequests[id] = [callback]
 	}
-}
-
-Myself.prototype.getCategories = function(callback) {
-	var $=this
-	return $.read([
-		'category'
-	], {
-		category: "id,name,description,parentId"
-	}, function(e, resp) {
-		if (!e) {
-			var tree = buildCategoryTree(resp.category)
-			$.cb(callback, tree)
-		}
-	})
 }
 
 var rootCategory = {
@@ -474,7 +460,7 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 		} else {
 			$.cb(callback, null, [], [], {}, [])
 		}
-	})
+	}, undefined, true)
 }
 
 Myself.prototype.getNotifications = function(callback) {
@@ -539,7 +525,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 				else
 					$.cb(callback, null)
 			}
-		})
+		}, undefined, true)
 	} else {
 		if ($.categoryTree) {
 			$.cb(callback, null, {})
@@ -748,7 +734,7 @@ Myself.prototype.getSettings = function(callback) {
 			} else {
 				$.cb(callback, null, null)
 			}
-		})
+		}, undefined, true)
 	} else {
 		$.cb(callback, null)
 	}
@@ -808,7 +794,7 @@ Myself.prototype.getActivity = function(page, callback) {
 		} else {
 			$.cb(callback, null, null, null, {})
 		}
-	})
+	}, undefined, true)
 }
 
 Myself.prototype.getFiles = function(query, page, callback) {
@@ -825,7 +811,7 @@ Myself.prototype.getFiles = function(query, page, callback) {
 		} else {
 			$.cb(callback, null, {})
 		}
-	})
+	}, undefined, true)
 }
 
 // load next 10 comments older than `start`
@@ -954,7 +940,7 @@ Myself.prototype.getUserPage = function(id, callback) {
 			} else
 				$.cb(callback, null, {}, [], [], [], {})
 		}
-	})
+	}, undefined, true)
 	// what we need:
 	// user object
 	// user page
