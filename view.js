@@ -180,13 +180,13 @@ function generatePath(path) {
 // function generatePagePath - category tree paths
 
 function updateUserlist(list, listeners, userMap) {
-	list.replaceChildren()
+	var d = document.createDocumentFragment()
 	listeners && forDict(listeners, function(status, user) {
 		status = decodeStatus(status)
-		if (status) {
-			list.appendChild(renderUserListAvatar(userMap[user]))
-		}
+		if (status)
+			d.appendChild(renderUserListAvatar(userMap[user]))
 	})
+	list.replaceChildren(d)
 }
 
 var currentFavicon = null
