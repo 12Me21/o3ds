@@ -15,7 +15,7 @@ var manager
 flag('sidebar', localStorage.getItem('sbs-sidebar') != 'false')
 
 debugMessage = function(text) {
-	scroller.embed(renderSystemMessage(String(text)))
+	//scroller.embed(renderSystemMessage(String(text)))
 }
 
 if (document.readyState == 'loading')
@@ -43,6 +43,12 @@ function ready() {
 	if (me.openRequests) {
 		loadStart()
 	}
+	if (navigator.vendor=="Google Inc.") {
+		var x = document.createElement('style')
+		x.textContent = "img, .iconBg { image-rendering: -webkit-optimize-contrast; }"
+		document.head.appendChild(x)
+	}
+	
 	me.onLoadStart = loadStart
 	me.onLoadEnd = loadEnd
 	console.info("ready")
