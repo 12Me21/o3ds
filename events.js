@@ -282,21 +282,31 @@ function addEvents() {
 			blockWatch = false
 		})
 	}
-	
 	$chatSend.onclick = function() {
-		if ($chatTextarea.value && currentChatRoom) {
+		var text = $chatTextarea.value
+		if (text && currentChatRoom) {
 			if (editingMessage) {
-				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value}, editingMessage)
+				me.editComment(editingMessage, text, {m:$chatMarkupSelect.value}, function(e, resp) {
+					//whatever
+				})
 				cancelEdit()
 			} else {
-			    var meta = {m:$chatMarkupSelect.value}
-			    if (me && me.me)
-				meta.a = me.me.avatar
-				sendMessage(currentChatRoom, $chatTextarea.value, meta)
+			   var meta = {m:$chatMarkupSelect.value}
+			   if (me && me.me)
+					meta.a = me.me.avatar
+				me.postComment(currentChatRoom, text, meta, function(e, resp) {
+					if (e=="rate") {
+						debugMessage("You are sending messages too fast")
+					} else if (e) {
+						debugMessage("Failed to send message")
+						$chatTextarea.value = text
+					}
+				})
 			}
 			$chatTextarea.value = ""
 		}
 	}
+	
 	$chatTextarea.onkeypress = function(e) {
 		if (!e.shiftKey && e.keyCode == 13) {
 			$chatSend.onclick()

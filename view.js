@@ -95,20 +95,6 @@ function encodeComment(text, metadata) {
 	return JSON.stringify(metadata || {})+"\n"+text
 }
 
-function sendMessage(room, text, params, editId) {
-	if (editId) {
-		me.editComment(editId, text, params || {}, function(e, resp) {} )
-	} else {
-		me.postComment(room, text, params || {}, function(e, resp) {
-			if (e=="rate") {
-				debugMessage("You are sending messages too fast")
-			} else if (e) {
-				debugMessage("Failed to send message")
-			}
-		})
-	}
-}
-
 // "generate" functions operate implicitly on specific html elements, and should be in view.js
 // "render" functions often are similar but more general, and are in render.js
 // I feel like the names are backwards, sorry...
