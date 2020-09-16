@@ -139,8 +139,8 @@ function megaAggregate(activity, ca, contents, users, category) {
 			x.content = {name: x.extra, id: x.contentId, deleted: true}
 	   else if (x.type == "content") {
 			x.content = contentMap[x.contentId]
-			if (x.contentType == "@user.page")
-				return
+			/*if (x.contentType == "@user.page")
+				return*/
 		} else if (x.type == "category") {
 			x.content = contentMap[x.contentId]
 		} else if (x.type == "user" && x.action!="u") {
