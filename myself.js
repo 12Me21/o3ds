@@ -42,9 +42,12 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 		if (code==200) {
 			callback(null, resp)
 		} else if (code==502) {
-			window.setTimeout(function() {
+			var id = window.setTimeout(function() {
 				retry("Bad Gateway")
 			}, 5000)
+			x.abort = function() {
+				window.clearTimeout(id)
+			}
 		} else if (code==408 || code==204 || code==524) {
 			// record says server uses 408, testing showed only 204
 			// basically this is treated as an error condition,
@@ -52,10 +55,13 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 			retry("timeout")
 			//callback('timeout', resp)
 		} else if (code == 429) { // rate limit
-			window.setTimeout(function() {
+			var id = window.setTimeout(function() {
 				retry("rate")
 				//callback('rate', resp)
 			}, 1000)
+			x.abort = function() {
+				window.clearTimeout(id)
+			}
 		} else if (code==401 || code==403) {
 alert("auth bad")
 			console.log(x)
