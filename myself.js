@@ -17,6 +17,7 @@
 // user variable I suppose
 
 function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
+	var args = arguments
 	var x = new XMLHttpRequest()
 	if (cancel)
 		cancel[0] = function() {
@@ -40,14 +41,20 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 		}
 		if (code==200) {
 			callback(null, resp)
+		} else if (code==502) {
+			window.setTimeout(function() {
+				retry("Bad Gateway")
+			}, 5000)
 		} else if (code==408 || code==204 || code==524) {
 			// record says server uses 408, testing showed only 204
 			// basically this is treated as an error condition,
 			// except during long polling, where it's a normal occurance
-			callback('timeout', resp)
+			retry("timeout")
+			//callback('timeout', resp)
 		} else if (code == 429) { // rate limit
 			window.setTimeout(function() {
-				callback('rate', resp)
+				retry("rate")
+				//callback('rate', resp)
 			}, 1000)
 		} else if (code==401 || code==403) {
 alert("auth bad")
@@ -79,7 +86,8 @@ alert("auth bad")
 		console.log("xhr onerror after ms:"+time)
 		if (time > 18*1000) {
 			console.log("detected 3DS timeout")
-			callback('timeout')
+			retry("timeout")
+			//callback('timeout')
 		} else {
 			alert("Request failed! "+url)
 			console.log("xhr onerror")
@@ -102,6 +110,15 @@ alert("auth bad")
 		x.send()
 	}
 	return x
+	
+	function retry(reason) {
+		// this is not recursion because retry is called in async callback functions only!
+
+		// external things rely on .abort to cancel the request, so...
+		// a hack, perhaps...
+		console.log("retrying request", reason)
+		x.abort = sbs2Request.apply(null, args).abort
+	}
 }
 
 function queryString(obj) {
