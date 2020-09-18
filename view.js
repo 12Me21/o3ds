@@ -179,6 +179,10 @@ var currentFavicon = null
 function changeFavicon(src) {
 	if (src == currentFavicon)
 		return
+	if (!currentFavicon) // chrome sucks
+		document.head.querySelectorAll("link[data-favicon]").forEach(function(e){
+			e.parentNode.removeChild(e)
+		})
 	currentFavicon = src
 	var link = document.createElement("link")
 	var oldLink = document.getElementById("dynamic-favicon")
@@ -871,6 +875,7 @@ function addPinned(page) {
 function RoomManager(element, poller) {
 	this.element = element
 	this.rooms = {}
+	this.showing = null
 	this.lp = poller
 }
 
@@ -892,6 +897,13 @@ RoomManager.prototype.updateStatuses = function(id) {
 	})
 }
 
+RoomManager.prototype.debugMessage = function(text) {
+	if (!this.showing)
+		return false
+	var room = this.rooms[this.showing]
+	room.scroller.embed(renderSystemMessage(String(text)))
+}
+
 RoomManager.prototype.displayMessage = function(comment, users, last) {
 	var room = this.rooms[comment.parentId]
 	if (room)
@@ -900,6 +912,7 @@ RoomManager.prototype.displayMessage = function(comment, users, last) {
 
 RoomManager.prototype.show = function(id) {
 	lp.setListening([id])
+	this.showing = id
 	forDict(this.rooms, function(room, rid) {
 		if (id != rid)
 			if (lp.statuses[rid])

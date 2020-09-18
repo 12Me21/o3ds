@@ -291,17 +291,20 @@ function addEvents() {
 				})
 				cancelEdit()
 			} else {
-			   var meta = {m:$chatMarkupSelect.value}
-			   if (me && me.me)
-					meta.a = me.me.avatar
-				me.postComment(currentChatRoom, text, meta, function(e, resp) {
-					if (e=="rate") {
-						debugMessage("You are sending messages too fast")
-					} else if (e) {
-						debugMessage("Failed to send message")
-						$chatTextarea.value = text
-					}
-				})
+				if (tryCommand(text)) {
+				} else {
+					var meta = {m:$chatMarkupSelect.value}
+					if (me && me.me)
+						meta.a = me.me.avatar
+					me.postComment(currentChatRoom, text, meta, function(e, resp) {
+						if (e=="rate") {
+							debugMessage("You are sending messages too fast")
+						} else if (e) {
+							debugMessage("Failed to send message")
+							$chatTextarea.value = text
+						}
+					})
+				}
 			}
 			$chatTextarea.value = ""
 		}
@@ -382,4 +385,26 @@ function addEvents() {
 			hideLock2 = false
 		})
 	}*/
+}
+
+var commands = {
+	eval: function(text) {
+		try {
+			var res = eval(text)
+			manager.debugMessage("result: "+res)
+		} catch(e) {
+			manager.debugMessage("Error: "+e)
+		}
+	}
+}
+
+function tryCommand(text) {
+	var command = text.match(/^\/\w+/)
+	if (!command)
+		return false
+	command = command[0].substr(1)
+	if (commands[command]) {
+		commands[command](text.substr(command.length+1))
+		return true
+	}
 }
