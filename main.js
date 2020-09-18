@@ -44,6 +44,7 @@ function ready() {
 		loadStart()
 	}
 	if (navigator.vendor=="Google Inc.") {
+		console.log("Chrome sucks")
 		var x = document.createElement('style')
 		x.textContent = "img, .iconBg { image-rendering: -webkit-optimize-contrast; }"
 		document.head.appendChild(x)
