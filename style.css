@@ -632,6 +632,10 @@ html:not(.f-editingComment) .showWhenEdit {
 	resize: none;
 }
 
+html.f-editingComment #\$chatTextarea {
+	background-color: #FFFF80;
+}
+
 .chatSend {
 	height: 100%;
 }
