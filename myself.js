@@ -17,6 +17,7 @@
 // user variable I suppose
 
 function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
+	var args = arguments
 	var x = new XMLHttpRequest()
 	if (cancel)
 		cancel[0] = function() {
@@ -40,15 +41,27 @@ function sbs2Request(url, method, callback, data, auth, cancel, ignore400) {
 		}
 		if (code==200) {
 			callback(null, resp)
+		} else if (code==502) {
+			var id = window.setTimeout(function() {
+				retry("Bad Gateway")
+			}, 5000)
+			x.abort = function() {
+				window.clearTimeout(id)
+			}
 		} else if (code==408 || code==204 || code==524) {
 			// record says server uses 408, testing showed only 204
 			// basically this is treated as an error condition,
 			// except during long polling, where it's a normal occurance
-			callback('timeout', resp)
+			retry("timeout")
+			//callback('timeout', resp)
 		} else if (code == 429) { // rate limit
-			window.setTimeout(function() {
-				callback('rate', resp)
+			var id = window.setTimeout(function() {
+				retry("rate")
+				//callback('rate', resp)
 			}, 1000)
+			x.abort = function() {
+				window.clearTimeout(id)
+			}
 		} else if (code==401 || code==403) {
 alert("auth bad")
 			console.log(x)
@@ -79,7 +92,8 @@ alert("auth bad")
 		console.log("xhr onerror after ms:"+time)
 		if (time > 18*1000) {
 			console.log("detected 3DS timeout")
-			callback('timeout')
+			retry("timeout")
+			//callback('timeout')
 		} else {
 			alert("Request failed! "+url)
 			console.log("xhr onerror")
@@ -102,6 +116,15 @@ alert("auth bad")
 		x.send()
 	}
 	return x
+	
+	function retry(reason) {
+		// this is not recursion because retry is called in async callback functions only!
+
+		// external things rely on .abort to cancel the request, so...
+		// a hack, perhaps...
+		console.log("retrying request", reason)
+		x.abort = sbs2Request.apply(null, args).abort
+	}
 }
 
 function queryString(obj) {
@@ -213,7 +236,7 @@ Myself.prototype.readSimple = function(url, type, callback) {
 	})
 }
 
-Myself.prototype.read = function(requests, filters, callback, cancel) {
+Myself.prototype.read = function(requests, filters, callback, cancel, doCat) {
 	var $=this
 	var query = {}
 	query.requests = requests.map(function(req) {
@@ -227,12 +250,12 @@ Myself.prototype.read = function(requests, filters, callback, cancel) {
 	for (var filter in filters)
 		query[filter] = filters[filter]
 	var needCategorys = !$.categoryTree && query.requests.length<10
-	if (needCategorys) {
+	if (needCategorys && doCat) {
 		query.requests.push('category~tree')
 	}
 	
 	return $.request("Read/chain"+queryString(query), 'GET', function(e, resp) {
-		if (needCategorys) {
+		if (needCategorys && doCat) {
 			$.categoryTree = buildCategoryTree(resp.tree)
 		}
 		$.handle(e, resp)
@@ -283,6 +306,7 @@ Myself.prototype.handle = function(e, resp) {
 		} else {
 			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./avatar.png"
 		}
+		user.username = user.username//+"#"+user.id
 		/*if (user.id == 483) {
 			user.avatarURL = user.bigAvatarURL = user.rawAvatarURL = "./idiot.png"
 		}*/
@@ -380,26 +404,25 @@ Myself.prototype.loadCachedAuth = function(callback) {
 Myself.prototype.getPage = function(id, callback) {
 	var $=this
 	return $.read([
-		{content: {ids: [+id]}},
+		{content: {ids: [+id], includeAbout: true}},
 		"user.0createUserId.0editUserId",
 	], {}, function(e, resp) {
 		if (!e && resp.content[0])
 			$.cb(callback, resp.content[0], resp.userMap)
 		else
 			$.cb(callback, null, {})
-	})
+	}, undefined, true)
 }
 
 Myself.prototype.getPageAndComments = function(id, callback) {
 	var $=this
 	id = +id
 	return $.read([
-		{content: {ids: [id]}},
+		{content: {ids: [id], includeAbout: true}},
 		{comment: {parentIds: [id], limit: 50, reverse: true}},
 		"user.0createUserId.0editUserId.1createUserId.1editUserId",
 	], {
 		user: "id,username,avatar",
-		comment: "content,createuserid,deleted,editdate,edituserid,id,parentid"
 	}, function(e, resp) {
 		if (!e) {
 			var page = resp.content[0]
@@ -408,27 +431,7 @@ Myself.prototype.getPageAndComments = function(id, callback) {
 			else
 				$.cb(callback, null, {}, [], [])
 		}
-	})
-}
-
-Myself.prototype.getDiscussion = function(id, callback) {
-	var $=this
-	id = +id
-	return $.read([
-		{content: {ids: [id]}},
-		{comment: {parentIds: [id], limit: 30, reverse: true}},
-		"user.0createUserId.0editUserId.1createUserId.1editUserId",
-	], {
-		user: "id,username,avatar"
-	}, function(e, resp) {
-		if (!e) {
-			var page = resp.content[0]
-			if (page)
-				$.cb(callback, page, resp.comment.reverse(), resp.userMap)
-			else
-				$.cb(callback, null, [], {})
-		}
-	})
+	}, undefined, true)
 }
 
 // This runs a callback when a user object is available
@@ -441,20 +444,6 @@ Myself.prototype.whenUser = function(id, callback) {
 	} else {
 		this.userRequests[id] = [callback]
 	}
-}
-
-Myself.prototype.getCategories = function(callback) {
-	var $=this
-	return $.read([
-		'category'
-	], {
-		category: "id,name,description,parentId"
-	}, function(e, resp) {
-		if (!e) {
-			var tree = buildCategoryTree(resp.category)
-			$.cb(callback, tree)
-		}
-	})
 }
 
 var rootCategory = {
@@ -494,7 +483,7 @@ Myself.prototype.getCategory = function(id, page, callback, pinnedCallback) {
 		} else {
 			$.cb(callback, null, [], [], {}, [])
 		}
-	})
+	}, undefined, true)
 }
 
 Myself.prototype.getNotifications = function(callback) {
@@ -559,7 +548,7 @@ Myself.prototype.getCategoryForEditing = function(id, callback) {
 				else
 					$.cb(callback, null)
 			}
-		})
+		}, undefined, true)
 	} else {
 		if ($.categoryTree) {
 			$.cb(callback, null, {})
@@ -603,10 +592,9 @@ Myself.prototype.doListenInitial = function(callback) {
 		"systemaggregate",
 		{comment:{reverse:true,limit:20}},
 		{activity:{reverse:true,limit:10}},
-		{activityaggregate:{reverse:true,limit:10}},
-		"content.1parentId.2contentId.1id", //pages
+		"content.1parentId.2contentId", //pages
 		"category.2contentId",
-		"user.1createUserId.2userId.3userIds", //users for comment and activity
+		"user.1createUserId.2userId", //users for comment and activity
 	],{content:"id,createUserId,name,permissions"},callback)
 }
 
@@ -768,7 +756,7 @@ Myself.prototype.getSettings = function(callback) {
 			} else {
 				$.cb(callback, null, null)
 			}
-		})
+		}, undefined, true)
 	} else {
 		$.cb(callback, null)
 	}
@@ -828,7 +816,7 @@ Myself.prototype.getActivity = function(page, callback) {
 		} else {
 			$.cb(callback, null, null, null, {})
 		}
-	})
+	}, undefined, true)
 }
 
 Myself.prototype.getFiles = function(query, page, callback) {
@@ -845,7 +833,7 @@ Myself.prototype.getFiles = function(query, page, callback) {
 		} else {
 			$.cb(callback, null, {})
 		}
-	})
+	}, undefined, true)
 }
 
 // load next 10 comments older than `start`
@@ -904,7 +892,7 @@ Myself.prototype.thumbnailURL = function(id) {
 }
 
 Myself.prototype.avatarURL = function(id) {
-	return this.server+"/File/raw/"+id+"?size=120"
+	return this.server+"/File/raw/"+id+"?size=120&crop=true"
 }
 
 Myself.prototype.imageURL = function(id) {
@@ -913,6 +901,19 @@ Myself.prototype.imageURL = function(id) {
 
 Myself.prototype.putFile = function(file, callback) {
 	return this.request("File/"+file.id, 'PUT', callback, file)
+}
+
+Myself.prototype.searchChat = function(text, page, callback) {
+	var $=this
+	return $.read([
+		{comment: {contentLike: text}},
+		"user.0createUserId"
+	], {}, function(e, resp) {
+		if (!e)
+			$.cb(callback, resp.comment, resp.userMap)
+		else
+			$.cb(callback, null, {})
+	})
 }
 
 Myself.prototype.search = function(text, page, callback) {
@@ -961,7 +962,7 @@ Myself.prototype.getUserPage = function(id, callback) {
 			} else
 				$.cb(callback, null, {}, [], [], [], {})
 		}
-	})
+	}, undefined, true)
 	// what we need:
 	// user object
 	// user page

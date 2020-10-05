@@ -27,6 +27,10 @@
 	unicode-bidi: embed;
 }
 
+.pre2 {
+	white-space: pre-wrap;
+}
+
 a {
 	text-decoration: none;
 	color: rgba(0,60,54);
@@ -626,6 +630,10 @@ html:not(.f-editingComment) .showWhenEdit {
 	width: 100%;
 	height: 100%;
 	resize: none;
+}
+
+html.f-editingComment #\$chatTextarea {
+	background-color: #FFFF80;
 }
 
 .chatSend {

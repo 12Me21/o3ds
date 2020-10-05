@@ -197,13 +197,15 @@ function addEvents() {
 			}
 		}
 	}
-	
-	document.onclick = function(e) {
+
+	document.addEventListener('click', function(e) {
 		var element = e.target
 		if (flags.editComment || flags.deleteComment) {
 			while (element && element instanceof HTMLElement) {
 				var id = element.getAttribute('data-id')
 				if (id) {
+					e.preventDefault() // stop clicks from activating links or whatever
+					e.stopPropagation()
 					if (flags.editComment) {
 						editComment(+id, element)
 						break
@@ -217,7 +219,7 @@ function addEvents() {
 			flag('editComment')
 			flag('deleteComment')
 		}
-	}
+	}, true) // event is triggered on root element first (I think?)
 	
 	/*$sidebar.onclick = function(e) {
 		if (e.target == $sidebarPinnedResize)
@@ -280,18 +282,34 @@ function addEvents() {
 			blockWatch = false
 		})
 	}
-	
 	$chatSend.onclick = function() {
-		if ($chatTextarea.value && currentChatRoom) {
+		var text = $chatTextarea.value
+		if (text && currentChatRoom) {
 			if (editingMessage) {
-				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value}, editingMessage)
+				me.editComment(editingMessage, text, {m:$chatMarkupSelect.value}, function(e, resp) {
+					//whatever
+				})
 				cancelEdit()
 			} else {
-				sendMessage(currentChatRoom, $chatTextarea.value, {m:$chatMarkupSelect.value})
+				if (tryCommand(text)) {
+				} else {
+					var meta = {m:$chatMarkupSelect.value}
+					if (me && me.me)
+						meta.a = me.me.avatar
+					me.postComment(currentChatRoom, text, meta, function(e, resp) {
+						if (e=="rate") {
+							debugMessage("You are sending messages too fast")
+						} else if (e) {
+							debugMessage("Failed to send message")
+							$chatTextarea.value = text
+						}
+					})
+				}
 			}
 			$chatTextarea.value = ""
 		}
 	}
+	
 	$chatTextarea.onkeypress = function(e) {
 		if (!e.shiftKey && e.keyCode == 13) {
 			$chatSend.onclick()
@@ -339,7 +357,16 @@ function addEvents() {
 			generateSearchResults(user, content)
 		})
 	}
-
+	
+	$searchChatButton.onclick = function() {
+		var search = "%\n%"+$searchInput.value+"%"
+		me.searchChat(search, 0, function(messages, users) {
+			if (!messages)
+				return
+			generateChatSearchResults(messages, users)
+		})
+	}
+	
 	var hideLock1
 	$hideGlobalStatusButton.onclick = function() {
 		if (hideLock1)
@@ -358,4 +385,26 @@ function addEvents() {
 			hideLock2 = false
 		})
 	}*/
+}
+
+var commands = {
+	eval: function(text) {
+		try {
+			var res = eval(text)
+			manager.debugMessage("result: "+res)
+		} catch(e) {
+			manager.debugMessage("Error: "+e)
+		}
+	}
+}
+
+function tryCommand(text) {
+	var command = text.match(/^\/\w+/)
+	if (!command)
+		return false
+	command = command[0].substr(1)
+	if (commands[command]) {
+		commands[command](text.substr(command.length+1))
+		return true
+	}
 }

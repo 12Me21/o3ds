@@ -95,20 +95,6 @@ function encodeComment(text, metadata) {
 	return JSON.stringify(metadata || {})+"\n"+text
 }
 
-function sendMessage(room, text, params, editId) {
-	if (editId) {
-		me.editComment(editId, text, params || {}, function(e, resp) {} )
-	} else {
-		me.postComment(room, text, params || {}, function(e, resp) {
-			if (e=="rate") {
-				debugMessage("You are sending messages too fast")
-			} else if (e) {
-				debugMessage("Failed to send message")
-			}
-		})
-	}
-}
-
 // "generate" functions operate implicitly on specific html elements, and should be in view.js
 // "render" functions often are similar but more general, and are in render.js
 // I feel like the names are backwards, sorry...
@@ -151,9 +137,11 @@ function megaAggregate(activity, ca, contents, users, category) {
 	allAct = allAct.filter(function(x) {
 		if (x.action == 'd')
 			x.content = {name: x.extra, id: x.contentId, deleted: true}
-		else if (x.type == "content")
+	   else if (x.type == "content") {
 			x.content = contentMap[x.contentId]
-		else if (x.type == "category") {
+			/*if (x.contentType == "@user.page")
+				return*/
+		} else if (x.type == "category") {
 			x.content = contentMap[x.contentId]
 		} else if (x.type == "user" && x.action!="u") {
 			x.content = users[x.contentId]
@@ -178,19 +166,23 @@ function generatePath(path) {
 // function generatePagePath - category tree paths
 
 function updateUserlist(list, listeners, userMap) {
-	list.replaceChildren()
+	var d = document.createDocumentFragment()
 	listeners && forDict(listeners, function(status, user) {
 		status = decodeStatus(status)
-		if (status) {
-			list.appendChild(renderUserListAvatar(userMap[user]))
-		}
+		if (status)
+			d.appendChild(renderUserListAvatar(userMap[user]))
 	})
+	list.replaceChildren(d)
 }
 
 var currentFavicon = null
 function changeFavicon(src) {
 	if (src == currentFavicon)
 		return
+	if (!currentFavicon) // chrome sucks
+		document.head.querySelectorAll("link[data-favicon]").forEach(function(e){
+			e.parentNode.removeChild(e)
+		})
 	currentFavicon = src
 	var link = document.createElement("link")
 	var oldLink = document.getElementById("dynamic-favicon")
@@ -262,6 +254,7 @@ function selectFile(file) {
 	fillFileFields(file)
 	$fileView.src = ""
 	$fileView.src = me.imageURL(file.id)
+	$fileURL.value = me.imageURL(file.id)
 	var doSelect = true
 	$fileView.onload = null
 	//$fileView.onerror = function() {
@@ -305,6 +298,9 @@ function getImageFile(url, callback) {
 			} else {
 				alert("can't get this file!")	
 			}
+		}
+		x.onerror = function() {
+			alert("can't download from that url. try saving the image locally and uploading")
 		}
 		x.send()
 	} catch (e) {
@@ -474,8 +470,8 @@ var views = {
 					room.page = page
 					room.users = users
 					addPinned(page)
-					comments && comments.reverse().forEach(function(comment) {
-						room.displayMessage(comment, users[comment.createUserId], true)
+					comments && comments.reverse().forEach(function(comment, i, m) {
+						room.displayMessage(comment, users[comment.createUserId], true, i == m.length-1)
 					})
 					room.loaded = true
 				}
@@ -879,6 +875,7 @@ function addPinned(page) {
 function RoomManager(element, poller) {
 	this.element = element
 	this.rooms = {}
+	this.showing = null
 	this.lp = poller
 }
 
@@ -900,14 +897,22 @@ RoomManager.prototype.updateStatuses = function(id) {
 	})
 }
 
-RoomManager.prototype.displayMessage = function(comment, users) {
+RoomManager.prototype.debugMessage = function(text) {
+	if (!this.showing)
+		return false
+	var room = this.rooms[this.showing]
+	room.scroller.embed(renderSystemMessage(String(text)))
+}
+
+RoomManager.prototype.displayMessage = function(comment, users, last) {
 	var room = this.rooms[comment.parentId]
 	if (room)
-		room.displayMessage(comment, users[comment.createUserId])
+		room.displayMessage(comment, users[comment.createUserId], false, last)
 }
 
 RoomManager.prototype.show = function(id) {
 	lp.setListening([id])
+	this.showing = id
 	forDict(this.rooms, function(room, rid) {
 		if (id != rid)
 			if (lp.statuses[rid])
@@ -963,5 +968,12 @@ function generateSearchResults(users, pages) {
 	})
 	pages.forEach(function(page) {
 		$searchResults.appendChild(renderSearchItem(page, "content"))
+	})
+}
+
+function generateChatSearchResults(messages, users) {
+	$searchResults.replaceChildren()
+	messages.forEach(function(message) {
+		$searchResults.appendChild(renderSearchItem(message, "comment", users))
 	})
 }

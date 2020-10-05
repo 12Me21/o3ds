@@ -15,7 +15,7 @@ var manager
 flag('sidebar', localStorage.getItem('sbs-sidebar') != 'false')
 
 debugMessage = function(text) {
-	scroller.embed(renderSystemMessage(String(text)))
+	//scroller.embed(renderSystemMessage(String(text)))
 }
 
 if (document.readyState == 'loading')
@@ -43,6 +43,13 @@ function ready() {
 	if (me.openRequests) {
 		loadStart()
 	}
+	if (navigator.vendor=="Google Inc.") {
+		console.log("Chrome sucks")
+		var x = document.createElement('style')
+		x.textContent = "img, .iconBg { image-rendering: -webkit-optimize-contrast; }"
+		document.head.appendChild(x)
+	}
+	
 	me.onLoadStart = loadStart
 	me.onLoadEnd = loadEnd
 	console.info("ready")
@@ -373,8 +380,8 @@ function onLogin(me) {
 		}
 	}
 	lp.onMessages = function(messages, users, pages) {
-		messages.forEach(function(comment) {
-			manager.displayMessage(comment, users)
+		messages.forEach(function(comment, i, m) {
+			manager.displayMessage(comment, users, i == m.length-1)
 		})
 	}
 	lp.onDelete = function(comments) {
@@ -397,7 +404,7 @@ function onLogin(me) {
 			//
 		}
 	})
-	me.getNotifications(function(e, resp){
+	/*me.getNotifications(function(e, resp){
 		if (!e) {
 			resp.activityaggregate.forEach(function(aa) {
 				var page = {id: aa.id}
@@ -407,10 +414,10 @@ function onLogin(me) {
 						break
 					}
 				}
-				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true)*/
+				/*pushActivity(renderNotifItem(aa, page, resp.userMap), true)
 			})
 		}
-	})
+	})*/
 }
 
 function updateListAvatar(list, user) {
@@ -469,3 +476,11 @@ function onLogout() {
 // also still need to deal with
 // old message deletion and old room clearing
 // ugh
+
+var Nav = {
+	link: function(path, element) {
+		var a = element || document.createElement('a')
+		a.href = "#"+path
+		return a
+	}
+}
